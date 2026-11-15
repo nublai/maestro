@@ -43,6 +43,13 @@ interface OriginalFile {
 	population: string;
 	line: number;
 	total_lines: number;
+	current_owner: string;
+	split_line_map: {
+		source_start: number;
+		source_end: number;
+		destination: string;
+		destination_start: number;
+	}[];
 }
 
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -161,19 +168,39 @@ try {
 		if (event.kind === "suite") return false;
 		if (event.file.endsWith(".conformance.ts"))
 			return event.titles?.[0].startsWith("Fake");
-		const entry = migration.files.find((entry) => entry.source === event.file);
-		if (!entry) return false;
-		const original = readFileSync(resolve(root, entry.archive), "utf8");
-		const position = original
-			.split("\n")
-			.slice(0, event.line - 1)
-			.reduce((n, line) => n + line.length + 1, 0);
-		return entry.selections.some(
-			(range) =>
-				position >= original.lastIndexOf("\n", range.start - 1) + 1 &&
-				position < range.end,
-		);
+		// Baseline identities carry identity-pin lines; use that blob's anchors when the pin moved.
+		return migration.files
+			.filter((entry) => entry.source === event.file)
+			.some((entry) => {
+				const original = readFileSync(
+					resolve(root, entry.baseline_archive ?? entry.archive),
+					"utf8",
+				);
+				const position = original
+					.split("\n")
+					.slice(0, event.line - 1)
+					.reduce((n, line) => n + line.length + 1, 0);
+				return entry.selections.some((range) => {
+					if (range.added) return false;
+					const start = entry.baseline_archive
+						? (range.baseline_start ?? -1)
+						: range.start;
+					const end = entry.baseline_archive
+						? (range.baseline_end ?? -1)
+						: range.end;
+					return (
+						position >= original.lastIndexOf("\n", start - 1) + 1 &&
+						position < end
+					);
+				});
+			});
 	});
+	// Cases added upstream after the identity baseline (drift carried at this pin).
+	const added = migration.files.flatMap((entry) =>
+		entry.selections
+			.filter((range) => range.added)
+			.map((range) => ({ file: entry.source, titles: range.titles })),
+	);
 	const sourceFor = new Map(
 		migration.files.map((e) => [e.destination, e.source]),
 	);
@@ -187,7 +214,10 @@ try {
 	);
 	const key = (e: Identity, file = e.file) =>
 		JSON.stringify([file, e.titles, e.skip, e.todo]);
-	const expectedKeys = expectedLeaves.map((e) => key(e)).sort();
+	const expectedKeys = [
+		...expectedLeaves.map((e) => key(e)),
+		...added.map((e) => JSON.stringify([e.file, e.titles, false, false])),
+	].sort();
 	const migrated = observed.filter(
 		(e) => e.kind !== "suite" && sourceFor.has(e.file),
 	);
@@ -230,57 +260,100 @@ try {
 				"utf8",
 			),
 		);
-		const copies: {
-			entries: { kind: string; source?: string; destination: string }[];
-		} = JSON.parse(
-			readFileSync(
-				new URL("../provenance/copy-manifest.json", import.meta.url),
-				"utf8",
-			),
-		);
-		const sourcePaths = new Set(
-			copies.entries
-				.filter((e) => e.kind === "copy" && e.source?.startsWith("maestro/"))
-				.map((e) => e.source),
-		);
 		const files = events.find((e) => e.type === "test:coverage")?.files;
 		assert(files);
-		const reports = baselineCoverage.original_files
-			.filter((f) => sourcePaths.has(f.source))
-			.map((original) => {
-				const variants = files.filter((f) => f.path === original.source);
-				assert(variants.length, `Missing coverage: ${original.source}`);
-				const lines = new Map<number, number>();
-				for (const variant of variants)
-					for (const line of variant.lines)
-						lines.set(
-							line.line,
-							Math.max(lines.get(line.line) ?? 0, line.count),
-						);
-				assert.equal(
-					lines.size,
-					original.total_lines,
-					`Original line population changed: ${original.source}`,
+		writeFileSync(
+			join(evidence, "coverage.json.gz"),
+			gzipSync(JSON.stringify(files)),
+		);
+		const baselineFiles: CoverageFile[] = JSON.parse(
+			gunzipSync(
+				readFileSync(
+					new URL("../provenance/baseline/coverage.json.gz", import.meta.url),
+				),
+			).toString("utf8"),
+		).files;
+		/** Union line hits across reload-query variants of one path. */
+		const hits = (population: CoverageFile[], path: string) => {
+			const lines = new Map<number, number>();
+			for (const variant of population.filter((f) => f.path === path))
+				for (const line of variant.lines)
+					lines.set(line.line, Math.max(lines.get(line.line) ?? 0, line.count));
+			return lines;
+		};
+		const owned = baselineCoverage.original_files.filter(
+			(f) => f.current_owner === "@nubl/maestro",
+		);
+		const failures: string[] = [];
+		const reports = owned.map((original) => {
+			const before = hits(baselineFiles, original.source);
+			assert.equal(before.size, original.total_lines, original.source);
+			// Original lines carried byte-identically (or re-indented) into the copy.
+			const pairs = original.split_line_map.flatMap((range) =>
+				Array.from(
+					{ length: range.source_end - range.source_start + 1 },
+					(_, offset) => ({
+						source: range.source_start + offset,
+						destination: range.destination,
+						line: range.destination_start + offset,
+					}),
+				),
+			);
+			assert(pairs.length, `No line map: ${original.source}`);
+			const destinations = [...new Set(pairs.map((pair) => pair.destination))];
+			const after = new Map(
+				destinations.map((path) => [path, hits(files, path)]),
+			);
+			for (const path of destinations)
+				assert(after.get(path)?.size, `Missing coverage: ${path}`);
+			const wholeFile = pairs.length === original.total_lines;
+			const covered = pairs.filter(
+				(pair) => (after.get(pair.destination)?.get(pair.line) ?? 0) > 0,
+			).length;
+			const percent = (100 * covered) / pairs.length;
+			// A whole-file copy keeps the M1 original-file floor exactly; a file changed
+			// upstream since the baseline is held to the baseline hit rate on the same lines.
+			const floor = wholeFile
+				? original.line
+				: (100 *
+						pairs.filter((pair) => (before.get(pair.source) ?? 0) > 0).length) /
+					pairs.length;
+			if (percent < floor)
+				failures.push(
+					`${original.source}: ${percent}% < original-line floor ${floor}%`,
 				);
-				const covered = [...lines.values()].filter((count) => count > 0).length;
-				const percent = (100 * covered) / lines.size;
-				assert(
-					percent >= original.line,
-					`${original.source}: ${percent}% < original-file floor ${original.line}%`,
-				);
-				return {
-					source: original.source,
-					population: original.population,
-					covered,
-					total: lines.size,
-					line: percent,
-					floor: original.line,
-				};
-			});
+			const destinationLines = destinations.reduce(
+				(n, path) => n + (after.get(path)?.size ?? 0),
+				0,
+			);
+			const destinationCovered = destinations.reduce(
+				(n, path) =>
+					n +
+					[...(after.get(path)?.values() ?? [])].filter((count) => count > 0)
+						.length,
+				0,
+			);
+			return {
+				source: original.source,
+				population: original.population,
+				covered,
+				total: pairs.length,
+				line: percent,
+				floor,
+				original_file_floor: original.line,
+				mapped_lines: `${pairs.length}/${original.total_lines}`,
+				destination_line: (100 * destinationCovered) / destinationLines,
+			};
+		});
+		writeFileSync(
+			join(evidence, "coverage-files.json"),
+			JSON.stringify(reports, null, "\t") + "\n",
+		);
+		assert.deepEqual(failures, [], "Per-file coverage regressed");
 		assert.equal(
 			reports.length,
-			40,
-			"M2 must account for all 40 measured original files (three additional copied core modules are type-only)",
+			owned.length,
+			"Every measured original file now owned here must be accounted for",
 		);
 		const populations = [...new Set(reports.map((f) => f.population))].map(
 			(population) => {
@@ -305,17 +378,13 @@ try {
 			counts: summary.counts,
 			migrated_tests: migrated.length,
 			method:
-				"Original-file line-hit union; per-file non-regression; arithmetic means and weighted ratios reported. Full runtime/surfaces combined gates remain M6/H2.",
+				"Original-file line-hit union mapped through coverage-manifest split_line_map; per-file non-regression (whole-file copies: M1 original-file floor; files changed upstream after the baseline: baseline hit rate on the same mapped lines; destination-file coverage reported). Arithmetic means and weighted ratios reported. Full runtime/surfaces combined gates remain M6/H2.",
 			files: reports,
 			populations,
 		};
 		writeFileSync(
 			join(evidence, "coverage.json"),
 			JSON.stringify(report, null, "\t") + "\n",
-		);
-		writeFileSync(
-			join(evidence, "coverage.json.gz"),
-			gzipSync(JSON.stringify(files)),
 		);
 		console.log(JSON.stringify(populations, null, 2));
 	}

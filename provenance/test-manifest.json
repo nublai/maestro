@@ -603,7 +603,7 @@
 		{
 			"source": "test/test.ts",
 			"fate": "split",
-			"reason": "Mixed 17,644-line suite: migrate every test by title/line manifest; engine/schema/protocol cases move, Herdr/widget/host-composition cases stay (§5)."
+			"reason": "Mixed 17,644-line suite: migrate every test by title/line manifest; engine/schema/protocol cases move, Herdr/widget/host-composition cases stay (\u00a75)."
 		},
 		{
 			"source": "test/verify-lab-guards.test.ts",
@@ -765,6 +765,143 @@
 			"destination": "test/maestro/herdr-core-execution.test.ts",
 			"whole": false,
 			"map": "m2-test-map.json"
+		},
+		{
+			"source": "test/maestro/accept-recheck.test.ts",
+			"destination": "test/maestro/accept-recheck.test.ts",
+			"map": "m3-test-map.json",
+			"whole": true
+		},
+		{
+			"source": "test/maestro/audit-reload.test.ts",
+			"destination": "test/maestro/audit-reload.test.ts",
+			"map": "m3-test-map.json",
+			"whole": true
+		},
+		{
+			"source": "test/maestro/pi-run-session.test.ts",
+			"destination": "test/maestro/pi-run-session.test.ts",
+			"map": "m3-test-map.json"
+		},
+		{
+			"source": "test/maestro/audit-fork.test.ts",
+			"destination": "test/maestro/audit-fork.test.ts",
+			"map": "m3-test-map.json"
+		},
+		{
+			"source": "test/maestro/git-handoff-async.test.ts",
+			"destination": "test/maestro/git-handoff-async.test.ts",
+			"map": "m3-test-map.json",
+			"whole": true
+		},
+		{
+			"source": "test/maestro/pi-harness-adapter.test.ts",
+			"destination": "test/maestro/pi-harness-adapter.test.ts",
+			"map": "m3-test-map.json"
+		},
+		{
+			"source": "test/maestro/pi-readiness-windows.test.ts",
+			"destination": "test/maestro/pi-readiness-windows.test.ts",
+			"map": "m3-test-map.json",
+			"whole": true
+		},
+		{
+			"source": "test/maestro/process-cleanup.test.ts",
+			"destination": "test/maestro/process-cleanup.test.ts",
+			"map": "m3-test-map.json",
+			"whole": true
+		},
+		{
+			"source": "test/maestro/process-environment.test.ts",
+			"destination": "test/maestro/process-environment.test.ts",
+			"map": "m3-test-map.json"
+		},
+		{
+			"source": "test/maestro/process-identity.test.ts",
+			"destination": "test/maestro/process-identity.test.ts",
+			"map": "m3-test-map.json"
+		},
+		{
+			"source": "test/maestro/process-tree.test.ts",
+			"destination": "test/maestro/process-tree.test.ts",
+			"map": "m3-test-map.json",
+			"whole": true
+		},
+		{
+			"source": "test/maestro/worktree-operations.test.ts",
+			"destination": "test/maestro/worktree-operations.test.ts",
+			"map": "m3-test-map.json",
+			"whole": true
+		},
+		{
+			"source": "test/maestro/audit-ownership.test.ts",
+			"destination": "test/maestro/audit-ownership.test.ts",
+			"map": "m3-test-map.json"
+		},
+		{
+			"source": "test/maestro/delegated-marker.test.ts",
+			"destination": "test/maestro/delegated-marker.test.ts",
+			"map": "m3-test-map.json"
+		},
+		{
+			"source": "test/maestro/accept-shutdown.test.ts",
+			"destination": "test/maestro/accept-shutdown.test.ts",
+			"map": "m3-test-map.json"
+		},
+		{
+			"source": "test/maestro/specialist-notice.test.ts",
+			"destination": "test/maestro/specialist-notice.test.ts",
+			"map": "m3-test-map.json"
+		},
+		{
+			"source": "test/launch.test.ts",
+			"destination": "test/launch.test.ts",
+			"map": "m3-test-map.json"
+		},
+		{
+			"source": "test/maestro/accept-check.test.ts",
+			"destination": "test/maestro/accept-check-pi.test.ts",
+			"map": "m3-test-map.json"
+		},
+		{
+			"source": "test/maestro/declared-skills.test.ts",
+			"destination": "test/maestro/declared-skills-pi.test.ts",
+			"map": "m3-test-map.json"
+		},
+		{
+			"source": "test/maestro/task-model-init.test.ts",
+			"destination": "test/maestro/task-model-init-pi.test.ts",
+			"map": "m3-test-map.json"
+		},
+		{
+			"source": "test/maestro/script-launch.test.ts",
+			"destination": "test/maestro/script-launch-pi.test.ts",
+			"map": "m3-test-map.json"
+		},
+		{
+			"source": "test/maestro/windows-support-scope.test.ts",
+			"destination": "test/maestro/windows-support-scope-pi.test.ts",
+			"map": "m3-test-map.json"
+		},
+		{
+			"source": "test/maestro/herdr-core-execution.test.ts",
+			"destination": "test/maestro/herdr-core-execution-pi.test.ts",
+			"map": "m3-test-map.json"
+		},
+		{
+			"source": "test/worktree-cleanup.test.ts",
+			"destination": "test/worktree-cleanup-pi.test.ts",
+			"map": "m3-test-map.json"
+		},
+		{
+			"source": "test/runtime-routing.test.ts",
+			"destination": "test/runtime-routing-pi.test.ts",
+			"map": "m3-test-map.json"
+		},
+		{
+			"source": "test/test.ts",
+			"destination": "test/pi-monolith.test.ts",
+			"map": "m3-test-map.json"
 		}
 	],
 	"retained_unit_entries": [
@@ -871,7 +1008,33 @@
 		"test/core-routing.test.ts",
 		"test/core-discovery.test.ts",
 		"test/core-finalize.test.ts",
-		"test/core-cleanup.test.ts"
+		"test/core-cleanup.test.ts",
+		"test/maestro/accept-recheck.test.ts",
+		"test/maestro/audit-reload.test.ts",
+		"test/maestro/pi-run-session.test.ts",
+		"test/maestro/audit-fork.test.ts",
+		"test/maestro/git-handoff-async.test.ts",
+		"test/maestro/pi-harness-adapter.test.ts",
+		"test/maestro/pi-readiness-windows.test.ts",
+		"test/maestro/process-cleanup.test.ts",
+		"test/maestro/process-environment.test.ts",
+		"test/maestro/process-identity.test.ts",
+		"test/maestro/process-tree.test.ts",
+		"test/maestro/worktree-operations.test.ts",
+		"test/maestro/audit-ownership.test.ts",
+		"test/maestro/delegated-marker.test.ts",
+		"test/maestro/accept-shutdown.test.ts",
+		"test/maestro/specialist-notice.test.ts",
+		"test/launch.test.ts",
+		"test/maestro/accept-check-pi.test.ts",
+		"test/maestro/declared-skills-pi.test.ts",
+		"test/maestro/task-model-init-pi.test.ts",
+		"test/maestro/script-launch-pi.test.ts",
+		"test/maestro/windows-support-scope-pi.test.ts",
+		"test/maestro/herdr-core-execution-pi.test.ts",
+		"test/worktree-cleanup-pi.test.ts",
+		"test/runtime-routing-pi.test.ts",
+		"test/pi-monolith.test.ts"
 	],
 	"identity_ledger": "baseline/test-identities.json.gz",
 	"identity_capture": "evidence/baseline-final/baseline.jsonl",

@@ -1,0 +1,3809 @@
+{
+	"copy_sha": "27dee407403906d5bac359702e21a04309be2f64",
+	"identity_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+	"import_mappings": [
+		{
+			"from": "../../maestro/adapters/pi/child/subagent-done.ts",
+			"to": "../../maestro/adapters/pi/child/protocol.ts"
+		},
+		{
+			"from": "../maestro/adapters/pi/child/subagent-done.ts",
+			"to": "../maestro/adapters/pi/child/protocol.ts"
+		},
+		{
+			"from": "../../maestro/surfaces/herdr/herdr-socket.ts",
+			"to": "../../maestro/runtime/delegated-marker.ts"
+		}
+	],
+	"files": [
+		{
+			"source": "test/maestro/accept-recheck.test.ts",
+			"destination": "test/maestro/accept-recheck.test.ts",
+			"whole": true,
+			"selections": [
+				{
+					"start": 1451,
+					"end": 1547,
+					"line": 41
+				},
+				{
+					"start": 1599,
+					"end": 1756,
+					"line": 45
+				},
+				{
+					"start": 1758,
+					"end": 2083,
+					"line": 50
+				},
+				{
+					"start": 2085,
+					"end": 5929,
+					"line": 62
+				},
+				{
+					"start": 5931,
+					"end": 6372,
+					"line": 214
+				},
+				{
+					"start": 6374,
+					"end": 6489,
+					"line": 228
+				},
+				{
+					"start": 6491,
+					"end": 7809,
+					"line": 235
+				},
+				{
+					"start": 7811,
+					"end": 8464,
+					"line": 278
+				},
+				{
+					"start": 8466,
+					"end": 9038,
+					"line": 294
+				},
+				{
+					"start": 9040,
+					"end": 10496,
+					"line": 314
+				},
+				{
+					"start": 10498,
+					"end": 11163,
+					"line": 347
+				},
+				{
+					"start": 11165,
+					"end": 11855,
+					"line": 368
+				},
+				{
+					"start": 11931,
+					"end": 13254,
+					"line": 391
+				},
+				{
+					"start": 13256,
+					"end": 13336,
+					"line": 438
+				},
+				{
+					"start": 13338,
+					"end": 13530,
+					"line": 440
+				},
+				{
+					"start": 13583,
+					"end": 13837,
+					"line": 449
+				},
+				{
+					"start": 13910,
+					"end": 14003,
+					"line": 460
+				},
+				{
+					"start": 14005,
+					"end": 15102,
+					"line": 464
+				},
+				{
+					"start": 15104,
+					"end": 15640,
+					"line": 492
+				},
+				{
+					"start": 15642,
+					"end": 17495,
+					"line": 508
+				},
+				{
+					"start": 17497,
+					"end": 18785,
+					"line": 554
+				}
+			],
+			"helpers": [],
+			"archive": "provenance/upstream/test/maestro/accept-recheck.test.ts",
+			"blob": "364e3d90cde088d8964de1d9fc058740a666dea1"
+		},
+		{
+			"source": "test/maestro/audit-reload.test.ts",
+			"destination": "test/maestro/audit-reload.test.ts",
+			"whole": true,
+			"selections": [
+				{
+					"start": 711,
+					"end": 1413,
+					"line": 16
+				},
+				{
+					"start": 1415,
+					"end": 2182,
+					"line": 47
+				},
+				{
+					"start": 2184,
+					"end": 2956,
+					"line": 71
+				},
+				{
+					"start": 2958,
+					"end": 7616,
+					"line": 104
+				},
+				{
+					"start": 7618,
+					"end": 9266,
+					"line": 241
+				},
+				{
+					"start": 9268,
+					"end": 10926,
+					"line": 288
+				},
+				{
+					"start": 10928,
+					"end": 12436,
+					"line": 333
+				}
+			],
+			"helpers": [],
+			"archive": "provenance/upstream/test/maestro/audit-reload.test.ts",
+			"blob": "660c026f28e81093fce523a59bdddabafb55942e"
+		},
+		{
+			"source": "test/maestro/pi-run-session.test.ts",
+			"destination": "test/maestro/pi-run-session.test.ts",
+			"selections": [
+				{
+					"start": 1913,
+					"end": 3964,
+					"line": 57,
+					"baseline_start": 1913,
+					"baseline_end": 3964
+				},
+				{
+					"start": 3966,
+					"end": 4741,
+					"line": 120,
+					"baseline_start": 3966,
+					"baseline_end": 4741
+				},
+				{
+					"start": 6628,
+					"end": 7632,
+					"line": 198,
+					"baseline_start": 6628,
+					"baseline_end": 7632
+				},
+				{
+					"start": 7634,
+					"end": 8429,
+					"line": 222,
+					"baseline_start": 7634,
+					"baseline_end": 8429
+				},
+				{
+					"start": 8431,
+					"end": 9444,
+					"line": 244,
+					"baseline_start": 8431,
+					"baseline_end": 9444
+				},
+				{
+					"start": 9446,
+					"end": 10270,
+					"line": 276,
+					"baseline_start": 9446,
+					"baseline_end": 10270
+				},
+				{
+					"start": 10272,
+					"end": 13178,
+					"line": 301,
+					"baseline_start": 10272,
+					"baseline_end": 13178
+				},
+				{
+					"start": 17585,
+					"end": 19543,
+					"line": 576,
+					"baseline_start": 17585,
+					"baseline_end": 19543
+				},
+				{
+					"start": 19907,
+					"end": 24502,
+					"line": 642,
+					"modified": true,
+					"baseline_start": 19907,
+					"baseline_end": 24460
+				},
+				{
+					"start": 24504,
+					"end": 26709,
+					"line": 766,
+					"baseline_start": 24462,
+					"baseline_end": 26667
+				},
+				{
+					"start": 26711,
+					"end": 28159,
+					"line": 837,
+					"baseline_start": 26669,
+					"baseline_end": 28117
+				},
+				{
+					"start": 28161,
+					"end": 29286,
+					"line": 879,
+					"baseline_start": 28119,
+					"baseline_end": 29244
+				},
+				{
+					"start": 29288,
+					"end": 30172,
+					"line": 918,
+					"baseline_start": 29246,
+					"baseline_end": 30130
+				},
+				{
+					"start": 30174,
+					"end": 30986,
+					"line": 941,
+					"baseline_start": 30132,
+					"baseline_end": 30944
+				},
+				{
+					"start": 31416,
+					"end": 32599,
+					"line": 976,
+					"baseline_start": 31374,
+					"baseline_end": 32557
+				},
+				{
+					"start": 32601,
+					"end": 35390,
+					"line": 1010,
+					"baseline_start": 32559,
+					"baseline_end": 35348
+				},
+				{
+					"start": 35392,
+					"end": 37236,
+					"line": 1084,
+					"baseline_start": 35350,
+					"baseline_end": 37194
+				},
+				{
+					"start": 37238,
+					"end": 39655,
+					"line": 1144,
+					"baseline_start": 37196,
+					"baseline_end": 39613
+				},
+				{
+					"start": 39657,
+					"end": 41954,
+					"line": 1221,
+					"baseline_start": 39615,
+					"baseline_end": 41912
+				},
+				{
+					"start": 41956,
+					"end": 42580,
+					"line": 1299,
+					"baseline_start": 41914,
+					"baseline_end": 42538
+				},
+				{
+					"start": 42582,
+					"end": 43539,
+					"line": 1321,
+					"baseline_start": 42540,
+					"baseline_end": 43497
+				},
+				{
+					"start": 43541,
+					"end": 44838,
+					"line": 1346,
+					"baseline_start": 43499,
+					"baseline_end": 44796
+				},
+				{
+					"start": 44840,
+					"end": 45847,
+					"line": 1382,
+					"baseline_start": 44798,
+					"baseline_end": 45805
+				},
+				{
+					"start": 45849,
+					"end": 47015,
+					"line": 1416,
+					"baseline_start": 45807,
+					"baseline_end": 46973
+				},
+				{
+					"start": 47017,
+					"end": 48047,
+					"line": 1452,
+					"baseline_start": 46975,
+					"baseline_end": 48005
+				},
+				{
+					"start": 48049,
+					"end": 48963,
+					"line": 1478,
+					"baseline_start": 48007,
+					"baseline_end": 48921
+				},
+				{
+					"start": 48965,
+					"end": 49638,
+					"line": 1506,
+					"baseline_start": 48923,
+					"baseline_end": 49596
+				},
+				{
+					"start": 49640,
+					"end": 51070,
+					"line": 1525,
+					"baseline_start": 49598,
+					"baseline_end": 51028
+				},
+				{
+					"start": 51072,
+					"end": 52044,
+					"line": 1573,
+					"baseline_start": 51030,
+					"baseline_end": 52002
+				},
+				{
+					"start": 52046,
+					"end": 53196,
+					"line": 1603,
+					"baseline_start": 52004,
+					"baseline_end": 53154
+				},
+				{
+					"start": 53198,
+					"end": 54029,
+					"line": 1637,
+					"baseline_start": 53156,
+					"baseline_end": 53987
+				},
+				{
+					"start": 54031,
+					"end": 54975,
+					"line": 1662,
+					"baseline_start": 53989,
+					"baseline_end": 54933
+				},
+				{
+					"start": 54977,
+					"end": 55684,
+					"line": 1694,
+					"baseline_start": 54935,
+					"baseline_end": 55642
+				},
+				{
+					"start": 55686,
+					"end": 57381,
+					"line": 1715,
+					"baseline_start": 55644,
+					"baseline_end": 57339
+				},
+				{
+					"start": 57383,
+					"end": 58300,
+					"line": 1761,
+					"baseline_start": 57341,
+					"baseline_end": 58258
+				},
+				{
+					"start": 58302,
+					"end": 59414,
+					"line": 1792,
+					"baseline_start": 58260,
+					"baseline_end": 59372
+				},
+				{
+					"start": 59416,
+					"end": 60306,
+					"line": 1822,
+					"baseline_start": 59374,
+					"baseline_end": 60264
+				},
+				{
+					"start": 60308,
+					"end": 61572,
+					"line": 1845,
+					"baseline_start": 60266,
+					"baseline_end": 61530
+				},
+				{
+					"start": 61574,
+					"end": 62864,
+					"line": 1883,
+					"baseline_start": 61532,
+					"baseline_end": 62822
+				},
+				{
+					"start": 65008,
+					"end": 66575,
+					"line": 1994,
+					"baseline_start": 64966,
+					"baseline_end": 66533
+				},
+				{
+					"start": 66577,
+					"end": 67624,
+					"line": 2042,
+					"baseline_start": 66535,
+					"baseline_end": 67582
+				},
+				{
+					"start": 67626,
+					"end": 68044,
+					"line": 2068,
+					"baseline_start": 67584,
+					"baseline_end": 68002
+				},
+				{
+					"start": 68046,
+					"end": 68919,
+					"line": 2082,
+					"baseline_start": 68004,
+					"baseline_end": 68877
+				},
+				{
+					"start": 68921,
+					"end": 69475,
+					"line": 2107,
+					"baseline_start": 68879,
+					"baseline_end": 69433
+				},
+				{
+					"start": 69477,
+					"end": 70085,
+					"line": 2124,
+					"baseline_start": 69435,
+					"baseline_end": 70043
+				},
+				{
+					"start": 70087,
+					"end": 70851,
+					"line": 2143,
+					"baseline_start": 70045,
+					"baseline_end": 70809
+				},
+				{
+					"start": 70853,
+					"end": 72524,
+					"line": 2166,
+					"baseline_start": 70811,
+					"baseline_end": 72482
+				}
+			],
+			"helpers": [
+				{
+					"start": 13180,
+					"end": 13253,
+					"line": 390
+				},
+				{
+					"start": 13254,
+					"end": 13526,
+					"line": 391
+				},
+				{
+					"start": 13527,
+					"end": 17583,
+					"line": 403
+				},
+				{
+					"start": 19545,
+					"end": 19905,
+					"line": 623
+				},
+				{
+					"start": 31074,
+					"end": 31414,
+					"line": 966
+				},
+				{
+					"start": 62866,
+					"end": 62946,
+					"line": 1921
+				},
+				{
+					"start": 63013,
+					"end": 64433,
+					"line": 1928
+				},
+				{
+					"start": 64486,
+					"end": 64685,
+					"line": 1979
+				},
+				{
+					"start": 64758,
+					"end": 65006,
+					"line": 1987
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/pi-run-session.test.ts",
+			"blob": "c997e0e9b808353280bb30784e4a76289edad839",
+			"baseline_archive": "provenance/baseline/upstream/test/maestro/pi-run-session.test.ts",
+			"baseline_blob": "9fd1de503ed173fa323fadbc0462e369330ed7a2"
+		},
+		{
+			"source": "test/maestro/audit-fork.test.ts",
+			"destination": "test/maestro/audit-fork.test.ts",
+			"selections": [
+				{
+					"start": 1726,
+					"end": 2209,
+					"line": 49
+				},
+				{
+					"start": 2212,
+					"end": 3006,
+					"line": 63
+				},
+				{
+					"start": 3009,
+					"end": 4347,
+					"line": 81
+				},
+				{
+					"start": 4350,
+					"end": 4664,
+					"line": 116
+				},
+				{
+					"start": 4667,
+					"end": 5168,
+					"line": 126
+				}
+			],
+			"helpers": [
+				{
+					"start": 470,
+					"end": 1414,
+					"line": 11
+				},
+				{
+					"start": 1416,
+					"end": 1547,
+					"line": 40
+				},
+				{
+					"start": 1549,
+					"end": 1675,
+					"line": 44
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/audit-fork.test.ts",
+			"blob": "c76e16089245aa0d0254bd3ed723e7aa40f43156"
+		},
+		{
+			"source": "test/maestro/git-handoff-async.test.ts",
+			"destination": "test/maestro/git-handoff-async.test.ts",
+			"selections": [
+				{
+					"start": 1787,
+					"end": 2655,
+					"line": 62
+				},
+				{
+					"start": 2657,
+					"end": 3296,
+					"line": 93
+				},
+				{
+					"start": 3298,
+					"end": 4162,
+					"line": 110
+				}
+			],
+			"helpers": [
+				{
+					"start": 536,
+					"end": 563,
+					"line": 15
+				},
+				{
+					"start": 564,
+					"end": 1388,
+					"line": 16
+				},
+				{
+					"start": 1389,
+					"end": 1502,
+					"line": 48
+				},
+				{
+					"start": 1503,
+					"end": 1785,
+					"line": 49
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/git-handoff-async.test.ts",
+			"blob": "c73db0e03612dbc8394be2f4bbda5f1820a17bf2",
+			"retained": [
+				{
+					"line": 130,
+					"reason": "Source-scan guard reads the retained Herdr provider/CLI files (maestro/surfaces/herdr/*) by constructed path; stays with them upstream."
+				}
+			]
+		},
+		{
+			"source": "test/maestro/pi-harness-adapter.test.ts",
+			"destination": "test/maestro/pi-harness-adapter.test.ts",
+			"selections": [
+				{
+					"start": 4263,
+					"end": 5777,
+					"line": 154
+				},
+				{
+					"start": 5779,
+					"end": 7047,
+					"line": 196
+				},
+				{
+					"start": 7049,
+					"end": 8034,
+					"line": 234
+				},
+				{
+					"start": 8036,
+					"end": 9629,
+					"line": 265
+				},
+				{
+					"start": 9631,
+					"end": 10791,
+					"line": 317
+				},
+				{
+					"start": 10793,
+					"end": 12138,
+					"line": 349
+				},
+				{
+					"start": 12140,
+					"end": 13129,
+					"line": 389
+				},
+				{
+					"start": 13131,
+					"end": 14588,
+					"line": 422
+				},
+				{
+					"start": 14590,
+					"end": 15206,
+					"line": 467
+				},
+				{
+					"start": 15208,
+					"end": 15566,
+					"line": 486
+				},
+				{
+					"start": 15568,
+					"end": 16337,
+					"line": 496
+				},
+				{
+					"start": 16339,
+					"end": 17659,
+					"line": 519
+				},
+				{
+					"start": 17661,
+					"end": 18729,
+					"line": 555
+				},
+				{
+					"start": 18731,
+					"end": 19389,
+					"line": 592
+				},
+				{
+					"start": 19391,
+					"end": 20110,
+					"line": 617
+				},
+				{
+					"start": 20112,
+					"end": 20956,
+					"line": 635
+				},
+				{
+					"start": 20958,
+					"end": 22656,
+					"line": 661
+				},
+				{
+					"start": 22658,
+					"end": 23545,
+					"line": 706
+				},
+				{
+					"start": 23547,
+					"end": 24503,
+					"line": 740
+				},
+				{
+					"start": 24505,
+					"end": 25820,
+					"line": 769
+				},
+				{
+					"start": 25822,
+					"end": 27116,
+					"line": 805
+				},
+				{
+					"start": 27118,
+					"end": 28227,
+					"line": 851
+				},
+				{
+					"start": 28229,
+					"end": 28788,
+					"line": 892
+				},
+				{
+					"start": 31543,
+					"end": 32083,
+					"line": 1003
+				},
+				{
+					"start": 32085,
+					"end": 32777,
+					"line": 1019
+				},
+				{
+					"start": 32779,
+					"end": 33234,
+					"line": 1033
+				},
+				{
+					"start": 33236,
+					"end": 33964,
+					"line": 1043
+				},
+				{
+					"start": 33966,
+					"end": 34359,
+					"line": 1063
+				},
+				{
+					"start": 34361,
+					"end": 35049,
+					"line": 1073
+				},
+				{
+					"start": 35051,
+					"end": 35441,
+					"line": 1092
+				},
+				{
+					"start": 35443,
+					"end": 35969,
+					"line": 1102
+				},
+				{
+					"start": 35971,
+					"end": 36398,
+					"line": 1115
+				},
+				{
+					"start": 36400,
+					"end": 36805,
+					"line": 1128
+				},
+				{
+					"start": 36807,
+					"end": 37313,
+					"line": 1140
+				},
+				{
+					"start": 37315,
+					"end": 37964,
+					"line": 1153
+				},
+				{
+					"start": 37966,
+					"end": 38387,
+					"line": 1173
+				},
+				{
+					"start": 38389,
+					"end": 38958,
+					"line": 1181
+				},
+				{
+					"start": 38960,
+					"end": 39328,
+					"line": 1194
+				},
+				{
+					"start": 39330,
+					"end": 40207,
+					"line": 1205
+				},
+				{
+					"start": 40209,
+					"end": 40791,
+					"line": 1228
+				},
+				{
+					"start": 40891,
+					"end": 41589,
+					"line": 1243
+				},
+				{
+					"start": 41591,
+					"end": 42081,
+					"line": 1258
+				},
+				{
+					"start": 42083,
+					"end": 42656,
+					"line": 1269
+				},
+				{
+					"start": 42658,
+					"end": 43137,
+					"line": 1282
+				},
+				{
+					"start": 43139,
+					"end": 44591,
+					"line": 1296
+				},
+				{
+					"start": 44593,
+					"end": 45617,
+					"line": 1341
+				},
+				{
+					"start": 45619,
+					"end": 46188,
+					"line": 1370
+				},
+				{
+					"start": 46190,
+					"end": 46815,
+					"line": 1384
+				}
+			],
+			"helpers": [
+				{
+					"start": 28855,
+					"end": 28923,
+					"line": 910
+				},
+				{
+					"start": 28925,
+					"end": 29056,
+					"line": 911
+				},
+				{
+					"start": 29058,
+					"end": 29106,
+					"line": 917
+				},
+				{
+					"start": 29181,
+					"end": 29701,
+					"line": 919
+				},
+				{
+					"start": 29703,
+					"end": 29800,
+					"line": 941
+				},
+				{
+					"start": 29802,
+					"end": 31541,
+					"line": 946
+				},
+				{
+					"start": 40793,
+					"end": 40889,
+					"line": 1240
+				},
+				{
+					"start": 1584,
+					"end": 1670,
+					"line": 44
+				},
+				{
+					"start": 1672,
+					"end": 1758,
+					"line": 47
+				},
+				{
+					"start": 1759,
+					"end": 4056,
+					"line": 52
+				},
+				{
+					"start": 4057,
+					"end": 4223,
+					"line": 142
+				},
+				{
+					"start": 50893,
+					"end": 51043,
+					"line": 1544
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/pi-harness-adapter.test.ts",
+			"blob": "004f2fc004700ce88a4b188449133a90be9d7a94"
+		},
+		{
+			"source": "test/maestro/pi-readiness-windows.test.ts",
+			"destination": "test/maestro/pi-readiness-windows.test.ts",
+			"whole": true,
+			"selections": [
+				{
+					"start": 193,
+					"end": 261,
+					"line": 6
+				},
+				{
+					"start": 262,
+					"end": 293,
+					"line": 7
+				},
+				{
+					"start": 361,
+					"end": 502,
+					"line": 10
+				},
+				{
+					"start": 662,
+					"end": 870,
+					"line": 15
+				},
+				{
+					"start": 872,
+					"end": 961,
+					"line": 30
+				},
+				{
+					"start": 1037,
+					"end": 1133,
+					"line": 36
+				},
+				{
+					"start": 1135,
+					"end": 1272,
+					"line": 40
+				},
+				{
+					"start": 1274,
+					"end": 1400,
+					"line": 43
+				},
+				{
+					"start": 1402,
+					"end": 1756,
+					"line": 47
+				},
+				{
+					"start": 1758,
+					"end": 1979,
+					"line": 62
+				},
+				{
+					"start": 1981,
+					"end": 2624,
+					"line": 67
+				},
+				{
+					"start": 2626,
+					"end": 3976,
+					"line": 86
+				},
+				{
+					"start": 3978,
+					"end": 4228,
+					"line": 127
+				},
+				{
+					"start": 4230,
+					"end": 4801,
+					"line": 135
+				},
+				{
+					"start": 4803,
+					"end": 4947,
+					"line": 151
+				},
+				{
+					"start": 4949,
+					"end": 5553,
+					"line": 155
+				}
+			],
+			"helpers": [],
+			"archive": "provenance/upstream/test/maestro/pi-readiness-windows.test.ts",
+			"blob": "7b8636e67af44ccb1b9555c86b091f3c352e9218"
+		},
+		{
+			"source": "test/maestro/process-cleanup.test.ts",
+			"destination": "test/maestro/process-cleanup.test.ts",
+			"whole": true,
+			"selections": [
+				{
+					"start": 427,
+					"end": 543,
+					"line": 14
+				},
+				{
+					"start": 545,
+					"end": 1180,
+					"line": 17
+				},
+				{
+					"start": 1413,
+					"end": 2378,
+					"line": 50
+				}
+			],
+			"helpers": [],
+			"archive": "provenance/upstream/test/maestro/process-cleanup.test.ts",
+			"blob": "cac20cafe03dacd02e7e07f9df7889276c25f341"
+		},
+		{
+			"source": "test/maestro/process-environment.test.ts",
+			"destination": "test/maestro/process-environment.test.ts",
+			"selections": [
+				{
+					"start": 540,
+					"end": 1223,
+					"line": 17
+				},
+				{
+					"start": 1226,
+					"end": 1955,
+					"line": 42
+				}
+			],
+			"helpers": [
+				{
+					"start": 368,
+					"end": 411,
+					"line": 12
+				},
+				{
+					"start": 412,
+					"end": 497,
+					"line": 13
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/process-environment.test.ts",
+			"blob": "1a808fde26cc91c6d1ffc83bdcafa3688445aabe"
+		},
+		{
+			"source": "test/maestro/process-identity.test.ts",
+			"destination": "test/maestro/process-identity.test.ts",
+			"selections": [
+				{
+					"start": 5553,
+					"end": 5972,
+					"line": 196
+				},
+				{
+					"start": 5975,
+					"end": 7205,
+					"line": 209
+				},
+				{
+					"start": 7208,
+					"end": 8235,
+					"line": 244
+				},
+				{
+					"start": 8238,
+					"end": 9482,
+					"line": 279
+				},
+				{
+					"start": 9485,
+					"end": 10127,
+					"line": 322
+				},
+				{
+					"start": 12710,
+					"end": 13234,
+					"line": 417
+				},
+				{
+					"start": 13237,
+					"end": 15062,
+					"line": 439
+				},
+				{
+					"start": 15065,
+					"end": 15320,
+					"line": 500
+				},
+				{
+					"start": 15323,
+					"end": 15650,
+					"line": 508
+				},
+				{
+					"start": 15653,
+					"end": 16766,
+					"line": 518
+				},
+				{
+					"start": 16769,
+					"end": 17531,
+					"line": 555
+				},
+				{
+					"start": 17534,
+					"end": 17916,
+					"line": 577
+				}
+			],
+			"helpers": [
+				{
+					"start": 819,
+					"end": 862,
+					"line": 30
+				},
+				{
+					"start": 863,
+					"end": 931,
+					"line": 31
+				},
+				{
+					"start": 932,
+					"end": 989,
+					"line": 32
+				},
+				{
+					"start": 990,
+					"end": 1174,
+					"line": 33
+				},
+				{
+					"start": 1176,
+					"end": 1221,
+					"line": 43
+				},
+				{
+					"start": 1222,
+					"end": 1633,
+					"line": 44
+				},
+				{
+					"start": 1634,
+					"end": 1741,
+					"line": 61
+				},
+				{
+					"start": 1742,
+					"end": 1827,
+					"line": 66
+				},
+				{
+					"start": 1829,
+					"end": 2111,
+					"line": 69
+				},
+				{
+					"start": 2113,
+					"end": 2153,
+					"line": 80
+				},
+				{
+					"start": 2505,
+					"end": 2857,
+					"line": 87
+				},
+				{
+					"start": 3022,
+					"end": 3576,
+					"line": 103
+				},
+				{
+					"start": 3577,
+					"end": 4263,
+					"line": 122
+				},
+				{
+					"start": 5310,
+					"end": 5439,
+					"line": 189
+				},
+				{
+					"start": 5441,
+					"end": 5513,
+					"line": 193
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/process-identity.test.ts",
+			"blob": "e236ded0281ead12de41f56ea5170be6549c69ee"
+		},
+		{
+			"source": "test/maestro/process-tree.test.ts",
+			"destination": "test/maestro/process-tree.test.ts",
+			"whole": true,
+			"selections": [
+				{
+					"start": 612,
+					"end": 853,
+					"line": 22
+				},
+				{
+					"start": 855,
+					"end": 1142,
+					"line": 32
+				},
+				{
+					"start": 1144,
+					"end": 1282,
+					"line": 44
+				},
+				{
+					"start": 1367,
+					"end": 1732,
+					"line": 53
+				},
+				{
+					"start": 1935,
+					"end": 2249,
+					"line": 67
+				},
+				{
+					"start": 2251,
+					"end": 3158,
+					"line": 83
+				},
+				{
+					"start": 3160,
+					"end": 3450,
+					"line": 109
+				},
+				{
+					"start": 3518,
+					"end": 3941,
+					"line": 116
+				},
+				{
+					"start": 3943,
+					"end": 4274,
+					"line": 133
+				},
+				{
+					"start": 4276,
+					"end": 4472,
+					"line": 144
+				},
+				{
+					"start": 4474,
+					"end": 4849,
+					"line": 149
+				},
+				{
+					"start": 4851,
+					"end": 5300,
+					"line": 160
+				},
+				{
+					"start": 5302,
+					"end": 5852,
+					"line": 173
+				},
+				{
+					"start": 5854,
+					"end": 6089,
+					"line": 189
+				},
+				{
+					"start": 6091,
+					"end": 6575,
+					"line": 197
+				},
+				{
+					"start": 6577,
+					"end": 7356,
+					"line": 214
+				},
+				{
+					"start": 7358,
+					"end": 8493,
+					"line": 241
+				}
+			],
+			"helpers": [],
+			"archive": "provenance/upstream/test/maestro/process-tree.test.ts",
+			"blob": "89088b9a542c5ce4a5d582c1763aa100d1fa7a88"
+		},
+		{
+			"source": "test/maestro/worktree-operations.test.ts",
+			"destination": "test/maestro/worktree-operations.test.ts",
+			"whole": true,
+			"selections": [
+				{
+					"start": 743,
+					"end": 893,
+					"line": 23
+				},
+				{
+					"start": 894,
+					"end": 967,
+					"line": 30
+				},
+				{
+					"start": 969,
+					"end": 1963,
+					"line": 32
+				},
+				{
+					"start": 1965,
+					"end": 3857,
+					"line": 63
+				},
+				{
+					"start": 3859,
+					"end": 5959,
+					"line": 127
+				}
+			],
+			"helpers": [],
+			"archive": "provenance/upstream/test/maestro/worktree-operations.test.ts",
+			"blob": "5dfa1796a14bd89afc41e64c3977164ed9c94422"
+		},
+		{
+			"source": "test/maestro/audit-ownership.test.ts",
+			"destination": "test/maestro/audit-ownership.test.ts",
+			"selections": [
+				{
+					"start": 4606,
+					"end": 5382,
+					"line": 171
+				},
+				{
+					"start": 5384,
+					"end": 6544,
+					"line": 190
+				},
+				{
+					"start": 8050,
+					"end": 8672,
+					"line": 258
+				},
+				{
+					"start": 8675,
+					"end": 9803,
+					"line": 276
+				},
+				{
+					"start": 9806,
+					"end": 11349,
+					"line": 299
+				},
+				{
+					"start": 11352,
+					"end": 12133,
+					"line": 348
+				},
+				{
+					"start": 12194,
+					"end": 13797,
+					"line": 370
+				},
+				{
+					"start": 13800,
+					"end": 14742,
+					"line": 415
+				},
+				{
+					"start": 14745,
+					"end": 15494,
+					"line": 445
+				},
+				{
+					"start": 15497,
+					"end": 15954,
+					"line": 467
+				},
+				{
+					"start": 15957,
+					"end": 17918,
+					"line": 482
+				}
+			],
+			"helpers": [
+				{
+					"start": 1244,
+					"end": 3716,
+					"line": 33
+				},
+				{
+					"start": 3718,
+					"end": 3884,
+					"line": 133
+				},
+				{
+					"start": 3886,
+					"end": 3963,
+					"line": 144
+				},
+				{
+					"start": 3965,
+					"end": 4126,
+					"line": 146
+				},
+				{
+					"start": 4408,
+					"end": 4558,
+					"line": 164
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/audit-ownership.test.ts",
+			"blob": "ff8e9df065b58dec3a8e7845c829f088c530a60c"
+		},
+		{
+			"source": "test/maestro/delegated-marker.test.ts",
+			"destination": "test/maestro/delegated-marker.test.ts",
+			"selections": [
+				{
+					"start": 2570,
+					"end": 3217,
+					"line": 89,
+					"baseline_start": 2502,
+					"baseline_end": 3149
+				},
+				{
+					"start": 3220,
+					"end": 3915,
+					"line": 109,
+					"baseline_start": 3152,
+					"baseline_end": 3847
+				},
+				{
+					"start": 3918,
+					"end": 4259,
+					"line": 130,
+					"baseline_start": 3850,
+					"baseline_end": 4191
+				},
+				{
+					"start": 4262,
+					"end": 4595,
+					"line": 139,
+					"baseline_start": 4194,
+					"baseline_end": 4527
+				},
+				{
+					"start": 4598,
+					"end": 5428,
+					"line": 149,
+					"baseline_start": 4530,
+					"baseline_end": 5360
+				},
+				{
+					"start": 5431,
+					"end": 5869,
+					"line": 176,
+					"baseline_start": 5363,
+					"baseline_end": 5801
+				},
+				{
+					"start": 5872,
+					"end": 6662,
+					"line": 192,
+					"baseline_start": 5804,
+					"baseline_end": 6594
+				},
+				{
+					"start": 6665,
+					"end": 7519,
+					"line": 216,
+					"baseline_start": 6597,
+					"baseline_end": 7451
+				},
+				{
+					"start": 7522,
+					"end": 7956,
+					"line": 243,
+					"baseline_start": 7454,
+					"baseline_end": 7888
+				},
+				{
+					"start": 7959,
+					"end": 8513,
+					"line": 258,
+					"baseline_start": 7891,
+					"baseline_end": 8445
+				},
+				{
+					"start": 8516,
+					"end": 9469,
+					"line": 277,
+					"baseline_start": 8448,
+					"baseline_end": 9401
+				},
+				{
+					"start": 9472,
+					"end": 10067,
+					"line": 310,
+					"baseline_start": 9404,
+					"baseline_end": 9999
+				},
+				{
+					"start": 10070,
+					"end": 10611,
+					"line": 327,
+					"baseline_start": 10002,
+					"baseline_end": 10543
+				},
+				{
+					"start": 10614,
+					"end": 10999,
+					"line": 347,
+					"baseline_start": 10546,
+					"baseline_end": 10931
+				},
+				{
+					"start": 11002,
+					"end": 11671,
+					"line": 360,
+					"baseline_start": 10934,
+					"baseline_end": 11603
+				},
+				{
+					"start": 11674,
+					"end": 12154,
+					"line": 381,
+					"baseline_start": 11606,
+					"baseline_end": 12086
+				},
+				{
+					"start": 12157,
+					"end": 12567,
+					"line": 401,
+					"baseline_start": 12089,
+					"baseline_end": 12499
+				},
+				{
+					"start": 12570,
+					"end": 13143,
+					"line": 416,
+					"baseline_start": 12502,
+					"baseline_end": 13075
+				},
+				{
+					"start": 13146,
+					"end": 13476,
+					"line": 435,
+					"baseline_start": 13078,
+					"baseline_end": 13408
+				}
+			],
+			"helpers": [
+				{
+					"start": 742,
+					"end": 799,
+					"line": 24
+				},
+				{
+					"start": 800,
+					"end": 821,
+					"line": 25
+				},
+				{
+					"start": 823,
+					"end": 892,
+					"line": 27
+				},
+				{
+					"start": 893,
+					"end": 1000,
+					"line": 28
+				},
+				{
+					"start": 1002,
+					"end": 1117,
+					"line": 33
+				},
+				{
+					"start": 1316,
+					"end": 2201,
+					"line": 45
+				},
+				{
+					"start": 2203,
+					"end": 2325,
+					"line": 76
+				},
+				{
+					"start": 2327,
+					"end": 2530,
+					"line": 81
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/delegated-marker.test.ts",
+			"blob": "09460205e2666a8b87c78460cdd18850e0ef18d3",
+			"baseline_archive": "provenance/baseline/upstream/test/maestro/delegated-marker.test.ts",
+			"baseline_blob": "be2afcda2687abac85f1502f95f2d742bac43b75"
+		},
+		{
+			"source": "test/maestro/accept-shutdown.test.ts",
+			"destination": "test/maestro/accept-shutdown.test.ts",
+			"selections": [
+				{
+					"start": 2070,
+					"end": 3566,
+					"line": 71
+				},
+				{
+					"start": 3569,
+					"end": 4747,
+					"line": 110
+				}
+			],
+			"helpers": [
+				{
+					"start": 1584,
+					"end": 1597,
+					"line": 51
+				},
+				{
+					"start": 1599,
+					"end": 1616,
+					"line": 52
+				},
+				{
+					"start": 1672,
+					"end": 1685,
+					"line": 54
+				},
+				{
+					"start": 1687,
+					"end": 1859,
+					"line": 55
+				},
+				{
+					"start": 1861,
+					"end": 2067,
+					"line": 60
+				},
+				{
+					"start": 622,
+					"end": 654,
+					"line": 19
+				},
+				{
+					"start": 656,
+					"end": 736,
+					"line": 21
+				},
+				{
+					"start": 738,
+					"end": 930,
+					"line": 23
+				},
+				{
+					"start": 932,
+					"end": 1186,
+					"line": 31
+				},
+				{
+					"start": 1266,
+					"end": 1382,
+					"line": 42
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/accept-shutdown.test.ts",
+			"blob": "47b34836b10aaf369f77204995c1f3e7d523d1d2"
+		},
+		{
+			"source": "test/maestro/specialist-notice.test.ts",
+			"destination": "test/maestro/specialist-notice.test.ts",
+			"selections": [
+				{
+					"start": 11476,
+					"end": 12000,
+					"line": 355
+				},
+				{
+					"start": 12003,
+					"end": 12685,
+					"line": 371
+				},
+				{
+					"start": 12688,
+					"end": 13764,
+					"line": 395
+				},
+				{
+					"start": 13767,
+					"end": 14253,
+					"line": 430
+				},
+				{
+					"start": 14256,
+					"end": 14736,
+					"line": 446
+				},
+				{
+					"start": 16150,
+					"end": 16528,
+					"line": 512
+				},
+				{
+					"start": 16531,
+					"end": 18538,
+					"line": 524
+				}
+			],
+			"helpers": [
+				{
+					"start": 10031,
+					"end": 10243,
+					"line": 305
+				},
+				{
+					"start": 10246,
+					"end": 11350,
+					"line": 315
+				},
+				{
+					"start": 11353,
+					"end": 11473,
+					"line": 352
+				},
+				{
+					"start": 1704,
+					"end": 1933,
+					"line": 37
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/specialist-notice.test.ts",
+			"blob": "d23acf995c32158ecd1bbb26c46fa04444a962ea"
+		},
+		{
+			"source": "test/launch.test.ts",
+			"destination": "test/launch.test.ts",
+			"selections": [
+				{
+					"start": 7651,
+					"end": 8647,
+					"line": 233,
+					"baseline_start": 7566,
+					"baseline_end": 8562
+				},
+				{
+					"start": 8650,
+					"end": 10102,
+					"line": 274,
+					"baseline_start": 8565,
+					"baseline_end": 10017
+				},
+				{
+					"start": 10105,
+					"end": 11049,
+					"line": 318,
+					"baseline_start": 10020,
+					"baseline_end": 10964
+				},
+				{
+					"start": 33075,
+					"end": 34190,
+					"line": 1087,
+					"baseline_start": 32990,
+					"baseline_end": 34105
+				},
+				{
+					"start": 11086,
+					"end": 11538,
+					"line": 352,
+					"baseline_start": 11001,
+					"baseline_end": 11453
+				},
+				{
+					"start": 11541,
+					"end": 12869,
+					"line": 366,
+					"baseline_start": 11456,
+					"baseline_end": 12784
+				},
+				{
+					"start": 15317,
+					"end": 16482,
+					"line": 505,
+					"baseline_start": 15232,
+					"baseline_end": 16397
+				},
+				{
+					"start": 16485,
+					"end": 17145,
+					"line": 555,
+					"baseline_start": 16400,
+					"baseline_end": 17060
+				},
+				{
+					"start": 17148,
+					"end": 17766,
+					"line": 582,
+					"baseline_start": 17063,
+					"baseline_end": 17681
+				},
+				{
+					"start": 17769,
+					"end": 18444,
+					"line": 605,
+					"baseline_start": 17684,
+					"baseline_end": 18359
+				},
+				{
+					"start": 18447,
+					"end": 19091,
+					"line": 625,
+					"baseline_start": 18362,
+					"baseline_end": 19006
+				},
+				{
+					"start": 19094,
+					"end": 20434,
+					"line": 651,
+					"baseline_start": 19009,
+					"baseline_end": 20349
+				},
+				{
+					"start": 20437,
+					"end": 22203,
+					"line": 697,
+					"baseline_start": 20352,
+					"baseline_end": 22118
+				},
+				{
+					"start": 22206,
+					"end": 25696,
+					"line": 756,
+					"baseline_start": 22121,
+					"baseline_end": 25611
+				},
+				{
+					"start": 25699,
+					"end": 26795,
+					"line": 846,
+					"baseline_start": 25614,
+					"baseline_end": 26710
+				},
+				{
+					"start": 26798,
+					"end": 28098,
+					"line": 887,
+					"baseline_start": 26713,
+					"baseline_end": 28013
+				},
+				{
+					"start": 28101,
+					"end": 29821,
+					"line": 929,
+					"baseline_start": 28016,
+					"baseline_end": 29736
+				},
+				{
+					"start": 35734,
+					"end": 36906,
+					"line": 1158,
+					"baseline_start": 35649,
+					"baseline_end": 36821
+				},
+				{
+					"start": 36909,
+					"end": 37827,
+					"line": 1199,
+					"baseline_start": 36824,
+					"baseline_end": 37742
+				},
+				{
+					"start": 37830,
+					"end": 38592,
+					"line": 1232,
+					"baseline_start": 37745,
+					"baseline_end": 38507
+				},
+				{
+					"start": 38595,
+					"end": 39564,
+					"line": 1262,
+					"baseline_start": 38510,
+					"baseline_end": 39479
+				},
+				{
+					"start": 39567,
+					"end": 40403,
+					"line": 1296,
+					"baseline_start": 39482,
+					"baseline_end": 40318
+				},
+				{
+					"start": 40406,
+					"end": 41969,
+					"line": 1326,
+					"baseline_start": 40321,
+					"baseline_end": 41884
+				},
+				{
+					"start": 41972,
+					"end": 42744,
+					"line": 1375,
+					"baseline_start": 41887,
+					"baseline_end": 42659
+				},
+				{
+					"start": 42747,
+					"end": 44092,
+					"line": 1406,
+					"baseline_start": 42662,
+					"baseline_end": 44007
+				},
+				{
+					"start": 44095,
+					"end": 45998,
+					"line": 1460,
+					"baseline_start": 44010,
+					"baseline_end": 45913
+				},
+				{
+					"start": 46001,
+					"end": 47055,
+					"line": 1542,
+					"baseline_start": 45916,
+					"baseline_end": 46970
+				},
+				{
+					"start": 47058,
+					"end": 47706,
+					"line": 1584,
+					"baseline_start": 46973,
+					"baseline_end": 47621
+				},
+				{
+					"start": 47709,
+					"end": 48718,
+					"line": 1606,
+					"baseline_start": 47624,
+					"baseline_end": 48633
+				},
+				{
+					"start": 48721,
+					"end": 50561,
+					"line": 1649,
+					"titles": [
+						"Pi launch",
+						"loads the explicit child entry path, quoted, in fresh and resumed launches"
+					],
+					"added": true
+				},
+				{
+					"start": 50564,
+					"end": 51756,
+					"line": 1701,
+					"baseline_start": 48636,
+					"baseline_end": 49828
+				},
+				{
+					"start": 51759,
+					"end": 55875,
+					"line": 1745,
+					"baseline_start": 49831,
+					"baseline_end": 53947
+				},
+				{
+					"start": 55878,
+					"end": 57368,
+					"line": 1860,
+					"baseline_start": 53950,
+					"baseline_end": 55440
+				},
+				{
+					"start": 57371,
+					"end": 58853,
+					"line": 1910,
+					"baseline_start": 55443,
+					"baseline_end": 56925
+				},
+				{
+					"start": 58856,
+					"end": 63044,
+					"line": 1957,
+					"baseline_start": 56928,
+					"baseline_end": 61116
+				},
+				{
+					"start": 63047,
+					"end": 65619,
+					"line": 2090,
+					"baseline_start": 61119,
+					"baseline_end": 63691
+				},
+				{
+					"start": 65622,
+					"end": 69344,
+					"line": 2169,
+					"baseline_start": 63694,
+					"baseline_end": 67416
+				},
+				{
+					"start": 69347,
+					"end": 74495,
+					"line": 2309,
+					"baseline_start": 67419,
+					"baseline_end": 72567
+				},
+				{
+					"start": 74498,
+					"end": 77521,
+					"line": 2481,
+					"baseline_start": 72570,
+					"baseline_end": 75593
+				},
+				{
+					"start": 77524,
+					"end": 80640,
+					"line": 2592,
+					"baseline_start": 75596,
+					"baseline_end": 78712
+				},
+				{
+					"start": 80643,
+					"end": 84248,
+					"line": 2701,
+					"baseline_start": 78715,
+					"baseline_end": 82320
+				}
+			],
+			"helpers": [
+				{
+					"start": 29865,
+					"end": 29928,
+					"line": 983
+				},
+				{
+					"start": 30561,
+					"end": 31220,
+					"line": 1008
+				},
+				{
+					"start": 12872,
+					"end": 13482,
+					"line": 413
+				},
+				{
+					"start": 13485,
+					"end": 14638,
+					"line": 436
+				},
+				{
+					"start": 14720,
+					"end": 15254,
+					"line": 479
+				},
+				{
+					"start": 15257,
+					"end": 15314,
+					"line": 503
+				},
+				{
+					"start": 1711,
+					"end": 1812,
+					"line": 50
+				},
+				{
+					"start": 1904,
+					"end": 2224,
+					"line": 55
+				},
+				{
+					"start": 2226,
+					"end": 2510,
+					"line": 66
+				},
+				{
+					"start": 2512,
+					"end": 3801,
+					"line": 73
+				},
+				{
+					"start": 3803,
+					"end": 4036,
+					"line": 123
+				},
+				{
+					"start": 4038,
+					"end": 4506,
+					"line": 132
+				},
+				{
+					"start": 4508,
+					"end": 4764,
+					"line": 141
+				},
+				{
+					"start": 4766,
+					"end": 5538,
+					"line": 150
+				},
+				{
+					"start": 5540,
+					"end": 5740,
+					"line": 173
+				},
+				{
+					"start": 5742,
+					"end": 5940,
+					"line": 181
+				},
+				{
+					"start": 5942,
+					"end": 6150,
+					"line": 189
+				},
+				{
+					"start": 6152,
+					"end": 7608,
+					"line": 199
+				}
+			],
+			"archive": "provenance/upstream/test/launch.test.ts",
+			"blob": "629fb99dccefdc4ec7398513db392656621d5717",
+			"baseline_archive": "provenance/baseline/upstream/test/launch.test.ts",
+			"baseline_blob": "e738776d8ed20a311e576adb05b210298ce82e5d"
+		},
+		{
+			"source": "test/maestro/accept-check.test.ts",
+			"destination": "test/maestro/accept-check-pi.test.ts",
+			"selections": [
+				{
+					"start": 8938,
+					"end": 9313,
+					"line": 297
+				},
+				{
+					"start": 9316,
+					"end": 9794,
+					"line": 309
+				},
+				{
+					"start": 9797,
+					"end": 10292,
+					"line": 327
+				},
+				{
+					"start": 10295,
+					"end": 10783,
+					"line": 345
+				},
+				{
+					"start": 10786,
+					"end": 11334,
+					"line": 367
+				},
+				{
+					"start": 11337,
+					"end": 11770,
+					"line": 382
+				},
+				{
+					"start": 13927,
+					"end": 15023,
+					"line": 475
+				},
+				{
+					"start": 15026,
+					"end": 15833,
+					"line": 508
+				},
+				{
+					"start": 15836,
+					"end": 16242,
+					"line": 533
+				},
+				{
+					"start": 16245,
+					"end": 16917,
+					"line": 550
+				},
+				{
+					"start": 16920,
+					"end": 17398,
+					"line": 572
+				}
+			],
+			"helpers": [
+				{
+					"start": 8816,
+					"end": 8874,
+					"line": 294
+				},
+				{
+					"start": 8876,
+					"end": 8935,
+					"line": 295
+				},
+				{
+					"start": 13791,
+					"end": 13860,
+					"line": 472
+				},
+				{
+					"start": 13862,
+					"end": 13924,
+					"line": 473
+				},
+				{
+					"start": 11856,
+					"end": 13498,
+					"line": 398
+				},
+				{
+					"start": 13561,
+					"end": 13750,
+					"line": 463
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/accept-check.test.ts",
+			"blob": "be405664c59b4724e89a3105deb29f5498929e61"
+		},
+		{
+			"source": "test/maestro/declared-skills.test.ts",
+			"destination": "test/maestro/declared-skills-pi.test.ts",
+			"selections": [
+				{
+					"start": 3794,
+					"end": 4636,
+					"line": 119
+				},
+				{
+					"start": 4639,
+					"end": 5366,
+					"line": 145
+				},
+				{
+					"start": 5369,
+					"end": 6188,
+					"line": 163
+				},
+				{
+					"start": 6191,
+					"end": 6963,
+					"line": 185
+				},
+				{
+					"start": 6966,
+					"end": 7724,
+					"line": 209
+				},
+				{
+					"start": 7727,
+					"end": 8395,
+					"line": 227
+				},
+				{
+					"start": 8398,
+					"end": 8681,
+					"line": 245
+				},
+				{
+					"start": 8684,
+					"end": 8916,
+					"line": 253
+				},
+				{
+					"start": 8919,
+					"end": 9670,
+					"line": 259
+				},
+				{
+					"start": 9742,
+					"end": 12768,
+					"line": 285
+				}
+			],
+			"helpers": [
+				{
+					"start": 858,
+					"end": 1085,
+					"line": 30
+				},
+				{
+					"start": 1087,
+					"end": 1413,
+					"line": 37
+				},
+				{
+					"start": 1478,
+					"end": 1604,
+					"line": 49
+				},
+				{
+					"start": 1606,
+					"end": 1839,
+					"line": 53
+				},
+				{
+					"start": 1897,
+					"end": 2468,
+					"line": 61
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/declared-skills.test.ts",
+			"blob": "15fd9aa209e83c642484b9c44796accec670db52"
+		},
+		{
+			"source": "test/maestro/task-model-init.test.ts",
+			"destination": "test/maestro/task-model-init-pi.test.ts",
+			"selections": [
+				{
+					"start": 1624,
+					"end": 4989,
+					"line": 52
+				},
+				{
+					"start": 4992,
+					"end": 5432,
+					"line": 164
+				},
+				{
+					"start": 5435,
+					"end": 6041,
+					"line": 177
+				},
+				{
+					"start": 6044,
+					"end": 6826,
+					"line": 191
+				},
+				{
+					"start": 6829,
+					"end": 7815,
+					"line": 213
+				},
+				{
+					"start": 7818,
+					"end": 8493,
+					"line": 239
+				},
+				{
+					"start": 8496,
+					"end": 9125,
+					"line": 260
+				},
+				{
+					"start": 9128,
+					"end": 10880,
+					"line": 282
+				},
+				{
+					"start": 10883,
+					"end": 11716,
+					"line": 341
+				},
+				{
+					"start": 11719,
+					"end": 13372,
+					"line": 369
+				},
+				{
+					"start": 15881,
+					"end": 17802,
+					"line": 495
+				}
+			],
+			"helpers": [
+				{
+					"start": 516,
+					"end": 561,
+					"line": 18
+				},
+				{
+					"start": 562,
+					"end": 627,
+					"line": 19
+				},
+				{
+					"start": 711,
+					"end": 1418,
+					"line": 22
+				},
+				{
+					"start": 1420,
+					"end": 1573,
+					"line": 47
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/task-model-init.test.ts",
+			"blob": "fbc6af1b4da2817bc66d334bedd88885dcfdef3b"
+		},
+		{
+			"source": "test/maestro/script-launch.test.ts",
+			"destination": "test/maestro/script-launch-pi.test.ts",
+			"selections": [
+				{
+					"start": 7638,
+					"end": 8049,
+					"line": 263,
+					"baseline_start": 7555,
+					"baseline_end": 7966
+				},
+				{
+					"start": 8052,
+					"end": 8658,
+					"line": 277,
+					"baseline_start": 7969,
+					"baseline_end": 8575
+				},
+				{
+					"start": 8661,
+					"end": 9024,
+					"line": 293,
+					"baseline_start": 8578,
+					"baseline_end": 8941
+				},
+				{
+					"start": 9027,
+					"end": 9378,
+					"line": 304,
+					"baseline_start": 8944,
+					"baseline_end": 9295
+				},
+				{
+					"start": 9381,
+					"end": 9695,
+					"line": 316,
+					"baseline_start": 9298,
+					"baseline_end": 9612
+				},
+				{
+					"start": 11087,
+					"end": 11527,
+					"line": 372,
+					"baseline_start": 11004,
+					"baseline_end": 11444
+				},
+				{
+					"start": 11530,
+					"end": 12136,
+					"line": 391,
+					"baseline_start": 11447,
+					"baseline_end": 12053
+				},
+				{
+					"start": 24865,
+					"end": 25433,
+					"line": 844,
+					"baseline_start": 24744,
+					"baseline_end": 25312
+				},
+				{
+					"start": 25436,
+					"end": 25550,
+					"line": 856,
+					"baseline_start": 25315,
+					"baseline_end": 25429
+				}
+			],
+			"helpers": [
+				{
+					"start": 7577,
+					"end": 7635,
+					"line": 261
+				},
+				{
+					"start": 10954,
+					"end": 11084,
+					"line": 365
+				},
+				{
+					"start": 1527,
+					"end": 1584,
+					"line": 45
+				},
+				{
+					"start": 1585,
+					"end": 1639,
+					"line": 46
+				},
+				{
+					"start": 9782,
+					"end": 10891,
+					"line": 329
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/script-launch.test.ts",
+			"blob": "723126df6b7886132cf279077b0c3db5d33c1417",
+			"baseline_archive": "provenance/baseline/upstream/test/maestro/script-launch.test.ts",
+			"baseline_blob": "d363607cdbd5bb4a7965031889808da7e00a0191"
+		},
+		{
+			"source": "test/maestro/windows-support-scope.test.ts",
+			"destination": "test/maestro/windows-support-scope-pi.test.ts",
+			"selections": [
+				{
+					"start": 14824,
+					"end": 15125,
+					"line": 488
+				},
+				{
+					"start": 15127,
+					"end": 15394,
+					"line": 495
+				}
+			],
+			"helpers": [
+				{
+					"start": 1591,
+					"end": 1682,
+					"line": 40
+				},
+				{
+					"start": 1683,
+					"end": 1757,
+					"line": 42
+				},
+				{
+					"start": 3889,
+					"end": 4092,
+					"line": 109
+				},
+				{
+					"start": 12813,
+					"end": 14822,
+					"line": 416
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/windows-support-scope.test.ts",
+			"blob": "44e85e1f54c7a29585127116a15452450ce75182"
+		},
+		{
+			"source": "test/maestro/herdr-core-execution.test.ts",
+			"destination": "test/maestro/herdr-core-execution-pi.test.ts",
+			"selections": [
+				{
+					"start": 37839,
+					"end": 38656,
+					"line": 1233,
+					"baseline_start": 37756,
+					"baseline_end": 38573
+				},
+				{
+					"start": 38658,
+					"end": 39636,
+					"line": 1254,
+					"baseline_start": 38575,
+					"baseline_end": 39553
+				},
+				{
+					"start": 40296,
+					"end": 41866,
+					"line": 1305,
+					"baseline_start": 40213,
+					"baseline_end": 41783
+				}
+			],
+			"helpers": [],
+			"archive": "provenance/upstream/test/maestro/herdr-core-execution.test.ts",
+			"blob": "fe0a9d5251cfd20d139db1f0b3a800094ea845fb",
+			"baseline_archive": "provenance/baseline/upstream/test/maestro/herdr-core-execution.test.ts",
+			"baseline_blob": "fab053df7cd0a63bb6bf7f97ae7365214226e95d"
+		},
+		{
+			"source": "test/worktree-cleanup.test.ts",
+			"destination": "test/worktree-cleanup-pi.test.ts",
+			"selections": [
+				{
+					"start": 3331,
+					"end": 6344,
+					"line": 97
+				},
+				{
+					"start": 6346,
+					"end": 7280,
+					"line": 181
+				},
+				{
+					"start": 7282,
+					"end": 8065,
+					"line": 209
+				},
+				{
+					"start": 8067,
+					"end": 9128,
+					"line": 232
+				},
+				{
+					"start": 9130,
+					"end": 10670,
+					"line": 269
+				},
+				{
+					"start": 10672,
+					"end": 12293,
+					"line": 323
+				},
+				{
+					"start": 15084,
+					"end": 17059,
+					"line": 461
+				},
+				{
+					"start": 17061,
+					"end": 18434,
+					"line": 517
+				},
+				{
+					"start": 28250,
+					"end": 29395,
+					"line": 882
+				},
+				{
+					"start": 29397,
+					"end": 30231,
+					"line": 919
+				},
+				{
+					"start": 35953,
+					"end": 36714,
+					"line": 1094
+				},
+				{
+					"start": 36716,
+					"end": 37491,
+					"line": 1115
+				},
+				{
+					"start": 38357,
+					"end": 39017,
+					"line": 1165
+				},
+				{
+					"start": 39019,
+					"end": 39514,
+					"line": 1193
+				},
+				{
+					"start": 40165,
+					"end": 40836,
+					"line": 1227
+				},
+				{
+					"start": 42728,
+					"end": 43854,
+					"line": 1309
+				},
+				{
+					"start": 49173,
+					"end": 50055,
+					"line": 1512
+				}
+			],
+			"helpers": [],
+			"archive": "provenance/upstream/test/worktree-cleanup.test.ts",
+			"blob": "ccf284aed7b1be82abcdff246c59d8e3ef48ab02"
+		},
+		{
+			"source": "test/runtime-routing.test.ts",
+			"destination": "test/runtime-routing-pi.test.ts",
+			"selections": [
+				{
+					"start": 12826,
+					"end": 13097,
+					"line": 436
+				},
+				{
+					"start": 13100,
+					"end": 13503,
+					"line": 447
+				},
+				{
+					"start": 13506,
+					"end": 13859,
+					"line": 463
+				},
+				{
+					"start": 13862,
+					"end": 14258,
+					"line": 475
+				},
+				{
+					"start": 14261,
+					"end": 14611,
+					"line": 489
+				},
+				{
+					"start": 14614,
+					"end": 15001,
+					"line": 505
+				},
+				{
+					"start": 15004,
+					"end": 16750,
+					"line": 523
+				},
+				{
+					"start": 16753,
+					"end": 17686,
+					"line": 605
+				},
+				{
+					"start": 17689,
+					"end": 19056,
+					"line": 633
+				},
+				{
+					"start": 19059,
+					"end": 20181,
+					"line": 681
+				},
+				{
+					"start": 20183,
+					"end": 20471,
+					"line": 707
+				},
+				{
+					"start": 20474,
+					"end": 20858,
+					"line": 720
+				},
+				{
+					"start": 20861,
+					"end": 21161,
+					"line": 734
+				},
+				{
+					"start": 21164,
+					"end": 21716,
+					"line": 746
+				},
+				{
+					"start": 21719,
+					"end": 22193,
+					"line": 770
+				},
+				{
+					"start": 22248,
+					"end": 22890,
+					"line": 789
+				},
+				{
+					"start": 22893,
+					"end": 24105,
+					"line": 809
+				},
+				{
+					"start": 24108,
+					"end": 24714,
+					"line": 844
+				},
+				{
+					"start": 24717,
+					"end": 25127,
+					"line": 861
+				},
+				{
+					"start": 25130,
+					"end": 25500,
+					"line": 870
+				},
+				{
+					"start": 25503,
+					"end": 26265,
+					"line": 879
+				},
+				{
+					"start": 26268,
+					"end": 26680,
+					"line": 903
+				},
+				{
+					"start": 26683,
+					"end": 27769,
+					"line": 917
+				},
+				{
+					"start": 27772,
+					"end": 27982,
+					"line": 958
+				},
+				{
+					"start": 27985,
+					"end": 28667,
+					"line": 963
+				}
+			],
+			"helpers": [
+				{
+					"start": 698,
+					"end": 792,
+					"line": 22
+				},
+				{
+					"start": 794,
+					"end": 1082,
+					"line": 28
+				},
+				{
+					"start": 1084,
+					"end": 1165,
+					"line": 45
+				},
+				{
+					"start": 1167,
+					"end": 1549,
+					"line": 49
+				},
+				{
+					"start": 1551,
+					"end": 2120,
+					"line": 56
+				},
+				{
+					"start": 2122,
+					"end": 2270,
+					"line": 79
+				}
+			],
+			"archive": "provenance/upstream/test/runtime-routing.test.ts",
+			"blob": "a9c048a4a118bf73fc97d7c517ee27771d3cd0e7"
+		},
+		{
+			"source": "test/test.ts",
+			"destination": "test/pi-monolith.test.ts",
+			"selections": [
+				{
+					"start": 104812,
+					"end": 105018,
+					"line": 3182,
+					"baseline_start": 103435,
+					"baseline_end": 103641
+				},
+				{
+					"start": 105022,
+					"end": 105179,
+					"line": 3192,
+					"baseline_start": 103645,
+					"baseline_end": 103802
+				},
+				{
+					"start": 105223,
+					"end": 105563,
+					"line": 3200,
+					"baseline_start": 103846,
+					"baseline_end": 104186
+				},
+				{
+					"start": 105567,
+					"end": 105777,
+					"line": 3213,
+					"baseline_start": 104190,
+					"baseline_end": 104400
+				},
+				{
+					"start": 105832,
+					"end": 106075,
+					"line": 3221,
+					"baseline_start": 104455,
+					"baseline_end": 104698
+				},
+				{
+					"start": 106079,
+					"end": 106309,
+					"line": 3229,
+					"baseline_start": 104702,
+					"baseline_end": 104932
+				},
+				{
+					"start": 106313,
+					"end": 106527,
+					"line": 3237,
+					"baseline_start": 104936,
+					"baseline_end": 105150
+				},
+				{
+					"start": 106531,
+					"end": 106679,
+					"line": 3245,
+					"baseline_start": 105154,
+					"baseline_end": 105302
+				},
+				{
+					"start": 106683,
+					"end": 106784,
+					"line": 3250,
+					"baseline_start": 105306,
+					"baseline_end": 105407
+				},
+				{
+					"start": 106788,
+					"end": 107547,
+					"line": 3254,
+					"baseline_start": 105411,
+					"baseline_end": 106170
+				},
+				{
+					"start": 107551,
+					"end": 108601,
+					"line": 3284,
+					"baseline_start": 106174,
+					"baseline_end": 107224
+				},
+				{
+					"start": 108605,
+					"end": 109210,
+					"line": 3314,
+					"baseline_start": 107228,
+					"baseline_end": 107833
+				},
+				{
+					"start": 109214,
+					"end": 109537,
+					"line": 3333,
+					"baseline_start": 107837,
+					"baseline_end": 108160
+				},
+				{
+					"start": 109541,
+					"end": 110261,
+					"line": 3346,
+					"baseline_start": 108164,
+					"baseline_end": 108884
+				},
+				{
+					"start": 110265,
+					"end": 111181,
+					"line": 3370,
+					"baseline_start": 108888,
+					"baseline_end": 109804
+				},
+				{
+					"start": 111185,
+					"end": 114132,
+					"line": 3401,
+					"baseline_start": 109808,
+					"baseline_end": 112755
+				},
+				{
+					"start": 114189,
+					"end": 114612,
+					"line": 3527,
+					"baseline_start": 112812,
+					"baseline_end": 113235
+				},
+				{
+					"start": 114662,
+					"end": 115459,
+					"line": 3540,
+					"baseline_start": 113285,
+					"baseline_end": 114082
+				},
+				{
+					"start": 115463,
+					"end": 115790,
+					"line": 3569,
+					"baseline_start": 114086,
+					"baseline_end": 114413
+				},
+				{
+					"start": 115836,
+					"end": 116235,
+					"line": 3580,
+					"baseline_start": 114459,
+					"baseline_end": 114858
+				},
+				{
+					"start": 116289,
+					"end": 117223,
+					"line": 3593,
+					"baseline_start": 114912,
+					"baseline_end": 115846
+				},
+				{
+					"start": 117227,
+					"end": 117988,
+					"line": 3616,
+					"baseline_start": 115850,
+					"baseline_end": 116611
+				},
+				{
+					"start": 120874,
+					"end": 121597,
+					"line": 3740,
+					"baseline_start": 119497,
+					"baseline_end": 120220
+				},
+				{
+					"start": 121601,
+					"end": 122635,
+					"line": 3765,
+					"baseline_start": 120224,
+					"baseline_end": 121258
+				},
+				{
+					"start": 122691,
+					"end": 125084,
+					"line": 3805,
+					"baseline_start": 121314,
+					"baseline_end": 123707
+				},
+				{
+					"start": 125088,
+					"end": 126549,
+					"line": 3900,
+					"baseline_start": 123711,
+					"baseline_end": 125172
+				},
+				{
+					"start": 126595,
+					"end": 127455,
+					"line": 3959,
+					"baseline_start": 125218,
+					"baseline_end": 126078
+				},
+				{
+					"start": 117996,
+					"end": 118924,
+					"line": 3647,
+					"baseline_start": 116619,
+					"baseline_end": 117547
+				},
+				{
+					"start": 118927,
+					"end": 119339,
+					"line": 3682,
+					"baseline_start": 117550,
+					"baseline_end": 117962
+				},
+				{
+					"start": 119342,
+					"end": 120125,
+					"line": 3696,
+					"baseline_start": 117965,
+					"baseline_end": 118748
+				},
+				{
+					"start": 120128,
+					"end": 120825,
+					"line": 3717,
+					"baseline_start": 118751,
+					"baseline_end": 119448
+				},
+				{
+					"start": 128095,
+					"end": 130378,
+					"line": 4014,
+					"baseline_start": 126718,
+					"baseline_end": 129001
+				},
+				{
+					"start": 130381,
+					"end": 132011,
+					"line": 4100,
+					"baseline_start": 129004,
+					"baseline_end": 130634
+				},
+				{
+					"start": 213407,
+					"end": 213632,
+					"line": 7031,
+					"baseline_start": 212030,
+					"baseline_end": 212255
+				},
+				{
+					"start": 213635,
+					"end": 213864,
+					"line": 7038,
+					"baseline_start": 212258,
+					"baseline_end": 212487
+				},
+				{
+					"start": 213867,
+					"end": 214077,
+					"line": 7045,
+					"baseline_start": 212490,
+					"baseline_end": 212700
+				},
+				{
+					"start": 256032,
+					"end": 256756,
+					"line": 8361,
+					"baseline_start": 254655,
+					"baseline_end": 255379
+				},
+				{
+					"start": 256760,
+					"end": 257191,
+					"line": 8383,
+					"baseline_start": 255383,
+					"baseline_end": 255814
+				},
+				{
+					"start": 257195,
+					"end": 257456,
+					"line": 8397,
+					"baseline_start": 255818,
+					"baseline_end": 256079
+				},
+				{
+					"start": 257460,
+					"end": 258185,
+					"line": 8407,
+					"baseline_start": 256083,
+					"baseline_end": 256808
+				},
+				{
+					"start": 258189,
+					"end": 260405,
+					"line": 8431,
+					"baseline_start": 256812,
+					"baseline_end": 259028
+				},
+				{
+					"start": 278965,
+					"end": 279671,
+					"line": 9093,
+					"baseline_start": 277588,
+					"baseline_end": 278294
+				},
+				{
+					"start": 279675,
+					"end": 280092,
+					"line": 9115,
+					"baseline_start": 278298,
+					"baseline_end": 278715
+				},
+				{
+					"start": 280096,
+					"end": 281010,
+					"line": 9127,
+					"baseline_start": 278719,
+					"baseline_end": 279633
+				},
+				{
+					"start": 281383,
+					"end": 281851,
+					"line": 9167,
+					"baseline_start": 280006,
+					"baseline_end": 280474
+				},
+				{
+					"start": 281855,
+					"end": 282343,
+					"line": 9182,
+					"baseline_start": 280478,
+					"baseline_end": 280966
+				},
+				{
+					"start": 282738,
+					"end": 283193,
+					"line": 9214,
+					"baseline_start": 281361,
+					"baseline_end": 281816
+				},
+				{
+					"start": 283197,
+					"end": 283791,
+					"line": 9228,
+					"baseline_start": 281820,
+					"baseline_end": 282414
+				},
+				{
+					"start": 285417,
+					"end": 285552,
+					"line": 9299,
+					"baseline_start": 284040,
+					"baseline_end": 284175
+				},
+				{
+					"start": 285556,
+					"end": 285666,
+					"line": 9303,
+					"baseline_start": 284179,
+					"baseline_end": 284289
+				},
+				{
+					"start": 285721,
+					"end": 285933,
+					"line": 9309,
+					"baseline_start": 284344,
+					"baseline_end": 284556
+				},
+				{
+					"start": 285937,
+					"end": 286156,
+					"line": 9314,
+					"baseline_start": 284560,
+					"baseline_end": 284779
+				},
+				{
+					"start": 286160,
+					"end": 286353,
+					"line": 9319,
+					"baseline_start": 284783,
+					"baseline_end": 284976
+				},
+				{
+					"start": 286357,
+					"end": 286729,
+					"line": 9324,
+					"baseline_start": 284980,
+					"baseline_end": 285352
+				},
+				{
+					"start": 286733,
+					"end": 287221,
+					"line": 9336,
+					"baseline_start": 285356,
+					"baseline_end": 285844
+				},
+				{
+					"start": 287276,
+					"end": 287773,
+					"line": 9352,
+					"baseline_start": 285899,
+					"baseline_end": 286396
+				},
+				{
+					"start": 287777,
+					"end": 288168,
+					"line": 9372,
+					"baseline_start": 286400,
+					"baseline_end": 286791
+				},
+				{
+					"start": 288172,
+					"end": 288386,
+					"line": 9385,
+					"baseline_start": 286795,
+					"baseline_end": 287009
+				},
+				{
+					"start": 288390,
+					"end": 288724,
+					"line": 9390,
+					"baseline_start": 287013,
+					"baseline_end": 287347
+				},
+				{
+					"start": 288728,
+					"end": 288909,
+					"line": 9398,
+					"baseline_start": 287351,
+					"baseline_end": 287532
+				},
+				{
+					"start": 288962,
+					"end": 289239,
+					"line": 9405,
+					"baseline_start": 287585,
+					"baseline_end": 287862
+				},
+				{
+					"start": 289243,
+					"end": 289591,
+					"line": 9418,
+					"baseline_start": 287866,
+					"baseline_end": 288214
+				},
+				{
+					"start": 242268,
+					"end": 242582,
+					"line": 7965,
+					"baseline_start": 240891,
+					"baseline_end": 241205
+				},
+				{
+					"start": 244404,
+					"end": 245658,
+					"line": 8031,
+					"baseline_start": 243027,
+					"baseline_end": 244281
+				},
+				{
+					"start": 245661,
+					"end": 246218,
+					"line": 8069,
+					"baseline_start": 244284,
+					"baseline_end": 244841
+				},
+				{
+					"start": 246221,
+					"end": 247762,
+					"line": 8088,
+					"baseline_start": 244844,
+					"baseline_end": 246385
+				},
+				{
+					"start": 247765,
+					"end": 250791,
+					"line": 8125,
+					"baseline_start": 246388,
+					"baseline_end": 249414
+				},
+				{
+					"start": 250794,
+					"end": 252424,
+					"line": 8212,
+					"baseline_start": 249417,
+					"baseline_end": 251047
+				},
+				{
+					"start": 252427,
+					"end": 254821,
+					"line": 8259,
+					"baseline_start": 251050,
+					"baseline_end": 253444
+				},
+				{
+					"start": 254824,
+					"end": 255277,
+					"line": 8322,
+					"baseline_start": 253447,
+					"baseline_end": 253900
+				},
+				{
+					"start": 261444,
+					"end": 263380,
+					"line": 8528,
+					"baseline_start": 260067,
+					"baseline_end": 262003
+				},
+				{
+					"start": 263383,
+					"end": 264709,
+					"line": 8589,
+					"baseline_start": 262006,
+					"baseline_end": 263332
+				},
+				{
+					"start": 264712,
+					"end": 266050,
+					"line": 8632,
+					"baseline_start": 263335,
+					"baseline_end": 264673
+				},
+				{
+					"start": 266053,
+					"end": 267127,
+					"line": 8676,
+					"baseline_start": 264676,
+					"baseline_end": 265750
+				},
+				{
+					"start": 271891,
+					"end": 273565,
+					"line": 8877,
+					"baseline_start": 270514,
+					"baseline_end": 272188
+				},
+				{
+					"start": 273568,
+					"end": 275255,
+					"line": 8935,
+					"baseline_start": 272191,
+					"baseline_end": 273878
+				},
+				{
+					"start": 275258,
+					"end": 277398,
+					"line": 8985,
+					"baseline_start": 273881,
+					"baseline_end": 276021
+				},
+				{
+					"start": 283799,
+					"end": 285369,
+					"line": 9247,
+					"baseline_start": 282422,
+					"baseline_end": 283992
+				},
+				{
+					"start": 305732,
+					"end": 305994,
+					"line": 10014,
+					"baseline_start": 304355,
+					"baseline_end": 304617
+				},
+				{
+					"start": 305997,
+					"end": 306139,
+					"line": 10029,
+					"baseline_start": 304620,
+					"baseline_end": 304762
+				},
+				{
+					"start": 306142,
+					"end": 306537,
+					"line": 10036,
+					"baseline_start": 304765,
+					"baseline_end": 305160
+				},
+				{
+					"start": 306540,
+					"end": 306821,
+					"line": 10052,
+					"baseline_start": 305163,
+					"baseline_end": 305444
+				},
+				{
+					"start": 306824,
+					"end": 307152,
+					"line": 10059,
+					"baseline_start": 305447,
+					"baseline_end": 305775
+				},
+				{
+					"start": 307155,
+					"end": 307874,
+					"line": 10071,
+					"baseline_start": 305778,
+					"baseline_end": 306497
+				},
+				{
+					"start": 307877,
+					"end": 309026,
+					"line": 10096,
+					"titles": [
+						"completion.ts",
+						"admits the shell's post-exit record unless the process is known alive"
+					],
+					"added": true
+				},
+				{
+					"start": 309029,
+					"end": 309323,
+					"line": 10134,
+					"baseline_start": 306500,
+					"baseline_end": 306794
+				},
+				{
+					"start": 309326,
+					"end": 310232,
+					"line": 10142,
+					"baseline_start": 306797,
+					"baseline_end": 307703
+				},
+				{
+					"start": 310235,
+					"end": 311268,
+					"line": 10174,
+					"baseline_start": 307706,
+					"baseline_end": 308739
+				},
+				{
+					"start": 311271,
+					"end": 311804,
+					"line": 10212,
+					"baseline_start": 308742,
+					"baseline_end": 309275
+				},
+				{
+					"start": 311807,
+					"end": 312358,
+					"line": 10231,
+					"baseline_start": 309278,
+					"baseline_end": 309829
+				},
+				{
+					"start": 312361,
+					"end": 313029,
+					"line": 10249,
+					"baseline_start": 309832,
+					"baseline_end": 310500
+				},
+				{
+					"start": 313032,
+					"end": 313795,
+					"line": 10271,
+					"baseline_start": 310503,
+					"baseline_end": 311266
+				},
+				{
+					"start": 313798,
+					"end": 314324,
+					"line": 10292,
+					"baseline_start": 311269,
+					"baseline_end": 311795
+				},
+				{
+					"start": 314327,
+					"end": 314812,
+					"line": 10311,
+					"baseline_start": 311798,
+					"baseline_end": 312283
+				},
+				{
+					"start": 314815,
+					"end": 315515,
+					"line": 10328,
+					"baseline_start": 312286,
+					"baseline_end": 312986
+				},
+				{
+					"start": 315518,
+					"end": 315859,
+					"line": 10353,
+					"baseline_start": 312989,
+					"baseline_end": 313330
+				},
+				{
+					"start": 391713,
+					"end": 394299,
+					"line": 12715,
+					"baseline_start": 389184,
+					"baseline_end": 391770
+				},
+				{
+					"start": 394302,
+					"end": 395046,
+					"line": 12813,
+					"baseline_start": 391773,
+					"baseline_end": 392517
+				},
+				{
+					"start": 395049,
+					"end": 395869,
+					"line": 12838,
+					"baseline_start": 392520,
+					"baseline_end": 393340
+				},
+				{
+					"start": 395872,
+					"end": 396784,
+					"line": 12865,
+					"baseline_start": 393343,
+					"baseline_end": 394255
+				},
+				{
+					"start": 396787,
+					"end": 397605,
+					"line": 12893,
+					"baseline_start": 394258,
+					"baseline_end": 395076
+				},
+				{
+					"start": 397608,
+					"end": 398900,
+					"line": 12920,
+					"baseline_start": 395079,
+					"baseline_end": 396371
+				},
+				{
+					"start": 398903,
+					"end": 399449,
+					"line": 12962,
+					"baseline_start": 396374,
+					"baseline_end": 396920
+				},
+				{
+					"start": 399452,
+					"end": 400024,
+					"line": 12980,
+					"baseline_start": 396923,
+					"baseline_end": 397495
+				},
+				{
+					"start": 400027,
+					"end": 400887,
+					"line": 12999,
+					"baseline_start": 397498,
+					"baseline_end": 398358
+				},
+				{
+					"start": 453096,
+					"end": 454843,
+					"line": 14861,
+					"baseline_start": 450567,
+					"baseline_end": 452314
+				},
+				{
+					"start": 456020,
+					"end": 458591,
+					"line": 14956,
+					"baseline_start": 453491,
+					"baseline_end": 456062
+				}
+			],
+			"helpers": [
+				{
+					"start": 104644,
+					"end": 104660,
+					"line": 3171
+				},
+				{
+					"start": 104663,
+					"end": 104707,
+					"line": 3173
+				},
+				{
+					"start": 104710,
+					"end": 104777,
+					"line": 3177
+				},
+				{
+					"start": 127517,
+					"end": 127730,
+					"line": 3988
+				},
+				{
+					"start": 127733,
+					"end": 128092,
+					"line": 3999
+				},
+				{
+					"start": 255462,
+					"end": 255522,
+					"line": 8343
+				},
+				{
+					"start": 255525,
+					"end": 255642,
+					"line": 8344
+				},
+				{
+					"start": 255646,
+					"end": 256028,
+					"line": 8350
+				},
+				{
+					"start": 277446,
+					"end": 277609,
+					"line": 9040
+				},
+				{
+					"start": 277612,
+					"end": 278961,
+					"line": 9047
+				},
+				{
+					"start": 281014,
+					"end": 281379,
+					"line": 9153
+				},
+				{
+					"start": 282347,
+					"end": 282734,
+					"line": 9197
+				},
+				{
+					"start": 391069,
+					"end": 391401,
+					"line": 12687
+				},
+				{
+					"start": 7230,
+					"end": 7285,
+					"line": 239
+				},
+				{
+					"start": 7286,
+					"end": 7339,
+					"line": 240
+				},
+				{
+					"start": 7340,
+					"end": 7429,
+					"line": 241
+				},
+				{
+					"start": 7430,
+					"end": 7693,
+					"line": 245
+				},
+				{
+					"start": 7715,
+					"end": 7821,
+					"line": 254
+				},
+				{
+					"start": 7823,
+					"end": 8059,
+					"line": 258
+				},
+				{
+					"start": 8061,
+					"end": 8227,
+					"line": 265
+				},
+				{
+					"start": 8229,
+					"end": 8393,
+					"line": 274
+				},
+				{
+					"start": 10397,
+					"end": 10486,
+					"line": 357
+				},
+				{
+					"start": 10487,
+					"end": 10581,
+					"line": 362
+				},
+				{
+					"start": 10582,
+					"end": 10767,
+					"line": 367
+				},
+				{
+					"start": 10768,
+					"end": 10962,
+					"line": 376
+				},
+				{
+					"start": 10963,
+					"end": 11229,
+					"line": 385
+				},
+				{
+					"start": 11230,
+					"end": 11460,
+					"line": 397
+				}
+			],
+			"archive": "provenance/upstream/test/test.ts",
+			"blob": "8c9e33d1f2a4ceee3eaaed30d5d6b6665979aade",
+			"retained": [
+				{
+					"line": 7974,
+					"reason": "Asserts the terminal child tools widget; child-widget.ts stays upstream with the pi-tui hook."
+				},
+				{
+					"line": 15928,
+					"reason": "Herdr CLI transport case (herdr.ts suite); concrete provider stays upstream."
+				},
+				{
+					"line": 13959,
+					"reason": "Suite hooks bind the extension-owned runtime slot (pi-subagents/runtime) that pi-extension/subagents/index.ts creates; moves with the tool surface in M4."
+				}
+			],
+			"baseline_archive": "provenance/baseline/upstream/test/test.ts",
+			"baseline_blob": "74c72b170285ca317aa81c39529285d06297fdd7"
+		}
+	]
+}
