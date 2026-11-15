@@ -2,17 +2,32 @@
 
 Harness-neutral subagent engine: delegation, checked outcomes and a pluggable execution seam. It will serve both pi-worker and pi-herdr-agents.
 
-**Status:** placeholder with the M1 build/provenance scaffold. The engine has not been extracted from pi-herdr-agents yet. Early versions exist to set up publishing.
+**Status:** M2 generic engine extracted; Pi integration is not available yet. The root API remains the `0.0.1` placeholder until M6. Nothing here authorizes a release.
 
 ## Development
 
 Use Node **>=26.12.1** and `npm ci`. `npm run build` emits JavaScript,
 declarations and source maps into `dist/`; `npm run test:package` installs a
 fresh tarball and tests the emitted package without Pi peers or TypeScript loaders.
-The placeholder API remains `version: string` until M6.
+The placeholder root API remains `version: string` until M6.
+
+`@nubl/maestro/engine` exposes `createRunSession`, `defaultRetainSurface` and
+existing core/run-session types without Pi peers, config discovery or provider
+initialization. `@nubl/maestro/testing` exposes the two fakes and reusable
+conformance runners. These entries execute emitted JavaScript.
+
+The finite `./core/*` compatibility family (including nested config/roles modules)
+and `./runtime/run-session` / `./runtime/surface-retention` are **internal-compat,
+no stability promise**. The stars describe a family, not wildcard exports.
+No Pi adapter, host hook, tool surface or experimental worker entry ships in M2.
 
 Run `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm test`,
-`npm run build`, `npm run test:package` and `npm pack --dry-run` before submission.
+`npm run test:fidelity`, `npm run check:copy-fidelity`, `npm run build`,
+`npm run check:boundaries`, `npm run test:coverage`, `npm run test:package` and
+`npm pack --dry-run` before submission. Unit/coverage runs use an isolated HOME,
+agent directory and credential-free environment; reports remain under ignored
+`evidence/`. Coverage gates every measured copied original file against its
+unchanged M1 floor, not a global package threshold.
 See [the extraction plan](docs/plan/extraction.md) and
 [provenance records](provenance/README.md) for pins, coverage and later gates.
 

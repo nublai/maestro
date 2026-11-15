@@ -1,0 +1,369 @@
+{
+	"base_main_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+	"copy_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+	"node": "v26.13.0",
+	"counts": {
+		"tests": 419,
+		"failed": 0,
+		"passed": 418,
+		"cancelled": 0,
+		"skipped": 1,
+		"todo": 0,
+		"topLevel": 148,
+		"suites": 41
+	},
+	"migrated_tests": 357,
+	"method": "Original-file line-hit union; per-file non-regression; arithmetic means and weighted ratios reported. Full runtime/surfaces combined gates remain M6/H2.",
+	"files": [
+		{
+			"source": "maestro/adapters/fake/fake-harness-adapter.ts",
+			"population": "adapters/tools",
+			"covered": 259,
+			"total": 263,
+			"line": 98.47908745247149,
+			"floor": 98.47908745247149
+		},
+		{
+			"source": "maestro/core/accept.ts",
+			"population": "core",
+			"covered": 378,
+			"total": 378,
+			"line": 100,
+			"floor": 97.61904761904762
+		},
+		{
+			"source": "maestro/core/activity.ts",
+			"population": "core",
+			"covered": 29,
+			"total": 29,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/core/child-busy.ts",
+			"population": "core",
+			"covered": 21,
+			"total": 21,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/core/config/guidelines-config.ts",
+			"population": "core",
+			"covered": 79,
+			"total": 79,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/core/config/herdr-config.ts",
+			"population": "core",
+			"covered": 88,
+			"total": 88,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/core/config/model-config.ts",
+			"population": "core",
+			"covered": 776,
+			"total": 781,
+			"line": 99.35979513444302,
+			"floor": 98.46350832266326
+		},
+		{
+			"source": "maestro/core/config/outcome-ledger-config.ts",
+			"population": "core",
+			"covered": 58,
+			"total": 58,
+			"line": 100,
+			"floor": 87.93103448275862
+		},
+		{
+			"source": "maestro/core/config/pane-config.ts",
+			"population": "core",
+			"covered": 158,
+			"total": 164,
+			"line": 96.34146341463415,
+			"floor": 96.34146341463415
+		},
+		{
+			"source": "maestro/core/config/persistent-config.ts",
+			"population": "core",
+			"covered": 103,
+			"total": 107,
+			"line": 96.26168224299066,
+			"floor": 96.26168224299066
+		},
+		{
+			"source": "maestro/core/config/role-config.ts",
+			"population": "core",
+			"covered": 99,
+			"total": 99,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/core/config/spawning-config.ts",
+			"population": "core",
+			"covered": 84,
+			"total": 84,
+			"line": 100,
+			"floor": 91.66666666666667
+		},
+		{
+			"source": "maestro/core/config/supervision-config.ts",
+			"population": "core",
+			"covered": 92,
+			"total": 96,
+			"line": 95.83333333333333,
+			"floor": 95.83333333333333
+		},
+		{
+			"source": "maestro/core/config/task-model-init.ts",
+			"population": "core",
+			"covered": 270,
+			"total": 270,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/core/config/task-model-types.ts",
+			"population": "core",
+			"covered": 45,
+			"total": 45,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/core/config/type-guards.ts",
+			"population": "core",
+			"covered": 51,
+			"total": 51,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/core/deadline.ts",
+			"population": "core",
+			"covered": 35,
+			"total": 35,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/core/declared-skills.ts",
+			"population": "core",
+			"covered": 59,
+			"total": 59,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/core/delegation-depth.ts",
+			"population": "core",
+			"covered": 79,
+			"total": 79,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/core/git-environment.ts",
+			"population": "core",
+			"covered": 33,
+			"total": 33,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/core/host-text.ts",
+			"population": "core",
+			"covered": 130,
+			"total": 130,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/core/lifecycle.ts",
+			"population": "core",
+			"covered": 526,
+			"total": 540,
+			"line": 97.4074074074074,
+			"floor": 94.07407407407408
+		},
+		{
+			"source": "maestro/core/opened-primary-workspace.ts",
+			"population": "core",
+			"covered": 97,
+			"total": 108,
+			"line": 89.81481481481481,
+			"floor": 89.81481481481481
+		},
+		{
+			"source": "maestro/core/platform-support.ts",
+			"population": "core",
+			"covered": 31,
+			"total": 31,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/core/realpath-without-opening.ts",
+			"population": "core",
+			"covered": 43,
+			"total": 45,
+			"line": 95.55555555555556,
+			"floor": 95.55555555555556
+		},
+		{
+			"source": "maestro/core/roles/discovery.ts",
+			"population": "core",
+			"covered": 592,
+			"total": 596,
+			"line": 99.32885906040268,
+			"floor": 99.32885906040268
+		},
+		{
+			"source": "maestro/core/routing.ts",
+			"population": "core",
+			"covered": 707,
+			"total": 707,
+			"line": 100,
+			"floor": 99.29278642149929
+		},
+		{
+			"source": "maestro/core/script-launch.ts",
+			"population": "core",
+			"covered": 128,
+			"total": 128,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/core/shell.ts",
+			"population": "core",
+			"covered": 3,
+			"total": 3,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/core/specialist-notice.ts",
+			"population": "core",
+			"covered": 65,
+			"total": 65,
+			"line": 100,
+			"floor": 98.46153846153847
+		},
+		{
+			"source": "maestro/core/status.ts",
+			"population": "core",
+			"covered": 550,
+			"total": 570,
+			"line": 96.49122807017544,
+			"floor": 95.26315789473684
+		},
+		{
+			"source": "maestro/core/supervision.ts",
+			"population": "core",
+			"covered": 299,
+			"total": 301,
+			"line": 99.33554817275747,
+			"floor": 99.33554817275747
+		},
+		{
+			"source": "maestro/core/surface-provider.ts",
+			"population": "core",
+			"covered": 340,
+			"total": 340,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/core/undelivered-children.ts",
+			"population": "core",
+			"covered": 43,
+			"total": 43,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/core/wake.ts",
+			"population": "core",
+			"covered": 132,
+			"total": 139,
+			"line": 94.96402877697842,
+			"floor": 94.96402877697842
+		},
+		{
+			"source": "maestro/core/worktree-cleanup.ts",
+			"population": "core",
+			"covered": 437,
+			"total": 437,
+			"line": 100,
+			"floor": 99.54233409610984
+		},
+		{
+			"source": "maestro/core/worktree.ts",
+			"population": "core",
+			"covered": 95,
+			"total": 95,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/runtime/run-session.ts",
+			"population": "runtime",
+			"covered": 927,
+			"total": 927,
+			"line": 100,
+			"floor": 99.46062567421791
+		},
+		{
+			"source": "maestro/runtime/surface-retention.ts",
+			"population": "runtime",
+			"covered": 6,
+			"total": 6,
+			"line": 100,
+			"floor": 100
+		},
+		{
+			"source": "maestro/surfaces/fake/fake-surface-provider.ts",
+			"population": "surfaces",
+			"covered": 288,
+			"total": 319,
+			"line": 90.28213166144201,
+			"floor": 90.28213166144201
+		}
+	],
+	"populations": [
+		{
+			"population": "adapters/tools",
+			"files": 1,
+			"arithmetic_line_mean": 98.47908745247149,
+			"subset_floor_line_mean": 98.47908745247149,
+			"weighted_line_percent": 98.47908745247149
+		},
+		{
+			"population": "core",
+			"files": 36,
+			"arithmetic_line_mean": 98.90815877731926,
+			"subset_floor_line_mean": 98.0485953725156,
+			"weighted_line_percent": 98.84401521802751
+		},
+		{
+			"population": "runtime",
+			"files": 2,
+			"arithmetic_line_mean": 100,
+			"subset_floor_line_mean": 99.73031283710895,
+			"weighted_line_percent": 100
+		},
+		{
+			"population": "surfaces",
+			"files": 1,
+			"arithmetic_line_mean": 90.28213166144201,
+			"subset_floor_line_mean": 90.28213166144201,
+			"weighted_line_percent": 90.28213166144201
+		}
+	]
+}

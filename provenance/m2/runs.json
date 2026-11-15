@@ -1,0 +1,289 @@
+{
+	"base_main_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+	"copy_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+	"node": "26.13.0",
+	"runs": [
+		{
+			"path": "evidence/m2-complete-tests",
+			"success": true,
+			"counts": {
+				"tests": 380,
+				"failed": 0,
+				"passed": 379,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 109,
+				"suites": 41
+			},
+			"coverage": true,
+			"artifacts": {
+				"events.jsonl": "c9bd6f1cf2e3d34ff3c86cc22eb9ee1354877d78fdca211340b9621aad6771f0",
+				"tests.tap": "ad84d96a78595274ac7a476c3a3e26e07309f8a4f3fe008246050bf3a51d880d",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+			},
+			"note": "Core-only cohort passed all original per-file floors before the integrated gate was wired."
+		},
+		{
+			"path": "evidence/m2-expanded",
+			"success": false,
+			"counts": {
+				"tests": 351,
+				"failed": 1,
+				"passed": 349,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 80,
+				"suites": 42
+			},
+			"coverage": true,
+			"artifacts": {
+				"events.jsonl": "f86f156d2a11d15d925fe5b7ef7d4603c84aeb4ba3c012c667b512bce2ed3549",
+				"tests.tap": "586129918bd589ad9604c1767d1088ff7608ac014f39f0a7e94b7ccd430972ab",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+			},
+			"note": "Rejected an accidentally selected retained-host subprocess case; it remained upstream. Added direct core-only coverage."
+		},
+		{
+			"path": "evidence/m2-initial",
+			"success": true,
+			"counts": {
+				"tests": 324,
+				"failed": 0,
+				"passed": 323,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 68,
+				"suites": 39
+			},
+			"coverage": true,
+			"artifacts": {
+				"events.jsonl": "67a23d1f301ed8f376092ca0992036e98fbe5ff2c8f2509a935b83372ea0dec7",
+				"tests.tap": "72fac81f1d23d40aed88d1c1c9dba714b9145a7736c3c700a719fbea7885b861",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+			},
+			"note": "Initial migrated subset passed but did not yet meet original per-file coverage floors."
+		},
+		{
+			"path": "evidence/m2-more",
+			"success": false,
+			"counts": {
+				"tests": 353,
+				"failed": 1,
+				"passed": 351,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 82,
+				"suites": 41
+			},
+			"coverage": true,
+			"artifacts": {
+				"events.jsonl": "7e0e840a32e9bab4bec3c741eec5993db4102390b795620dec99f10598c7ed67",
+				"tests.tap": "f510aa2d8b072c5f92bba6d99e5c340f441212ed948507f39cac5dbbc466616d",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+			},
+			"note": "New supplemental catalog fixture did not authenticate its own model; corrected the fixture."
+		},
+		{
+			"path": "evidence/m2-policy",
+			"success": false,
+			"counts": {
+				"tests": 378,
+				"failed": 1,
+				"passed": 376,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 107,
+				"suites": 41
+			},
+			"coverage": true,
+			"artifacts": {
+				"events.jsonl": "0cf5878cb705f980c6da0adef53fb7e2c01a8cf6cc07f2e4dc24e98351c3b016",
+				"tests.tap": "8f5fcfe1f7159e671ccd279e11c69bf6483d3f2b009e84e404eecce571520d75",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+			},
+			"note": "New supplemental lifecycle test expected starting instead of the existing blocked behavior; corrected its expectation after inspecting the unchanged source."
+		},
+		{
+			"path": "evidence/m2-run-9dUEfg",
+			"success": true,
+			"counts": {
+				"tests": 419,
+				"failed": 0,
+				"passed": 418,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 148,
+				"suites": 41
+			},
+			"coverage": true,
+			"artifacts": {
+				"events.jsonl": "7e2756fdd27193915d83e051e76a60e317d3d49d4832233b7aeae51f24b4df52",
+				"tests.tap": "3460b1c7289ef70e9a11ca931a54191fe3a26823cd8117f7544e4bbefa79e398",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+				"exit.json": "101ad462a76337e0e80a200927532ed3523bb398c96afbdc7637849603c1d421",
+				"coverage.json": "458d1f0438543430067b73cea77605ddf63bf559b01d56e984b5bcf8c4296f91",
+				"coverage.json.gz": "7f60b800220abf8702368e8c84f02149fea7601504e2aefa2734316d874f4b8d",
+				"identities.json.gz": "85851266d19fe14e8970fb2eb972e98176a53846b47eb7243ec188393b2a8fc0"
+			},
+			"note": "Integrated unit/identity or coverage gate; original source assertions and floors unchanged."
+		},
+		{
+			"path": "evidence/m2-run-E9yRkd",
+			"success": true,
+			"counts": {
+				"tests": 419,
+				"failed": 0,
+				"passed": 418,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 148,
+				"suites": 41
+			},
+			"coverage": false,
+			"artifacts": {
+				"events.jsonl": "d295a0b832e9695050e09a244e74396594bfcf29791a8185fad63d40356fa352",
+				"tests.tap": "db75d83a86906a7c5d72edd792892452981e3853f7101ae9cbae1476df2944b9",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+				"exit.json": "355b0a078d1e7d29d197f7146ba2d3628d9dd51afb6826b988eae3ab7457f408",
+				"identities.json.gz": "85851266d19fe14e8970fb2eb972e98176a53846b47eb7243ec188393b2a8fc0"
+			},
+			"note": "Integrated unit/identity or coverage gate; original source assertions and floors unchanged."
+		},
+		{
+			"path": "evidence/m2-run-JmeJ5z",
+			"success": true,
+			"counts": {
+				"tests": 419,
+				"failed": 0,
+				"passed": 418,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 148,
+				"suites": 41
+			},
+			"coverage": false,
+			"artifacts": {
+				"events.jsonl": "e8b6db6d8e26c0dccd54166f24e4f441bb2324af974f03b1bb581bcdba3edec4",
+				"tests.tap": "6bf755a57833cc5849af1c2e1405b8eda728c9d41bf66c34f85b430ac9e32bbe",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+				"exit.json": "355b0a078d1e7d29d197f7146ba2d3628d9dd51afb6826b988eae3ab7457f408",
+				"identities.json.gz": "85851266d19fe14e8970fb2eb972e98176a53846b47eb7243ec188393b2a8fc0"
+			},
+			"note": "Integrated unit/identity or coverage gate; original source assertions and floors unchanged."
+		},
+		{
+			"path": "evidence/m2-run-bqEmlj",
+			"success": true,
+			"counts": {
+				"tests": 419,
+				"failed": 0,
+				"passed": 418,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 148,
+				"suites": 41
+			},
+			"coverage": false,
+			"artifacts": {
+				"events.jsonl": "697a0d352a4b10eca0cf521b00b48a944d3660e104c61c52a81b0e0a40c6dc7e",
+				"tests.tap": "251ec3cb766bb9af8cc345d95c58968ff2e17deba687c3fc73d1f72aa5937931",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+				"exit.json": "355b0a078d1e7d29d197f7146ba2d3628d9dd51afb6826b988eae3ab7457f408",
+				"identities.json.gz": "85851266d19fe14e8970fb2eb972e98176a53846b47eb7243ec188393b2a8fc0"
+			},
+			"note": "Integrated unit/identity or coverage gate; original source assertions and floors unchanged."
+		},
+		{
+			"path": "evidence/m2-run-mk1GAf",
+			"success": true,
+			"counts": {
+				"tests": 419,
+				"failed": 0,
+				"passed": 418,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 148,
+				"suites": 41
+			},
+			"coverage": true,
+			"artifacts": {
+				"events.jsonl": "218d6b3d4ef2992c121956b6fcb07d4b00867eae906f33f1405da119f33bb8dd",
+				"tests.tap": "c40724b41563eee08db890681f476f41a31aae6883b40312aed9bc2d7026f87c",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+				"exit.json": "101ad462a76337e0e80a200927532ed3523bb398c96afbdc7637849603c1d421",
+				"coverage.json": "458d1f0438543430067b73cea77605ddf63bf559b01d56e984b5bcf8c4296f91",
+				"coverage.json.gz": "ca01ede2e07ea1d5f032b3afd4afa77cea19117ce19008171d08a08526b0a8c7",
+				"identities.json.gz": "85851266d19fe14e8970fb2eb972e98176a53846b47eb7243ec188393b2a8fc0"
+			},
+			"note": "Integrated unit/identity or coverage gate; original source assertions and floors unchanged."
+		}
+	],
+	"gates": {
+		"boundaries.log": {
+			"result": "passed",
+			"sha256": "3196985c149bfcead6a7c124aa4ebf5acf3010c2d9e5b667e1064dc53ad24dcd"
+		},
+		"build.log": {
+			"result": "passed",
+			"sha256": "50aaaf41d273e885817159056e03ca2f1bccc9510b8d089140bce25e847ebe2c"
+		},
+		"copy-fidelity-local.log": {
+			"result": "passed",
+			"sha256": "3e5a8645ba8f863856f3b3de63c4d112334e3a61510a241e5b19807411173bac"
+		},
+		"copy-fidelity.log": {
+			"result": "passed",
+			"sha256": "5f7ad42dc225a8ff752fa74d9e2b501e2cf5619177d0b1be06fe5520f808bb85"
+		},
+		"coverage.log": {
+			"result": "passed",
+			"sha256": "ea257e19ba7f1b7d1601e508345fe9114ce3b438e8dc53df4283a6a545fb93cc"
+		},
+		"docs-tools.log": {
+			"result": "passed",
+			"sha256": "a993ccf27f7c377166ccde10b3d0d9f5f40c2a114f43ad0935043609bca66682"
+		},
+		"format-check.log": {
+			"result": "passed",
+			"sha256": "d8c618ca8c094c23012eafa9c380ad8ff94519c3c31db7f98153cee5874a59c8"
+		},
+		"lint.log": {
+			"result": "passed",
+			"sha256": "93c46c9f76bd66d117ffe3018a6a1fc685d6506bcc3ea87d107c14f571c82bca"
+		},
+		"npm-ci.log": {
+			"result": "passed",
+			"sha256": "c736c7a5f98fe25a385f06d5d2e210f1ca37eee4b27ed28398510901d14d1e16"
+		},
+		"pack.log": {
+			"result": "passed",
+			"sha256": "17f1138baefcad856c2f586d80dba65867483bc64849f3120fd8114a7464020b"
+		},
+		"package.log": {
+			"result": "passed",
+			"sha256": "123cb6ecac7c12504841f2f30c92d2272229bc6946344bb1b70eba4f9a9b403f"
+		},
+		"test-fidelity.log": {
+			"result": "passed",
+			"sha256": "81132ca369730018dbe71114ae6b4cf7656378c96e9b724afd4c636ea470e47c"
+		},
+		"test.log": {
+			"result": "passed",
+			"sha256": "fb0604aa8aab22e443e264e1507bcc5716b28bf300ba5329c6c2d4e63c297fe5"
+		},
+		"typecheck.log": {
+			"result": "passed",
+			"sha256": "2a383d56570ab499a7cb45e638ad48c211f92c776e11c3db2777708538b046ca"
+		}
+	}
+}

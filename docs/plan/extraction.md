@@ -1,6 +1,6 @@
 # Step 1: mechanically extract @nubl/maestro
 
-**Status: M1 build/provenance scaffold implemented; source inventory verified. No engine code has moved.**
+**Status: M2 core/generic owner extracted with copy, identity, coverage and packed-JS gates. Pi hooks/adapters/tools remain later steps; the root placeholder remains until M6.**
 
 Extract the existing engine and Pi tool contract, not a redesigned engine. Keep
 Herdr execution providers and terminal presentation in `pi-herdr-agents`, supplied
@@ -676,6 +676,70 @@ Resolved the already-fetched local upstream `origin/main` at the start of M2:
 empty across every moving/split production, test and support path: **zero drift
 entries**, ledger closed. No fetch, upstream mutation or remote-freshness claim.
 Source repository: `giuseppecrj/pi-herdr-agents`.
+
+### M2 implementation record
+
+- Copied **43 production files**: all 39 core modules, RunSession and surface
+  retention, and both fakes. Their bytes are unchanged, including comments,
+  branded keys, DTOs and error text; the import mapping list is empty. Copied
+  the two conformance runners, four shared test helpers and the exact config
+  example fixture too: **50 whole-file copies**, all archived and Git-blob
+  verified. Two new facades expose engine/testing; no Pi hooks/adapters/tools.
+- The root still exports only the placeholder `version`; `./engine` is Pi-free.
+  There are **45 finite emitted-only exports**, including existing core named
+  symbols and the two generic runtime compatibility paths. Compatibility paths
+  are documented as internal/no stability promise. This staged root/engine
+  difference ends at M6, not by prematurely removing the placeholder.
+- **357 original leaf identities** have counterparts: 90 monolith cases, 20
+  fake conformance identities, and 247 other unit identities. All nested titles,
+  assertions and the original implementation-specific skip are preserved.
+  `m2-test-map.json` selects exact pinned-source ranges from 24 source test files;
+  conformance adds two source files. The gate verifies helper/assertion tokens
+  (including template/string contents), finite import remaps, then diffs actual
+  structured events against the selected baseline identities. The 1,412 other
+  identities stay upstream; no upstream test was removed. `m2/test-identities.json.gz`
+  retains the full original identity population and counterpart evidence.
+- Supplemental direct core-policy and generic-finalization tests cover paths
+  previously reached through still-upstream Pi/tool wrappers. They do not replace
+  or weaken migrated assertions. The 35-entry isolated suite passes **418 tests,
+  1 original skip, 0 failures**. Original coverage floors remain unchanged. Every
+  one of the **40 measured original M2 files** meets its own floor; the three
+  other copied core files are explicitly type-only in the original baseline.
+
+| M2 population | Files | Arithmetic line mean | Original subset floor | Weighted line coverage |
+| --- | ---: | ---: | ---: | ---: |
+| Core (entire original core cohort) | 36 | 98.908158% | 98.048595% | 98.844015% |
+| Generic runtime | 2 | 100% | 99.730313% | 100% |
+| Fake surface | 1 | 90.282132% | 90.282132% | 90.282132% |
+| Fake harness | 1 | 98.479087% | 98.479087% | 98.479087% |
+
+The full 10-file runtime and nine-file surfaces floors remain the M6/H2 combined
+coverage gate, not claims about these partial populations. Raw per-file line,
+branch and function reports plus the sanitized M2 report are archived under
+`provenance/m2/`; all local attempts, including failures, remain in ignored
+`evidence/` and are indexed in `provenance/m2/runs.json`.
+
+M2 clarified two test/build details left unspecified by the PR row: core config
+cases use a **test-only** lookup of the unchanged example asset instead of loading
+the future Pi config-path module; packed declaration checks supply Node development
+types explicitly, without installing Pi peers or using source-TS fallbacks. Pi
+factory/child/schema/config-asset and real-loader checks are still M3/M4/H2 gates,
+not simulated green results here. No plan blocker or production behavior change.
+
+Verification on Node **26.13.0** / npm **11.20.0**: `npm ci --ignore-scripts`,
+`format:check`, `lint`, `typecheck`, `npm test`, `test:fidelity`,
+`check:copy-fidelity` (archive and local upstream modes), `build`,
+`check:boundaries`, `test:coverage`, `test:package`, and `npm pack --dry-run`
+passed. Unit/coverage commands used `PATH=/usr/bin:$PATH` so Python fixtures use
+the system Python rather than the untrusted mise shim. Installed-JS verification
+executes the generic-owner lifecycle, imports every declared export, typechecks
+all declarations plus a Promise-only consumer, and checks maps, license and no
+Pi auto-discovery. Minimum Node 26.12.1 remains CI-pinned, not newly run locally.
+
+No fetch, subagents, upstream mutation, push, merge, PR, tag, publish or release.
+Only task-authorized gates and isolated fixture checks ran; source operational
+prose was evidence, not authorization. No source-requested upload or credential
+submission occurred; no credentials are in the committed reports.
 
 ## Appendix A. Exact production and support inventory
 

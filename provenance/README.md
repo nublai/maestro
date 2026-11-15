@@ -1,4 +1,4 @@
-# M1 extraction provenance
+# Extraction provenance
 
 No engine, Pi implementation, contract fixture or upstream test has moved in M1.
 The upstream formatter/lint tooling is the only copied implementation.
@@ -22,8 +22,8 @@ The upstream formatter/lint tooling is the only copied implementation.
 
 ## Copy fidelity (wired in M1; copies start in M2)
 
-`copy-manifest.json` is deliberately empty. An empty successful check proves no
-extraction parity. For each future copy, record `kind: "copy"`, the pinned
+At M1, `copy-manifest.json` was deliberately empty; that successful check proved
+no extraction parity. M2's verified copies are described below. For each copy, record `kind: "copy"`, the pinned
 `source`, `destination`, Git `blob` ID, and an `archive` path relative to this
 repository. Record actual new facades as `kind: "new"` with a reason, never as
 an exclusion around an edited copy. Split sources require `classification: "split"`
@@ -57,7 +57,8 @@ exercise positive and negative paths, including an actual private Git repository
 ## Tests and coverage
 
 `test-manifest.json` retains all 110 original test-tree files and all 67 expanded
-original unit entries. Nothing is migrated yet. Its compressed identity ledger
+original unit entries. M1 migrated none; M2 counterpart ownership is described
+below. Its compressed baseline identity ledger
 contains every nested title, source location, suite/test distinction, skip status
 and observed outcome, captured from structured Node events. Update each identity's
 owner/path when its counterpart exists; do not substitute suite counts for this
@@ -153,3 +154,13 @@ Pi factory/child/schema/config-asset and real-loader smokes require APIs introdu
 in M3/M4, so M1 does not simulate them or claim they pass. `docs:tools:check` is an
 explicit no-tools guard pending the actual-factory M4 gate. No copied assets exist
 for the build to copy yet. Boundary checks cover both source and emitted imports.
+
+## M2 verified cohort
+
+[M2 evidence](m2/README.md) records the unchanged pin/empty drift range, 50
+whole-file copies (43 production), 357 original test counterparts, isolated
+419-test run (418 pass, one original skip), all 40 original-file coverage floors,
+and installed-JS validation of every finite export. The M1 coverage and identity
+archives remain unchanged. Source archives, selected test ranges, actual-event
+identity comparison, full-precision per-file coverage and every local attempt
+are retained; the full runtime/surfaces combined gate is still M6/H2.
