@@ -251,6 +251,31 @@ try {
 		join(evidence, "identities.json.gz"),
 		gzipSync(JSON.stringify(identities)),
 	);
+	// M4 completes the ownership ledger: every original identity that stays
+	// upstream carries a reason (scripts/retained-ledger.ts), and the committed
+	// ledger names exactly the identities this run leaves upstream.
+	let ledger: (Identity & { file: string; reason: string })[];
+	try {
+		ledger = JSON.parse(
+			readFileSync(
+				new URL("../provenance/m4/retained-ledger.json", import.meta.url),
+				"utf8",
+			),
+		);
+	} catch (cause) {
+		throw new Error("Cannot read the retained-identity ledger", { cause });
+	}
+	assert(ledger.every((entry) => entry.reason.trim().length > 0));
+	assert.deepEqual(
+		ledger.map((entry) => key(entry)).sort(),
+		identities
+			.filter(
+				(event) => event.kind !== "suite" && event.owner === "pi-herdr-agents",
+			)
+			.map((event) => key(event))
+			.sort(),
+		"Retained identities differ from provenance/m4/retained-ledger.json",
+	);
 	console.log(
 		`Unit tests: ${summary.counts.passed}/${summary.counts.tests} passed, ${summary.counts.skipped} skipped. ${migrated.length - added.length} original test identities preserved (+${added.length} added upstream after the identity baseline); ${1769 - migrated.length + added.length} remain upstream.`,
 	);

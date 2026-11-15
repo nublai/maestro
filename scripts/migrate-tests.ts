@@ -244,6 +244,12 @@ interface Selected {
 	text: string;
 	count: number;
 }
+/** A case (or suite prefix) that stays upstream, with why. */
+export interface RetainedCase {
+	line: number;
+	titles: string[];
+	reason: string;
+}
 export interface MigratedFile {
 	output: string;
 	entry: Omit<TestMigration, "blob" | "archive">;
@@ -258,6 +264,7 @@ export function migrateFile(
 	skipped: SourceRange[],
 	exclude: { line: number; reason: string }[],
 	resourceMappings: { from: string; to: string }[] = [],
+	retained: RetainedCase[] = [],
 ): MigratedFile {
 	const file = ts.createSourceFile(source, text, ts.ScriptTarget.Latest, true);
 	const lineOf = (node: ts.Node) =>
@@ -291,6 +298,19 @@ export function migrateFile(
 	}
 	const items = build(file.statements, undefined, []);
 	const excluded = new Set(exclude.map((entry) => entry.line));
+	const exclusionReason = new Map(
+		exclude.map((entry) => [entry.line, entry.reason]),
+	);
+	const whyOf = new Map<Item, string[]>();
+	/** Unavailable imports (with specifiers) and resource paths behind a taint. */
+	const rootsOf = new Map<Item, Set<string>>();
+	const explain = (items: Item[]) => {
+		const direct = new Set(items.flatMap((item) => whyOf.get(item) ?? []));
+		const roots = new Set(
+			items.flatMap((item) => [...(rootsOf.get(item) ?? [])]),
+		);
+		return `${[...direct].join(", ")} (unavailable here: ${[...roots].sort().join("; ")})`;
+	};
 	const isSkipped = (node: ts.Node) =>
 		skipped.some(
 			(range) =>
@@ -298,8 +318,8 @@ export function migrateFile(
 		);
 	const taint = new Map<Item, boolean>();
 	/** A literal module/resource path (computed import, spawn URL, file read) absent here. */
-	function missingPath(node: ts.Node): boolean {
-		let missing = false;
+	function missingPath(node: ts.Node): string | undefined {
+		let missing: string | undefined;
 		function visit(child: ts.Node): void {
 			// Plain literals and template heads such as `../x.ts?reload-${n}`.
 			const text = ts.isStringLiteralLike(child)
@@ -316,7 +336,7 @@ export function migrateFile(
 				/^\.\.?\/.*\.[cm]?[jt]s$/.test(path) &&
 				!existsSync(resolve(root, posix.join(posix.dirname(destination), path)))
 			)
-				missing = true;
+				missing = path;
 			if (!missing) ts.forEachChild(child, visit);
 		}
 		visit(node);
@@ -326,21 +346,29 @@ export function migrateFile(
 		const known = taint.get(item);
 		if (known !== undefined) return known;
 		taint.set(item, false);
-		let result = item.kind !== "suite" && missingPath(item.node);
+		const missing = item.kind !== "suite" ? missingPath(item.node) : undefined;
+		let result = missing !== undefined;
 		const why: string[] = result ? ["missing resource path"] : [];
+		const roots = new Set<string>(missing ? [`resource ${missing}`] : []);
 		for (const name of item.refs) {
 			const declaration = resolveName(name, item.scope);
 			if (declaration && declaration !== item) {
 				if (tainted(declaration)) {
 					result = true;
 					why.push(`helper ${name}`);
+					for (const root of rootsOf.get(declaration) ?? []) roots.add(root);
 				}
 			} else if (!declaration && imports.get(name)?.allowed === false) {
 				result = true;
 				why.push(`import ${name}`);
+				const declaration = imports.get(name)?.declaration;
+				assert(declaration && ts.isStringLiteral(declaration.moduleSpecifier));
+				roots.add(`${name} from ${declaration.moduleSpecifier.text}`);
 			}
 		}
 		taint.set(item, result);
+		whyOf.set(item, why);
+		rootsOf.set(item, roots);
 		if (result && process.env.MIGRATE_EXPLAIN && item.kind === "test")
 			console.error(
 				`${source}:${lineOf(item.node)} retained: ${why.join(", ")}`,
@@ -385,6 +413,21 @@ export function migrateFile(
 				)
 					chosen.add(item);
 			}
+		}
+		const taintedHooks = hooks.filter(tainted);
+		for (const item of list) {
+			const line = lineOf(item.node);
+			const keep = (reason: string) =>
+				retained.push({ line, titles: item.titles, reason });
+			if (item.kind !== "test" && item.kind !== "suite") continue;
+			if (excluded.has(line)) keep(`excluded: ${exclusionReason.get(line)}`);
+			else if (hooksTainted) keep(`suite hooks need ${explain(taintedHooks)}`);
+			else if (
+				item.kind === "test" &&
+				!chosen.has(item) &&
+				!isSkipped(item.node)
+			)
+				keep(`needs ${explain([item])}`);
 		}
 		const suites = new Map<Item, string>();
 		for (const item of list)
@@ -443,6 +486,7 @@ export function migrateFile(
 	select(items);
 	selections.length = 0;
 	helpers.length = 0;
+	retained.length = 0;
 	const body = select(items);
 	assert(body.count, `No migratable cases in ${source}`);
 	const emitted: string[] = [];

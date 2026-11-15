@@ -1,0 +1,4452 @@
+[
+	{
+		"file": "test/launch.test.ts",
+		"titles": [
+			"Pi launch",
+			"dispatch certainty",
+			"fails plainly for a plain runScript rejection on a owned pane"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper failures (unavailable here: HerdrClientError from ../maestro/surfaces/herdr/herdr-cli.ts)"
+	},
+	{
+		"file": "test/launch.test.ts",
+		"titles": [
+			"Pi launch",
+			"dispatch certainty",
+			"fails plainly for a not-spawned Herdr client on a owned pane"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper failures (unavailable here: HerdrClientError from ../maestro/surfaces/herdr/herdr-cli.ts)"
+	},
+	{
+		"file": "test/launch.test.ts",
+		"titles": [
+			"Pi launch",
+			"dispatch certainty",
+			"transfers the initialized owner for an uncertain command dispatch on a owned pane"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper failures (unavailable here: HerdrClientError from ../maestro/surfaces/herdr/herdr-cli.ts)"
+	},
+	{
+		"file": "test/launch.test.ts",
+		"titles": [
+			"Pi launch",
+			"dispatch certainty",
+			"fails plainly for a plain runScript rejection on a caller surface"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper failures (unavailable here: HerdrClientError from ../maestro/surfaces/herdr/herdr-cli.ts)"
+	},
+	{
+		"file": "test/launch.test.ts",
+		"titles": [
+			"Pi launch",
+			"dispatch certainty",
+			"fails plainly for a not-spawned Herdr client on a caller surface"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper failures (unavailable here: HerdrClientError from ../maestro/surfaces/herdr/herdr-cli.ts)"
+	},
+	{
+		"file": "test/launch.test.ts",
+		"titles": [
+			"Pi launch",
+			"dispatch certainty",
+			"transfers the initialized owner for an uncertain command dispatch on a caller surface"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper failures (unavailable here: HerdrClientError from ../maestro/surfaces/herdr/herdr-cli.ts)"
+	},
+	{
+		"file": "test/launch.test.ts",
+		"titles": [
+			"Pi launch",
+			"dispatch certainty",
+			"fails plainly for a plain runScript rejection on a resumed pane"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper failures (unavailable here: HerdrClientError from ../maestro/surfaces/herdr/herdr-cli.ts)"
+	},
+	{
+		"file": "test/launch.test.ts",
+		"titles": [
+			"Pi launch",
+			"dispatch certainty",
+			"fails plainly for a not-spawned Herdr client on a resumed pane"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper failures (unavailable here: HerdrClientError from ../maestro/surfaces/herdr/herdr-cli.ts)"
+	},
+	{
+		"file": "test/launch.test.ts",
+		"titles": [
+			"Pi launch",
+			"dispatch certainty",
+			"transfers the initialized owner for an uncertain command dispatch on a resumed pane"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper failures (unavailable here: HerdrClientError from ../maestro/surfaces/herdr/herdr-cli.ts)"
+	},
+	{
+		"file": "test/launch.test.ts",
+		"titles": [
+			"Pi launch",
+			"dispatch certainty",
+			"a real script-write failure on a owned pane dispatches nothing and closes the pane"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper failures (unavailable here: HerdrClientError from ../maestro/surfaces/herdr/herdr-cli.ts)"
+	},
+	{
+		"file": "test/launch.test.ts",
+		"titles": [
+			"Pi launch",
+			"dispatch certainty",
+			"a real script-write failure on a resumed pane dispatches nothing and closes the pane"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper failures (unavailable here: HerdrClientError from ../maestro/surfaces/herdr/herdr-cli.ts)"
+	},
+	{
+		"file": "test/maestro/async-io.test.ts",
+		"titles": [
+			"readiness queries consume remaining budget and neither late readiness nor late absence is success"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import waitForHerdrShellReady, import waitForHerdrPaneAbsence (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; waitForHerdrPaneAbsence from ../../maestro/surfaces/herdr/herdr-pane.ts; waitForHerdrShellReady from ../../maestro/surfaces/herdr/herdr-pane.ts)"
+	},
+	{
+		"file": "test/maestro/async-io.test.ts",
+		"titles": [
+			"explicit-timeout Herdr queries remain asynchronous and let parent timers run"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import HerdrSurfaceProvider (unavailable here: HerdrSurfaceProvider from ../../maestro/surfaces/herdr/herdr-surface-provider.ts; __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/audit-herdr-dispatch.test.ts",
+		"titles": ["dispatch accepts successful receipt \"\""],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Herdr dispatch uncertainty/ownership assertions remain with concrete provider."
+	},
+	{
+		"file": "test/maestro/audit-herdr-dispatch.test.ts",
+		"titles": ["dispatch accepts successful receipt \" \\t\\r\\n\""],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Herdr dispatch uncertainty/ownership assertions remain with concrete provider."
+	},
+	{
+		"file": "test/maestro/audit-herdr-dispatch.test.ts",
+		"titles": [
+			"dispatch accepts successful receipt \"{\\\"result\\\":{\\\"ok\\\":true}}\""
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Herdr dispatch uncertainty/ownership assertions remain with concrete provider."
+	},
+	{
+		"file": "test/maestro/audit-herdr-dispatch.test.ts",
+		"titles": [
+			"dispatch accepts successful receipt \"{\\\"result\\\":{\\\"type\\\":\\\"pane_run\\\"}}\""
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Herdr dispatch uncertainty/ownership assertions remain with concrete provider."
+	},
+	{
+		"file": "test/maestro/audit-herdr-dispatch.test.ts",
+		"titles": ["dispatch preserves uncertainty without retry for failure 0"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Herdr dispatch uncertainty/ownership assertions remain with concrete provider."
+	},
+	{
+		"file": "test/maestro/audit-herdr-dispatch.test.ts",
+		"titles": ["dispatch preserves uncertainty without retry for failure 1"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Herdr dispatch uncertainty/ownership assertions remain with concrete provider."
+	},
+	{
+		"file": "test/maestro/audit-herdr-dispatch.test.ts",
+		"titles": ["dispatch preserves uncertainty without retry for failure 2"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Herdr dispatch uncertainty/ownership assertions remain with concrete provider."
+	},
+	{
+		"file": "test/maestro/audit-herdr-dispatch.test.ts",
+		"titles": ["dispatch preserves uncertainty without retry for failure 3"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Herdr dispatch uncertainty/ownership assertions remain with concrete provider."
+	},
+	{
+		"file": "test/maestro/audit-herdr-dispatch.test.ts",
+		"titles": ["dispatch preserves uncertainty without retry for failure 4"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Herdr dispatch uncertainty/ownership assertions remain with concrete provider."
+	},
+	{
+		"file": "test/maestro/audit-herdr-dispatch.test.ts",
+		"titles": ["dispatch preserves uncertainty without retry for failure 5"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Herdr dispatch uncertainty/ownership assertions remain with concrete provider."
+	},
+	{
+		"file": "test/maestro/audit-herdr-dispatch.test.ts",
+		"titles": ["dispatch preserves uncertainty without retry for failure 6"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Herdr dispatch uncertainty/ownership assertions remain with concrete provider."
+	},
+	{
+		"file": "test/maestro/audit-herdr-dispatch.test.ts",
+		"titles": ["dispatch preserves uncertainty without retry for failure 7"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Herdr dispatch uncertainty/ownership assertions remain with concrete provider."
+	},
+	{
+		"file": "test/maestro/audit-herdr-dispatch.test.ts",
+		"titles": ["dispatch preserves uncertainty without retry for failure 8"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Herdr dispatch uncertainty/ownership assertions remain with concrete provider."
+	},
+	{
+		"file": "test/maestro/audit-herdr-dispatch.test.ts",
+		"titles": ["dispatch preserves uncertainty without retry for failure 9"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Herdr dispatch uncertainty/ownership assertions remain with concrete provider."
+	},
+	{
+		"file": "test/maestro/audit-herdr-dispatch.test.ts",
+		"titles": ["dispatch preserves uncertainty without retry for failure 10"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Herdr dispatch uncertainty/ownership assertions remain with concrete provider."
+	},
+	{
+		"file": "test/maestro/audit-herdr-dispatch.test.ts",
+		"titles": ["dispatch preserves uncertainty without retry for failure 11"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Herdr dispatch uncertainty/ownership assertions remain with concrete provider."
+	},
+	{
+		"file": "test/maestro/audit-herdr-dispatch.test.ts",
+		"titles": ["dispatch preserves uncertainty without retry for failure 12"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Herdr dispatch uncertainty/ownership assertions remain with concrete provider."
+	},
+	{
+		"file": "test/maestro/audit-herdr-dispatch.test.ts",
+		"titles": ["dispatch preserves uncertainty without retry for failure 13"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Herdr dispatch uncertainty/ownership assertions remain with concrete provider."
+	},
+	{
+		"file": "test/maestro/audit-ownership.test.ts",
+		"titles": [
+			"audited launch ownership",
+			"a real script-write failure in a worktree dispatches nothing and fails plainly with its root retained"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import runScriptInPane (unavailable here: runScriptInPane from ../../maestro/surfaces/herdr/terminal.ts)"
+	},
+	{
+		"file": "test/maestro/core-lab.test.ts",
+		"titles": [
+			"Core lab identity requires an exact core and positive integer PID"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/core-lab.test.ts",
+		"titles": [
+			"Core lab starts with private canonical paths and no inherited connection/auth context"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/core-lab.test.ts",
+		"titles": ["Core lab refuses cleanup when the root stopped being private"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/core-lab.test.ts",
+		"titles": [
+			"unknown start ownership is retained, never retried, removed or signalled"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/core-lab.test.ts",
+		"titles": [
+			"Core lab RPC validates framing, IDs and errors using only its socket"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/core-lab.test.ts",
+		"titles": [
+			"Core lab stop refuses a replacement server before sending stop"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/core-parent.test.ts",
+		"titles": ["Core parent evidence ignores only an incomplete final append"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/core-parent.test.ts",
+		"titles": [
+			"Core parent evidence distinguishes model-visible reports from lookalike text"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/core-parent.test.ts",
+		"titles": [
+			"Core evidence refuses both the checkout root and its descendants before I/O"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/delegated-marker.test.ts",
+		"titles": [
+			"Herdr marker transport",
+			"writes the exact marker contract with a TTL and clears without one"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import withFakeHerdrSocket, import replyResult, import herdrMarkerWriter (unavailable here: herdrMarkerWriter from ../../pi-extension/subagents/marker-transport.ts; replyResult from ../fake-herdr-socket.ts; withFakeHerdrSocket from ../fake-herdr-socket.ts)"
+	},
+	{
+		"file": "test/maestro/delegated-marker.test.ts",
+		"titles": [
+			"Herdr marker transport",
+			"reads the pane's session through pane.get"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import withFakeHerdrSocket, import replyResult, import herdrMarkerSessionReader (unavailable here: herdrMarkerSessionReader from ../../pi-extension/subagents/marker-transport.ts; replyResult from ../fake-herdr-socket.ts; withFakeHerdrSocket from ../fake-herdr-socket.ts)"
+	},
+	{
+		"file": "test/maestro/dependency-rule.test.ts",
+		"titles": [
+			"maestro dependency rule",
+			"overall enforcement has no violations"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Preserve rule-parser tests in both scopes; tighten Maestro no-Herdr/no-TUI boundary and retain host provider-boundary checks."
+	},
+	{
+		"file": "test/maestro/dependency-rule.test.ts",
+		"titles": [
+			"maestro dependency rule",
+			"core imports only node builtins and core"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Preserve rule-parser tests in both scopes; tighten Maestro no-Herdr/no-TUI boundary and retain host provider-boundary checks."
+	},
+	{
+		"file": "test/maestro/dependency-rule.test.ts",
+		"titles": [
+			"maestro dependency rule",
+			"adapters/pi imports core, node, pi host packages"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Preserve rule-parser tests in both scopes; tighten Maestro no-Herdr/no-TUI boundary and retain host provider-boundary checks."
+	},
+	{
+		"file": "test/maestro/dependency-rule.test.ts",
+		"titles": [
+			"maestro dependency rule",
+			"surfaces/herdr imports core and node only"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Preserve rule-parser tests in both scopes; tighten Maestro no-Herdr/no-TUI boundary and retain host provider-boundary checks."
+	},
+	{
+		"file": "test/maestro/dependency-rule.test.ts",
+		"titles": [
+			"maestro dependency rule",
+			"runtime imports core, adapters, surfaces"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Preserve rule-parser tests in both scopes; tighten Maestro no-Herdr/no-TUI boundary and retain host provider-boundary checks."
+	},
+	{
+		"file": "test/maestro/dependency-rule.test.ts",
+		"titles": [
+			"maestro dependency rule",
+			"fakes import core and node only and nothing imports fakes"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Preserve rule-parser tests in both scopes; tighten Maestro no-Herdr/no-TUI boundary and retain host provider-boundary checks."
+	},
+	{
+		"file": "test/maestro/dependency-rule.test.ts",
+		"titles": [
+			"maestro dependency rule",
+			"pi-extension never imports adapters or surfaces directly"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Preserve rule-parser tests in both scopes; tighten Maestro no-Herdr/no-TUI boundary and retain host provider-boundary checks."
+	},
+	{
+		"file": "test/maestro/dependency-rule.test.ts",
+		"titles": [
+			"maestro dependency rule",
+			"scratch fixtures prove parser catches forbidden import forms"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Preserve rule-parser tests in both scopes; tighten Maestro no-Herdr/no-TUI boundary and retain host provider-boundary checks."
+	},
+	{
+		"file": "test/maestro/dependency-rule.test.ts",
+		"titles": [
+			"maestro dependency rule",
+			"scratch fixtures reject fake imports from production and other fakes"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Preserve rule-parser tests in both scopes; tighten Maestro no-Herdr/no-TUI boundary and retain host provider-boundary checks."
+	},
+	{
+		"file": "test/maestro/dependency-rule.test.ts",
+		"titles": [
+			"maestro dependency rule",
+			"scratch fixtures reject every adapter-to-host edge"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Preserve rule-parser tests in both scopes; tighten Maestro no-Herdr/no-TUI boundary and retain host provider-boundary checks."
+	},
+	{
+		"file": "test/maestro/dependency-rule.test.ts",
+		"titles": [
+			"maestro dependency rule",
+			"scratch fixtures reject SDK imports outside Pi owners"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Preserve rule-parser tests in both scopes; tighten Maestro no-Herdr/no-TUI boundary and retain host provider-boundary checks."
+	},
+	{
+		"file": "test/maestro/dependency-rule.test.ts",
+		"titles": [
+			"maestro dependency rule",
+			"scratch fixtures fail overall enforcement for unclassified maestro locations"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Preserve rule-parser tests in both scopes; tighten Maestro no-Herdr/no-TUI boundary and retain host provider-boundary checks."
+	},
+	{
+		"file": "test/maestro/dependency-rule.test.ts",
+		"titles": [
+			"maestro dependency rule",
+			"scratch fixtures fail closed for unclassified maestro locations"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Preserve rule-parser tests in both scopes; tighten Maestro no-Herdr/no-TUI boundary and retain host provider-boundary checks."
+	},
+	{
+		"file": "test/maestro/dependency-rule.test.ts",
+		"titles": [
+			"maestro dependency rule",
+			"scratch fixtures scan all pi-extension source"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Preserve rule-parser tests in both scopes; tighten Maestro no-Herdr/no-TUI boundary and retain host provider-boundary checks."
+	},
+	{
+		"file": "test/maestro/git-handoff-async.test.ts",
+		"titles": [
+			"migrated launch/query and Git preflight/handoff production paths contain no synchronous subprocess calls"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Source-scan guard reads the retained Herdr provider/CLI files (maestro/surfaces/herdr/*) by constructed path; stays with them upstream."
+	},
+	{
+		"file": "test/maestro/herdr-available.test.ts",
+		"titles": ["Windows finds herdr.exe, the only form spawn can start"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-available.test.ts",
+		"titles": [
+			"Windows ignores an extensionless herdr script that spawn cannot start"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-available.test.ts",
+		"titles": [
+			"Windows splits PATH on ';' whatever the host, reads Path in any case and strips quotes"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-available.test.ts",
+		"titles": ["Windows keeps a ';' that sits inside a quoted PATH entry"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-available.test.ts",
+		"titles": ["Windows skips empty PATH entries"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-available.test.ts",
+		"titles": ["POSIX looks for an executable named herdr, not herdr.exe"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-available.test.ts",
+		"titles": [
+			"POSIX keeps an empty PATH entry, which means the current directory"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-available.test.ts",
+		"titles": ["outside Herdr nothing is available, whatever the PATH holds"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-cli.test.ts",
+		"titles": [
+			"Herdr clients have finite defaults and reject zero before spawning"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-cli.test.ts",
+		"titles": [
+			"slow Herdr client leaves parent timers responsive and expires without waiting for close"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-cli.test.ts",
+		"titles": [
+			"not-spawned, post-spawn exit, and bounded output overflow remain distinct"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-cli.test.ts",
+		"titles": [
+			"a descendant holding inherited stdout cannot extend the client's deadline"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-cli.test.ts",
+		"titles": [
+			"worktree clients scrub repository-local Git environment without mutating the parent"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core config is closed, strict, defaults auto, and rejects malformed files"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core provider is lazy; native start verifies hello and parent, uses atomic background payload"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core generation rejection never submits a program or falls back"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": ["Core methods rejection never submits a program or falls back"],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": ["Core identity rejection never submits a program or falls back"],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": ["Core missing or finished parent refuses launch"],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core child environment is scrubbed even when daemon inherited stale protocol values; parent is untouched"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core standalone initializes local session/artifacts/ledger before native submission"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core fork initializes local session/artifacts/ledger before native submission"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core persistent initializes local session/artifacts/ledger before native submission"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core interactive initializes local session/artifacts/ledger before native submission"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core resume uses saved public cwd/policy and atomic start without shell readiness"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core local artifact or script failure and pre-abort never start a program"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core fresh cancellation during launch hello prevents submission"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core resumed cancellation during launch hello prevents submission"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core cancellation after submission preserves the acquired owner"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core cancellation after submission preserves execution uncertainty"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core disconnect after native submission is ownerless uncertainty, not retryable"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core timeout after native submission is ownerless uncertainty, not retryable"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core malformed after native submission is ownerless uncertainty, not retryable"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core oversized after native submission is ownerless uncertainty, not retryable"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": ["Core hello metadata is never an observed execution identity"],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core duplicate launch cannot cancel the first task or advance its own fallback"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core fresh duplicate-partial never acquires a different launch's owner"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core resume duplicate-partial never acquires a different launch's owner"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core fresh duplicate-full never acquires a different launch's owner"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core resume duplicate-full never acquires a different launch's owner"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core duplicate-partial reply cannot transfer the parent terminal to another launch"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core duplicate-partial reply cannot transfer the pending terminal to another launch"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core duplicate-full reply cannot transfer the parent terminal to another launch"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core duplicate-full reply cannot transfer the pending terminal to another launch"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core structured spawn_failed after submission cannot trigger model fallback"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core structured config after submission cannot trigger model fallback"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core structured unavailable after submission cannot trigger model fallback"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core fresh partial reply retains a pending owner, verifies before control"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core resume partial reply retains a pending owner, verifies before control"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core fresh unverified reply retains a pending owner, verifies before control"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core resume unverified reply retains a pending owner, verifies before control"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core unverified reply retains ownership but refuses control when parent differs"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core unverified reply retains ownership but refuses control when cwd differs"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core unverified reply retains ownership but refuses control when argv differs"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core unverified reply retains ownership but refuses control when keep differs"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core unverified reply retains ownership but refuses control when rm differs"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core unverified reply retains ownership but refuses control when server differs"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core exact-ID interrupt/cancel verifies ownership; native kill reply alone does not confirm or remove"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core replacement identity cannot inspect, signal, or remove existing owners"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core worktree/handoff/UI requests are rejected before Git, artifact or RPC effects"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core ordinary sidecar/live status/sentinel cannot release lifetime before exit"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core persistent sidecar/live status/sentinel cannot release lifetime before exit"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core unavailable exit evidence preserves sidecar and owner until aborted"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core finished supports delayed sidecar grace and crash without one"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core missing supports delayed sidecar grace and crash without one"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core session delivery precedes record removal; cancellation confirms native exit independently"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core session rejects unsupported cleanup and native worktree spawn without effects"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core session no-ID uncertainty blocks model fallback and leaves no fabricated owner"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core native binding survives reload; changed endpoint/backend fails before owner mutation"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": ["Core fresh generated script preserves Pi nonzero exit status"],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": ["Core resume generated script preserves Pi nonzero exit status"],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core partial observed-ID uncertain session retains control, never retries or falls back"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core unverified observed-ID uncertain session retains control, never retries or falls back"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core suppression gates confirmed termination then cleanup without parent delivery"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Core injected native binding mismatch rejects before adopting or creating resources"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-core-execution.test.ts",
+		"titles": [
+			"Injected Core infrastructure ignores ambient native endpoints and configuration"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper fixture (unavailable here: CoreTerminal from ../../maestro/surfaces/herdr/herdr-core-protocol.ts; HerdrCoreSurfaceProvider from ../../maestro/surfaces/herdr/herdr-core-surface-provider.ts)"
+	},
+	{
+		"file": "test/maestro/herdr-lab.test.ts",
+		"titles": [
+			"herdr lab shutdown",
+			"keeps the root and sends nothing when the server's /proc stat is unreadable"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-lab.test.ts",
+		"titles": [
+			"herdr lab shutdown",
+			"keeps the root and sends nothing when the server's environment is unreadable"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-lab.test.ts",
+		"titles": [
+			"herdr lab shutdown",
+			"reports a server that is already gone as stopped without contacting it"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-lab.test.ts",
+		"titles": [
+			"herdr lab shutdown",
+			"waits for a graceful exit after server.stop and never signals"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-lab.test.ts",
+		"titles": [
+			"herdr lab shutdown",
+			"counts an exited server awaiting reaping as stopped"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-lab.test.ts",
+		"titles": [
+			"herdr lab shutdown",
+			"sends SIGTERM to a server that ignores server.stop and waits for it to exit"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-lab.test.ts",
+		"titles": [
+			"herdr lab shutdown",
+			"keeps the root when the server survives SIGTERM"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-lab.test.ts",
+		"titles": [
+			"herdr lab shutdown",
+			"keeps the root when SIGTERM fails and the server stays"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-lab.test.ts",
+		"titles": [
+			"herdr lab shutdown",
+			"never signals a PID that now names another process"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-lab.test.ts",
+		"titles": [
+			"herdr lab shutdown",
+			"never signals when the PID is reused while it waits"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-lab.test.ts",
+		"titles": [
+			"herdr lab shutdown",
+			"never signals a process with the recorded start time but another command line"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-lab.test.ts",
+		"titles": [
+			"herdr lab shutdown",
+			"keeps the root while any one server has residue"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-lab.test.ts",
+		"titles": [
+			"herdr lab start",
+			"rejects a missing herdr binary without an uncaught error and frees the root"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-lab.test.ts",
+		"titles": [
+			"herdr lab start",
+			"rejects a non-executable herdr binary without an uncaught error and frees the root"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-placement-async.test.ts",
+		"titles": [
+			"deferred concurrent placement and a reloaded module share one inspect/create/record queue"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-placement-async.test.ts",
+		"titles": [
+			"an uncertain split quarantines its tab across reload, without poisoning later placement"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-placement-async.test.ts",
+		"titles": [
+			"unknown new tabs are never adopted by label or closed, even if they appear in a later snapshot"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-placement-async.test.ts",
+		"titles": ["user panes count toward capacity"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-placement-async.test.ts",
+		"titles": [
+			"queued cancel settles promptly and its job never dispatches later"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-placement-async.test.ts",
+		"titles": [
+			"queued expire settles promptly and its job never dispatches later"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-placement-async.test.ts",
+		"titles": [
+			"worktree execution errors enter bounded reconciliation but never authorize late dispatch"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-placement-async.test.ts",
+		"titles": [
+			"retained worktree roots count toward capacity and never close automatically"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-placement-async.test.ts",
+		"titles": [
+			"cancelling a real queued grouped launch never sends its mutation"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-placement-async.test.ts",
+		"titles": [
+			"partial worktree receipts preserve observed identities when reconciliation is unavailable"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-placement-async.test.ts",
+		"titles": [
+			"command dispatch failures and malformed responses are uncertain mutations"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-socket.test.ts",
+		"titles": [
+			"Herdr socket request",
+			"writes one newline-terminated request per connection and returns its result"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-socket.test.ts",
+		"titles": [
+			"Herdr socket request",
+			"reports Herdr errors with their code and message"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-socket.test.ts",
+		"titles": ["Herdr socket request", "assembles a reply split across chunks"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-socket.test.ts",
+		"titles": [
+			"Herdr socket request",
+			"fails within its timeout when Herdr never answers"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-socket.test.ts",
+		"titles": [
+			"Herdr socket request",
+			"fails when the connection closes after partial data"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-socket.test.ts",
+		"titles": [
+			"Herdr socket request",
+			"never accepts a reply for another request id"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-socket.test.ts",
+		"titles": [
+			"Herdr socket request",
+			"bounds the reply frame with or without a newline"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-socket.test.ts",
+		"titles": [
+			"Herdr socket request",
+			"fails when nothing listens on the socket"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-socket.test.ts",
+		"titles": [
+			"Herdr socket request",
+			"rejects malformed and result-less replies"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-socket.test.ts",
+		"titles": [
+			"pane token report",
+			"sends one sequenced report_metadata token patch"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-socket.test.ts",
+		"titles": [
+			"pane token report",
+			"distinguishes a missing pane from other failures"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-socket.test.ts",
+		"titles": [
+			"pane agent session read",
+			"asks pane.get for one pane and returns its stored session path"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-socket.test.ts",
+		"titles": [
+			"pane agent session read",
+			"distinguishes no session, an id-only session, and a missing pane"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-socket.test.ts",
+		"titles": [
+			"pane agent session read",
+			"fails on Herdr errors, another pane, and malformed sessions"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-surface-provider.test.ts",
+		"titles": [
+			"HerdrSurfaceProvider",
+			"scopes mock Herdr exec to the required callback and restores after throw"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-surface-provider.test.ts",
+		"titles": [
+			"HerdrSurfaceProvider",
+			"creates grouped surfaces by using the configured cap and split direction"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-surface-provider.test.ts",
+		"titles": [
+			"HerdrSurfaceProvider",
+			"maps tab placement to legacy tab creation rather than worktree workspace creation"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-surface-provider.test.ts",
+		"titles": [
+			"HerdrSurfaceProvider",
+			"maps pane listings to SurfaceInfo with tab groups and actual workspace IDs"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-surface-provider.test.ts",
+		"titles": ["HerdrSurfaceProvider", "preserves pane list failures"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-surface-provider.test.ts",
+		"titles": [
+			"HerdrSurfaceProvider",
+			"lists explicitly scoped worktree inventory without remembering prior creations"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-surface-provider.test.ts",
+		"titles": [
+			"HerdrSurfaceProvider",
+			"propagates scoped worktree listing failures instead of returning an empty inventory"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-surface-provider.test.ts",
+		"titles": [
+			"HerdrSurfaceProvider",
+			"lists worktree inventory without fabricating provisioning fields"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-surface-provider.test.ts",
+		"titles": [
+			"HerdrSurfaceProvider",
+			"normalizes present, missing, and unavailable inspections and preserves process identity fields"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-surface-provider.test.ts",
+		"titles": [
+			"HerdrSurfaceProvider",
+			"delegates screen and process observations through async Herdr calls"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-surface-provider.test.ts",
+		"titles": [
+			"HerdrSurfaceProvider",
+			"rejects unconfirmed absence and resolves confirmed absence"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-surface-provider.test.ts",
+		"titles": [
+			"HerdrSurfaceProvider",
+			"delegates focus, title, and worktree removal and preserves driver errors"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/herdr-surface-provider.test.ts",
+		"titles": [
+			"HerdrSurfaceProvider",
+			"attached handles delegate commands, reads, raw keys, Escape, and close"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/linux-integration-driver.test.ts",
+		"titles": [
+			"Linux CI driver reads private state, isolates env and propagates suite success"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/linux-integration-driver.test.ts",
+		"titles": [
+			"Linux CI driver reads private state, isolates env and propagates suite failure"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"opened primary workspace snapshots",
+			"claims the primary workspace only when create opened it, within the derived budget"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import createHerdrWorktree, import OPENED_PRIMARY_SNAPSHOT_CALLS, import OPENED_PRIMARY_SNAPSHOT_TIMEOUT_MS, import OPENED_PRIMARY_SNAPSHOT_WORST_CASE_MS (unavailable here: OPENED_PRIMARY_SNAPSHOT_CALLS from ../../maestro/surfaces/herdr/herdr.ts; OPENED_PRIMARY_SNAPSHOT_TIMEOUT_MS from ../../maestro/surfaces/herdr/herdr.ts; OPENED_PRIMARY_SNAPSHOT_WORST_CASE_MS from ../../maestro/surfaces/herdr/herdr.ts; __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; createHerdrWorktree from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"opened primary workspace snapshots",
+			"does not claim a primary workspace that was already open"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import createHerdrWorktree (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; createHerdrWorktree from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"opened primary workspace snapshots",
+			"reports a before-snapshot failure as a launch diagnostic, without console output, and claims nothing"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import createHerdrWorktree (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; createHerdrWorktree from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"opened primary workspace snapshots",
+			"reports an after-snapshot failure and does not read a terminal"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import createHerdrWorktree (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; createHerdrWorktree from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"opened primary workspace snapshots",
+			"reports an opened-workspace pane list failure and claims nothing"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import createHerdrWorktree (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; createHerdrWorktree from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"opened primary workspace snapshots",
+			"claims nothing when the opened workspace has no terminal id"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import createHerdrWorktree (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; createHerdrWorktree from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"suggests the close command without asserting attribution and never closes"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace, import openedPrimaryWorkspaceNote, import OPENED_PRIMARY_REPORT_CALLS, import OPENED_PRIMARY_REPORT_TIMEOUT_MS, import OPENED_PRIMARY_REPORT_WORST_CASE_MS (unavailable here: OPENED_PRIMARY_REPORT_CALLS from ../../maestro/surfaces/herdr/herdr.ts; OPENED_PRIMARY_REPORT_TIMEOUT_MS from ../../maestro/surfaces/herdr/herdr.ts; OPENED_PRIMARY_REPORT_WORST_CASE_MS from ../../maestro/surfaces/herdr/herdr.ts; __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; openedPrimaryWorkspaceNote from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"makes no Herdr call without a complete claim"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"fails closed when label is missing"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"fails closed when label is not a string"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"fails closed when label and repo_name are both missing"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"fails closed when repo_name is missing"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"fails closed when focused is missing"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"fails closed when focused is not a boolean"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"fails closed when focused is true"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"fails closed when tab_count is 2"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"fails closed when workspace get repo_key differs"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"fails closed when is_linked_worktree is missing"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"fails closed when foreground_cwd is missing"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"fails closed when foreground_cwd is outside the checkout"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"fails closed when cwd is outside the checkout"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"fails closed when cwd is missing"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"fails closed when terminal_id is missing"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"fails closed when terminal_id differs from the claim"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"fails closed when the workspace has two panes"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"ignores claims of other repositories"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"does not report while another linked worktree workspace is open"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"fails closed on an open workspace whose linked flag is missing"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"fails closed when a row naming the primary lacks a linked flag"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/opened-primary-workspace.test.ts",
+		"titles": [
+			"reporting an opened primary workspace",
+			"asks the Herdr provider, which still never closes"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import reportOpenedPrimaryWorkspace (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; reportOpenedPrimaryWorkspace from ../../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/maestro/pi-harness-adapter.test.ts",
+		"titles": [
+			"PiHarnessAdapter retained worktree kill with real processes",
+			"a title-rewritten Pi that survives SIGTERM is unconfirmed until THAT process exits"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper realChild (unavailable here: resource ../../maestro/adapters/pi/child/subagent-done.ts)"
+	},
+	{
+		"file": "test/maestro/pi-harness-adapter.test.ts",
+		"titles": [
+			"PiHarnessAdapter retained worktree kill with real processes",
+			"a suspended title-rewritten Pi is unconfirmed; resumed, SIGTERM ends it and confirms"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper realChild (unavailable here: resource ../../maestro/adapters/pi/child/subagent-done.ts)"
+	},
+	{
+		"file": "test/maestro/pi-run-session.test.ts",
+		"titles": [
+			"a real script-write failure dispatches nothing, closes its pane, and falls back to the next model"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import runScriptInPane (unavailable here: runScriptInPane from ../../maestro/surfaces/herdr/terminal.ts)"
+	},
+	{
+		"file": "test/maestro/process-identity.test.ts",
+		"titles": [
+			"process identity",
+			"captures a real child's identity across its title rewrite, SIGSTOP, and exit"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper spawnRecorded (unavailable here: resource ../../maestro/adapters/pi/child/subagent-done.ts)"
+	},
+	{
+		"file": "test/maestro/process-identity.test.ts",
+		"titles": [
+			"process identity",
+			"refuses a real record outside the pane shell, for another run, or without a Herdr shell"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper spawnRecorded (unavailable here: resource ../../maestro/adapters/pi/child/subagent-done.ts)"
+	},
+	{
+		"file": "test/maestro/script-launch.test.ts",
+		"titles": [
+			"runScriptInPane launch command",
+			"types the powershell.exe form on win32"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper withFakeHerdr, import runScriptInPane (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; runScriptInPane from ../../maestro/surfaces/herdr/terminal.ts)"
+	},
+	{
+		"file": "test/maestro/script-launch.test.ts",
+		"titles": [
+			"runScriptInPane launch command",
+			"types the pwsh.exe form on win32"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper withFakeHerdr, import runScriptInPane (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; runScriptInPane from ../../maestro/surfaces/herdr/terminal.ts)"
+	},
+	{
+		"file": "test/maestro/script-launch.test.ts",
+		"titles": [
+			"runScriptInPane launch command",
+			"types the cmd.exe form on win32"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper withFakeHerdr, import runScriptInPane (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; runScriptInPane from ../../maestro/surfaces/herdr/terminal.ts)"
+	},
+	{
+		"file": "test/maestro/script-launch.test.ts",
+		"titles": [
+			"runScriptInPane launch command",
+			"types the bash.exe form on win32"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper withFakeHerdr, import runScriptInPane (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; runScriptInPane from ../../maestro/surfaces/herdr/terminal.ts)"
+	},
+	{
+		"file": "test/maestro/script-launch.test.ts",
+		"titles": [
+			"runScriptInPane launch command",
+			"types the sh.exe form on win32"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper withFakeHerdr, import runScriptInPane (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; runScriptInPane from ../../maestro/surfaces/herdr/terminal.ts)"
+	},
+	{
+		"file": "test/maestro/script-launch.test.ts",
+		"titles": [
+			"runScriptInPane launch command",
+			"picks the pane shell by shell_pid, never by cmdline"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper withFakeHerdr, import runScriptInPane (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; runScriptInPane from ../../maestro/surfaces/herdr/terminal.ts)"
+	},
+	{
+		"file": "test/maestro/script-launch.test.ts",
+		"titles": [
+			"runScriptInPane launch command",
+			"keeps the bare bash line on win32 for an unknown shell, without resolving bash"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper withFakeHerdr, import runScriptInPane (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; runScriptInPane from ../../maestro/surfaces/herdr/terminal.ts)"
+	},
+	{
+		"file": "test/maestro/script-launch.test.ts",
+		"titles": [
+			"runScriptInPane launch command",
+			"keeps the bare bash line on win32 for no foreground processes, without resolving bash"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper withFakeHerdr, import runScriptInPane (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; runScriptInPane from ../../maestro/surfaces/herdr/terminal.ts)"
+	},
+	{
+		"file": "test/maestro/script-launch.test.ts",
+		"titles": [
+			"runScriptInPane launch command",
+			"keeps the bare bash line on win32 for unusable process info, without resolving bash"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper withFakeHerdr, import runScriptInPane (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; runScriptInPane from ../../maestro/surfaces/herdr/terminal.ts)"
+	},
+	{
+		"file": "test/maestro/script-launch.test.ts",
+		"titles": [
+			"runScriptInPane launch command",
+			"dispatches nothing and writes no script when a known shell has no bash"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper withFakeHerdr, import runScriptInPane (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; runScriptInPane from ../../maestro/surfaces/herdr/terminal.ts)"
+	},
+	{
+		"file": "test/maestro/script-launch.test.ts",
+		"titles": [
+			"runScriptInPane launch command",
+			"keeps `bash <script>` on darwin and linux without asking Herdr for the shell"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper withFakeHerdr, import runScriptInPane (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; runScriptInPane from ../../maestro/surfaces/herdr/terminal.ts)"
+	},
+	{
+		"file": "test/maestro/script-launch.test.ts",
+		"titles": [
+			"runScriptInPane launch command",
+			"routes HerdrSurfaceProvider.runScript through its injected resolver"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper withFakeHerdr, import runScriptInPane (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; runScriptInPane from ../../maestro/surfaces/herdr/terminal.ts)"
+	},
+	{
+		"file": "test/maestro/script-launch.test.ts",
+		"titles": [
+			"launch composition on Windows",
+			"types the bash Pi resolves for the launching session's trusted project"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper typedLine (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; createLaunchSurfaceProvider from ../../pi-extension/subagents/host-surface.ts)"
+	},
+	{
+		"file": "test/maestro/script-launch.test.ts",
+		"titles": [
+			"launch composition on Windows",
+			"ignores an untrusted project's shellPath, and a snapshot without trust data"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper typedLine (unavailable here: __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; createLaunchSurfaceProvider from ../../pi-extension/subagents/host-surface.ts)"
+	},
+	{
+		"file": "test/maestro/script-launch.test.ts",
+		"titles": [
+			"launch composition on Windows",
+			"types the resolved bash when the default run session resumes a child"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import HerdrSurfaceProvider, import hostSurfaceBinding, helper withFakeHerdr (unavailable here: HerdrSurfaceProvider from ../../maestro/surfaces/herdr/herdr-surface-provider.ts; __herdrTest__ from ../../maestro/surfaces/herdr/herdr.ts; hostSurfaceBinding from ../../pi-extension/subagents/host-surface.ts)"
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture worktree ownership",
+			"owns the worktree its launch record and Herdr agree on"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture worktree ownership",
+			"owns a worktree Herdr created while the record still said provisioning"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture worktree ownership",
+			"cannot prove absence from a provisioning-only intent and an empty inventory"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture worktree ownership",
+			"owns a listed checkout whose workspace is already closed"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture worktree ownership",
+			"ignores every other worktree, marked or not, and reports its own as absent"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture worktree ownership",
+			"never claims a worktree without exactly one matching launch record"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture worktree ownership",
+			"never claims a worktree whose workspace or path differs from the record"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture worktree ownership",
+			"never claims an inventory for another repository or the principal checkout"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture worktree ownership",
+			"parses Herdr's and the launch's JSON, rejecting anything malformed"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture pane quiescing",
+			"stops a pane that keeps spawning, and lets an in-flight herdr request finish"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture holds",
+			"pins a running hold by PID, and waits for it to exit once its gate opens"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture holds",
+			"never claims a hold that did not start or a PID running another command"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture foreign canary",
+			"removes its worktree, then its source workspace, then its repository"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture foreign canary",
+			"keeps a provisioning-only source until its matching acquisition is observed"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture foreign canary",
+			"removes a checkout whose workspace closed with Git before its source"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture foreign canary",
+			"keeps its source and repository while its worktree cannot be verified"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture foreign canary",
+			"keeps its source and repository when removal fails or leaves the worktree listed"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture foreign canary",
+			"checks its prerequisites before it acquires anything"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture foreign canary",
+			"releases a setup that failed before its worktree was requested"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture foreign canary",
+			"keeps its repository when it cannot tell whether a lost workspace exists"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture foreign canary",
+			"releases a setup that failed after its worktree was requested"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/sidebar-fixture-ownership.test.ts",
+		"titles": [
+			"sidebar fixture foreign canary",
+			"tears down only its own repository and branch"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+	},
+	{
+		"file": "test/maestro/specialist-notice.test.ts",
+		"titles": [
+			"parent delivery of specialist notices",
+			"renders the notice and lists the specialist's notice count"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Renders subagent_notice through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+	},
+	{
+		"file": "test/maestro/specialist-notice.test.ts",
+		"titles": [
+			"parent delivery of specialist notices",
+			"wraps a long notice when expanded instead of cutting its end"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Renders subagent_notice expanded through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"runs the unit suite from known entry files"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/launch.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/accept-check.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/accept-recheck.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/accept-shutdown.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/async-io.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/audit-discovery.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/audit-fork.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/audit-git-environment.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/audit-herdr-dispatch.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/audit-ownership.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/audit-persistent.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/audit-reload.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/audit-stop-notices.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/audit-uncertain-retry.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/core-lab.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/core-parent.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/core-roles-config.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/deadline.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/declared-skills.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/deferred-tools.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/delegated-marker.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/delegation-depth.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/dependency-rule.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/fake-harness-adapter.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/fake-surface-provider.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/git-handoff-async.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/herdr-available.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/herdr-cli.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/herdr-core-execution.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/herdr-lab.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/herdr-placement-async.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/herdr-socket.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/herdr-surface-provider.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/linux-integration-driver.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/opened-primary-workspace.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/pi-harness-adapter.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/pi-readiness-windows.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/pi-run-session.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/pr110-persistent-regressions.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/process-cleanup.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/process-environment.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/process-identity.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/process-tree.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/realpath-without-opening.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/run-session-cancel.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/run-session.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/script-launch.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/sidebar-fixture-ownership.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/socket-path.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/specialist-notice.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/supervision-wake.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/task-model-approval.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/task-model-init.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/task-thinking-wiring.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/task-thinking.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/test-environment.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/tool-schema.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/windows-support-scope.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/maestro/worktree-operations.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/package-manifest.test.js scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/release-workflow.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/runtime-routing.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/sidebar-plugin.test.js scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/system-prompt-mode.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/verify-lab-guards.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/maestro/test-environment.test.ts",
+		"titles": [
+			"unit-test environment isolation",
+			"test/worktree-cleanup.test.ts scrubs the inherited Pi and Herdr environment first"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B split: Both npm test entry lists need their own first-import/isolation guard."
+	},
+	{
+		"file": "test/package-manifest.test.js",
+		"titles": [
+			"production package manifest",
+			"declares the public npm identity and publish metadata"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/package-manifest.test.js",
+		"titles": [
+			"pack-neutral package contents",
+			"ships only the extension, with no bundled roles or workflow resources"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/package-manifest.test.js",
+		"titles": [
+			"pack-neutral package contents",
+			"ships the self-contained sidebar plugin but not its active plan"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/package-manifest.test.js",
+		"titles": [
+			"pack-neutral package contents",
+			"does not ship the logs pi-lens writes under .pi-lens-probe-home"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/package-manifest.test.js",
+		"titles": [
+			"pack-neutral package contents",
+			"leaves no empty bundled-resource directories in the source tree"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/package-manifest.test.js",
+		"titles": [
+			"pack-neutral package contents",
+			"ships only valid host-owned operational skills"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/package-manifest.test.js",
+		"titles": [
+			"pack-neutral package contents",
+			"locks fork override semantics in the tools and roles references"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/package-manifest.test.js",
+		"titles": [
+			"pack-neutral package contents",
+			"defines independent and ordinary review separately in README, guides, and CONTEXT"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/package-manifest.test.js",
+		"titles": [
+			"pack-neutral package contents",
+			"keeps all three reference review passages aligned with the taxonomy"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/package-manifest.test.js",
+		"titles": [
+			"test script coverage",
+			"lists every top-level test file in the npm test script"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/release-workflow.test.ts",
+		"titles": ["CI checks pushes and pull requests without release authority"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/release-workflow.test.ts",
+		"titles": [
+			"CI runs the local gates with the release workflow's pinned tools"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/release-workflow.test.ts",
+		"titles": ["CI runs only unit tests on Windows without blocking"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/release-workflow.test.ts",
+		"titles": [
+			"Linux integration pins its tools and always cleans up without publication authority"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/release-workflow.test.ts",
+		"titles": [
+			"Linux integration driver rejects missing prerequisites instead of skipping"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/release-workflow.test.ts",
+		"titles": [
+			"release workflow uses package.json identity and trusted publishing"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/release-workflow.test.ts",
+		"titles": [
+			"release detection executes the guarded push and dispatch branches"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/release-workflow.test.ts",
+		"titles": ["npm registry responses are structured and fail closed"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/release-workflow.test.ts",
+		"titles": [
+			"release workflow enforces bootstrap-only token and trusted publishing"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/release-workflow.test.ts",
+		"titles": ["release workflow retries only exact-commit npm publishes"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"sidebar plugin contract",
+			"hides only a live marker on an idle, working, or done agent"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"sidebar plugin contract",
+			"reads the same token and value the extension writes"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"sidebar plugin contract",
+			"imports only Node built-ins so a subdirectory install runs as is"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"sidebar plugin contract",
+			"declares Focus and All with an honest platform and version floor"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"Focus",
+			"sets exactly one view and explains that it replaced any other"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": ["Focus", "reports Herdr's refusal"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"Focus",
+			"does not claim success when Herdr reports another owner"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": ["All", "clears only this plugin's view"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": ["All", "leaves a foreign view in place and says so"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": ["All", "fails if its own view survives the clear"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": ["All", "fails on a reply that is not an agent view"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"plugin action guards",
+			"refuses to run without Herdr's socket, a known action, or its own plugin id"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"plugin socket request",
+			"fails on a timeout, partial data, another id, or an oversized reply"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"plugin socket request",
+			"runs as a command with Herdr's environment and exit codes"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"remembered view choice",
+			"restores Focus by default and never writes the choice"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"remembered view choice",
+			"remembers All, and restore then leaves Herdr alone"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"remembered view choice",
+			"saves All even when another tool's view stays"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": ["remembered view choice", "saves Focus again after All"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"remembered view choice",
+			"treats missing or malformed state as focus"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"remembered view choice",
+			"works without a state dir and behaves as focus"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"remembered view choice",
+			"keeps the exit code when saving fails and says so"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"remembered view choice",
+			"undoes its Focus when All runs while that Focus is in flight"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"remembered view choice",
+			"reports restore compensation failure: RPC error"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"remembered view choice",
+			"reports restore compensation failure: malformed reply"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"remembered view choice",
+			"reports restore compensation failure: own view still active"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"remembered view choice",
+			"reports restore compensation failure: foreign view won the race"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/sidebar-plugin.test.js",
+		"titles": [
+			"remembered view choice",
+			"reports a failed restore with exit 1"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/system-prompt-mode.test.ts",
+		"titles": ["test/system-prompt-mode.test.ts"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B move: Legacy simulation-only smoke follows role/launch behavior; preserve but do not count it as real public-surface parity proof."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"host adapter migration",
+			"local evidence keeps the host presentation cold while pane observations still redraw"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Counts ctx.ui.setWidget calls made by the terminal widget controller; terminal widget rendering (widgets.ts, pi-tui) stays upstream; asserts rendered widget output or setWidget calls. Factory-side evidence: supplemental pi-factory test."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"subagent_cancel public tool",
+			"an unconfirmed termination keeps the run live and quiet until a retry confirms it"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Renders __test__.renderSubagentWidgetLines; terminal widget rendering (widgets.ts, pi-tui) stays upstream; asserts rendered widget output or setWidget calls."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"subagent_cancel public tool",
+			"a fallback owner transferred after the cancel shows its own unconfirmed kill and stays live"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Renders __test__.renderSubagentWidgetLines; terminal widget rendering (widgets.ts, pi-tui) stays upstream; asserts rendered widget output or setWidget calls."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"runtime reload configuration",
+			"refreshes pane-backed launch operations from the reloaded module config while preserving running children"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__, import HerdrSurfaceProvider (unavailable here: HerdrSurfaceProvider from ../maestro/surfaces/herdr/herdr-surface-provider.ts; __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"subagent-done.ts",
+			"registers no keyboard shortcut and renders no Ctrl+J hint"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Asserts the terminal child tools widget; child-widget.ts stays upstream with the pi-tui hook."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"worktree cleanup public surface",
+			"keeps child Herdr list formatting, handoff dispatch, and silent startup"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"tool registration",
+			"renders partial subagent tool-call args without throwing"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Calls the injected subagent renderCall; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"subagent status renderer",
+			"keeps recovery session details in expanded unexpected-error results"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Suite 'subagent status renderer'; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"subagent status renderer",
+			"strips the result envelope when rendering and keeps neutralized child tags"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Suite 'subagent status renderer'; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"subagent status renderer",
+			"strips the task-result envelope when rendering and keeps neutralized child tags"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Suite 'subagent status renderer'; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"subagent status renderer",
+			"recognizes the neutral provider error header when rendering expanded results"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Suite 'subagent status renderer'; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"subagent status renderer",
+			"renders result details while keeping the custom message context small"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Suite 'subagent status renderer'; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"subagent status renderer",
+			"renders only capped lines plus overflow"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Suite 'subagent status renderer'; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": ["subagent status renderer", "stays within narrow widths"],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Suite 'subagent status renderer'; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"subagents widget rendering",
+			"shows interrupted agents as open while process runtime continues"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Suite 'subagents widget rendering'; terminal widget rendering (widgets.ts, pi-tui) stays upstream; asserts rendered widget output or setWidget calls."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"subagents widget rendering",
+			"hydrates legacy activity done as waiting, not finalizing"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Suite 'subagents widget rendering'; terminal widget rendering (widgets.ts, pi-tui) stays upstream; asserts rendered widget output or setWidget calls."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"subagents widget rendering",
+			"freezes runtime when the subagent reports done"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Suite 'subagents widget rendering'; terminal widget rendering (widgets.ts, pi-tui) stays upstream; asserts rendered widget output or setWidget calls."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"subagents widget rendering",
+			"keeps a blue border and summarizes mixed active and open agents"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Suite 'subagents widget rendering'; terminal widget rendering (widgets.ts, pi-tui) stays upstream; asserts rendered widget output or setWidget calls."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"subagents widget rendering",
+			"keeps every rendered line within a very narrow width"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Suite 'subagents widget rendering'; terminal widget rendering (widgets.ts, pi-tui) stays upstream; asserts rendered widget output or setWidget calls."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"subagents widget rendering",
+			"truncates the right-hand status instead of overflowing when it alone is too wide"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Suite 'subagents widget rendering'; terminal widget rendering (widgets.ts, pi-tui) stays upstream; asserts rendered widget output or setWidget calls."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"subagents widget rendering",
+			"handles ultra-narrow widths without exceeding the width contract"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Suite 'subagents widget rendering'; terminal widget rendering (widgets.ts, pi-tui) stays upstream; asserts rendered widget output or setWidget calls."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"captures failed CLI stderr without leaking it to the parent terminal"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Herdr CLI transport case (herdr.ts suite); concrete provider stays upstream."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"isHerdrAvailable",
+			"returns boolean based on HERDR_ENV"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import isHerdrAvailable (unavailable here: isHerdrAvailable from ../maestro/surfaces/herdr/herdr-cli.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr command construction",
+			"parses worktree list results"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr command construction",
+			"accepts detached entries without a branch but rejects malformed identities"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr command construction",
+			"accepts only complete, unique pane snapshots"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr command construction",
+			"parses the recovered root pane for a worktree workspace"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr command construction",
+			"uses caller context when discovering the current pane"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr command construction",
+			"targets an explicit stable parent when splitting without focus"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr command construction",
+			"targets the current workspace when creating a subagent tab"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr command construction",
+			"creates a background worktree from an exact base commit"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr response parsing",
+			"extracts pane id from a pane split response"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr response parsing",
+			"extracts root pane id from a tab create response"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr response parsing",
+			"extracts the worktree and root surface from a worktree create response"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr response parsing",
+			"throws on malformed herdr JSON"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr response parsing",
+			"parses pane-not-found JSON from stderr-shaped errors"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr response parsing",
+			"continues from non-JSON stderr to structured stdout"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr response parsing",
+			"returns unavailable when both error streams are non-JSON"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr response parsing",
+			"recognizes plain-text pane_not_found on stderr"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr response parsing",
+			"recognizes plain-text not_found on stdout after malformed stderr"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr response parsing",
+			"normalizes unknown agent_status values"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr response parsing",
+			"recognizes an interactive shell as ready"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"herdr response parsing",
+			"parses pane process-info identities"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"herdr.ts",
+			"process exit confirmation",
+			"returns survivors after the bounded wait"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import waitForProcessesExit (unavailable here: waitForProcessesExit from ../maestro/surfaces/herdr/herdr-pane.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"host lines resist child-controlled text",
+			"labels child text distinctly from host evidence in the rendered result"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Renders a parent message through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"parent messages are structured, not cut",
+			"encodes a U+2028 activity label at the widget and recovery-status sinks"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import createWidgetController (unavailable here: createWidgetController from ../pi-extension/subagents/widgets.ts)"
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"parent messages are structured, not cut",
+			"fences a ping's child text in the rendered help request"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Renders subagent_ping through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"parent messages are structured, not cut",
+			"renders a persistent help request from its bounded envelope"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Renders a persistent help request through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"parent messages are structured, not cut",
+			"normalizes every line separator and neutralizes terminal controls before prefixing"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Renders host lines through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+	},
+	{
+		"file": "test/test.ts",
+		"titles": [
+			"public launch errors and executable commands",
+			"renders the expanded Resume line from the serialized command, never from display text"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "excluded: Renders the expanded Resume line through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+	},
+	{
+		"file": "test/verify-lab-guards.test.ts",
+		"titles": [
+			"assertPrivateDir",
+			"accepts a real directory we own with mode 0700"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/verify-lab-guards.test.ts",
+		"titles": ["assertPrivateDir", "refuses a symlink"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/verify-lab-guards.test.ts",
+		"titles": ["assertPrivateDir", "refuses a directory owned by another user"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/verify-lab-guards.test.ts",
+		"titles": [
+			"assertPrivateDir",
+			"refuses a group- or world-writable directory"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/verify-lab-guards.test.ts",
+		"titles": ["assertPrivateDir", "refuses a file and a missing path"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/verify-lab-guards.test.ts",
+		"titles": [
+			"assertPrivateDir",
+			"refuses a real symlink and a loosened directory on the real filesystem"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/verify-lab-guards.test.ts",
+		"titles": [
+			"assertRemovableLabRoot",
+			"accepts a recorded, owned lab root directly below the temp dir"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/verify-lab-guards.test.ts",
+		"titles": [
+			"assertRemovableLabRoot",
+			"refuses the traversal that passes a string-prefix check"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/verify-lab-guards.test.ts",
+		"titles": [
+			"assertRemovableLabRoot",
+			"refuses a normalized path outside the temp dir or without the lab name"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/verify-lab-guards.test.ts",
+		"titles": [
+			"assertRemovableLabRoot",
+			"refuses a root that is not the one recorded in the state"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/verify-lab-guards.test.ts",
+		"titles": [
+			"assertRemovableLabRoot",
+			"refuses a symlink named like a lab root"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/verify-lab-guards.test.ts",
+		"titles": [
+			"assertRemovableLabRoot",
+			"refuses a lab root owned by another user"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/verify-lab-guards.test.ts",
+		"titles": [
+			"assertRemovableLabRoot",
+			"refuses when the parent is a symlink that leaves the temp dir"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/verify-lab-guards.test.ts",
+		"titles": [
+			"assertRemovableLabRoot",
+			"refuses on a real symlinked lab-named path"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/verify-lab-guards.test.ts",
+		"titles": [
+			"assertRunDir",
+			"accepts a run dir directly inside the evidence root"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/verify-lab-guards.test.ts",
+		"titles": [
+			"assertRunDir",
+			"refuses traversal, odd names and other parents"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/verify-lab-guards.test.ts",
+		"titles": ["assertMarkerId", "accepts plain ids"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/verify-lab-guards.test.ts",
+		"titles": ["assertMarkerId", "refuses path, shell and oversize ids"],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/verify-lab-guards.test.ts",
+		"titles": [
+			"defaultEvidenceRoot",
+			"uses an absolute XDG_STATE_HOME and ignores a relative one"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "Appendix B stay: Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+	},
+	{
+		"file": "test/worktree-cleanup.test.ts",
+		"titles": [
+			"cleanup process visibility policy",
+			"scans the real Linux host without mutation and retains known child and lease blockers"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper createWorktreeCleanupOperations (unavailable here: HerdrSurfaceProvider from ../maestro/surfaces/herdr/herdr-surface-provider.ts)"
+	},
+	{
+		"file": "test/worktree-cleanup.test.ts",
+		"titles": [
+			"cleanup process visibility policy",
+			"retains known lease evidence when the real enumeration seam fails"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper createWorktreeCleanupOperations (unavailable here: HerdrSurfaceProvider from ../maestro/surfaces/herdr/herdr-surface-provider.ts)"
+	},
+	{
+		"file": "test/worktree-cleanup.test.ts",
+		"titles": [
+			"cleanup process visibility policy",
+			"scans and canonicalizes cleanup paths without opening protected directories"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper createWorktreeCleanupOperations, import __herdrTest__ (unavailable here: HerdrSurfaceProvider from ../maestro/surfaces/herdr/herdr-surface-provider.ts; __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/worktree-cleanup.test.ts",
+		"titles": [
+			"cleanup operating-system probes",
+			"counts every ignored file when the real Git listing exceeds 1 MiB"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper createWorktreeCleanupOperations (unavailable here: HerdrSurfaceProvider from ../maestro/surfaces/herdr/herdr-surface-provider.ts)"
+	},
+	{
+		"file": "test/worktree-cleanup.test.ts",
+		"titles": [
+			"cleanup operating-system probes",
+			"inspects a clean Git sibling beside a detached entry from captured Herdr output"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper createWorktreeCleanupOperations, import __herdrTest__ (unavailable here: HerdrSurfaceProvider from ../maestro/surfaces/herdr/herdr-surface-provider.ts; __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/worktree-cleanup.test.ts",
+		"titles": [
+			"cleanup operating-system probes",
+			"isolates manifest identity with real filesystem probes: dangling"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper createWorktreeCleanupOperations (unavailable here: HerdrSurfaceProvider from ../maestro/surfaces/herdr/herdr-surface-provider.ts)"
+	},
+	{
+		"file": "test/worktree-cleanup.test.ts",
+		"titles": [
+			"cleanup operating-system probes",
+			"isolates manifest identity with real filesystem probes: conflicting"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper createWorktreeCleanupOperations (unavailable here: HerdrSurfaceProvider from ../maestro/surfaces/herdr/herdr-surface-provider.ts)"
+	},
+	{
+		"file": "test/worktree-cleanup.test.ts",
+		"titles": [
+			"cleanup operating-system probes",
+			"isolates manifest identity with real filesystem probes: consistent"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper createWorktreeCleanupOperations (unavailable here: HerdrSurfaceProvider from ../maestro/surfaces/herdr/herdr-surface-provider.ts)"
+	},
+	{
+		"file": "test/worktree-cleanup.test.ts",
+		"titles": [
+			"cleanup operating-system probes",
+			"isolates manifest identity with real filesystem probes: loop"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper createWorktreeCleanupOperations (unavailable here: HerdrSurfaceProvider from ../maestro/surfaces/herdr/herdr-surface-provider.ts)"
+	},
+	{
+		"file": "test/worktree-cleanup.test.ts",
+		"titles": [
+			"cleanup operating-system probes",
+			"isolates manifest identity with real filesystem probes: lstat-denied"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper createWorktreeCleanupOperations (unavailable here: HerdrSurfaceProvider from ../maestro/surfaces/herdr/herdr-surface-provider.ts)"
+	},
+	{
+		"file": "test/worktree-cleanup.test.ts",
+		"titles": [
+			"cleanup operating-system probes",
+			"isolates manifest identity with real filesystem probes: realpath-denied"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper createWorktreeCleanupOperations (unavailable here: HerdrSurfaceProvider from ../maestro/surfaces/herdr/herdr-surface-provider.ts)"
+	},
+	{
+		"file": "test/worktree-cleanup.test.ts",
+		"titles": [
+			"cleanup operating-system probes",
+			"bounds Git and Herdr cleanup exec calls and fails closed on timeout"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper createWorktreeCleanupOperations (unavailable here: HerdrSurfaceProvider from ../maestro/surfaces/herdr/herdr-surface-provider.ts)"
+	},
+	{
+		"file": "test/worktree-cleanup.test.ts",
+		"titles": [
+			"cleanup operating-system probes",
+			"tolerates symlinked ancestors but blocks a checkout symlink escaping the managed root"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper createWorktreeCleanupOperations (unavailable here: HerdrSurfaceProvider from ../maestro/surfaces/herdr/herdr-surface-provider.ts)"
+	},
+	{
+		"file": "test/worktree-cleanup.test.ts",
+		"titles": [
+			"cleanup operating-system probes",
+			"probes ignored files and detached HEAD, and restores the exact index after a failed hook"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper createWorktreeCleanupOperations (unavailable here: HerdrSurfaceProvider from ../maestro/surfaces/herdr/herdr-surface-provider.ts)"
+	},
+	{
+		"file": "test/worktree-cleanup.test.ts",
+		"titles": [
+			"explicit worktree cleanup",
+			"removal args contain only the explicit workspace selector"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs import __herdrTest__ (unavailable here: __herdrTest__ from ../maestro/surfaces/herdr/herdr.ts)"
+	},
+	{
+		"file": "test/worktree-cleanup.test.ts",
+		"titles": [
+			"submodule source repositories",
+			"resolves, inventories, and removes a submodule worktree orphan with core.worktree in shared config"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper submoduleFixture (unavailable here: HerdrSurfaceProvider from ../maestro/surfaces/herdr/herdr-surface-provider.ts)"
+	},
+	{
+		"file": "test/worktree-cleanup.test.ts",
+		"titles": [
+			"submodule source repositories",
+			"resolves, inventories, and removes a submodule worktree orphan with core.worktree in included config"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper submoduleFixture (unavailable here: HerdrSurfaceProvider from ../maestro/surfaces/herdr/herdr-surface-provider.ts)"
+	},
+	{
+		"file": "test/worktree-cleanup.test.ts",
+		"titles": [
+			"submodule source repositories",
+			"fails closed when core.worktree names a checkout of another repository"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper submoduleFixture (unavailable here: HerdrSurfaceProvider from ../maestro/surfaces/herdr/herdr-surface-provider.ts)"
+	},
+	{
+		"file": "test/worktree-cleanup.test.ts",
+		"titles": [
+			"submodule source repositories",
+			"still blocks a superproject worktree whose submodules are initialized"
+		],
+		"skip": false,
+		"todo": false,
+		"reason": "needs helper submoduleFixture (unavailable here: HerdrSurfaceProvider from ../maestro/surfaces/herdr/herdr-surface-provider.ts)"
+	}
+]
