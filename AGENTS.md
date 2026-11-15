@@ -18,6 +18,14 @@ TypeScript declarations into `dist/`.
 - Step 1 is mechanical extraction: preserve observable behavior, error text,
   defaults, ordering, configuration paths, retained artifacts and reload ownership.
   Keep fixes or new capabilities in separate, explicitly authorized changes.
+- At each M/H step, advance the main pin and close the drift ledger in the plan.
+  Write hooks once on local upstream H1, then copy its pinned blobs in M3/M4.
+  Keep moved files byte-identical except mapped import specifiers; run
+  `check:copy-fidelity` when available. Record main/copy SHAs in the PR. H2 must
+  reject a tarball built from an older pin than the consumer's main base.
+- Preserve branded identifiers: all `Symbol.for` keys, `herdr-agents` config
+  directory, policy-file suffixes, environment names and error text mentioning
+  pi-herdr-agents. Package neutrality does not justify renaming them.
 - Preserve every existing public tool, especially `subagent`, `subagent_cancel`,
   `subagent_send`, and `caller_ping`: names, parameters, scope, acknowledgements,
   results and `delegation-outcome/v0.1`. Keep the TypeBox schema snapshots and
@@ -28,8 +36,13 @@ TypeScript declarations into `dist/`.
 - Herdr providers, terminal widgets/renderers and sidebar remain in
   `pi-herdr-agents`. Maestro must not import that package. The worker supervisor
   must not import Maestro; its Pi processes load the relevant extension entry.
-- Keep experimental worker entry points separate from the stable tool entry.
-  They are not evidence of stable contract parity.
+- Host-provided Pi packages and `@sinclair/typebox` are `"*"` peer dependencies,
+  never runtime dependencies or bundled copies. Keep devDependencies for tests.
+- Ship no top-level `extensions/`, `skills/`, `prompts/` or `themes/` directories
+  and no Pi auto-discovery; the host explicitly loads one wrapper.
+- Experimental worker entries remain separate and are excluded from `0.1.0`.
+  M5 follows the stable H2 switch; pi-worker uses a local experimental tarball
+  meanwhile. Experimental parity is not stable-tool parity.
 
 ## Checks
 
@@ -50,6 +63,8 @@ tarball; passing strip-types tests alone does not prove the npm package works.
 This package is MIT under the repository LICENSE (nubl). Extracted code needs no
 per-file notices; name the source repository and revision in the PR description.
 
+First extracted release: `0.1.0` after M6 and local H2 parity; optionally
+`0.1.0-rc.N` on `next` first. These decisions do not authorize a release.
 Publishing is through `.github/workflows/publish.yml`: authorized `v*` tags,
 matching `package.json` version, GitHub environment `npm-publish`, npm trusted
 publishing/OIDC. Never publish from a laptop or add a long-lived npm token.

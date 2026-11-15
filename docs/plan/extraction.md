@@ -12,15 +12,55 @@ incompatible tool definitions through the stable entry point.
 
 | Evidence | Pinned source |
 | --- | --- |
-| Main implementation, inventory and line citations unless marked A0 | `giuseppecrj/pi-herdr-agents@e020a148bbf9424f4e92635ecd9d138c94982292` (`origin/main` when inspected) |
+| Inventory baseline and line citations unless marked A0 | `giuseppecrj/pi-herdr-agents@e020a148bbf9424f4e92635ecd9d138c94982292` |
+| Current extraction pin (advance at every M/H step below) | `giuseppecrj/pi-herdr-agents@add35f42616f398aab9f3cc63defe2b1f95c9149` (existing `origin/main`) |
 | Experimental worker additions, marked **A0** | `giuseppecrj/pi-herdr-agents@f9e6cc5367dd203e7d32e6b4059aa389f3003a8d` (`exp/a0-worker-surface`) |
 | Destination | `nublai/maestro`, package `@nubl/maestro`, currently `0.0.1` placeholder |
 
-Source citations use repository-relative `file:line`; resolve them against the
-revision above, not a future moved file. Immutable source bases:
-[main](https://github.com/giuseppecrj/pi-herdr-agents/tree/e020a148bbf9424f4e92635ecd9d138c94982292)
+Source citations use repository-relative `file:line` at the **inventory baseline**,
+not the advancing extraction pin. Immutable sources:
+[baseline](https://github.com/giuseppecrj/pi-herdr-agents/tree/e020a148bbf9424f4e92635ecd9d138c94982292)
 and [A0](https://github.com/giuseppecrj/pi-herdr-agents/tree/f9e6cc5367dd203e7d32e6b4059aa389f3003a8d).
-Appendices A–D are the exhaustive ownership and import checklists.
+Appendices A–D remain the verified inventory; the current pin changes only
+`LICENSE`/`README.md`, so their source paths/import citations are unchanged.
+
+### Re-baseline and copy fidelity (every M/H step)
+
+1. At the start of **each** M/H step, resolve the latest upstream main and record
+   its full SHA as `base_main_sha`; advance the prior extraction pin. This planning
+   revision uses existing refs only, with no fetch. During implementation, obtain
+   current refs before pinning. Keep a drift ledger from
+   `git log --oneline --name-status <old-pin>..<new-pin> -- <moving-paths>`:
+   include every move/split path in A–C, its tests and supporting assets. Inspect
+   the corresponding diffs; classify added/deleted paths and update the inventory.
+   Account for **each** touching commit as carried over (destination commit/test
+   evidence) or explicitly no-impact with a reason. No silent omission of a fix.
+2. Before the stable switch, rebase local H1 onto that main before copying.
+   H1 writes/tests **all §2 hooks once upstream**, including child/config paths,
+   while the bundled engine still runs. Record its full tip as `copy_sha` and map
+   each moved source blob to its destination in the extraction manifest. M2 uses
+   the current main blobs; M3/M4 copy the refactored H1 blobs, including split-out
+   modules, rather than independently implementing hooks. On drift, refresh H1
+   first, then recopy/reverify affected Maestro files. M5 separately records the
+   A0 pin and any local reporter-split tip; it never overwrites main with A0 variants.
+   After H2, follow new source ownership for H3/M5 drift; retain copy provenance,
+   never recreate the deleted host implementation.
+3. M1 adds `scripts/check-copy-fidelity.ts` / `npm run check:copy-fidelity`.
+   For every manifest entry, read `git show <copy_sha>:<source-path>`, parse both
+   files, normalize **only** import/re-export/import-type/literal-dynamic-import
+   specifiers using a finite source-to-destination mapping, then byte-diff the
+   remaining text. Preserve whitespace, comments and all other literals; fail on
+   missing files, unlisted rewrites or any other difference. New facades have an
+   explicit new-file classification. Hook/path changes must already exist in the
+   pinned upstream refactor, not be hidden by broad diff exclusions. Archive the
+   pinned blobs/manifest for Maestro CI when H1 is local-only; verify their blob
+   IDs locally. Run this gate from M2 onward. This normalized byte equality,
+   **alongside contract and behavior tests**, is the primary no-behavior-change proof.
+4. H2 refuses the switch if the candidate's recorded `base_main_sha` differs from
+   the consumer's latest main base, or its `copy_sha` differs from the rebased H1
+   source. Carry/record all drift, rebuild/repack and rerun affected parity checks
+   first—even if an older tarball passed. Recheck immediately before release and
+   H2 finalization; newer main invalidates stale candidate evidence.
 
 ### Fixed decisions
 
@@ -36,9 +76,7 @@ Appendices A–D are the exhaustive ownership and import checklists.
   encoding, scopes, deferred-tool exposure, defaults, report bounds/provenance,
   cancellation ordering, accept verdicts, persistent semantics and notices.
   Package relocation alone does not justify a wire-version or schema change.
-- Node >=26.12.1; MIT under this repository's nubl LICENSE. The founder owns
-  the extracted code; the upstream `LICENSE:3` name is an accidental paste
-  (founder, 2026-11-15) and is not carried over.
+- Node >=26.12.1; ship only this repository's nubl MIT LICENSE, no upstream notices.
 - No upstream push without the founder's go. This plan authorizes neither an
   implementation nor a release. The current task commits only these documents.
 
@@ -162,11 +200,36 @@ parent's model-facing contract, not terminal widgets. `task-models.ts` keeps the
 Pi approval/dialog mechanics; those are operational Pi integration rather than
 Herdr rendering. No automatic approval replaces a dialog.
 
-Keep current `Symbol.for` keys (`state.ts` and `undelivered-children.ts`), runtime
-maps, child-busy channel, role-pack event and config namespace. Preserve
-per-load controller/config refresh even though normal ESM package dependencies
-are cached: invoke factories on each extension load; merely re-exporting a
-cached module-level singleton would silently break `/reload`.
+Preserve all **eight moving `Symbol.for` keys** (snapshot their strings):
+
+| Source at inventory baseline | Key |
+| --- | --- |
+| `maestro/runtime/pi-run-session.ts:134` | `pi-herdr-agents/PiRunSession-owner` |
+| `maestro/adapters/pi/accept-groups.ts:51` | `pi-herdr-agents/accept-check-groups` |
+| `pi-extension/subagents/tool-boundary.ts:14–16` | `pi-herdr-agents/encoded-tool-errors` |
+| `pi-extension/subagents/task-models.ts:121–123` | `pi-herdr-agents/task-model-approval-open` |
+| `maestro/core/opened-primary-workspace.ts:31–33` | `pi-herdr-agents:opened-primary-workspaces` |
+| `maestro/core/undelivered-children.ts:6` | `pi-subagents/runtime` |
+| `pi-extension/subagents/state.ts:28` | `pi-subagents/widget-interval` |
+| `pi-extension/subagents/state.ts:29` | `pi-subagents/status-interval` |
+
+Two other keys stay in `maestro/surfaces/herdr/herdr.ts:293,303`. Retained widgets
+share the interval slots with moved state. Preserve runtime maps, child-busy
+channel, role-pack event, `herdr-agents` config directory,
+`.pi-herdr-subagent-policy.json` suffix (`session.ts:63`), environment names
+(including `HERDR_SOCKET_PATH`/`PI_WORKER_*`) and branded error text; neutrality
+is not permission to rename them.
+
+Pi 1.5.2 uses jiti (`docs/extensions.md:211`); its installed binary's
+`loadExtensionModule` calls `createJitiImpl` with `moduleCache: false` and, for
+embedded modules, `tryNative: false`. This does **not** establish how the installed
+Maestro JS graph behaves on reload. Invoke factories per load and test the real
+loader: isolated HOME/`PI_CODING_AGENT_DIR`, installed candidate + retained wrapper,
+change `herdr-agents/config.json`, trigger `/reload`, assert refreshed config,
+one registration per tool/handler, old timers disposed, and existing owner/held
+deliveries preserved. Capture these assertions against the bundled engine before/
+after H1, then against the installed tarball at local H2. Fake API capture alone
+is not reload evidence.
 
 ### 2.4 Child entries and package-relative assets (H4)
 
@@ -200,7 +263,8 @@ Keep source relative layout (`maestro/`, `pi-extension/`) for reviewable diffs;
 emit the same tree under `dist/`. New facades/entries are the only new layout.
 All entry exports below have `types` pointing to `.d.ts` and `import`/`default`
 pointing to `.js`; no export points into TypeScript source or `test/`.
-These are proposed exports, not APIs present in `0.0.1`.
+These are proposed exports, not APIs present in `0.0.1`. The first release ships
+only stable rows; all `./experimental/*` rows wait for M5 after the stable switch.
 
 | Package subpath | Step-1 content |
 | --- | --- |
@@ -226,6 +290,8 @@ all declared subpaths. The existing named symbols of each cited source module
 are the initial symbol inventory; the extraction diff may only remove symbols
 whose implementation stays upstream and add the hooks described here. Narrowing
 these compatibility exports later requires a separate consumer migration.
+Document the `./core/*`, `./runtime/*`, `./adapters/pi/*` and `./pi/subagents/*`
+families as **internal-compat, no stability promise**, not the supported engine API.
 
 **pi-herdr-agents:** add an exact tested Maestro dependency and keep its installed
 Pi extension path. Its wrapper imports `createPiExtension`, composes the retained
@@ -233,14 +299,19 @@ providers and presentation, and calls the factory. Retained modules replace
 relative moving imports with the mapped package subpaths. Keep the legacy child
 path as a forwarding wrapper so old launch artifacts/session policies can still
 find it. Do not load both the wrapper and Maestro as independent Pi packages:
-that would register tools and handlers twice. Do not add automatic `pi.extensions`
-discovery to the dependency; hosts select the entry explicitly.
+that would register tools and handlers twice. Ship no top-level `extensions/`,
+`skills/`, `prompts/` or `themes/` directories and no Pi auto-discovery manifest;
+hosts select the entry explicitly. Pi 1.5.2 `docs/packages.md:44–77` describes
+both convention-directory and manifest discovery. The packed install must expose
+no resources or register anything by itself.
 
-**pi-worker:** its Pi launch resource list names the experimental parent or
-FD-child extension path in the installed package. The supervisor does not
-import Maestro and does not acquire its dependency graph. A worker stable-tool
-entry is deferred until step 2 proves the same schemas/outcomes, not advertised
-as completed by this extraction. No supervisor changes are part of these PRs.
+**pi-worker:** keep using a locally packed experimental candidate until M5 and
+its separately authorized release; `0.1.0` has no worker exports. Its Pi launch
+resource list selects parent/FD-child extension paths, not supervisor imports
+(`pi-worker@cfc9324eb96ed244343711c0a2086238f9ec8348`, `src/host.ts:50–53`). Before
+M5 that tarball is a local-only A0 build, not the stable release candidate. The
+supervisor never imports Maestro. Stable-tool convergence remains step 2; no
+supervisor changes are part of these PRs.
 
 ## 4. Dependencies, build, tooling and licensing
 
@@ -251,18 +322,20 @@ with development Pi `^1.5.2`, TypeBox `^0.34.52`, TS 5.9.3, Biome 2.5.11 and
 Oxlint `^1.80.0`. Preserve the tested versions from its lockfile initially,
 without an unrelated dependency upgrade.
 
-- **Runtime dependency:** `@sinclair/typebox` in the existing tested 0.34.x line.
-  It is a directly imported implementation/schema dependency, so every Pi entry
-  has it available. Test coexistence with the host's TypeBox installation and
-  identical captured schemas; do not replace schema constructors.
-- **Optional peers:** `@earendil-works/pi-ai` and
-  `@earendil-works/pi-coding-agent`, initially the tested 1.5.x line (minimum
-  1.5.2; widen only with evidence). Optional at installation so an engine-only
-  consumer need not install Pi. Required in fact for Pi entry imports; explain
-  this in their docs. Pin both in devDependencies/lockfile for CI. Pi APIs/types
-  must resolve to the host's installation, not a bundled second SDK.
-- **No Maestro TUI dependency** once all inline/child renderers are split. Keep
-  `@earendil-works/pi-tui` upstream; any remaining runtime import is a failed cut.
+- **Host-provided peers, all `"*"`:** `@earendil-works/pi-ai`,
+  `@earendil-works/pi-coding-agent`, `@earendil-works/pi-tui` and
+  `@sinclair/typebox`, matching upstream. Mark them optional in
+  `peerDependenciesMeta` for engine-only installation; Pi entries require the
+  relevant peers. Keep tested devDependencies/lockfile versions for tests, and
+  install peers explicitly in Pi packed-consumer fixtures. Never put them in
+  `dependencies` or bundle a second SDK/schema library.
+- Pi 1.5.2 `docs/packages.md:104–118` requires `"*"` peers for host-provided
+  packages (it names `typebox`); the binary's `VIRTUAL_MODULES` also maps legacy
+  `@sinclair/typebox` to host TypeBox. Preserve that upstream import spelling and
+  captured schemas, rather than replacing constructors or imposing a 1.5.x peer range.
+- **No Maestro TUI imports** once inline/child renderers are split. Its peer
+  declaration does not permit moving rendering upstream-to-package; retained UI
+  and TUI runtime use stay upstream.
 - No dependency on `pi-herdr-agents`, Herdr binaries, `pi-worker` supervisor,
   Effect or a bundler. The worker client uses Node HTTP/fs, not supervisor internals.
   Include explicit `@types/node` for Node 26 in development rather than relying
@@ -273,10 +346,11 @@ without an unrelated dependency upgrade.
 Use TypeScript **emit**, not an npm package of strip-types-only `.ts` files.
 Keep upstream's strict NodeNext/es2023/verbatimModuleSyntax/erasableSyntaxOnly
 settings. Use a separate `tsconfig.build.json` with `noEmit: false`, `rootDir: .`,
-`outDir: dist`, declarations, source/declaration maps and
-`rewriteRelativeImportExtensions: true`. Typecheck tests separately with
-`noEmit: true`. Preserve comments/headers (`removeComments: false`). Copy needed
-non-code assets explicitly; do not ship tests, development credentials or labs.
+`outDir: dist`, declarations, source/declaration maps with `inlineSources: true`
+(for installed coverage), and `rewriteRelativeImportExtensions: true`. Typecheck
+tests separately with `noEmit: true`. Preserve comments (`removeComments: false`);
+no moving license headers need adding. Copy non-code assets explicitly; ship no
+tests, development credentials or labs.
 Do not bundle: preserve module identity, import boundaries and reload ownership.
 
 The emitted child entry paths and config assets need explicit fixes (§2.4).
@@ -310,13 +384,15 @@ Herdr transports or the retained host wrapper.
 
 ### Preserve test identities, not just counts
 
-For each split file, record each original test title and source line in an
-implementation migration manifest, with its new owner/path. Port setup/helpers
-with their assertions. Keep pure engine/tool cases here; keep concrete transport,
-UI and real-terminal composition cases upstream against the installed package.
-Shared fixture/helper code may be copied test-only into both repositories where
-necessary; production logic gets one owner. Both old and new files can coexist
-while validating, but delete migrated upstream cases only after counterpart runs.
+Generate the identity ledger from baseline and migrated runs with Node's
+`--test-reporter` (structured events or archived TAP); retain nested titles and
+skip status, attaching file/line identity from events or a pinned-source scan.
+Map original identities to new owner/path and diff the baseline against the union
+of both suites; counts alone or a hand-maintained list are insufficient. Port helpers
+and assertions too. Pure engine/tool cases move; concrete transport/UI/terminal
+cases stay upstream against the installed package. Shared helpers may be copied
+test-only; production logic has one owner. Delete upstream migrated cases only
+after counterpart evidence exists.
 
 `test/test.ts` has 17,644 lines and mixes everything. Its suite boundaries include:
 
@@ -350,32 +426,39 @@ runtime 98.9%, surfaces 85.2%**. They are not the report's overall 86.40%, and
 must not become one global threshold. The report also shows weak individual
 coverage (e.g. child reporter 40.76%); that does not justify dropping tests.
 
-1. In M1, capture the pinned baseline's raw per-file covered/total lines, branch
-   and function data on Node 26.12.1 with exactly the original unit entry list,
-   in isolated state. Keep the supplied report as comparison evidence. Confirm
-   the subsystem aggregation method rather than changing it silently. Arithmetic
-   means of the supplied report's displayed per-file line percentages are core
-   98.0481% (36 files), runtime 98.94% (10), surfaces 85.2078% (9), matching the
-   requested rounded floors; these are not weighted covered-line ratios.
-2. Track original file/line ownership through splits. Use the **same aggregation**
-   over the original file population (recombining split portions) for baseline
-   comparison; additionally report weighted line coverage so a tiny file cannot
-   hide a large uncovered module. Do not improve a number by deleting a file,
-   moving it out of the denominator, skipping a test or excluding child code.
-3. As each PR adds a subset, its moved tests and source-mapped coverage must not
-   regress that subset's baseline. At M6/H2, recombine package tests and retained
-   host composition/provider coverage against the same candidate tarball. Require
-   all three subsystem floors. Runtime factory/marker portions staying upstream
-   still count in the original runtime population; fake and real surfaces retain
-   their original population split across repos.
-4. Report package-only core/runtime floors too, with an explicit new population;
-   meet 98.0/98.9 rather than quietly adopting a lower baseline. Add tests for
-   new hooks/build paths. Herdr surface 85.2 stays a required upstream gate, not
-   a false claim that Maestro ships Herdr surfaces. Store machine-readable
-   ownership/coverage mapping in the implementation PRs.
-5. Track adapters and tool-boundary files per-file against the baseline even
-   though no aggregate floor was specified. A0 coverage is a separate cohort;
-   it must not dilute or inflate main's baseline.
+M1 captures raw per-file line/branch/function coverage on Node 26.12.1 with the
+original unit entries in isolated state. Supplied per-file arithmetic line means
+are core 98.0481% (36 files), runtime 98.94% (10), surfaces 85.2078% (9), matching
+the rounded floors; they are **not** weighted covered-line ratios.
+
+Require original-file per-file non-regression as subsets move. At **local M6/H2**,
+combine package and retained-host coverage for the exact tarball, map split lines
+back to the original population (including retained runtime/Herdr pieces), and
+require all three floors with that same arithmetic mean. Store the ownership map
+and also report weighted coverage. Include adapters/tool-boundary per-file;
+package-only populations are **reported, not new floor gates**. Add hook/build
+path tests; do not drop files, skip tests or exclude child code to improve a
+number. A0 remains a separate M5 cohort.
+
+For the retained-host run, after isolated HOME/config setup, use these Node flags
+from the consumer root (`retained_unit_entries` is the manifest-derived Bash
+array of retained original unit entries, not a smoke subset; `evidence` is its
+private output directory):
+
+```bash
+NODE_V8_COVERAGE="$evidence/host-v8" node \
+  --experimental-strip-types --enable-source-maps --experimental-test-coverage \
+  --test-coverage-include='maestro/**' \
+  --test-coverage-include='pi-extension/**' \
+  --test-coverage-include='node_modules/@nubl/maestro/**' \
+  --test --test-reporter=tap --test-reporter-destination="$evidence/host.tap" \
+  "${retained_unit_entries[@]}"
+```
+
+Node otherwise excludes `node_modules`; explicit inclusion must yield installed
+package files in the report. Run the package cohort with the same source-map/raw
+coverage flags, then merge hits through the ownership/source maps, not averages
+of the two reports. Fail if any mapped original file is absent. No push is needed.
 
 ### Known timing flake
 
@@ -395,10 +478,11 @@ retry is not proof of a fix. Do not skip/quarantine it to obtain a green switch.
 and execute emitted JS without TypeScript loaders or source path fallbacks.
 Cover: root import without Pi peers installed; every export resolution and
 Promise-only TypeScript consumer; Pi factory registration with peers; emitted
-child entry loading; schema equality; asset paths; headers/licenses; no
+child entry loading; schema equality; asset paths; nubl LICENSE only; no
 Herdr, TUI or Effect imports in Maestro-owned modules (Pi peers may have their
-own TUI dependencies); worker child import isolation. Verify the package does
-not auto-register itself alongside the upstream wrapper.
+own TUI dependencies). In isolated Pi config, install the tarball and assert no
+resources/tools auto-load; then load only the wrapper. Worker child import
+isolation is an M5 gate, not a prerequisite for the first stable release.
 
 Retained upstream isolated integration suites run sequentially against the same
 candidate tarball using credential-free fake model service + real parent/child
@@ -412,50 +496,44 @@ the operator's daily sockets. Desktop/sidebar pixel parity is not newly claimed.
 
 ## 6. Small, independently green PRs
 
-Commands below are **planned gates** once the corresponding scripts exist.
-`npm ci` always precedes a clean CI run. `npm run check:boundaries` checks both
-source and emitted imports. `npm run test:coverage` includes the current migrated
-unit suite and its explicit ownership manifest; it is not a tiny proxy suite.
-No PR is released just because its partial package builds.
+Commands below are **planned gates**, not present placeholder scripts. Start
+every M/H step with §1 re-baselining. `npm ci` precedes clean CI runs;
+`check:boundaries` checks source + emitted imports, `test:coverage` uses all migrated
+unit entries, and `check:copy-fidelity` runs from M2 onward. §2's H1–H4 are hook
+IDs, all implemented in **PR H1**; they are not four additional upstream PRs.
 
-### Maestro sequence
+### Maestro sequence (M5 deliberately follows the stable switch)
 
 | PR | Change and completion criterion | Verification command(s) |
 | --- | --- | --- |
-| **M1 — build and provenance scaffold** | Add strict TS emit, lockfile, upstream-compatible formatter/Oxlint closure, license/provenance files, package-test harness and baseline/migration manifests. Keep placeholder API/test until replacement is ready. CI and publish workflow install/build gates exist, but no tag. | `npm run format:check && npm run lint && npm run typecheck && npm test && npm run build && npm run test:package && npm pack --dry-run` |
-| **M2 — core and generic owner** | Copy core, RunSession/surface-retention and fakes unchanged; root/engine entry stays Pi-free. Move matching conformance tests and monolith cases now, not later. Establish non-regressing coverage for this subset. | M1 gates, plus `npm run check:boundaries && npm run test:coverage` |
-| **M3 — Pi adapters/runtime and host ports** | Move Pi adapter/runtime closure and relevant tests; replace concrete provider/marker imports with §2.1–2.2 hooks. Preserve reload ownership and per-launch trust. Ordinary child protocol moves with its launch dependency; split widget via child hook. Verify fake-host fixtures plus the local H1 adapter. | M2 gates; `node --experimental-strip-types --test test/maestro/pi-run-session.test.ts test/maestro/audit-reload.test.ts test/maestro/accept-recheck.test.ts`; installed-JS child smoke in `npm run test:package` |
-| **M4 — Pi tools and stable contract** | Move schemas/controllers/serializer and Pi factory; retain UI through hooks. Move remaining contract tests/docs and complete monolith ownership ledger. Exact main schema/result fixtures match; no duplicate registration. | M2 gates, plus `npm run docs:tools:check`; actual-factory schema and outcome cases in `npm test`; upstream-wrapper comparison in `npm run test:package` |
-| **M5 — isolated experimental worker relocation** | Copy only A0 worker closure/tests; split tiny FD reporter, publish only explicit experimental entries. Preserve A0 behavior and assert stable entry remains unaffected. No A0 early return added to the stable factory. | M4 gates, plus `node --experimental-strip-types --test test/maestro/worker-backend.test.ts test/maestro/worker-delivery.test.ts test/maestro/worker-crash.test.ts`; run crash test in isolated Linux fixture; packed reporter/import-isolation tests |
-| **M6 — installed-consumer parity and release readiness** | Complete finite exports/assets and compatibility docs, combine coverage populations, run retained upstream labs against the tarball, remove placeholder API only now. All migrated test identities accounted for; both consumer paths documented honestly. | M4/M5 gates, `npm pack --dry-run`; H2 full checks and sequential integration gates below against the exact tarball; package/source-map coverage comparison reaches floors |
-
-M3 can be reviewed without a pushed upstream branch: the hook fixture is local.
-M6 needs the local H2 consumer branch, not an upstream merge. Version/tag choice
-and the actual release require founder approval after these checks; no automatic
-release is part of M6. The worker transport stays experimental if parity is not
-implemented—M6 must not claim step 2 happened.
+| **M1 — build and provenance scaffold** | Strict TS emit, lockfile, upstream formatter/Oxlint closure, package harness, drift/copy/test/coverage manifests and fidelity script. Keep placeholder until replacement. Add CI/publish build gates and prerelease tag handling (§7); no release. | `npm run format:check && npm run lint && npm run typecheck && npm test && npm run build && npm run test:package && npm pack --dry-run` |
+| **M2 — core and generic owner** | Copy current-pin core, RunSession/surface-retention and fakes; root stays Pi-free. Move matching conformance/monolith tests; subset coverage does not regress. | M1 gates + `npm run check:copy-fidelity && npm run check:boundaries && npm run test:coverage` |
+| **M3 — Pi adapters/runtime and host ports** | Copy refactored H1 blobs with §2.1–2.2/2.4 hooks already in place; no second hook implementation. Copy tests, child protocol and emitted entry; preserve owner/per-launch trust. | M2 gates; `node --experimental-strip-types --test test/maestro/pi-run-session.test.ts test/maestro/audit-reload.test.ts test/maestro/accept-recheck.test.ts`; installed-JS child smoke in `test:package`. Local H1 adapter check, not Maestro CI. |
+| **M4 — Pi tools and stable contract** | Copy H1 schemas/controllers/serializer/factory and hooks; finish contract tests/docs and identity ledger. No duplicate registration or fixture drift. | M2 gates + `npm run docs:tools:check`; CI actual-factory schema/outcome tests against unchanged `test/fixtures/tool-schema/current.json` and `released.json`. Local cross-repo wrapper comparison against the tarball, not a CI dependency on unpushed H1. |
+| **M6 — stable installed-consumer parity** | Finish stable exports/assets/internal-compat docs; remove placeholder. All original test identities accounted for. Local H2 labs and combined coverage pass against the exact candidate; **no M5 dependency or experimental exports**. | M4 gates + `npm pack --dry-run`; local H2 parity/coverage gates below. Maestro CI remains self-contained; attach local cross-repo evidence. |
+| **M5 — experimental worker, after stable H2** | Separately copy A0 closure/tests and locally refactored FD reporter; expose only explicit experimental entries. Preserve A0 and stable isolation. Release separately only when authorized. | Stable gates + `node --experimental-strip-types --test test/maestro/worker-backend.test.ts test/maestro/worker-delivery.test.ts test/maestro/worker-crash.test.ts`; isolated Linux crash fixture, packed reporter/import-isolation checks. |
 
 ### Matching pi-herdr-agents sequence (local branches until approved)
 
 | PR | Change and completion criterion | Verification command(s) |
 | --- | --- | --- |
-| **H1 — prove composition hooks in place** | Extract the concrete factories, marker transport, inline/child renderers and wrapper composition while still using the existing local engine. Establish exact before/after contract and reload fixtures. Put any flake-only correction in its own commit. No behavior change or dependency switch. | `npm run format:check && npm run docs:tools:check && npm run lint && npm run typecheck && npm test && npm pack --dry-run` |
-| **H2 — consume candidate package** | Install the M6 candidate tarball locally; redirect moving imports to explicit package exports, load one factory, preserve old child path forwarding and config roots. Run before deleting local implementation; then delete moved production code in the same reviewed switch commit once equivalence passes. Before an approved merge, replace the temporary file dependency with the exact released version and rerun package resolution. | H1 gates; `npm run test:integration && npm run test:integration:core` in isolated labs; full `scripts/run-linux-integration.ts` driver via the existing CI lab; original-population coverage gate using package source maps |
-| **H3 — finish test/docs ownership** | Remove only duplicated migrated test cases whose counterpart evidence exists; keep real provider/UI/integration coverage, forwarding child entry and host guide. Update developer map and package-manifest assertions; preserve schema snapshots. No cleanup of runtime behavior. | H1/H2 gates again for changed tests/imports; final combined ownership/coverage report, `npm pack --dry-run` |
+| **H1 — prove hooks once in place** | Refactor all §2 provider/marker/UI/child/config hooks while retaining bundled engine; pin tip for M3/M4 copies. Before/after contract and real-loader reload fixtures match. Any flake-only correction is its own commit. | `npm run format:check && npm run docs:tools:check && npm run lint && npm run typecheck && npm test && npm pack --dry-run`; isolated real Pi reload probe (§2.3). |
+| **H2 — consume candidate package** | Apply §1 drift/pin gate; install exact M6 tarball locally. Redirect imports, load one factory, preserve forwarding child/config paths. Prove parity before deleting local code in the reviewed switch. After authorized release, replace `file:` dependency with exact registry version, compare tarball contents and rerun resolution. | H1 gates; local wrapper/factory equality + reload probe; `npm run test:integration && npm run test:integration:core` and `node --experimental-strip-types scripts/run-linux-integration.ts` sequentially in a private Linux lab/isolated VM with required fixture binaries/env (`scripts/run-linux-integration.ts:11–23`). §5 combined coverage. These run from the local H branch; CI is available only after a separately approved push, never required to publish an unapproved branch. |
+| **H3 — finish test/docs ownership** | Delete only duplicate migrated tests with counterpart evidence; retain provider/UI/integration cases, forwarding child and host guide. Update map/manifest assertions; preserve snapshots. | H1/H2 gates for changed tests/imports; final combined ownership/coverage report, `npm pack --dry-run`. |
 
-Local working order: **M1 → M2 → H1 → M3 → M4 → M5 → local H2/M6
-verification → approved Maestro release → H2 dependency finalization → H3**.
-The founder may review the upstream diffs locally throughout; none is pushed,
-opened as a PR, merged or tagged by this planning task.
+Local working order: **M1 → M2 → H1 → M3 → M4 → local M6/H2 parity →
+authorized 0.1.0 release (optional rc first) → H2 stable dependency finalization →
+H3 → M5**. M5 may follow finalized H2 independently of H3. No push, PR opening,
+merge, tag or release is authorized by this planning task.
 
 ### Switch-over and rollback
 
-1. Capture source revision, candidate tarball hash, lockfiles, coverage map and
-   exact schema/outcome equality evidence. Finish/drain live children before the
-   **package upgrade**, then restart Pi. Preserve `/reload` behavior within a
-   version, but do not claim hot adoption across old local and new package class
-   implementations. This avoids simultaneous module owners without redesigning
-   runtime ownership.
+1. Capture current main/H1 copy SHAs, closed drift ledger, copy-fidelity report,
+   candidate tarball hash, lockfiles, coverage map and exact schema/outcome equality.
+   Finish/drain live children before the **package upgrade**, then restart Pi.
+   Preserve `/reload` within a version, but do not claim hot adoption across old
+   local and new package class implementations. This avoids simultaneous owners
+   without redesigning runtime ownership.
 2. Release Maestro only through the authorized `v*` tag workflow and trusted
    npm publishing. Keep the initial consumer dependency exact, not a floating
    range. Verify the published tarball matches the candidate's content before
@@ -473,24 +551,24 @@ opened as a PR, merged or tagged by this planning task.
    The worker experiment can keep its previous explicit package entry/version
    independently; it never forces the stable host onto A0 semantics.
 
-## 7. Risks and founder decisions
+## 7. Risks and settled release decisions
 
-**Material risks:** ESM caching changes reload semantics; fixed launch `.ts`
-strings fail after publish; Windows per-launch trust can be lost by a coarse
-provider injection; test splitting can hide coverage loss; duplicate extension
-loading can duplicate tools/results. The gates above target each directly.
+**Material risks:** upstream drift silently reverts fixes; installed-package reload
+behavior is unproven under Pi's real loader; fixed launch `.ts` strings fail after
+publish; coarse injection loses Windows per-launch trust; test splitting hides
+coverage loss; duplicate discovery duplicates tools/results. The gates above
+address each without assuming normal ESM caching describes Pi.
 
-**Open decisions (not blockers to this plan):**
-
-1. Approve the first extracted version and release timing, then separately
-   authorize upstream push/PR publication. No release number is assumed here.
-2. Confirm whether to expose the preserved A0 experiment in the first npm release
-   or keep those experimental exports unpublished until step 2. Recommended:
-   extract/test now, advertise no stable worker support; enabling A0 by default
-   is not an option under the no-behavior-change constraint.
-
-The engine/public API/Effect/ownership/Node/license decisions are settled and
-are not reopened by these release questions.
+Founder decisions (2026-11-15): first release **0.1.0**, only after M6 and local
+H2 parity on the exact candidate; **no experimental worker exports** in it.
+Optionally publish `0.1.0-rc.N` under **`next`** first. M1 changes
+`.github/workflows/publish.yml`'s final `npm publish --access public` step to select
+`--tag next` when `package.json.version` has a prerelease component; stable versions
+publish to `latest`. Retain tag/version equality, `npm-publish` environment and
+OIDC gates. Verify registry/candidate content equality before H2 finalization.
+M5 and any experimental release need separate authorization after the stable
+switch. Version/timing decisions are settled; actual tags/releases and upstream
+pushes/PRs still need explicit authorization.
 
 ## 8. Verification of this planning change
 
@@ -500,13 +578,16 @@ tracked TS/JS/MJS files identified static imports, re-exports, import types and
 literal dynamic imports; Appendix D records the cross-cut edges with the
 specifier's actual line. Non-literal/path-built loads are called out separately.
 Every listed source path and import edge was checked against those revisions.
-No upstream implementation, upstream tests, integration labs or source-supplied
-scripts were executed for this planning task. Only this repository's requested placeholder
-`npm test` and package preview are current execution evidence: on Node 26.13.0,
-`npm test` passed 1/1 tests and `npm pack --dry-run` succeeded (the unchanged
-five-file placeholder package). Migration, coverage and installed-consumer gates
-above remain future work. No independent subagent review was run: this was a
-planning leaf with delegation prohibited.
+This revision addresses the supplied independent review (`maestro-plan-review.md`,
+verdict: revise first); no new subagents were launched. Existing upstream refs,
+Pi 1.5.2 package docs/binary loader, manifest, symbols and lab prerequisites were
+rechecked. No fetch, upstream code/tests, labs or source-supplied scripts ran.
+Review licensing blocker: resolved by founder decision, 2026-11-15 (`537d000`, `add35f4`); nubl MIT only.
+
+On Node 26.13.0, this repository's requested placeholder `npm test` passed 1/1
+and `npm pack --dry-run` succeeded (unchanged five-file placeholder package).
+Extraction, copy-fidelity, coverage, reload and installed-consumer gates remain
+future implementation work, not green checks claimed by this document.
 
 Source documents contain install/test/release and operating instructions (the
 upstream README, development guide, skill and research quotations). They were
@@ -629,22 +710,28 @@ here; no credentials or token-bearing URLs are included.
 | `.pi/skills/verify-pi-herdr-agents/scripts/lab.ts` | **stay** | Isolated terminal-host integration driver/lab; replace moving imports with package subpaths. |
 | `.pi/skills/verify-pi-herdr-agents/scripts/pin.ts` | **stay** | Host registration pinning tool; adapt constructed imports to wrapper and retained/shared mock fixture. |
 | `LICENSE` | **stay** | Maestro ships its own nubl MIT LICENSE; nothing is copied. |
-| `biome.json` | **split** | Copy required config/tooling/contract/fixture or attribution into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
-| `config.json.example` | **split** | Copy required config/tooling/contract/fixture or attribution into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
-| `docs/delegation-outcome-contract.md` | **split** | Copy required config/tooling/contract/fixture or attribution into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
-| `docs/tools.md` | **split** | Copy required config/tooling/contract/fixture or attribution into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
-| `examples/role-pack/extension.ts` | **split** | Copy required config/tooling/contract/fixture or attribution into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
-| `examples/role-pack/package.json` | **split** | Copy required config/tooling/contract/fixture or attribution into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
-| `examples/role-pack/roles/example-reviewer.md` | **split** | Copy required config/tooling/contract/fixture or attribution into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
-| `oxlint.config.ts` | **split** | Copy required config/tooling/contract/fixture or attribution into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
+| `.github/workflows/*` (3 files) | **stay** | Host CI/publishing stays upstream; Maestro owns its separate workflows. |
+| `.npmignore` | **stay** | Host packaging rules; Maestro defines its own emitted-artifact allowlist. |
+| `CONTEXT.md` | **stay** | Host context, not engine/package contract. |
+| `RELEASING.md` | **stay** | Host release procedure; Maestro uses its own OIDC workflow. |
+| `docs/configuration.md` | **stay** | Host configuration guide; package docs describe explicit composition options. |
+| `docs/roles.md` | **stay** | Host role-pack guide; contract fixtures move only as listed. |
+| `biome.json` | **split** | Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
+| `config.json.example` | **split** | Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
+| `docs/delegation-outcome-contract.md` | **split** | Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
+| `docs/tools.md` | **split** | Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
+| `examples/role-pack/extension.ts` | **split** | Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
+| `examples/role-pack/package.json` | **split** | Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
+| `examples/role-pack/roles/example-reviewer.md` | **split** | Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
+| `oxlint.config.ts` | **split** | Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
 | `package-lock.json` | **split** | Use upstream resolved versions as the dependency baseline, then generate a Maestro lockfile for its own package metadata/dependencies; keep host lockfile upstream. |
 | `package.json` | **split** | Port test/tool versions and relevant scripts into the existing Maestro manifest; preserve Maestro identity, Node floor and trusted publishing, and retain host metadata upstream. |
 | `plugins/sidebar/README.md` | **stay** | Terminal-host plugin or operating guide; update package references upstream only, do not move host UI/workflow guidance into engine. |
 | `plugins/sidebar/herdr-plugin.toml` | **stay** | Terminal-host plugin or operating guide; update package references upstream only, do not move host UI/workflow guidance into engine. |
 | `plugins/sidebar/sidebar.mjs` | **stay** | Terminal-host plugin or operating guide; update package references upstream only, do not move host UI/workflow guidance into engine. |
 | `scripts/run-linux-integration.ts` | **stay** | Isolated terminal-host integration driver/lab; replace moving imports with package subpaths. |
-| `scripts/tool-docs.ts` | **split** | Copy required config/tooling/contract/fixture or attribution into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
-| `scripts/update-tool-docs.ts` | **split** | Copy required config/tooling/contract/fixture or attribution into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
+| `scripts/tool-docs.ts` | **split** | Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
+| `scripts/update-tool-docs.ts` | **split** | Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
 | `skills/pi-herdr-agents/SKILL.md` | **stay** | Terminal-host plugin or operating guide; update package references upstream only, do not move host UI/workflow guidance into engine. |
 | `tools/oxlint/anti-slop/effect/index.ts` | **stay** | Not in the active upstream Oxlint plugin import closure; no Effect tooling expansion during extraction. |
 | `tools/oxlint/anti-slop/effect/rules/no-service-constructor-imports.ts` | **stay** | Not in the active upstream Oxlint plugin import closure; retain unused upstream development rule only. |
@@ -667,7 +754,7 @@ here; no credentials or token-bearing URLs are included.
 | `tools/oxlint/anti-slop/shared/dictionary-types.ts` | **split** | Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption. |
 | `tools/oxlint/anti-slop/shared/lexical-type-parameters.ts` | **split** | Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption. |
 | `tools/oxlint/anti-slop/shared/reflect-method.ts` | **split** | Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption. |
-| `tsconfig.json` | **split** | Copy required config/tooling/contract/fixture or attribution into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
+| `tsconfig.json` | **split** | Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
 
 ADRs remain upstream as immutable historical decisions; cite them rather than mechanically renaming their product scope. The new extraction plan records the superseding package decision. Source README/development/install prose stays upstream; author Maestro-specific usage documentation around the unchanged contract.
 
@@ -789,6 +876,9 @@ All 110 tracked test-tree files are listed, including non-entry fixtures. Preser
 | `test/worktree-cleanup.test.ts` | **split** | Move eligibility/Git/manifest cases; retain concrete Herdr workspace-removal composition cases. |
 
 ## Appendix C. Experimental revision inventory (A0 only)
+
+Deferred to **M5 after the stable H2 switch**; none of these experimental additions
+ships in `0.1.0`. Shared mainline files still follow Appendices A/B.
 
 | Source path at A0 | Fate of A0 version | Reason |
 | --- | --- | --- |
@@ -1323,9 +1413,9 @@ Resolution codes: **H1** provider factory/binding injection (§2.1); **H2** mark
 - Main sidebar implementation has only Node built-in imports and no engine import; the cut is its marker wire protocol, not a hidden package dependency. Keep it independently installable.
 
 The complete computed-import review below supplements the literal AST table;
-query suffixes deliberately force fresh entry modules. Preserve their tested
-reload semantics through factory calls, rather than relying on the package's
-cached transitive modules to reevaluate.
+query suffixes deliberately force fresh entry modules in these native-import
+tests. Preserve their semantics through factory calls, and separately verify the
+installed graph through Pi's real jiti reload path (§2.3); neither proves the other.
 
 | Import call at main | Constructed target | Treatment |
 | --- | --- | --- |
@@ -1334,6 +1424,6 @@ cached transitive modules to reevaluate.
 | `test/helpers/tool-schema-capture.ts:69` | `pi-extension/subagents/index.ts` and `maestro/adapters/pi/child/subagent-done.ts` (call sites :90,92) | Parameterize real source/packed entry loader. |
 | `test/maestro/herdr-placement-async.test.ts:106,126` | `maestro/surfaces/herdr/herdr.ts` | Stay-to-stay reload probes, retained unchanged except any host-local path rename. |
 | `test/maestro/task-thinking-wiring.test.ts:83` | `pi-extension/subagents/index.ts` | Move factory/config refresh test; retain wrapper parity smoke. |
-| `test/test.ts:1450,1579,1685,1787,1861,4766` | `pi-extension/subagents/index.ts` | Split actual reload-gap/held-delivery/config scenarios with their new owners; test cached-package/fresh-wrapper behavior. |
+| `test/test.ts:1450,1579,1685,1787,1861,4766` | `pi-extension/subagents/index.ts` | Split reload-gap/held-delivery/config cases by owner; add installed-package real-loader parity (§2.3). |
 
-**Audit totals:** 98 main production files, 110 test-tree files, 42 additional support files; 486 conservative literal cross-cut import occurrences at main, plus all 12 computed import calls reviewed above. Split-to-split edges are intentional review items, not a proposed bidirectional dependency graph.
+**Audit totals:** 98 main production files, 110 test-tree files, 50 additional support files; 486 conservative literal cross-cut import occurrences at main, plus all 12 computed import calls reviewed above. Split-to-split edges are intentional review items, not a proposed bidirectional dependency graph.
