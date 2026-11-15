@@ -70,8 +70,8 @@ if (
 	process.argv[1] &&
 	resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
-	const [upstream] = process.argv.slice(2);
-	assert(upstream, "Usage: map-coverage-lines.ts <upstream-repository>");
+	const [upstream, step = "M3"] = process.argv.slice(2);
+	assert(upstream, "Usage: map-coverage-lines.ts <upstream-repository> [step]");
 	const root = fileURLToPath(new URL("../", import.meta.url));
 	const manifestPath = resolve(root, "provenance/coverage-manifest.json");
 	let coverage: {
@@ -90,12 +90,16 @@ if (
 		throw new Error("Cannot read coverage manifest", { cause });
 	}
 	const copies = readManifest(resolve(root, "provenance/copy-manifest.json"));
-	/** H1 split the child protocol out of the legacy terminal entry. */
+	/**
+	 * H1 split the child protocol out of the legacy terminal entry, and the
+	 * per-load registration (createPiExtension) out of the Pi terminal entry.
+	 */
 	const splits = new Map([
 		[
 			"maestro/adapters/pi/child/subagent-done.ts",
 			"maestro/adapters/pi/child/protocol.ts",
 		],
+		["pi-extension/subagents/index.ts", "pi-extension/subagents/extension.ts"],
 	]);
 	for (const original of coverage.original_files) {
 		if (original.current_owner === "@nubl/maestro") continue;
@@ -128,8 +132,8 @@ if (
 		original.split_line_map = ranges;
 		original.mapping_status =
 			mapped === before.length && after.length === before.length
-				? "M3 whole-file identity copy from the H1 pin; no source lines split or omitted. M3 per-file gate: scripts/test-unit.ts --coverage."
-				: `M3 copy from the H1 pin (${destination}); ${mapped}/${before.length} original lines map by indentation-insensitive line diff, ${before.length - mapped} changed or removed upstream after the coverage baseline, ${after.length - mapped} destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.`;
+				? `${step} whole-file identity copy from the H1 pin; no source lines split or omitted. ${step} per-file gate: scripts/test-unit.ts --coverage.`
+				: `${step} copy from the H1 pin (${destination}); ${mapped}/${before.length} original lines map by indentation-insensitive line diff, ${before.length - mapped} changed or removed upstream after the coverage baseline, ${after.length - mapped} destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.`;
 		console.log(`${original.source}: ${mapped}/${before.length} mapped`);
 	}
 	writeFileSync(manifestPath, JSON.stringify(coverage, null, "\t") + "\n");

@@ -78,6 +78,7 @@ if (coverage)
 	args.push(
 		"--experimental-test-coverage",
 		"--test-coverage-include=maestro/**",
+		"--test-coverage-include=pi-extension/**",
 	);
 args.push(
 	"--test",
