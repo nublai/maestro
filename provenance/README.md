@@ -20,17 +20,30 @@ The upstream formatter/lint tooling is the only copied implementation.
   lockfile remain upstream's; the existing transitive Node 26 types are now an
   explicit `26.6.4` development dependency.
 
-## Copy fidelity (gate starts in M2)
+## Copy fidelity (wired in M1; copies start in M2)
 
 `copy-manifest.json` is deliberately empty. An empty successful check proves no
 extraction parity. For each future copy, record `kind: "copy"`, the pinned
 `source`, `destination`, Git `blob` ID, and an `archive` path relative to this
 repository. Record actual new facades as `kind: "new"` with a reason, never as
-an exclusion around an edited copy. Set `base_main_sha` and `copy_sha` at each
+an exclusion around an edited copy. Split sources require `classification: "split"`
+on their `copy` entries. Set `base_main_sha` and `copy_sha` at each
 step; M3/M4's copy pin is the rebased local H1 tip, not main's unrefactored blobs.
 
+`upstream-tree.json` records every path/blob at `copy_sha`, including files outside
+the moving roots. The local upstream check compares that complete tree with Git;
+CI checks against this frozen index. Refresh it with the pin, not to waive a diff.
+Every destination file under `maestro/` and `pi-extension/` must have exactly one
+manifest entry. An inventoried moving path cannot be `new`; new files cannot use
+an upstream path or upstream content blob, even under a different name. Unmigrated
+inventory rows need not exist in the destination yet (M1 has none).
+
 `mappings` is a finite list of exact `{ "from": "specifier", "to": "specifier" }`
-rewrites. The checker parses both code files and rewrites only source spans for
+rewrites. Optional `source` scopes a mapping to one upstream file. Each used target
+must resolve relative to its importer to a real `copy` destination (emitted `.js`
+may address source `.ts`, likewise `.mjs`/`.mts` and `.cjs`/`.cts`). Package or bare
+mapping targets are not allowed; keep internal copies relative. Unused and
+ambiguous duplicate mappings fail. The checker parses both code files and rewrites only source spans for
 static imports, re-exports, import types and literal dynamic imports (including
 non-interpolated templates). It preserves quote delimiters, whitespace, comments
 and other literals. Computed imports are not normalized. Non-code assets are compared byte-for-byte.
@@ -64,7 +77,12 @@ reports multiple reload-query instances under the same pathname: line hits are
 unioned by original source line, not averaged as extra files. Raw branch/function
 variants remain intact. M6 must combine branch ranges and split original lines
 using raw V8/source maps; M1 does not implement or claim that future combined gate.
-The specified floors remain 98.0/98.9/85.2, not a global or package-only threshold.
+The canonical measurement is this original-line union method, not the earlier
+85.2078% surfaces calculation. Floors are the full-precision pin measurements:
+**98.0485953725156 / 98.94096225077136 / 91.19073215228121**. They are not rounded
+lower limits, a global threshold or package-only gates. The committed derivation
+also corrects two repeated `report_index` values for equal-valued reload variants;
+no raw record or measured population changed.
 
 `baseline/runs.json` records **every attempt**, with hashes of local reports and
 compressed indexes of the ignored raw V8 artifacts under `evidence/`:
@@ -85,6 +103,43 @@ compressed indexes of the ignored raw V8 artifacts under `evidence/`:
 Source blobs and test output are evidence, not operational instructions. No
 source-requested uploads, credential submissions, releases or upstream mutations
 were performed. Raw source-map contents stay local rather than shipping in npm.
+
+## Reproducing capture and derivation
+
+Python 3 is needed for the two offline provenance scripts and their unit checks
+(available on the Ubuntu CI image). No Python dependency installation is needed.
+They never execute the source package's shell script: capture reads its unit entry
+patterns, expands every pattern including the monolith, and compares the result
+with `original_unit_entries` before launching Node with a fixed argument list.
+Use a disposable pinned checkout with its locked dependencies already installed;
+never use daily Pi/Herdr config or sockets. For example, with caller-chosen paths:
+
+```bash
+python3 scripts/capture-baseline.py --source "$pinned_checkout" \
+  --node "$node_26_12_1" --output "$private_attempt" \
+  --home-parent "$durable_isolation_parent" --tmp-parent /tmp \
+  --entries-manifest provenance/test-manifest.json
+python3 scripts/derive-baseline.py \
+  --coverage-report "$green_attempt/baseline.jsonl" \
+  --identity-report "$lineage_attempt/baseline.jsonl" \
+  --manifest provenance/coverage-manifest.json --output "$derived_output"
+```
+
+Capture requires a fresh output path, an allowlisted environment, HOME outside
+`/tmp` and the source tree, and a neutral TMPDIR outside any package.json ancestry.
+Every attempt retains its exit/version/entries, TAP, structured report, stderr and
+raw V8 files. HOME/TMPDIR and raw source maps remain private; cleanup is explicit.
+The baseline reporter does not archive application output or environment values.
+Check report paths and test titles for sensitive data before committing results.
+
+Derivation accepts structured JSONL or the committed compressed coverage/identity
+archives, unions original line hits, retains all raw branch/function variants,
+reconstructs nested identities with file-scoped IDs, and writes sanitized gzip
+archives without original filenames or timestamps. It preserves existing floors
+by default; `--pin-floors` is only for an authorized new baseline pin, never for
+migrated runs. Existing captures remain frozen: coverage is from green
+`baseline-isolated`, identities from the later failing `baseline-final` attempt.
+Their differing outcomes are intentionally retained, not merged into a green run.
 
 ## M1 limitations and later gates
 

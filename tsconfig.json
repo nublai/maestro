@@ -15,7 +15,6 @@
 	},
 	"include": [
 		"index.js",
-		"index.d.ts",
 		"scripts/**/*.ts",
 		"test/**/*.ts",
 		"test/**/*.js",

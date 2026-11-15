@@ -29,8 +29,8 @@
 		"access": "public"
 	},
 	"scripts": {
-		"format": "biome format --write index.js index.d.ts test scripts biome.json tsconfig.json tsconfig.build.json package.json provenance",
-		"format:check": "biome format index.js index.d.ts test scripts biome.json tsconfig.json tsconfig.build.json package.json provenance",
+		"format": "biome format --write index.js test scripts biome.json tsconfig.json tsconfig.build.json package.json provenance",
+		"format:check": "biome format index.js test scripts biome.json tsconfig.json tsconfig.build.json package.json provenance",
 		"lint": "oxlint index.js test scripts oxlint.config.ts",
 		"typecheck": "tsc -p tsconfig.json",
 		"test": "node --experimental-strip-types --test test/index.test.js test/copy-fidelity.test.ts test/scaffold.test.ts",

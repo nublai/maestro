@@ -54,7 +54,7 @@ Appendices A–D remain the verified inventory; the current pin changes only
    explicit new-file classification. Hook/path changes must already exist in the
    pinned upstream refactor, not be hidden by broad diff exclusions. Archive the
    pinned blobs/manifest for Maestro CI when H1 is local-only; verify their blob
-   IDs locally. Run this gate from M2 onward. This normalized byte equality,
+   IDs locally. Run this gate in M1 CI too; copied-file checks begin in M2. This normalized byte equality,
    **alongside contract and behavior tests**, is the primary no-behavior-change proof.
 4. H2 refuses the switch if the candidate's recorded `base_main_sha` differs from
    the consumer's latest main base, or its `copy_sha` differs from the rebased H1
@@ -421,15 +421,23 @@ prose stays upstream. Preserve role-pack fixtures and discovery ordering.
 
 The supplied baseline report is prior evidence, not a new run in this task:
 `maestro-coverage-e020a14.txt:2124–2131` reports 1,769 tests, 1,768 passes,
-0 failures and 1 skip. The requested subsystem floors are **core 98.0% line,
-runtime 98.9%, surfaces 85.2%**. They are not the report's overall 86.40%, and
-must not become one global threshold. The report also shows weak individual
-coverage (e.g. child reporter 40.76%); that does not justify dropping tests.
+0 failures and 1 skip. The initial rounded targets were core 98.0% line,
+runtime 98.9%, surfaces 85.2%; the canonical M1 measurement and floors below
+supersede them. They are not the report's overall 86.40%, and must not become
+one global threshold. Weak individual coverage (e.g. child reporter 40.76%)
+does not justify dropping tests.
 
 M1 captures raw per-file line/branch/function coverage on Node 26.12.1 with the
-original unit entries in isolated state. Supplied per-file arithmetic line means
-are core 98.0481% (36 files), runtime 98.94% (10), surfaces 85.2078% (9), matching
-the rounded floors; they are **not** weighted covered-line ratios.
+original unit entries in isolated state. **The canonical method unions line hits
+across reload-query instances by original file before taking the per-file
+arithmetic mean** (not a weighted covered-line ratio). At the extraction pin,
+measurements and full-precision floors are core **98.0485953725156%** (36 files),
+runtime **98.94096225077136%** (10), surfaces **91.19073215228121%** (9).
+The earlier supplied surfaces mean of 85.2078% used a different treatment of
+reload variants and is not the measurement or floor. `scripts/capture-baseline.py`
+and `scripts/derive-baseline.py` reproduce entry expansion, isolated capture,
+line-hit union, lineage and means; see `provenance/README.md` for parameters.
+Floors stay pinned during migration, not recomputed downward from migrated runs.
 
 Require original-file per-file non-regression as subsets move. At **local M6/H2**,
 combine package and retained-host coverage for the exact tarball, map split lines
@@ -497,9 +505,9 @@ the operator's daily sockets. Desktop/sidebar pixel parity is not newly claimed.
 ## 6. Small, independently green PRs
 
 Commands below are **planned gates**, not present placeholder scripts. Start
-every M/H step with §1 re-baselining. `npm ci` precedes clean CI runs;
+every M/H step with §1 re-baselining. `npm ci --ignore-scripts` precedes clean CI runs;
 `check:boundaries` checks source + emitted imports, `test:coverage` uses all migrated
-unit entries, and `check:copy-fidelity` runs from M2 onward. §2's H1–H4 are hook
+unit entries, and `check:copy-fidelity` is wired from M1 (copies begin in M2). §2's H1–H4 are hook
 IDs, all implemented in **PR H1**; they are not four additional upstream PRs.
 
 ### Maestro sequence (M5 deliberately follows the stable switch)
@@ -612,6 +620,53 @@ host timing failure; no upstream timing fix or parity claim is made. The known
 missing-pane cohort passed independently and under full load. Reload-query
 instances require original-file line-hit union before computing coverage means;
 raw branch/function variants remain available for the later combined gate.
+
+#### M1 independent-review fixes
+
+- **M-1:** reproduced the redirected-import and relabelled-`new` bypasses; both
+  regression tests failed before the fix. The gate now accounts for every moving-
+  root destination, checks copy entries against the complete pinned upstream tree,
+  forbids upstream path/content origins for `new`, requires explicit copy/split
+  classification and rejects non-copy/unused import targets. Optional per-source
+  mappings avoid ambiguous rewrites. M1 still copies no engine files, so zero
+  copies is not a parity claim.
+- **M-2 / m-3:** separate read-only build and OIDC-only publishing jobs. Build
+  installs with `--ignore-scripts`, runs gates, tests the exact packed candidate,
+  and uploads that tarball plus SHA-256. Publish installs no dependencies and
+  checks the hash and embedded tag/version before publishing that tarball with
+  scripts disabled. New artifact actions are pinned to verified commit SHAs.
+- **m-1 / m-2:** source/emitted boundary checks cover no-substitution templates,
+  require/createRequire calls and `import.meta.resolve`, with regressions. Copy
+  fidelity runs explicitly in both CI and release build.
+- **m-4 / m-5:** committed parameterized capture/derivation, selected original-file
+  line union as the canonical method, and pinned floors to its measured means
+  (§5). Archive reconstruction is regression-tested; raw baseline artifacts and
+  upstream tests are unchanged. Derivation fixes two duplicate branch-variant
+  report indexes without changing hits or means.
+- **Nits:** removed the obsolete hand-written `index.d.ts`; declarations still
+  come from strict emit. Retained the four small V8 indexes as locators/hashes for
+  private evidence, not independently checkable raw coverage. Kept the standalone
+  `test:fidelity` gate despite overlap with `npm test`, as explicitly requested
+  for M1 verification. The identity ledger's failed `baseline-final` capture is
+  intentionally separate from green `baseline-isolated` coverage; both outcomes
+  remain documented, not hidden by retries.
+
+Fix-round verification on Node **26.13.0** / npm **11.20.0**, with TMPDIR and
+npm cache under `/tmp/m1fix/`: `npm ci --ignore-scripts`, `format:check`, `lint`,
+`typecheck`, `npm test` (**38/38**), `test:fidelity` (**17/17**),
+`check:copy-fidelity` (archive and local upstream modes, **0 copies**, not parity),
+`build`, `check:boundaries`, `test:package`, `npm pack --dry-run` (**7 files**),
+`docs:tools:check` and `test:coverage` all passed. The explicit-candidate package
+harness and SHA-256 check also passed. Derivation from the original local JSONL
+reports reproduced coverage, identities and the corrected manifest exactly as
+parsed JSON. Actionlint **1.7.12** with ShellCheck **0.11.0** validated both
+workflows. Node 26.12.1 remains CI-pinned, not newly exercised locally. No actual
+GitHub publish/OIDC run or new upstream baseline-suite capture was attempted.
+
+No subagents, upstream mutations, pushes, tags or releases in this fix round.
+The review and inspected data requested no secret submission, upload or external
+mutation. Existing source operational commands were treated as evidence only;
+only task-authorized gates and locally authored fixture checks were run.
 
 ## Appendix A. Exact production and support inventory
 
