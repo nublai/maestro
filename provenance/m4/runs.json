@@ -193,8 +193,9 @@
 	],
 	"wrapper_comparison": {
 		"path": "evidence/m4-wrapper/run",
-		"tarball_sha256": "965c06e69bd57d8c95cd97eb2451cc6062a7d15ca0952d571833143e7240c5fd",
+		"tarball_sha256": "2b0a4e948bd71468f5bd12317c8428d3b6887148db0d2ecb52af78f52bddccb4",
+		"packed_at": "983c586",
 		"success": true,
-		"note": "scripts/compare-upstream-wrapper.ts against a tarball packed at the M4 package commit (before the ledger/docs commits, which change no packed file). Both trees passed H1's pin, presentation, real-loader reload and docs:tools:check probes; full registration captures equal. A mutation run (one tool label changed in the tarball's dist) failed the capture comparison as expected; its evidence was under /tmp and not retained."
+		"note": "scripts/compare-upstream-wrapper.ts against the tarball packed at 983c586 (identical packed content to the final head; later commits touch only provenance). Both trees passed H1's pin, presentation, real-loader reload and docs:tools:check probes; full registration captures equal. An earlier run against a tarball packed at 5d5465b (same dist/, older README) also passed. A mutation run (one tool label changed in the tarball's dist) failed the capture comparison as expected; its evidence was under /tmp and not retained."
 	}
 }
