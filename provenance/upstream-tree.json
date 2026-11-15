@@ -1,5 +1,5 @@
 {
-	"copy_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+	"copy_sha": "27dee407403906d5bac359702e21a04309be2f64",
 	"files": [
 		{
 			"path": ".gitattributes",
@@ -11,7 +11,7 @@
 		},
 		{
 			"path": ".github/workflows/linux-integration.yml",
-			"blob": "38fb210ef6c2b51e46f8b2914b144ec112057bf2"
+			"blob": "4ba16b469670fbdff1f57d955052950e4dedcc1c"
 		},
 		{
 			"path": ".github/workflows/publish.yml",
@@ -79,7 +79,7 @@
 		},
 		{
 			"path": "AGENTS.md",
-			"blob": "5e9430f2cadc05022c49b84ba9ecd809e8c263d6"
+			"blob": "42c086a2d25d32043e55b524bd8af3504b29d149"
 		},
 		{
 			"path": "CHANGELOG.md",
@@ -87,7 +87,7 @@
 		},
 		{
 			"path": "CONTEXT.md",
-			"blob": "10d2b20a26a7df16ecc110abfb1dca0237581ec1"
+			"blob": "6aab3a2fac6d139b9b6452b138a85383884348c6"
 		},
 		{
 			"path": "LICENSE",
@@ -219,7 +219,7 @@
 		},
 		{
 			"path": "docs/development.md",
-			"blob": "70d437b1552c84505a93681c843bd98ad60b80bc"
+			"blob": "1227087ff0d9cea0e8d5bdf4cda04e4a966e1337"
 		},
 		{
 			"path": "docs/orchestrated-review-workflow-plan.md",
@@ -251,7 +251,7 @@
 		},
 		{
 			"path": "docs/tools.md",
-			"blob": "4d09b0ed1014825fdc572c163cd66afb5d4bf5f3"
+			"blob": "edfd04d261745a323a919474557e3084a97f459d"
 		},
 		{
 			"path": "docs/troubleshooting.md",
@@ -302,16 +302,24 @@
 			"blob": "ad81a790ef59f8ff168ebf6aa3945b0a946256eb"
 		},
 		{
+			"path": "maestro/adapters/pi/child/entry.ts",
+			"blob": "ba192b8c856303ae27e6a54f5f05489f901986a0"
+		},
+		{
+			"path": "maestro/adapters/pi/child/protocol.ts",
+			"blob": "3b1058a3120ed01c98681e1c316d02dc078d1402"
+		},
+		{
 			"path": "maestro/adapters/pi/child/subagent-done.ts",
-			"blob": "b61a889a41f01ebb3a2a2f5eebf6203329ca33b9"
+			"blob": "fbe125feab72981f21ef30c64bbed47f4e34002f"
 		},
 		{
 			"path": "maestro/adapters/pi/completion.ts",
-			"blob": "bd4cbb3471be12e0bc371182c1be1f547ea901e0"
+			"blob": "2593ea0ab3aaf659defcbacd59573c6ad67d918b"
 		},
 		{
 			"path": "maestro/adapters/pi/launch-command.ts",
-			"blob": "af88834cd2f54b8c92d4142f85ba41d8693296bd"
+			"blob": "7193bcd9b5b937661dd9d608d1d3d77c6b2b0d51"
 		},
 		{
 			"path": "maestro/adapters/pi/launch-operations.ts",
@@ -319,11 +327,11 @@
 		},
 		{
 			"path": "maestro/adapters/pi/launch-resume.ts",
-			"blob": "18d15a5e01f06c788bac29662268ea22f366ffc6"
+			"blob": "f282c8e8552990f1abaae8b8364f3a5ea491d0a2"
 		},
 		{
 			"path": "maestro/adapters/pi/launch.ts",
-			"blob": "aac14406de3aadc45af53d3115483c5bd760bf38"
+			"blob": "16c33eddff2f333e3dfa99031240b105078a6ac1"
 		},
 		{
 			"path": "maestro/adapters/pi/model-registry.ts",
@@ -331,7 +339,7 @@
 		},
 		{
 			"path": "maestro/adapters/pi/pi-harness-adapter.ts",
-			"blob": "73aa32b3cb6b3b7633efd819f60fa8e3b94260ac"
+			"blob": "b329ef6e037d3f9874d1999a616b451fbb210633"
 		},
 		{
 			"path": "maestro/adapters/pi/process-identity.ts",
@@ -515,11 +523,11 @@
 		},
 		{
 			"path": "maestro/runtime/delegated-marker.ts",
-			"blob": "2401b328f945b9e1165d5f55365a6e62d5b6630f"
+			"blob": "fe9c9a0d7903dfdcd626ec990f9c2c260ca29f81"
 		},
 		{
-			"path": "maestro/runtime/herdr-backend.ts",
-			"blob": "f0c76d7844cffc159d911dc8f54dea3fec2ad030"
+			"path": "maestro/runtime/host-surface-binding.ts",
+			"blob": "c469c9be4439d431a4f50fc9a9cb33784e83ca25"
 		},
 		{
 			"path": "maestro/runtime/index.ts",
@@ -531,11 +539,11 @@
 		},
 		{
 			"path": "maestro/runtime/pi-run-session-types.ts",
-			"blob": "7dd791483edd4a67812ce496ad9a07d2dde02e18"
+			"blob": "38ce85d8dfcc8bdb09efda9cca40c755a23f8eaf"
 		},
 		{
 			"path": "maestro/runtime/pi-run-session.ts",
-			"blob": "04410e376adcfa16b1b35585bc76e3008f38b4c4"
+			"blob": "e66e81935c71e08e5f50edd80d49e9ff8e910691"
 		},
 		{
 			"path": "maestro/runtime/run-session.ts",
@@ -606,12 +614,20 @@
 			"blob": "8d1e996375c1d98443613cf7dce20211aa814650"
 		},
 		{
+			"path": "pi-extension/subagents/child-widget.ts",
+			"blob": "4e06a96b85d1a341f45f174f50724203d4fb2cfa"
+		},
+		{
+			"path": "pi-extension/subagents/child.ts",
+			"blob": "cc698c6a015f0803043309c246c2b54ce29a81fb"
+		},
+		{
 			"path": "pi-extension/subagents/config-path.ts",
-			"blob": "3aa620838fd4fc23eea67dcd2fbe2f89c78d86c3"
+			"blob": "4d55b9dc36774517990ba77c3956251c902fe746"
 		},
 		{
 			"path": "pi-extension/subagents/control-tools.ts",
-			"blob": "8d7854faa5286ad444f3503f882a2761179f01ab"
+			"blob": "5cbcbde880594c3f73586a18e911d478e108cabd"
 		},
 		{
 			"path": "pi-extension/subagents/controls.ts",
@@ -626,16 +642,28 @@
 			"blob": "6f6b9abaa63abcb6443fbbc00a2d22a002d2b44a"
 		},
 		{
+			"path": "pi-extension/subagents/extension.ts",
+			"blob": "eb0f5142908b4dedf0f158b455cde6954ea5a76e"
+		},
+		{
+			"path": "pi-extension/subagents/host-surface.ts",
+			"blob": "ecaa59f0e3c81629ea2f5454c78486561ebefd4f"
+		},
+		{
 			"path": "pi-extension/subagents/index.ts",
-			"blob": "d148468654d00455f45c7e293f54dae1472315dc"
+			"blob": "aaeab69d2a2d575e84af9538390d4cad94475c1f"
 		},
 		{
 			"path": "pi-extension/subagents/launch-tools.ts",
-			"blob": "e9f90ce1370239e28cd581744a215c05efe4c474"
+			"blob": "264d47a04c96858dcccb09c1be49439d4356947b"
 		},
 		{
 			"path": "pi-extension/subagents/launch.ts",
 			"blob": "dcb6c903a7ced7cf5e795fdac38b112baa795f41"
+		},
+		{
+			"path": "pi-extension/subagents/marker-transport.ts",
+			"blob": "3a65ae6d9a1a1a94b440cb3987df502fb4dbdbca"
 		},
 		{
 			"path": "pi-extension/subagents/model-registry.ts",
@@ -648,6 +676,10 @@
 		{
 			"path": "pi-extension/subagents/persistent.ts",
 			"blob": "7ef99411500a30206a861e43f8d5fe7afac6d4d8"
+		},
+		{
+			"path": "pi-extension/subagents/presentation-hooks.ts",
+			"blob": "fd1ffddcd00ec158079092d7751f66780ed04bd9"
 		},
 		{
 			"path": "pi-extension/subagents/presentation.ts",
@@ -663,11 +695,15 @@
 		},
 		{
 			"path": "pi-extension/subagents/task-models.ts",
-			"blob": "b07f06fb6796dbf0acc2c73c74653452af42c7cc"
+			"blob": "fbb0bfb0b2f117e77ddf1721f377dc81a12393dd"
 		},
 		{
 			"path": "pi-extension/subagents/tool-boundary.ts",
 			"blob": "4d0ad512b642615c137c2dd30f23b68292731d2f"
+		},
+		{
+			"path": "pi-extension/subagents/tool-renderers.ts",
+			"blob": "c995f71d12b2d7cc14a5eaedd79881b5ba908268"
 		},
 		{
 			"path": "pi-extension/subagents/widgets.ts",
@@ -703,7 +739,7 @@
 		},
 		{
 			"path": "skills/pi-herdr-agents/SKILL.md",
-			"blob": "a9bb61b9f626bb93644767dab97b26dddecde9a7"
+			"blob": "5e616a9e2b8ed40844cc86de54f7f951bd1de7e2"
 		},
 		{
 			"path": "test/bench/README.md",
@@ -720,6 +756,26 @@
 		{
 			"path": "test/fake-herdr-socket.ts",
 			"blob": "e528fb03b17f38c1aeaf1c2770756ea52ea95f7a"
+		},
+		{
+			"path": "test/fixtures/h1-contract.json",
+			"blob": "6c5973238187b38029cb060271aa7cb7579fadfc"
+		},
+		{
+			"path": "test/fixtures/h1-presentation-probe.ts",
+			"blob": "24134622eaded35ec1608e2ad664c3cd7baf4304"
+		},
+		{
+			"path": "test/fixtures/h1-presentation.json",
+			"blob": "249562409d386aa768c830251d02b19383e172c5"
+		},
+		{
+			"path": "test/fixtures/h1-reload-probe.ts",
+			"blob": "dea4e926f9a74397dd27d631684686d1e4df9545"
+		},
+		{
+			"path": "test/fixtures/h1-reload.json",
+			"blob": "507222fc7548421691404d8433821f0a30b6589c"
 		},
 		{
 			"path": "test/fixtures/tool-schema/current.json",
@@ -839,7 +895,7 @@
 		},
 		{
 			"path": "test/integration/sidebar.test.ts",
-			"blob": "02bd02c214a89d8752d697c17bf3918c42450c48"
+			"blob": "c0bceb23f71cfa497532f709069d84f335b162aa"
 		},
 		{
 			"path": "test/integration/subagent-cancel.test.ts",
@@ -863,7 +919,7 @@
 		},
 		{
 			"path": "test/launch.test.ts",
-			"blob": "e738776d8ed20a311e576adb05b210298ce82e5d"
+			"blob": "629fb99dccefdc4ec7398513db392656621d5717"
 		},
 		{
 			"path": "test/maestro/accept-check.test.ts",
@@ -918,6 +974,10 @@
 			"blob": "5bcc39fe1cb2aa46c6e52f717fb9cd5c2f097f8e"
 		},
 		{
+			"path": "test/maestro/composition-hooks.test.ts",
+			"blob": "fd8f45c885fc7221044cd3cd53efddda1b2e9d05"
+		},
+		{
 			"path": "test/maestro/core-lab.test.ts",
 			"blob": "a3bec9d31f85a401b60daf626c53ab01e2f5235b"
 		},
@@ -943,7 +1003,7 @@
 		},
 		{
 			"path": "test/maestro/delegated-marker.test.ts",
-			"blob": "be2afcda2687abac85f1502f95f2d742bac43b75"
+			"blob": "09460205e2666a8b87c78460cdd18850e0ef18d3"
 		},
 		{
 			"path": "test/maestro/delegation-depth.test.ts",
@@ -951,7 +1011,7 @@
 		},
 		{
 			"path": "test/maestro/dependency-rule.test.ts",
-			"blob": "27edb2c762f4d377b1662434c071edf944355b26"
+			"blob": "edac7086ffcd3a8f3187539357c7db0dce966df2"
 		},
 		{
 			"path": "test/maestro/fake-harness-adapter.test.ts",
@@ -979,7 +1039,7 @@
 		},
 		{
 			"path": "test/maestro/herdr-core-execution.test.ts",
-			"blob": "fab053df7cd0a63bb6bf7f97ae7365214226e95d"
+			"blob": "fe0a9d5251cfd20d139db1f0b3a800094ea845fb"
 		},
 		{
 			"path": "test/maestro/herdr-lab.test.ts",
@@ -1015,7 +1075,7 @@
 		},
 		{
 			"path": "test/maestro/pi-run-session.test.ts",
-			"blob": "9fd1de503ed173fa323fadbc0462e369330ed7a2"
+			"blob": "c997e0e9b808353280bb30784e4a76289edad839"
 		},
 		{
 			"path": "test/maestro/pr110-persistent-regressions.test.ts",
@@ -1051,7 +1111,7 @@
 		},
 		{
 			"path": "test/maestro/script-launch.test.ts",
-			"blob": "d363607cdbd5bb4a7965031889808da7e00a0191"
+			"blob": "723126df6b7886132cf279077b0c3db5d33c1417"
 		},
 		{
 			"path": "test/maestro/sidebar-fixture-ownership.test.ts",
@@ -1131,7 +1191,7 @@
 		},
 		{
 			"path": "test/test.ts",
-			"blob": "74c72b170285ca317aa81c39529285d06297fdd7"
+			"blob": "8c9e33d1f2a4ceee3eaaed30d5d6b6665979aade"
 		},
 		{
 			"path": "test/verify-lab-guards.test.ts",

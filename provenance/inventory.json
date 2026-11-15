@@ -823,5 +823,104 @@
 			"fate": "split",
 			"reason": "Copy experiment limitations/provenance; host setup details stay with experimental host branch."
 		}
-	]
+	],
+	"h1_delta": {
+		"copy_sha": "27dee407403906d5bac359702e21a04309be2f64",
+		"note": "Paths added or deleted by local H1 (4cae65f..27dee40). Appendix A rows keep their baseline fates; these rows classify the delta.",
+		"added": [
+			{
+				"source": "maestro/runtime/host-surface-binding.ts",
+				"fate": "move",
+				"reason": "H1 HostSurfaceBinding contract (\u00a72.1/\u00a72.2); type-only port the terminal host implements. Copied in M3."
+			},
+			{
+				"source": "maestro/adapters/pi/child/protocol.ts",
+				"fate": "move",
+				"reason": "H4 child protocol split out of subagent-done.ts with an optional ChildPresentationHook. Copied in M3."
+			},
+			{
+				"source": "maestro/adapters/pi/child/entry.ts",
+				"fate": "move",
+				"reason": "H4 protocol-only default child entry; DEFAULT_CHILD_ENTRY_PATH resolves to its emitted .js. Copied in M3."
+			},
+			{
+				"source": "pi-extension/subagents/extension.ts",
+				"fate": "move",
+				"reason": "H3 createPiExtension per-load factory; M4."
+			},
+			{
+				"source": "pi-extension/subagents/presentation-hooks.ts",
+				"fate": "move",
+				"reason": "H3 PiPresentationHooks/PiToolRenderers types; M4."
+			},
+			{
+				"source": "pi-extension/subagents/tool-renderers.ts",
+				"fate": "stay",
+				"reason": "Inline terminal tool renderers and pi-tui import, moved out of launch/control tools."
+			},
+			{
+				"source": "pi-extension/subagents/host-surface.ts",
+				"fate": "stay",
+				"reason": "Concrete Herdr/Core HostSurfaceBinding implementation (provider factories)."
+			},
+			{
+				"source": "pi-extension/subagents/marker-transport.ts",
+				"fate": "stay",
+				"reason": "Herdr socket marker writer/reader factories (\u00a72.2)."
+			},
+			{
+				"source": "pi-extension/subagents/child.ts",
+				"fate": "stay",
+				"reason": "Terminal child wrapper passing the widget hook to createChildExtension."
+			},
+			{
+				"source": "pi-extension/subagents/child-widget.ts",
+				"fate": "stay",
+				"reason": "Terminal child widget (pi-tui)."
+			},
+			{
+				"source": "test/maestro/composition-hooks.test.ts",
+				"fate": "stay",
+				"reason": "Pins the host wrapper's H1 hooks against the pre-hook contract; imports host-surface.ts."
+			},
+			{
+				"source": "test/fixtures/h1-contract.json",
+				"fate": "stay",
+				"reason": "Host H1 contract fixture."
+			},
+			{
+				"source": "test/fixtures/h1-presentation-probe.ts",
+				"fate": "stay",
+				"reason": "Host H1 presentation probe."
+			},
+			{
+				"source": "test/fixtures/h1-presentation.json",
+				"fate": "stay",
+				"reason": "Host H1 presentation fixture."
+			},
+			{
+				"source": "test/fixtures/h1-reload-probe.ts",
+				"fate": "stay",
+				"reason": "Host H1 real-loader reload probe."
+			},
+			{
+				"source": "test/fixtures/h1-reload.json",
+				"fate": "stay",
+				"reason": "Host H1 reload fixture."
+			}
+		],
+		"deleted": [
+			{
+				"source": "maestro/runtime/herdr-backend.ts",
+				"reason": "H1 replaced it with HostSurfaceBinding (runtime) plus host-surface.ts (host). Nothing to copy."
+			}
+		],
+		"changed_fate": [
+			{
+				"source": "maestro/adapters/pi/child/subagent-done.ts",
+				"fate": "stay",
+				"reason": "At H1 it only forwards to pi-extension/subagents/child.ts (terminal wrapper) for existing launch artifacts/policies; its protocol moved to child/protocol.ts."
+			}
+		]
+	}
 }

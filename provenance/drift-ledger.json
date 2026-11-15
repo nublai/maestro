@@ -1,16 +1,81 @@
 {
-	"step": "M2",
+	"step": "M3",
 	"previous_pin": "add35f42616f398aab9f3cc63defe2b1f95c9149",
-	"base_main_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+	"base_main_sha": "4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5",
+	"copy_sha": "27dee407403906d5bac359702e21a04309be2f64",
+	"copy_ref": "h1/composition-hooks (local H1, parent 4cae65f)",
 	"resolved_ref": "origin/main",
-	"resolution": "Existing local upstream ref; no fetch, as requested. Local main is not substituted for origin/main.",
+	"resolution": "Existing local upstream refs; no fetch, as requested. Local main is not substituted for origin/main. H1 is local-only, so its pinned blobs are archived under provenance/upstream/.",
 	"status": "closed",
-	"touching_commits": [],
-	"scope": "Every move/split path in Appendices A-C, tests and supporting assets; same-pin range is empty. Experimental A0 remains separate.",
+	"command": "git log --name-status add35f4..4cae65f -- <moving paths>; all paths reviewed, including stay paths for explicit no-impact entries",
+	"touching_commits": [
+		{
+			"sha": "4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5",
+			"subject": "fix(completion): prove a persistent child's exit with a shell-written record (#145)",
+			"paths": [
+				"docs/tools.md",
+				"maestro/adapters/pi/completion.ts",
+				"maestro/adapters/pi/launch.ts",
+				"maestro/adapters/pi/pi-harness-adapter.ts",
+				"test/test.ts"
+			],
+			"disposition": "carried",
+			"evidence": "M3 copies completion.ts, launch.ts and pi-harness-adapter.ts from 27dee40, which contains this fix (check:copy-fidelity). The new completion.ts case ('admits the shell's post-exit record unless the process is known alive') moves with the monolith completion suite in m3-test-map.json. The new host-adapter-migration case uses the retained withAdapterHost Herdr/extension fixture and stays upstream with that suite. docs/tools.md is a split contract asset that has not moved yet; M4 copies it from the pin, so the new shell-exit paragraph is carried there. M2's copied core/fake/generic files are byte-identical at 27dee40; M2's migrated test.ts selections re-anchored without text change."
+		},
+		{
+			"sha": "e7f190a",
+			"subject": "ci: preinstall ripgrep so the lab's Pi does not download it at startup (#144)",
+			"paths": [".github/workflows/linux-integration.yml"],
+			"disposition": "no-impact",
+			"evidence": "Host CI workflow; Appendix A2 'stay'. Maestro owns separate workflows."
+		},
+		{
+			"sha": "d78ad4e",
+			"subject": "docs(skill): route watch and poll requests to a notifying specialist (#142)",
+			"paths": ["AGENTS.md", "CONTEXT.md", "skills/pi-herdr-agents/SKILL.md"],
+			"disposition": "no-impact",
+			"evidence": "Host agent guidance, context and operating skill; all 'stay'. No engine, contract or test change."
+		}
+	],
+	"copy_source_commits": [
+		{
+			"sha": "b9f1754",
+			"subject": "refactor: compose run-session providers and markers through HostSurfaceBinding",
+			"note": "Adds maestro/runtime/host-surface-binding.ts, deletes herdr-backend.ts; marker DTOs structural. Copied in M3."
+		},
+		{
+			"sha": "df6a7d9",
+			"subject": "refactor: split the child protocol entry and take explicit child/config paths",
+			"note": "Adds child/protocol.ts and child/entry.ts; explicit childEntryPath. Copied in M3; child/subagent-done.ts forwards to pi-extension and stays upstream."
+		},
+		{
+			"sha": "45c983a",
+			"subject": "refactor: register the Pi extension through a per-load factory with presentation hooks",
+			"note": "pi-extension only; M4."
+		},
+		{
+			"sha": "aba33a2",
+			"subject": "test: pin H1 composition hooks against the pre-hook contract",
+			"note": "Host-wrapper contract fixtures (pi-extension/host-surface imports); retained upstream."
+		},
+		{
+			"sha": "27dee40",
+			"subject": "docs: map the H1 composition hooks in the code map",
+			"note": "Host documentation only."
+		}
+	],
+	"scope": "Every move/split path in Appendices A-C, tests and supporting assets. Experimental A0 remains separate.",
 	"history": [
 		{
 			"step": "M1",
 			"base_main_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+			"touching_commits": [],
+			"status": "closed"
+		},
+		{
+			"step": "M2",
+			"base_main_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+			"copy_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
 			"touching_commits": [],
 			"status": "closed"
 		}
