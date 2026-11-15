@@ -2,7 +2,7 @@
 
 Harness-neutral subagent engine: delegation, checked outcomes and a pluggable execution seam. It will serve both pi-worker and pi-herdr-agents.
 
-**Status:** placeholder. The engine has not been extracted from pi-herdr-agents yet. Version `0.0.0` exists to set up publishing.
+**Status:** placeholder. The engine has not been extracted from pi-herdr-agents yet. Early versions exist to set up publishing.
 
 ## Publishing
 
