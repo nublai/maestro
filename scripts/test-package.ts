@@ -14,7 +14,7 @@ import {
 import { tmpdir } from "node:os";
 import { stripTypeScriptTypes } from "node:module";
 import { basename, dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import ts from "typescript";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -52,6 +52,30 @@ function peerImports(file: string, seen = new Set<string>()): Set<string> {
 }
 
 /**
+ * Bare host-peer specifiers reachable through an emitted declaration's relative
+ * imports. Type-only imports are erased from JS but remain in declarations, so
+ * a peer-free TypeScript consumer cannot typecheck such an entry either.
+ */
+function declarationPeers(file: string, seen = new Set<string>()): Set<string> {
+	const peers = new Set<string>();
+	if (seen.has(file)) return peers;
+	seen.add(file);
+	const text = readFileSync(file, "utf8");
+	for (const { fileName } of ts.preProcessFile(text, true, true)
+		.importedFiles) {
+		if (/^@earendil-works\/pi-|^@sinclair\/typebox/.test(fileName))
+			peers.add(fileName);
+		else if (fileName.startsWith("."))
+			for (const peer of declarationPeers(
+				resolve(dirname(file), fileName.replace(/\.[jt]s$/, ".d.ts")),
+				seen,
+			))
+				peers.add(peer);
+	}
+	return peers;
+}
+
+/**
  * A host that provides the optional peers (its own node_modules holds Pi and
  * TypeBox, as Pi's install does) loads every Pi entry from the installed JS,
  * composes the run session through a HostSurfaceBinding and launches with the
@@ -61,6 +85,7 @@ function piConsumer(
 	fixture: string,
 	tarball: string,
 	piExports: string[],
+	typeExports: string[],
 ): void {
 	const host = join(fixture, "pi host");
 	const consumer = join(host, "consumer");
@@ -211,9 +236,10 @@ await session.shutdown("quit");
 			!("PI_SUBAGENT_AUTO_EXIT" in variant),
 		);
 	}
+	piFactory(consumer, installedEntry);
 	writeFileSync(
 		join(consumer, "consumer.ts"),
-		piExports
+		typeExports
 			.map(
 				(name, index) =>
 					`import * as pi${index} from ${JSON.stringify("@nubl/maestro/" + name.slice(2))};\nvoid pi${index};`,
@@ -241,7 +267,151 @@ await session.shutdown("quit");
 		consumer,
 	);
 	console.log(
-		`Installed Pi entries with host peers: ${piExports.length} exports load from emitted JS, HostSurfaceBinding composition is enforced, launches load the emitted child entry by its installed path (with spaces), and its registrations equal the source child in 3 env variants; declarations typecheck against the peers.`,
+		`Installed Pi entries with host peers: ${piExports.length} exports load from emitted JS (${typeExports.length} declarations typecheck), HostSurfaceBinding composition is enforced, launches load the emitted child entry by its installed path (with spaces), and its registrations equal the source child in 3 env variants; declarations typecheck against the peers.`,
+	);
+}
+
+function parseJson(text: string, what: string) {
+	try {
+		return JSON.parse(text);
+	} catch (cause) {
+		throw new Error(`Invalid JSON from ${what}`, { cause });
+	}
+}
+
+/**
+ * M4: the installed createPiExtension (`@nubl/maestro/pi`) registers what the
+ * source factory does, per load, in parent and child/deny-tool scopes; equals
+ * H1's pinned host contract; resolves the shipped config example; and, with the
+ * installed child entry, reproduces the frozen public tool-schema fixture.
+ */
+function piFactory(consumer: string, installedEntry: string): void {
+	const installed = join(consumer, "node_modules/@nubl/maestro");
+	assert.equal(
+		readFileSync(join(installed, "dist/config.json.example"), "utf8"),
+		readFileSync(join(root, "config.json.example"), "utf8"),
+	);
+	writeFileSync(
+		join(consumer, "capture-pi-factory.mjs"),
+		stripTypeScriptTypes(
+			readFileSync(join(root, "scripts/capture-pi-factory.ts"), "utf8"),
+		),
+	);
+	const capture = (args: string[], cwd: string) => {
+		const agentDir = mkdtempSync(join(consumer, "agent dir "));
+		const output = execFileSync(process.execPath, [...args, agentDir], {
+			cwd,
+			env,
+			encoding: "utf8",
+			timeout: 120_000,
+		});
+		try {
+			return JSON.parse(output);
+		} catch (cause) {
+			throw new Error(`Factory capture printed no JSON: ${output}`, { cause });
+		}
+	};
+	const fromPackage = capture(
+		[
+			"capture-pi-factory.mjs",
+			join(installed, "dist/maestro/pi.js"),
+			join(installed, "dist/pi-extension/subagents/config-path.js"),
+		],
+		consumer,
+	);
+	const fromSource = capture(
+		[
+			"--experimental-strip-types",
+			"--no-warnings",
+			join(root, "scripts/capture-pi-factory.ts"),
+			join(root, "maestro/pi.ts"),
+			join(root, "pi-extension/subagents/config-path.ts"),
+		],
+		root,
+	);
+	// The default asset root is the installed package's dist/, beside its emitted code.
+	assert.equal(
+		fromPackage.example.path,
+		join(installed, "dist/config.json.example"),
+	);
+	assert.equal(fromSource.example.path, join(root, "config.json.example"));
+	assert.equal(fromPackage.example.text, fromSource.example.text);
+	delete fromPackage.example;
+	delete fromSource.example;
+	assert.deepEqual(fromPackage, fromSource);
+	// A fresh load reads the changed user config; the earlier loads used the example.
+	assert.deepEqual(fromPackage.statusEnabledPerLoad, [true, true, false]);
+	const pinned = parseJson(
+		readFileSync(
+			join(root, "provenance/upstream/test/fixtures/h1-contract.json"),
+			"utf8",
+		),
+		"the archived H1 contract",
+	);
+	for (const scope of ["parent", "child"] as const) {
+		const actual = fromPackage.scopes[scope];
+		assert.deepEqual(actual.testSurface, pinned[scope].testSurface);
+		assert.deepEqual(actual.commands, pinned[scope].commands);
+		assert.deepEqual(actual.events, pinned[scope].events);
+		assert.deepEqual(
+			actual.tools.map(
+				(tool: { renderCall: boolean; renderResult: boolean }) => {
+					const { renderCall: _call, renderResult: _result, ...rest } = tool;
+					return rest;
+				},
+			),
+			pinned[scope].tools,
+		);
+		const names = actual.tools.map((tool: { name: string }) => tool.name);
+		assert.equal(new Set(names).size, names.length, "one registration each");
+		// Message renderers come only from the host's hook, registered once.
+		assert.deepEqual(actual.renderers, ["host-renderer"]);
+	}
+	writeFileSync(
+		join(consumer, "installed-factory.mjs"),
+		`
+import { createPiExtension } from "@nubl/maestro/pi";
+const refuse = () => { throw new Error("schema capture: no terminal provider"); };
+const provider = () => new Proxy({ name: "schema-capture", isAvailable: () => false, setupHint: () => "none" }, { get: (target, key) => key in target ? target[key] : key === "nativeExecution" || key === "then" ? undefined : refuse });
+const noop = () => {};
+export default createPiExtension({
+ hostSurface: { resolve: () => ({ backend: "legacy" }), createProvider: provider, createLaunchProvider: provider },
+ presentation: { createWidgets: () => ({ renderSubagentWidgetLines: () => [], updateWidget: noop, startStatusRefresh: noop, startWidgetRefresh: noop, stopRefresh: noop }), borderLine: () => "", registerMessageRenderers: noop },
+});
+`,
+	);
+	writeFileSync(
+		join(consumer, "schema-capture.ts"),
+		`
+import { captureToolSchemas } from ${JSON.stringify(pathToFileURL(join(root, "test/helpers/tool-schema-capture.ts")).href)};
+const fresh = async (url: string) => (await import(url + "?" + Date.now() + Math.random())).default;
+const snapshot = await captureToolSchemas({
+ parent: () => fresh(new URL("./installed-factory.mjs", import.meta.url).href),
+ child: () => fresh(${JSON.stringify(pathToFileURL(installedEntry).href)}),
+});
+process.stdout.write(JSON.stringify(snapshot) + "\\n", () => process.exit(0));
+`,
+	);
+	const snapshot = parseJson(
+		execFileSync(
+			process.execPath,
+			["--experimental-strip-types", "--no-warnings", "schema-capture.ts"],
+			{ cwd: consumer, env, encoding: "utf8", timeout: 120_000 },
+		),
+		"the installed schema capture",
+	);
+	assert.deepEqual(
+		snapshot,
+		parseJson(
+			readFileSync(
+				join(root, "test/fixtures/tool-schema/current.json"),
+				"utf8",
+			),
+			"the tool-schema fixture",
+		),
+	);
+	console.log(
+		"Installed createPiExtension: per-load registrations equal the source factory and H1's pinned parent/child/deny-tool contract (one registration each, host renderers only through the hook), each load re-reads config, the shipped config example resolves under dist/, and the installed factory plus child entry reproduce test/fixtures/tool-schema/current.json.",
 	);
 }
 
@@ -305,6 +475,18 @@ try {
 	assert(!piExports.includes("."));
 	assert(!piExports.includes("./engine"));
 	assert(!piExports.includes("./testing"));
+	// Exports whose JS or declarations need the peers: a peer-free TypeScript
+	// consumer cannot typecheck them; a host with the peers typechecks them all.
+	const typeExports = Object.keys(installedPkg.exports).filter(
+		(name) =>
+			name !== "./package.json" &&
+			(piExports.includes(name) ||
+				declarationPeers(join(installed, installedPkg.exports[name].types))
+					.size > 0),
+	);
+	assert(!typeExports.includes("."));
+	assert(!typeExports.includes("./engine"));
+	assert(!typeExports.includes("./testing"));
 	writeFileSync(join(fixture, "pi-exports.json"), JSON.stringify(piExports));
 	writeFileSync(
 		join(fixture, "consumer.js"),
@@ -361,7 +543,7 @@ assert.equal((await completion).outcome, "completed");
 	);
 	const pkg = JSON.parse(readFileSync(join(installed, "package.json"), "utf8"));
 	const imports = Object.keys(pkg.exports)
-		.filter((name) => name !== "./package.json" && !piExports.includes(name))
+		.filter((name) => name !== "./package.json" && !typeExports.includes(name))
 		.map(
 			(name, index) =>
 				`import * as entry${index} from ${JSON.stringify(name === "." ? "@nubl/maestro" : "@nubl/maestro/" + name.slice(2))};\nvoid entry${index};`,
@@ -392,12 +574,9 @@ assert.equal((await completion).outcome, "completed");
 		"tsconfig.json",
 	]);
 	console.log(
-		`Packed JS generic-owner lifecycle, ${Object.keys(pkg.exports).length} finite exports (${piExports.length} Pi entries refuse without peers), peer-free strict Promise consumer (Node dev types supplied), maps, license and discovery allowlist: passed.`,
+		`Packed JS generic-owner lifecycle, ${Object.keys(pkg.exports).length} finite exports (${piExports.length} Pi entries refuse without peers; ${typeExports.length} need peer types), peer-free strict Promise consumer (Node dev types supplied), maps, license and discovery allowlist: passed.`,
 	);
-	piConsumer(fixture, join(fixture, tarballs[0]), piExports);
-	console.log(
-		"Pi factory/schema/config-asset smokes remain pending M4; no such API exists in M3.",
-	);
+	piConsumer(fixture, join(fixture, tarballs[0]), piExports, typeExports);
 } finally {
 	rmSync(fixture, { recursive: true, force: true });
 }

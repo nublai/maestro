@@ -10,6 +10,11 @@
 		},
 		{
 			"kind": "new",
+			"destination": "maestro/pi.ts",
+			"reason": "Pi composition facade (@nubl/maestro/pi): createPiExtension plus PiHostOptions, PiPresentationHooks, PiToolRenderers and HostSurfaceBinding types (plan §3). Re-exports copies only."
+		},
+		{
+			"kind": "new",
 			"destination": "maestro/testing/index.ts",
 			"reason": "Testing facade for copied fakes and conformance runners."
 		},

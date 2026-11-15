@@ -352,6 +352,101 @@
 			"types": "./dist/maestro/adapters/pi/child/entry.d.ts",
 			"import": "./dist/maestro/adapters/pi/child/entry.js",
 			"default": "./dist/maestro/adapters/pi/child/entry.js"
+		},
+		"./pi": {
+			"types": "./dist/maestro/pi.d.ts",
+			"import": "./dist/maestro/pi.js",
+			"default": "./dist/maestro/pi.js"
+		},
+		"./pi/subagents/catalog": {
+			"types": "./dist/pi-extension/subagents/catalog.d.ts",
+			"import": "./dist/pi-extension/subagents/catalog.js",
+			"default": "./dist/pi-extension/subagents/catalog.js"
+		},
+		"./pi/subagents/config-path": {
+			"types": "./dist/pi-extension/subagents/config-path.d.ts",
+			"import": "./dist/pi-extension/subagents/config-path.js",
+			"default": "./dist/pi-extension/subagents/config-path.js"
+		},
+		"./pi/subagents/control-tools": {
+			"types": "./dist/pi-extension/subagents/control-tools.d.ts",
+			"import": "./dist/pi-extension/subagents/control-tools.js",
+			"default": "./dist/pi-extension/subagents/control-tools.js"
+		},
+		"./pi/subagents/controls": {
+			"types": "./dist/pi-extension/subagents/controls.d.ts",
+			"import": "./dist/pi-extension/subagents/controls.js",
+			"default": "./dist/pi-extension/subagents/controls.js"
+		},
+		"./pi/subagents/deferred-tools": {
+			"types": "./dist/pi-extension/subagents/deferred-tools.d.ts",
+			"import": "./dist/pi-extension/subagents/deferred-tools.js",
+			"default": "./dist/pi-extension/subagents/deferred-tools.js"
+		},
+		"./pi/subagents/delivery": {
+			"types": "./dist/pi-extension/subagents/delivery.d.ts",
+			"import": "./dist/pi-extension/subagents/delivery.js",
+			"default": "./dist/pi-extension/subagents/delivery.js"
+		},
+		"./pi/subagents/extension": {
+			"types": "./dist/pi-extension/subagents/extension.d.ts",
+			"import": "./dist/pi-extension/subagents/extension.js",
+			"default": "./dist/pi-extension/subagents/extension.js"
+		},
+		"./pi/subagents/launch-tools": {
+			"types": "./dist/pi-extension/subagents/launch-tools.d.ts",
+			"import": "./dist/pi-extension/subagents/launch-tools.js",
+			"default": "./dist/pi-extension/subagents/launch-tools.js"
+		},
+		"./pi/subagents/launch": {
+			"types": "./dist/pi-extension/subagents/launch.d.ts",
+			"import": "./dist/pi-extension/subagents/launch.js",
+			"default": "./dist/pi-extension/subagents/launch.js"
+		},
+		"./pi/subagents/model-registry": {
+			"types": "./dist/pi-extension/subagents/model-registry.d.ts",
+			"import": "./dist/pi-extension/subagents/model-registry.js",
+			"default": "./dist/pi-extension/subagents/model-registry.js"
+		},
+		"./pi/subagents/observation": {
+			"types": "./dist/pi-extension/subagents/observation.d.ts",
+			"import": "./dist/pi-extension/subagents/observation.js",
+			"default": "./dist/pi-extension/subagents/observation.js"
+		},
+		"./pi/subagents/persistent": {
+			"types": "./dist/pi-extension/subagents/persistent.d.ts",
+			"import": "./dist/pi-extension/subagents/persistent.js",
+			"default": "./dist/pi-extension/subagents/persistent.js"
+		},
+		"./pi/subagents/presentation-hooks": {
+			"types": "./dist/pi-extension/subagents/presentation-hooks.d.ts",
+			"import": "./dist/pi-extension/subagents/presentation-hooks.js",
+			"default": "./dist/pi-extension/subagents/presentation-hooks.js"
+		},
+		"./pi/subagents/presentation": {
+			"types": "./dist/pi-extension/subagents/presentation.d.ts",
+			"import": "./dist/pi-extension/subagents/presentation.js",
+			"default": "./dist/pi-extension/subagents/presentation.js"
+		},
+		"./pi/subagents/state": {
+			"types": "./dist/pi-extension/subagents/state.d.ts",
+			"import": "./dist/pi-extension/subagents/state.js",
+			"default": "./dist/pi-extension/subagents/state.js"
+		},
+		"./pi/subagents/task-models": {
+			"types": "./dist/pi-extension/subagents/task-models.d.ts",
+			"import": "./dist/pi-extension/subagents/task-models.js",
+			"default": "./dist/pi-extension/subagents/task-models.js"
+		},
+		"./pi/subagents/tool-boundary": {
+			"types": "./dist/pi-extension/subagents/tool-boundary.d.ts",
+			"import": "./dist/pi-extension/subagents/tool-boundary.js",
+			"default": "./dist/pi-extension/subagents/tool-boundary.js"
+		},
+		"./pi/subagents/worktree-tools": {
+			"types": "./dist/pi-extension/subagents/worktree-tools.d.ts",
+			"import": "./dist/pi-extension/subagents/worktree-tools.js",
+			"default": "./dist/pi-extension/subagents/worktree-tools.js"
 		}
 	},
 	"files": [
