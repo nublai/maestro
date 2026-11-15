@@ -1,0 +1,170 @@
+{
+	"map": "m4-test-map.json",
+	"identity_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+	"import_mappings": [
+		{
+			"from": "../../maestro/adapters/pi/child/subagent-done.ts",
+			"to": "../../maestro/adapters/pi/child/protocol.ts"
+		},
+		{
+			"from": "../maestro/adapters/pi/child/subagent-done.ts",
+			"to": "../maestro/adapters/pi/child/protocol.ts"
+		},
+		{
+			"from": "../../maestro/surfaces/herdr/herdr-socket.ts",
+			"to": "../../maestro/runtime/delegated-marker.ts"
+		},
+		{
+			"from": "../pi-extension/subagents/index.ts",
+			"to": "./helpers/pi-extension.ts"
+		},
+		{
+			"from": "../../pi-extension/subagents/index.ts",
+			"to": "../helpers/pi-extension.ts"
+		}
+	],
+	"files": [
+		{
+			"source": "test/test.ts",
+			"destination": "test/tools-monolith.test.ts",
+			"exclude": [
+				{
+					"line": 902,
+					"reason": "Counts ctx.ui.setWidget calls made by the terminal widget controller; terminal widget rendering (widgets.ts, pi-tui) stays upstream; asserts rendered widget output or setWidget calls. Factory-side evidence: supplemental pi-factory test."
+				},
+				{
+					"line": 2902,
+					"reason": "Renders __test__.renderSubagentWidgetLines; terminal widget rendering (widgets.ts, pi-tui) stays upstream; asserts rendered widget output or setWidget calls."
+				},
+				{
+					"line": 3108,
+					"reason": "Renders __test__.renderSubagentWidgetLines; terminal widget rendering (widgets.ts, pi-tui) stays upstream; asserts rendered widget output or setWidget calls."
+				},
+				{
+					"line": 7974,
+					"reason": "Asserts the terminal child tools widget; child-widget.ts stays upstream with the pi-tui hook."
+				},
+				{
+					"line": 12451,
+					"reason": "Calls the injected subagent renderCall; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+				},
+				{
+					"line": 15397,
+					"reason": "Suite 'subagent status renderer'; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+				},
+				{
+					"line": 15636,
+					"reason": "Suite 'subagents widget rendering'; terminal widget rendering (widgets.ts, pi-tui) stays upstream; asserts rendered widget output or setWidget calls."
+				},
+				{
+					"line": 15928,
+					"reason": "Herdr CLI transport case (herdr.ts suite); concrete provider stays upstream."
+				},
+				{
+					"line": 16661,
+					"reason": "Renders a parent message through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+				},
+				{
+					"line": 17187,
+					"reason": "Renders subagent_ping through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+				},
+				{
+					"line": 17208,
+					"reason": "Renders a persistent help request through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+				},
+				{
+					"line": 17242,
+					"reason": "Renders host lines through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+				},
+				{
+					"line": 17623,
+					"reason": "Renders the expanded Resume line through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+				}
+			]
+		},
+		{
+			"source": "test/maestro/accept-check.test.ts",
+			"destination": "test/maestro/accept-check-tools.test.ts"
+		},
+		{
+			"source": "test/maestro/audit-discovery.test.ts",
+			"destination": "test/maestro/audit-discovery-tools.test.ts"
+		},
+		{
+			"source": "test/maestro/audit-git-environment.test.ts",
+			"destination": "test/maestro/audit-git-environment-tools.test.ts"
+		},
+		{
+			"source": "test/maestro/audit-persistent.test.ts",
+			"destination": "test/maestro/audit-persistent.test.ts"
+		},
+		{
+			"source": "test/maestro/audit-stop-notices.test.ts",
+			"destination": "test/maestro/audit-stop-notices.test.ts"
+		},
+		{
+			"source": "test/maestro/deferred-tools.test.ts",
+			"destination": "test/maestro/deferred-tools.test.ts"
+		},
+		{
+			"source": "test/maestro/pr110-persistent-regressions.test.ts",
+			"destination": "test/maestro/pr110-persistent-regressions.test.ts"
+		},
+		{
+			"source": "test/maestro/script-launch.test.ts",
+			"destination": "test/maestro/script-launch-tools.test.ts"
+		},
+		{
+			"source": "test/maestro/socket-path.test.ts",
+			"destination": "test/maestro/socket-path.test.ts"
+		},
+		{
+			"source": "test/maestro/specialist-notice.test.ts",
+			"destination": "test/maestro/specialist-notice-tools.test.ts",
+			"exclude": [
+				{
+					"line": 224,
+					"reason": "Renders subagent_notice through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+				},
+				{
+					"line": 256,
+					"reason": "Renders subagent_notice expanded through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+				}
+			]
+		},
+		{
+			"source": "test/maestro/task-model-approval.test.ts",
+			"destination": "test/maestro/task-model-approval.test.ts"
+		},
+		{
+			"source": "test/maestro/task-thinking-wiring.test.ts",
+			"destination": "test/maestro/task-thinking-wiring.test.ts"
+		},
+		{
+			"source": "test/maestro/task-thinking.test.ts",
+			"destination": "test/maestro/task-thinking-tools.test.ts"
+		},
+		{
+			"source": "test/maestro/tool-schema.test.ts",
+			"destination": "test/maestro/tool-schema.test.ts"
+		},
+		{
+			"source": "test/maestro/windows-support-scope.test.ts",
+			"destination": "test/maestro/windows-support-scope-tools.test.ts"
+		},
+		{
+			"source": "test/runtime-routing.test.ts",
+			"destination": "test/runtime-routing-tools.test.ts"
+		}
+	],
+	"resource_mappings": [
+		{
+			"from": "../pi-extension/subagents/index.ts",
+			"to": "./helpers/pi-extension.ts"
+		},
+		{
+			"from": "../../pi-extension/subagents/index.ts",
+			"to": "../helpers/pi-extension.ts"
+		}
+	]
+}

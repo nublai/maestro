@@ -3,7 +3,12 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { checkTestMigration, tokens } from "../scripts/check-test-migration.ts";
+import {
+	checkAdaptedHelper,
+	checkTestMigration,
+	rewriteResourcePaths,
+	tokens,
+} from "../scripts/check-test-migration.ts";
 import { gitBlob } from "../scripts/check-copy-fidelity.ts";
 import {
 	checkChildClosure,
@@ -103,4 +108,78 @@ test("the child entry closure rejects parent runtime, launch, provider and termi
 			/Parent\/provider dependency in child closure/,
 		);
 	}
+});
+
+test("an adapted helper may change only its declared statements", (t) => {
+	const root = mkdtempSync(join(tmpdir(), "maestro-adapted-helper-"));
+	t.after(() => rmSync(root, { recursive: true, force: true }));
+	const original =
+		'const KEEP = ["A"];\nfunction load() { return "fixed"; }\nexport function run() { return load(); }\n';
+	const blob = gitBlob(Buffer.from(original));
+	writeFileSync(join(root, "original.ts"), original);
+	const helper = {
+		source: "helper.ts",
+		destination: "adapted.ts",
+		archive: "original.ts",
+		blob,
+		changed: ["run"],
+		added: ["entries"],
+		reason: "fixture",
+	};
+	const tree = { files: [{ path: "helper.ts", blob }] };
+	const write = (text: string) => writeFileSync(join(root, "adapted.ts"), text);
+	write(
+		'const KEEP = ["A"];\nfunction load() { return "fixed"; }\nconst entries = { load };\nexport function run(e = entries) { return e.load(); }\n',
+	);
+	checkAdaptedHelper(root, helper, tree);
+	write(
+		'const KEEP = ["B"];\nfunction load() { return "fixed"; }\nconst entries = { load };\nexport function run(e = entries) { return e.load(); }\n',
+	);
+	assert.throws(
+		() => checkAdaptedHelper(root, helper, tree),
+		/changed an undeclared statement: adapted.ts KEEP/,
+	);
+	write(
+		'const KEEP = ["A"];\nfunction load() { return "fixed"; }\nconst other = 1;\nexport function run() { return load() + other; }\n',
+	);
+	assert.throws(
+		() => checkAdaptedHelper(root, helper, tree),
+		/added an undeclared statement: adapted.ts other/,
+	);
+	assert.throws(
+		() =>
+			checkAdaptedHelper(root, helper, {
+				files: [{ path: "helper.ts", blob: "0".repeat(40) }],
+			}),
+		/not at the pin/,
+	);
+});
+
+test("resource mappings rewrite only the mapped path inside dynamic import arguments", () => {
+	const mappings = [
+		{
+			from: "../pi-extension/subagents/index.ts",
+			to: "./helpers/pi-extension.ts",
+		},
+	];
+	assert.equal(
+		rewriteResourcePaths(
+			"const m = await import(`../pi-extension/subagents/index.ts?reload-${n}`);",
+			mappings,
+		),
+		"const m = await import(`./helpers/pi-extension.ts?reload-${n}`);",
+	);
+	assert.equal(
+		rewriteResourcePaths(
+			'await import(new URL("../pi-extension/subagents/index.ts?x=1", import.meta.url).href);',
+			mappings,
+		),
+		'await import(new URL("./helpers/pi-extension.ts?x=1", import.meta.url).href);',
+	);
+	for (const untouched of [
+		'readFileSync("../pi-extension/subagents/index.ts");',
+		'await import("../pi-extension/subagents/index.tsx");',
+		'await import("../pi-extension/subagents/other.ts");',
+	])
+		assert.equal(rewriteResourcePaths(untouched, mappings), untouched);
 });

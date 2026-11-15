@@ -1,0 +1,3266 @@
+{
+	"copy_sha": "27dee407403906d5bac359702e21a04309be2f64",
+	"identity_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+	"import_mappings": [
+		{
+			"from": "../../maestro/adapters/pi/child/subagent-done.ts",
+			"to": "../../maestro/adapters/pi/child/protocol.ts"
+		},
+		{
+			"from": "../maestro/adapters/pi/child/subagent-done.ts",
+			"to": "../maestro/adapters/pi/child/protocol.ts"
+		},
+		{
+			"from": "../../maestro/surfaces/herdr/herdr-socket.ts",
+			"to": "../../maestro/runtime/delegated-marker.ts"
+		},
+		{
+			"from": "../pi-extension/subagents/index.ts",
+			"to": "./helpers/pi-extension.ts"
+		},
+		{
+			"from": "../../pi-extension/subagents/index.ts",
+			"to": "../helpers/pi-extension.ts"
+		}
+	],
+	"files": [
+		{
+			"source": "test/test.ts",
+			"destination": "test/tools-monolith.test.ts",
+			"selections": [
+				{
+					"start": 23658,
+					"end": 25898,
+					"line": 837,
+					"baseline_start": 23639,
+					"baseline_end": 25879
+				},
+				{
+					"start": 26731,
+					"end": 27513,
+					"line": 927,
+					"baseline_start": 26712,
+					"baseline_end": 27494
+				},
+				{
+					"start": 27516,
+					"end": 29333,
+					"line": 950,
+					"baseline_start": 27497,
+					"baseline_end": 29314
+				},
+				{
+					"start": 29336,
+					"end": 35776,
+					"line": 1003,
+					"baseline_start": 29317,
+					"baseline_end": 35757
+				},
+				{
+					"start": 35778,
+					"end": 37409,
+					"line": 1187,
+					"baseline_start": 35759,
+					"baseline_end": 37390
+				},
+				{
+					"start": 37411,
+					"end": 39589,
+					"line": 1242,
+					"baseline_start": 37392,
+					"baseline_end": 39570
+				},
+				{
+					"start": 39591,
+					"end": 40758,
+					"line": 1301,
+					"baseline_start": 39572,
+					"baseline_end": 40739
+				},
+				{
+					"start": 40760,
+					"end": 41515,
+					"line": 1336,
+					"baseline_start": 40741,
+					"baseline_end": 41496
+				},
+				{
+					"start": 41517,
+					"end": 44099,
+					"line": 1359,
+					"baseline_start": 41498,
+					"baseline_end": 44080
+				},
+				{
+					"start": 44253,
+					"end": 45457,
+					"line": 1447,
+					"titles": [
+						"host adapter migration",
+						"confirms a stopped specialist's exit from the shell's post-exit record when the marker scrolled away"
+					],
+					"added": true
+				},
+				{
+					"start": 45459,
+					"end": 46874,
+					"line": 1482,
+					"baseline_start": 44082,
+					"baseline_end": 45497
+				},
+				{
+					"start": 46876,
+					"end": 48514,
+					"line": 1519,
+					"baseline_start": 45499,
+					"baseline_end": 47137
+				},
+				{
+					"start": 48606,
+					"end": 52854,
+					"line": 1568,
+					"baseline_start": 47229,
+					"baseline_end": 51477
+				},
+				{
+					"start": 52856,
+					"end": 53622,
+					"line": 1688,
+					"baseline_start": 51479,
+					"baseline_end": 52245
+				},
+				{
+					"start": 53624,
+					"end": 56202,
+					"line": 1706,
+					"baseline_start": 52247,
+					"baseline_end": 54825
+				},
+				{
+					"start": 56204,
+					"end": 57547,
+					"line": 1774,
+					"baseline_start": 54827,
+					"baseline_end": 56170
+				},
+				{
+					"start": 57549,
+					"end": 59959,
+					"line": 1809,
+					"baseline_start": 56172,
+					"baseline_end": 58582
+				},
+				{
+					"start": 59961,
+					"end": 63460,
+					"line": 1881,
+					"baseline_start": 58584,
+					"baseline_end": 62083
+				},
+				{
+					"start": 63462,
+					"end": 64664,
+					"line": 1979,
+					"baseline_start": 62085,
+					"baseline_end": 63287
+				},
+				{
+					"start": 64892,
+					"end": 65886,
+					"line": 2023,
+					"baseline_start": 63515,
+					"baseline_end": 64509
+				},
+				{
+					"start": 65888,
+					"end": 66912,
+					"line": 2040,
+					"baseline_start": 64511,
+					"baseline_end": 65535
+				},
+				{
+					"start": 66914,
+					"end": 67737,
+					"line": 2063,
+					"baseline_start": 65537,
+					"baseline_end": 66360
+				},
+				{
+					"start": 67739,
+					"end": 68052,
+					"line": 2087,
+					"baseline_start": 66362,
+					"baseline_end": 66675
+				},
+				{
+					"start": 68054,
+					"end": 69593,
+					"line": 2094,
+					"baseline_start": 66677,
+					"baseline_end": 68216
+				},
+				{
+					"start": 70346,
+					"end": 70999,
+					"line": 2170,
+					"baseline_start": 68969,
+					"baseline_end": 69622
+				},
+				{
+					"start": 71001,
+					"end": 71758,
+					"line": 2181,
+					"baseline_start": 69624,
+					"baseline_end": 70381
+				},
+				{
+					"start": 71760,
+					"end": 72525,
+					"line": 2205,
+					"baseline_start": 70383,
+					"baseline_end": 71148
+				},
+				{
+					"start": 72527,
+					"end": 74797,
+					"line": 2222,
+					"baseline_start": 71150,
+					"baseline_end": 73420
+				},
+				{
+					"start": 74799,
+					"end": 75649,
+					"line": 2289,
+					"baseline_start": 73422,
+					"baseline_end": 74272
+				},
+				{
+					"start": 75651,
+					"end": 76518,
+					"line": 2310,
+					"baseline_start": 74274,
+					"baseline_end": 75141
+				},
+				{
+					"start": 76521,
+					"end": 80771,
+					"line": 2338,
+					"baseline_start": 75144,
+					"baseline_end": 79394
+				},
+				{
+					"start": 80774,
+					"end": 86523,
+					"line": 2465,
+					"baseline_start": 79397,
+					"baseline_end": 85146
+				},
+				{
+					"start": 86526,
+					"end": 88015,
+					"line": 2657,
+					"baseline_start": 85149,
+					"baseline_end": 86638
+				},
+				{
+					"start": 90142,
+					"end": 91605,
+					"line": 2788,
+					"baseline_start": 88765,
+					"baseline_end": 90228
+				},
+				{
+					"start": 91608,
+					"end": 92030,
+					"line": 2833,
+					"baseline_start": 90231,
+					"baseline_end": 90653
+				},
+				{
+					"start": 92033,
+					"end": 94544,
+					"line": 2845,
+					"baseline_start": 90656,
+					"baseline_end": 93167
+				},
+				{
+					"start": 96039,
+					"end": 97143,
+					"line": 2939,
+					"baseline_start": 94662,
+					"baseline_end": 95766
+				},
+				{
+					"start": 97146,
+					"end": 97718,
+					"line": 2969,
+					"baseline_start": 95769,
+					"baseline_end": 96341
+				},
+				{
+					"start": 97721,
+					"end": 98506,
+					"line": 2985,
+					"baseline_start": 96344,
+					"baseline_end": 97129
+				},
+				{
+					"start": 98509,
+					"end": 101028,
+					"line": 3007,
+					"baseline_start": 97132,
+					"baseline_end": 99651
+				},
+				{
+					"start": 101031,
+					"end": 102729,
+					"line": 3067,
+					"baseline_start": 99654,
+					"baseline_end": 101352
+				},
+				{
+					"start": 143905,
+					"end": 144423,
+					"line": 4639,
+					"baseline_start": 142528,
+					"baseline_end": 143046
+				},
+				{
+					"start": 144653,
+					"end": 146399,
+					"line": 4661,
+					"baseline_start": 143276,
+					"baseline_end": 145022
+				},
+				{
+					"start": 146402,
+					"end": 148046,
+					"line": 4727,
+					"baseline_start": 145025,
+					"baseline_end": 146669
+				},
+				{
+					"start": 152609,
+					"end": 153345,
+					"line": 4944,
+					"baseline_start": 151232,
+					"baseline_end": 151968
+				},
+				{
+					"start": 153348,
+					"end": 156105,
+					"line": 4962,
+					"baseline_start": 151971,
+					"baseline_end": 154728
+				},
+				{
+					"start": 200524,
+					"end": 202483,
+					"line": 6550,
+					"baseline_start": 199147,
+					"baseline_end": 201106
+				},
+				{
+					"start": 202486,
+					"end": 203002,
+					"line": 6619,
+					"baseline_start": 201109,
+					"baseline_end": 201625
+				},
+				{
+					"start": 203005,
+					"end": 203659,
+					"line": 6637,
+					"baseline_start": 201628,
+					"baseline_end": 202282
+				},
+				{
+					"start": 203662,
+					"end": 204532,
+					"line": 6661,
+					"baseline_start": 202285,
+					"baseline_end": 203155
+				},
+				{
+					"start": 204535,
+					"end": 205010,
+					"line": 6694,
+					"baseline_start": 203158,
+					"baseline_end": 203633
+				},
+				{
+					"start": 205013,
+					"end": 206881,
+					"line": 6710,
+					"baseline_start": 203636,
+					"baseline_end": 205504
+				},
+				{
+					"start": 206884,
+					"end": 207396,
+					"line": 6788,
+					"baseline_start": 205507,
+					"baseline_end": 206019
+				},
+				{
+					"start": 207399,
+					"end": 207834,
+					"line": 6807,
+					"baseline_start": 206022,
+					"baseline_end": 206457
+				},
+				{
+					"start": 207837,
+					"end": 208712,
+					"line": 6824,
+					"baseline_start": 206460,
+					"baseline_end": 207335
+				},
+				{
+					"start": 208715,
+					"end": 209142,
+					"line": 6852,
+					"baseline_start": 207338,
+					"baseline_end": 207765
+				},
+				{
+					"start": 209145,
+					"end": 210493,
+					"line": 6867,
+					"baseline_start": 207768,
+					"baseline_end": 209116
+				},
+				{
+					"start": 210496,
+					"end": 211003,
+					"line": 6915,
+					"baseline_start": 209119,
+					"baseline_end": 209626
+				},
+				{
+					"start": 211006,
+					"end": 211908,
+					"line": 6933,
+					"baseline_start": 209629,
+					"baseline_end": 210531
+				},
+				{
+					"start": 211911,
+					"end": 213404,
+					"line": 6970,
+					"baseline_start": 210534,
+					"baseline_end": 212027
+				},
+				{
+					"start": 214080,
+					"end": 216203,
+					"line": 7050,
+					"baseline_start": 212703,
+					"baseline_end": 214826
+				},
+				{
+					"start": 216206,
+					"end": 217491,
+					"line": 7110,
+					"baseline_start": 214829,
+					"baseline_end": 216114
+				},
+				{
+					"start": 217494,
+					"end": 219921,
+					"line": 7153,
+					"baseline_start": 216117,
+					"baseline_end": 218544
+				},
+				{
+					"start": 219924,
+					"end": 221440,
+					"line": 7234,
+					"baseline_start": 218547,
+					"baseline_end": 220063
+				},
+				{
+					"start": 221443,
+					"end": 223477,
+					"line": 7281,
+					"baseline_start": 220066,
+					"baseline_end": 222100
+				},
+				{
+					"start": 223480,
+					"end": 228981,
+					"line": 7349,
+					"baseline_start": 222103,
+					"baseline_end": 227604
+				},
+				{
+					"start": 228984,
+					"end": 232165,
+					"line": 7545,
+					"baseline_start": 227607,
+					"baseline_end": 230788
+				},
+				{
+					"start": 232168,
+					"end": 234358,
+					"line": 7651,
+					"baseline_start": 230791,
+					"baseline_end": 232981
+				},
+				{
+					"start": 234361,
+					"end": 235707,
+					"line": 7725,
+					"baseline_start": 232984,
+					"baseline_end": 234330
+				},
+				{
+					"start": 235710,
+					"end": 237442,
+					"line": 7769,
+					"baseline_start": 234333,
+					"baseline_end": 236065
+				},
+				{
+					"start": 238586,
+					"end": 238868,
+					"line": 7864,
+					"baseline_start": 237209,
+					"baseline_end": 237491
+				},
+				{
+					"start": 238871,
+					"end": 239149,
+					"line": 7870,
+					"baseline_start": 237494,
+					"baseline_end": 237772
+				},
+				{
+					"start": 239152,
+					"end": 239418,
+					"line": 7876,
+					"baseline_start": 237775,
+					"baseline_end": 238041
+				},
+				{
+					"start": 239421,
+					"end": 239698,
+					"line": 7883,
+					"baseline_start": 238044,
+					"baseline_end": 238321
+				},
+				{
+					"start": 240744,
+					"end": 241361,
+					"line": 7925,
+					"baseline_start": 239367,
+					"baseline_end": 239984
+				},
+				{
+					"start": 241364,
+					"end": 241790,
+					"line": 7938,
+					"baseline_start": 239987,
+					"baseline_end": 240413
+				},
+				{
+					"start": 241793,
+					"end": 242225,
+					"line": 7951,
+					"baseline_start": 240416,
+					"baseline_end": 240848
+				},
+				{
+					"start": 260409,
+					"end": 261436,
+					"line": 8498,
+					"baseline_start": 259032,
+					"baseline_end": 260059
+				},
+				{
+					"start": 268930,
+					"end": 269207,
+					"line": 8770,
+					"baseline_start": 267553,
+					"baseline_end": 267830
+				},
+				{
+					"start": 269211,
+					"end": 269475,
+					"line": 8781,
+					"baseline_start": 267834,
+					"baseline_end": 268098
+				},
+				{
+					"start": 269479,
+					"end": 269779,
+					"line": 8791,
+					"baseline_start": 268102,
+					"baseline_end": 268402
+				},
+				{
+					"start": 269783,
+					"end": 270339,
+					"line": 8802,
+					"baseline_start": 268406,
+					"baseline_end": 268962
+				},
+				{
+					"start": 270343,
+					"end": 270572,
+					"line": 8821,
+					"baseline_start": 268966,
+					"baseline_end": 269195
+				},
+				{
+					"start": 270576,
+					"end": 270785,
+					"line": 8829,
+					"baseline_start": 269199,
+					"baseline_end": 269408
+				},
+				{
+					"start": 270789,
+					"end": 271050,
+					"line": 8837,
+					"baseline_start": 269412,
+					"baseline_end": 269673
+				},
+				{
+					"start": 271054,
+					"end": 271507,
+					"line": 8848,
+					"baseline_start": 269677,
+					"baseline_end": 270130
+				},
+				{
+					"start": 300494,
+					"end": 302095,
+					"line": 9824,
+					"baseline_start": 299117,
+					"baseline_end": 300718
+				},
+				{
+					"start": 302098,
+					"end": 304414,
+					"line": 9882,
+					"baseline_start": 300721,
+					"baseline_end": 303037
+				},
+				{
+					"start": 304417,
+					"end": 305691,
+					"line": 9965,
+					"baseline_start": 303040,
+					"baseline_end": 304314
+				},
+				{
+					"start": 316344,
+					"end": 318424,
+					"line": 10383,
+					"baseline_start": 313815,
+					"baseline_end": 315895
+				},
+				{
+					"start": 318427,
+					"end": 319523,
+					"line": 10450,
+					"baseline_start": 315898,
+					"baseline_end": 316994
+				},
+				{
+					"start": 319526,
+					"end": 320482,
+					"line": 10488,
+					"baseline_start": 316997,
+					"baseline_end": 317953
+				},
+				{
+					"start": 320485,
+					"end": 326572,
+					"line": 10515,
+					"baseline_start": 317956,
+					"baseline_end": 324043
+				},
+				{
+					"start": 326575,
+					"end": 327810,
+					"line": 10699,
+					"baseline_start": 324046,
+					"baseline_end": 325281
+				},
+				{
+					"start": 327813,
+					"end": 328462,
+					"line": 10732,
+					"baseline_start": 325284,
+					"baseline_end": 325933
+				},
+				{
+					"start": 328465,
+					"end": 329075,
+					"line": 10752,
+					"baseline_start": 325936,
+					"baseline_end": 326546
+				},
+				{
+					"start": 329078,
+					"end": 330055,
+					"line": 10775,
+					"baseline_start": 326549,
+					"baseline_end": 327526
+				},
+				{
+					"start": 330058,
+					"end": 330867,
+					"line": 10806,
+					"baseline_start": 327529,
+					"baseline_end": 328338
+				},
+				{
+					"start": 330870,
+					"end": 331771,
+					"line": 10828,
+					"baseline_start": 328341,
+					"baseline_end": 329242
+				},
+				{
+					"start": 331774,
+					"end": 333609,
+					"line": 10855,
+					"baseline_start": 329245,
+					"baseline_end": 331080
+				},
+				{
+					"start": 333612,
+					"end": 335182,
+					"line": 10909,
+					"baseline_start": 331083,
+					"baseline_end": 332653
+				},
+				{
+					"start": 335185,
+					"end": 336223,
+					"line": 10961,
+					"baseline_start": 332656,
+					"baseline_end": 333694
+				},
+				{
+					"start": 336226,
+					"end": 337923,
+					"line": 10990,
+					"baseline_start": 333697,
+					"baseline_end": 335394
+				},
+				{
+					"start": 337926,
+					"end": 340236,
+					"line": 11044,
+					"baseline_start": 335397,
+					"baseline_end": 337707
+				},
+				{
+					"start": 340239,
+					"end": 340833,
+					"line": 11119,
+					"baseline_start": 337710,
+					"baseline_end": 338304
+				},
+				{
+					"start": 340836,
+					"end": 341516,
+					"line": 11137,
+					"baseline_start": 338307,
+					"baseline_end": 338987
+				},
+				{
+					"start": 341519,
+					"end": 344190,
+					"line": 11154,
+					"baseline_start": 338990,
+					"baseline_end": 341661
+				},
+				{
+					"start": 344193,
+					"end": 345436,
+					"line": 11242,
+					"baseline_start": 341664,
+					"baseline_end": 342907
+				},
+				{
+					"start": 345439,
+					"end": 349410,
+					"line": 11287,
+					"baseline_start": 342910,
+					"baseline_end": 346881
+				},
+				{
+					"start": 349413,
+					"end": 352549,
+					"line": 11420,
+					"baseline_start": 346884,
+					"baseline_end": 350020
+				},
+				{
+					"start": 352552,
+					"end": 353407,
+					"line": 11533,
+					"baseline_start": 350023,
+					"baseline_end": 350878
+				},
+				{
+					"start": 353410,
+					"end": 354161,
+					"line": 11555,
+					"baseline_start": 350881,
+					"baseline_end": 351632
+				},
+				{
+					"start": 354220,
+					"end": 355053,
+					"line": 11583,
+					"baseline_start": 351691,
+					"baseline_end": 352524
+				},
+				{
+					"start": 355055,
+					"end": 356648,
+					"line": 11606,
+					"baseline_start": 352526,
+					"baseline_end": 354119
+				},
+				{
+					"start": 356650,
+					"end": 358304,
+					"line": 11645,
+					"baseline_start": 354121,
+					"baseline_end": 355775
+				},
+				{
+					"start": 358306,
+					"end": 359164,
+					"line": 11688,
+					"baseline_start": 355777,
+					"baseline_end": 356635
+				},
+				{
+					"start": 363871,
+					"end": 364937,
+					"line": 11861,
+					"baseline_start": 361342,
+					"baseline_end": 362408
+				},
+				{
+					"start": 370674,
+					"end": 371506,
+					"line": 12100,
+					"baseline_start": 368145,
+					"baseline_end": 368977
+				},
+				{
+					"start": 371510,
+					"end": 372077,
+					"line": 12121,
+					"baseline_start": 368981,
+					"baseline_end": 369548
+				},
+				{
+					"start": 372081,
+					"end": 372725,
+					"line": 12134,
+					"baseline_start": 369552,
+					"baseline_end": 370196
+				},
+				{
+					"start": 372729,
+					"end": 373016,
+					"line": 12150,
+					"baseline_start": 370200,
+					"baseline_end": 370487
+				},
+				{
+					"start": 364982,
+					"end": 366646,
+					"line": 11897,
+					"baseline_start": 362453,
+					"baseline_end": 364117
+				},
+				{
+					"start": 366649,
+					"end": 368505,
+					"line": 11952,
+					"baseline_start": 364120,
+					"baseline_end": 365976
+				},
+				{
+					"start": 368508,
+					"end": 369577,
+					"line": 12026,
+					"baseline_start": 365979,
+					"baseline_end": 367048
+				},
+				{
+					"start": 373024,
+					"end": 375162,
+					"line": 12160,
+					"baseline_start": 370495,
+					"baseline_end": 372633
+				},
+				{
+					"start": 375165,
+					"end": 376418,
+					"line": 12229,
+					"baseline_start": 372636,
+					"baseline_end": 373889
+				},
+				{
+					"start": 376421,
+					"end": 377239,
+					"line": 12263,
+					"baseline_start": 373892,
+					"baseline_end": 374710
+				},
+				{
+					"start": 377242,
+					"end": 378073,
+					"line": 12280,
+					"baseline_start": 374713,
+					"baseline_end": 375544
+				},
+				{
+					"start": 378076,
+					"end": 378924,
+					"line": 12309,
+					"baseline_start": 375547,
+					"baseline_end": 376395
+				},
+				{
+					"start": 378927,
+					"end": 379585,
+					"line": 12334,
+					"baseline_start": 376398,
+					"baseline_end": 377056
+				},
+				{
+					"start": 379588,
+					"end": 380147,
+					"line": 12351,
+					"baseline_start": 377059,
+					"baseline_end": 377618
+				},
+				{
+					"start": 380150,
+					"end": 381089,
+					"line": 12371,
+					"baseline_start": 377621,
+					"baseline_end": 378560
+				},
+				{
+					"start": 381092,
+					"end": 381492,
+					"line": 12406,
+					"baseline_start": 378563,
+					"baseline_end": 378963
+				},
+				{
+					"start": 381495,
+					"end": 382236,
+					"line": 12416,
+					"baseline_start": 378966,
+					"baseline_end": 379707
+				},
+				{
+					"start": 382239,
+					"end": 382899,
+					"line": 12434,
+					"baseline_start": 379710,
+					"baseline_end": 380370
+				},
+				{
+					"start": 383509,
+					"end": 384023,
+					"line": 12474,
+					"baseline_start": 380980,
+					"baseline_end": 381494
+				},
+				{
+					"start": 384156,
+					"end": 384821,
+					"line": 12492,
+					"baseline_start": 381627,
+					"baseline_end": 382292
+				},
+				{
+					"start": 384824,
+					"end": 385639,
+					"line": 12515,
+					"baseline_start": 382295,
+					"baseline_end": 383110
+				},
+				{
+					"start": 385642,
+					"end": 386191,
+					"line": 12534,
+					"baseline_start": 383113,
+					"baseline_end": 383662
+				},
+				{
+					"start": 386194,
+					"end": 386477,
+					"line": 12549,
+					"baseline_start": 383665,
+					"baseline_end": 383948
+				},
+				{
+					"start": 386533,
+					"end": 389157,
+					"line": 12559,
+					"baseline_start": 384004,
+					"baseline_end": 386628
+				},
+				{
+					"start": 389160,
+					"end": 391014,
+					"line": 12640,
+					"baseline_start": 386631,
+					"baseline_end": 388485
+				},
+				{
+					"start": 401432,
+					"end": 404408,
+					"line": 13046,
+					"baseline_start": 398903,
+					"baseline_end": 401879
+				},
+				{
+					"start": 404410,
+					"end": 405816,
+					"line": 13163,
+					"baseline_start": 401881,
+					"baseline_end": 403287
+				},
+				{
+					"start": 405818,
+					"end": 407966,
+					"line": 13225,
+					"baseline_start": 403289,
+					"baseline_end": 405437
+				},
+				{
+					"start": 408818,
+					"end": 409967,
+					"line": 13327,
+					"baseline_start": 406289,
+					"baseline_end": 407438
+				},
+				{
+					"start": 409970,
+					"end": 411414,
+					"line": 13358,
+					"baseline_start": 407441,
+					"baseline_end": 408885
+				},
+				{
+					"start": 411417,
+					"end": 412164,
+					"line": 13407,
+					"baseline_start": 408888,
+					"baseline_end": 409635
+				},
+				{
+					"start": 412167,
+					"end": 414146,
+					"line": 13440,
+					"baseline_start": 409638,
+					"baseline_end": 411617
+				},
+				{
+					"start": 414242,
+					"end": 415641,
+					"line": 13506,
+					"baseline_start": 411713,
+					"baseline_end": 413112
+				},
+				{
+					"start": 415644,
+					"end": 417662,
+					"line": 13554,
+					"baseline_start": 413115,
+					"baseline_end": 415133
+				},
+				{
+					"start": 417665,
+					"end": 419484,
+					"line": 13623,
+					"baseline_start": 415136,
+					"baseline_end": 416955
+				},
+				{
+					"start": 419487,
+					"end": 421259,
+					"line": 13689,
+					"baseline_start": 416958,
+					"baseline_end": 418730
+				},
+				{
+					"start": 421262,
+					"end": 422839,
+					"line": 13751,
+					"baseline_start": 418733,
+					"baseline_end": 420310
+				},
+				{
+					"start": 422842,
+					"end": 423987,
+					"line": 13803,
+					"baseline_start": 420313,
+					"baseline_end": 421458
+				},
+				{
+					"start": 423990,
+					"end": 425763,
+					"line": 13845,
+					"baseline_start": 421461,
+					"baseline_end": 423234
+				},
+				{
+					"start": 425766,
+					"end": 427068,
+					"line": 13904,
+					"baseline_start": 423237,
+					"baseline_end": 424539
+				},
+				{
+					"start": 428498,
+					"end": 429454,
+					"line": 14005,
+					"baseline_start": 425969,
+					"baseline_end": 426925
+				},
+				{
+					"start": 429457,
+					"end": 430877,
+					"line": 14039,
+					"baseline_start": 426928,
+					"baseline_end": 428348
+				},
+				{
+					"start": 430880,
+					"end": 432308,
+					"line": 14084,
+					"baseline_start": 428351,
+					"baseline_end": 429779
+				},
+				{
+					"start": 432311,
+					"end": 433636,
+					"line": 14127,
+					"baseline_start": 429782,
+					"baseline_end": 431107
+				},
+				{
+					"start": 433639,
+					"end": 434510,
+					"line": 14169,
+					"baseline_start": 431110,
+					"baseline_end": 431981
+				},
+				{
+					"start": 434513,
+					"end": 435777,
+					"line": 14195,
+					"baseline_start": 431984,
+					"baseline_end": 433248
+				},
+				{
+					"start": 435780,
+					"end": 436463,
+					"line": 14238,
+					"baseline_start": 433251,
+					"baseline_end": 433934
+				},
+				{
+					"start": 436466,
+					"end": 436822,
+					"line": 14259,
+					"baseline_start": 433937,
+					"baseline_end": 434293
+				},
+				{
+					"start": 437408,
+					"end": 437681,
+					"line": 14310,
+					"baseline_start": 434879,
+					"baseline_end": 435152
+				},
+				{
+					"start": 437684,
+					"end": 438694,
+					"line": 14321,
+					"baseline_start": 435155,
+					"baseline_end": 436165
+				},
+				{
+					"start": 438697,
+					"end": 439238,
+					"line": 14367,
+					"baseline_start": 436168,
+					"baseline_end": 436709
+				},
+				{
+					"start": 439241,
+					"end": 440398,
+					"line": 14382,
+					"baseline_start": 436712,
+					"baseline_end": 437869
+				},
+				{
+					"start": 440401,
+					"end": 441023,
+					"line": 14430,
+					"baseline_start": 437872,
+					"baseline_end": 438494
+				},
+				{
+					"start": 441026,
+					"end": 441637,
+					"line": 14446,
+					"baseline_start": 438497,
+					"baseline_end": 439108
+				},
+				{
+					"start": 441640,
+					"end": 443178,
+					"line": 14466,
+					"baseline_start": 439111,
+					"baseline_end": 440649
+				},
+				{
+					"start": 443181,
+					"end": 444661,
+					"line": 14518,
+					"baseline_start": 440652,
+					"baseline_end": 442132
+				},
+				{
+					"start": 444664,
+					"end": 445345,
+					"line": 14581,
+					"baseline_start": 442135,
+					"baseline_end": 442816
+				},
+				{
+					"start": 445348,
+					"end": 445792,
+					"line": 14610,
+					"baseline_start": 442819,
+					"baseline_end": 443263
+				},
+				{
+					"start": 445795,
+					"end": 446926,
+					"line": 14627,
+					"baseline_start": 443266,
+					"baseline_end": 444397
+				},
+				{
+					"start": 446929,
+					"end": 447493,
+					"line": 14657,
+					"baseline_start": 444400,
+					"baseline_end": 444964
+				},
+				{
+					"start": 447496,
+					"end": 448579,
+					"line": 14681,
+					"baseline_start": 444967,
+					"baseline_end": 446050
+				},
+				{
+					"start": 448582,
+					"end": 449726,
+					"line": 14715,
+					"baseline_start": 446053,
+					"baseline_end": 447197
+				},
+				{
+					"start": 449729,
+					"end": 451014,
+					"line": 14752,
+					"baseline_start": 447200,
+					"baseline_end": 448485
+				},
+				{
+					"start": 451017,
+					"end": 451529,
+					"line": 14793,
+					"baseline_start": 448488,
+					"baseline_end": 449000
+				},
+				{
+					"start": 451532,
+					"end": 453093,
+					"line": 14814,
+					"baseline_start": 449003,
+					"baseline_end": 450564
+				},
+				{
+					"start": 454846,
+					"end": 456017,
+					"line": 14913,
+					"baseline_start": 452317,
+					"baseline_end": 453488
+				},
+				{
+					"start": 458594,
+					"end": 459317,
+					"line": 15052,
+					"baseline_start": 456065,
+					"baseline_end": 456788
+				},
+				{
+					"start": 459320,
+					"end": 460388,
+					"line": 15073,
+					"baseline_start": 456791,
+					"baseline_end": 457859
+				},
+				{
+					"start": 460391,
+					"end": 460954,
+					"line": 15114,
+					"baseline_start": 457862,
+					"baseline_end": 458425
+				},
+				{
+					"start": 460957,
+					"end": 461460,
+					"line": 15134,
+					"baseline_start": 458428,
+					"baseline_end": 458931
+				},
+				{
+					"start": 461463,
+					"end": 462461,
+					"line": 15149,
+					"baseline_start": 458934,
+					"baseline_end": 459932
+				},
+				{
+					"start": 462464,
+					"end": 463193,
+					"line": 15175,
+					"baseline_start": 459935,
+					"baseline_end": 460664
+				},
+				{
+					"start": 463196,
+					"end": 464923,
+					"line": 15197,
+					"baseline_start": 460667,
+					"baseline_end": 462394
+				},
+				{
+					"start": 464926,
+					"end": 465712,
+					"line": 15243,
+					"baseline_start": 462397,
+					"baseline_end": 463183
+				},
+				{
+					"start": 465715,
+					"end": 466502,
+					"line": 15268,
+					"baseline_start": 463186,
+					"baseline_end": 463973
+				},
+				{
+					"start": 466505,
+					"end": 467138,
+					"line": 15292,
+					"baseline_start": 463976,
+					"baseline_end": 464609
+				},
+				{
+					"start": 467141,
+					"end": 469428,
+					"line": 15315,
+					"baseline_start": 464612,
+					"baseline_end": 466899
+				},
+				{
+					"start": 496513,
+					"end": 497045,
+					"line": 16430,
+					"baseline_start": 493984,
+					"baseline_end": 494516
+				},
+				{
+					"start": 497048,
+					"end": 497840,
+					"line": 16443,
+					"baseline_start": 494519,
+					"baseline_end": 495311
+				},
+				{
+					"start": 497843,
+					"end": 498842,
+					"line": 16469,
+					"baseline_start": 495314,
+					"baseline_end": 496313
+				},
+				{
+					"start": 498845,
+					"end": 499552,
+					"line": 16498,
+					"baseline_start": 496316,
+					"baseline_end": 497023
+				},
+				{
+					"start": 499555,
+					"end": 500365,
+					"line": 16517,
+					"baseline_start": 497026,
+					"baseline_end": 497836
+				},
+				{
+					"start": 500368,
+					"end": 501740,
+					"line": 16547,
+					"baseline_start": 497839,
+					"baseline_end": 499211
+				},
+				{
+					"start": 501743,
+					"end": 502645,
+					"line": 16585,
+					"baseline_start": 499214,
+					"baseline_end": 500116
+				},
+				{
+					"start": 502648,
+					"end": 503951,
+					"line": 16613,
+					"baseline_start": 500119,
+					"baseline_end": 501422
+				},
+				{
+					"start": 507572,
+					"end": 508774,
+					"line": 16784,
+					"baseline_start": 505043,
+					"baseline_end": 506245
+				},
+				{
+					"start": 508777,
+					"end": 509432,
+					"line": 16825,
+					"baseline_start": 506248,
+					"baseline_end": 506903
+				},
+				{
+					"start": 509435,
+					"end": 510113,
+					"line": 16848,
+					"baseline_start": 506906,
+					"baseline_end": 507584
+				},
+				{
+					"start": 510116,
+					"end": 511155,
+					"line": 16865,
+					"baseline_start": 507587,
+					"baseline_end": 508626
+				},
+				{
+					"start": 511158,
+					"end": 513427,
+					"line": 16900,
+					"baseline_start": 508629,
+					"baseline_end": 510898
+				},
+				{
+					"start": 515829,
+					"end": 517477,
+					"line": 17066,
+					"baseline_start": 513300,
+					"baseline_end": 514948
+				},
+				{
+					"start": 517480,
+					"end": 519261,
+					"line": 17120,
+					"baseline_start": 514951,
+					"baseline_end": 516732
+				},
+				{
+					"start": 519264,
+					"end": 519505,
+					"line": 17181,
+					"baseline_start": 516735,
+					"baseline_end": 516976
+				},
+				{
+					"start": 522992,
+					"end": 524378,
+					"line": 17304,
+					"baseline_start": 520463,
+					"baseline_end": 521849
+				},
+				{
+					"start": 524381,
+					"end": 524925,
+					"line": 17345,
+					"baseline_start": 521852,
+					"baseline_end": 522396
+				},
+				{
+					"start": 524928,
+					"end": 525829,
+					"line": 17360,
+					"baseline_start": 522399,
+					"baseline_end": 523300
+				},
+				{
+					"start": 526854,
+					"end": 527657,
+					"line": 17418,
+					"baseline_start": 524325,
+					"baseline_end": 525128
+				},
+				{
+					"start": 527660,
+					"end": 528902,
+					"line": 17440,
+					"baseline_start": 525131,
+					"baseline_end": 526373
+				},
+				{
+					"start": 528905,
+					"end": 529951,
+					"line": 17475,
+					"baseline_start": 526376,
+					"baseline_end": 527422
+				},
+				{
+					"start": 530023,
+					"end": 531196,
+					"line": 17512,
+					"baseline_start": 527494,
+					"baseline_end": 528667
+				},
+				{
+					"start": 531199,
+					"end": 532271,
+					"line": 17549,
+					"baseline_start": 528670,
+					"baseline_end": 529742
+				},
+				{
+					"start": 532274,
+					"end": 533484,
+					"line": 17584,
+					"baseline_start": 529745,
+					"baseline_end": 530955
+				},
+				{
+					"start": 534766,
+					"end": 535507,
+					"line": 17666,
+					"baseline_start": 532237,
+					"baseline_end": 532978
+				},
+				{
+					"start": 535510,
+					"end": 536636,
+					"line": 17690,
+					"baseline_start": 532981,
+					"baseline_end": 534107
+				}
+			],
+			"helpers": [
+				{
+					"start": 64666,
+					"end": 64890,
+					"line": 2014
+				},
+				{
+					"start": 69595,
+					"end": 70066,
+					"line": 2140
+				},
+				{
+					"start": 70068,
+					"end": 70344,
+					"line": 2159
+				},
+				{
+					"start": 88091,
+					"end": 88344,
+					"line": 2715
+				},
+				{
+					"start": 88346,
+					"end": 88473,
+					"line": 2725
+				},
+				{
+					"start": 88475,
+					"end": 89332,
+					"line": 2729
+				},
+				{
+					"start": 89456,
+					"end": 90139,
+					"line": 2761
+				},
+				{
+					"start": 148102,
+					"end": 148156,
+					"line": 4791
+				},
+				{
+					"start": 148158,
+					"end": 148382,
+					"line": 4792
+				},
+				{
+					"start": 148384,
+					"end": 148467,
+					"line": 4800
+				},
+				{
+					"start": 148470,
+					"end": 148620,
+					"line": 4803
+				},
+				{
+					"start": 200480,
+					"end": 200521,
+					"line": 6548
+				},
+				{
+					"start": 237485,
+					"end": 238583,
+					"line": 7831
+				},
+				{
+					"start": 239701,
+					"end": 240741,
+					"line": 7890
+				},
+				{
+					"start": 255313,
+					"end": 255459,
+					"line": 8338
+				},
+				{
+					"start": 267185,
+					"end": 267244,
+					"line": 8707
+				},
+				{
+					"start": 267248,
+					"end": 267713,
+					"line": 8709
+				},
+				{
+					"start": 267717,
+					"end": 268862,
+					"line": 8730
+				},
+				{
+					"start": 268866,
+					"end": 268926,
+					"line": 8768
+				},
+				{
+					"start": 300124,
+					"end": 300491,
+					"line": 9806
+				},
+				{
+					"start": 369644,
+					"end": 369800,
+					"line": 12070
+				},
+				{
+					"start": 369803,
+					"end": 370005,
+					"line": 12074
+				},
+				{
+					"start": 370084,
+					"end": 370374,
+					"line": 12081
+				},
+				{
+					"start": 370377,
+					"end": 370670,
+					"line": 12089
+				},
+				{
+					"start": 400950,
+					"end": 401430,
+					"line": 13031
+				},
+				{
+					"start": 408026,
+					"end": 408067,
+					"line": 13300
+				},
+				{
+					"start": 408159,
+					"end": 408277,
+					"line": 13302
+				},
+				{
+					"start": 408279,
+					"end": 408309,
+					"line": 13305
+				},
+				{
+					"start": 408311,
+					"end": 408369,
+					"line": 13306
+				},
+				{
+					"start": 408371,
+					"end": 408428,
+					"line": 13309
+				},
+				{
+					"start": 408430,
+					"end": 408815,
+					"line": 13312
+				},
+				{
+					"start": 414198,
+					"end": 414239,
+					"line": 13504
+				},
+				{
+					"start": 427376,
+					"end": 427417,
+					"line": 13960
+				},
+				{
+					"start": 427501,
+					"end": 427612,
+					"line": 13962
+				},
+				{
+					"start": 427614,
+					"end": 427654,
+					"line": 13965
+				},
+				{
+					"start": 427656,
+					"end": 427711,
+					"line": 13966
+				},
+				{
+					"start": 427714,
+					"end": 428495,
+					"line": 13970
+				},
+				{
+					"start": 436871,
+					"end": 437080,
+					"line": 14283
+				},
+				{
+					"start": 437083,
+					"end": 437405,
+					"line": 14293
+				},
+				{
+					"start": 7230,
+					"end": 7285,
+					"line": 239
+				},
+				{
+					"start": 7286,
+					"end": 7339,
+					"line": 240
+				},
+				{
+					"start": 7340,
+					"end": 7429,
+					"line": 241
+				},
+				{
+					"start": 7430,
+					"end": 7693,
+					"line": 245
+				},
+				{
+					"start": 7715,
+					"end": 7821,
+					"line": 254
+				},
+				{
+					"start": 7823,
+					"end": 8059,
+					"line": 258
+				},
+				{
+					"start": 8061,
+					"end": 8227,
+					"line": 265
+				},
+				{
+					"start": 8229,
+					"end": 8393,
+					"line": 274
+				},
+				{
+					"start": 8395,
+					"end": 8611,
+					"line": 282
+				},
+				{
+					"start": 8613,
+					"end": 8873,
+					"line": 295
+				},
+				{
+					"start": 8875,
+					"end": 9794,
+					"line": 308
+				},
+				{
+					"start": 9872,
+					"end": 10180,
+					"line": 338
+				},
+				{
+					"start": 10243,
+					"end": 10395,
+					"line": 351
+				},
+				{
+					"start": 10768,
+					"end": 10962,
+					"line": 376
+				},
+				{
+					"start": 11683,
+					"end": 14027,
+					"line": 412
+				},
+				{
+					"start": 14028,
+					"end": 14071,
+					"line": 514
+				},
+				{
+					"start": 14072,
+					"end": 16031,
+					"line": 515
+				},
+				{
+					"start": 16113,
+					"end": 16272,
+					"line": 574
+				},
+				{
+					"start": 16356,
+					"end": 16557,
+					"line": 579
+				},
+				{
+					"start": 16661,
+					"end": 22275,
+					"line": 590
+				},
+				{
+					"start": 22277,
+					"end": 22501,
+					"line": 775
+				},
+				{
+					"start": 22583,
+					"end": 23298,
+					"line": 784
+				},
+				{
+					"start": 23300,
+					"end": 23612,
+					"line": 828
+				},
+				{
+					"start": 315949,
+					"end": 316246,
+					"line": 10368
+				},
+				{
+					"start": 316248,
+					"end": 316312,
+					"line": 10380
+				},
+				{
+					"start": 384029,
+					"end": 384107,
+					"line": 12489
+				},
+				{
+					"start": 495232,
+					"end": 495355,
+					"line": 16393
+				},
+				{
+					"start": 495356,
+					"end": 495512,
+					"line": 16395
+				},
+				{
+					"start": 495593,
+					"end": 495907,
+					"line": 16399
+				},
+				{
+					"start": 495909,
+					"end": 496450,
+					"line": 16410
+				},
+				{
+					"start": 505964,
+					"end": 506015,
+					"line": 16729
+				},
+				{
+					"start": 506084,
+					"end": 506517,
+					"line": 16732
+				},
+				{
+					"start": 506519,
+					"end": 506715,
+					"line": 16745
+				},
+				{
+					"start": 507216,
+					"end": 507509,
+					"line": 16767
+				},
+				{
+					"start": 526091,
+					"end": 526380,
+					"line": 17393
+				},
+				{
+					"start": 526382,
+					"end": 526567,
+					"line": 17403
+				}
+			],
+			"archive": "provenance/upstream/test/test.ts",
+			"blob": "8c9e33d1f2a4ceee3eaaed30d5d6b6665979aade",
+			"retained": [
+				{
+					"line": 902,
+					"reason": "Counts ctx.ui.setWidget calls made by the terminal widget controller; terminal widget rendering (widgets.ts, pi-tui) stays upstream; asserts rendered widget output or setWidget calls. Factory-side evidence: supplemental pi-factory test."
+				},
+				{
+					"line": 2902,
+					"reason": "Renders __test__.renderSubagentWidgetLines; terminal widget rendering (widgets.ts, pi-tui) stays upstream; asserts rendered widget output or setWidget calls."
+				},
+				{
+					"line": 3108,
+					"reason": "Renders __test__.renderSubagentWidgetLines; terminal widget rendering (widgets.ts, pi-tui) stays upstream; asserts rendered widget output or setWidget calls."
+				},
+				{
+					"line": 7974,
+					"reason": "Asserts the terminal child tools widget; child-widget.ts stays upstream with the pi-tui hook."
+				},
+				{
+					"line": 12451,
+					"reason": "Calls the injected subagent renderCall; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+				},
+				{
+					"line": 15397,
+					"reason": "Suite 'subagent status renderer'; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+				},
+				{
+					"line": 15636,
+					"reason": "Suite 'subagents widget rendering'; terminal widget rendering (widgets.ts, pi-tui) stays upstream; asserts rendered widget output or setWidget calls."
+				},
+				{
+					"line": 15928,
+					"reason": "Herdr CLI transport case (herdr.ts suite); concrete provider stays upstream."
+				},
+				{
+					"line": 16661,
+					"reason": "Renders a parent message through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+				},
+				{
+					"line": 17187,
+					"reason": "Renders subagent_ping through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+				},
+				{
+					"line": 17208,
+					"reason": "Renders a persistent help request through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+				},
+				{
+					"line": 17242,
+					"reason": "Renders host lines through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+				},
+				{
+					"line": 17623,
+					"reason": "Renders the expanded Resume line through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+				}
+			],
+			"baseline_archive": "provenance/baseline/upstream/test/test.ts",
+			"baseline_blob": "74c72b170285ca317aa81c39529285d06297fdd7"
+		},
+		{
+			"source": "test/maestro/accept-check.test.ts",
+			"destination": "test/maestro/accept-check-tools.test.ts",
+			"selections": [
+				{
+					"start": 3034,
+					"end": 3552,
+					"line": 93
+				},
+				{
+					"start": 4607,
+					"end": 5283,
+					"line": 146
+				},
+				{
+					"start": 17738,
+					"end": 17949,
+					"line": 600
+				},
+				{
+					"start": 17952,
+					"end": 19131,
+					"line": 608
+				},
+				{
+					"start": 19134,
+					"end": 19696,
+					"line": 642
+				},
+				{
+					"start": 19699,
+					"end": 20752,
+					"line": 658
+				}
+			],
+			"helpers": [
+				{
+					"start": 3924,
+					"end": 4604,
+					"line": 125
+				},
+				{
+					"start": 17445,
+					"end": 17598,
+					"line": 588
+				},
+				{
+					"start": 17600,
+					"end": 17735,
+					"line": 595
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/accept-check.test.ts",
+			"blob": "be405664c59b4724e89a3105deb29f5498929e61"
+		},
+		{
+			"source": "test/maestro/audit-discovery.test.ts",
+			"destination": "test/maestro/audit-discovery-tools.test.ts",
+			"selections": [
+				{
+					"start": 3227,
+					"end": 3924,
+					"line": 106
+				}
+			],
+			"helpers": [],
+			"archive": "provenance/upstream/test/maestro/audit-discovery.test.ts",
+			"blob": "efa9182c01446d32c91d788699c97e8f9d5498c4"
+		},
+		{
+			"source": "test/maestro/audit-git-environment.test.ts",
+			"destination": "test/maestro/audit-git-environment-tools.test.ts",
+			"selections": [
+				{
+					"start": 1857,
+					"end": 5339,
+					"line": 71
+				}
+			],
+			"helpers": [],
+			"archive": "provenance/upstream/test/maestro/audit-git-environment.test.ts",
+			"blob": "591c39c188789f4fd388e7a985657a568430369a"
+		},
+		{
+			"source": "test/maestro/audit-persistent.test.ts",
+			"destination": "test/maestro/audit-persistent.test.ts",
+			"whole": true,
+			"selections": [
+				{
+					"start": 1580,
+					"end": 3168,
+					"line": 42
+				},
+				{
+					"start": 3170,
+					"end": 4262,
+					"line": 104
+				},
+				{
+					"start": 4264,
+					"end": 5068,
+					"line": 146
+				},
+				{
+					"start": 5070,
+					"end": 6037,
+					"line": 172
+				},
+				{
+					"start": 6039,
+					"end": 6991,
+					"line": 205
+				},
+				{
+					"start": 6993,
+					"end": 8510,
+					"line": 229
+				},
+				{
+					"start": 8512,
+					"end": 9162,
+					"line": 269
+				},
+				{
+					"start": 9164,
+					"end": 10865,
+					"line": 286
+				},
+				{
+					"start": 10867,
+					"end": 12885,
+					"line": 333
+				},
+				{
+					"start": 12887,
+					"end": 13649,
+					"line": 391
+				},
+				{
+					"start": 13651,
+					"end": 13864,
+					"line": 424
+				},
+				{
+					"start": 13866,
+					"end": 13983,
+					"line": 434
+				},
+				{
+					"start": 13985,
+					"end": 14371,
+					"line": 441
+				},
+				{
+					"start": 14373,
+					"end": 17424,
+					"line": 455
+				},
+				{
+					"start": 17426,
+					"end": 18583,
+					"line": 579
+				},
+				{
+					"start": 18585,
+					"end": 19112,
+					"line": 609
+				}
+			],
+			"helpers": [],
+			"archive": "provenance/upstream/test/maestro/audit-persistent.test.ts",
+			"blob": "728d2b6b94b459b6a3696decda02f7f6a73b9861"
+		},
+		{
+			"source": "test/maestro/audit-stop-notices.test.ts",
+			"destination": "test/maestro/audit-stop-notices.test.ts",
+			"whole": true,
+			"selections": [
+				{
+					"start": 807,
+					"end": 828,
+					"line": 27
+				},
+				{
+					"start": 829,
+					"end": 856,
+					"line": 28
+				},
+				{
+					"start": 858,
+					"end": 4042,
+					"line": 30
+				},
+				{
+					"start": 4044,
+					"end": 4127,
+					"line": 150
+				},
+				{
+					"start": 4129,
+					"end": 5034,
+					"line": 153
+				},
+				{
+					"start": 5036,
+					"end": 8480,
+					"line": 188
+				},
+				{
+					"start": 8482,
+					"end": 9302,
+					"line": 281
+				},
+				{
+					"start": 9304,
+					"end": 10205,
+					"line": 308
+				},
+				{
+					"start": 10207,
+					"end": 12274,
+					"line": 335
+				},
+				{
+					"start": 12276,
+					"end": 13436,
+					"line": 402
+				}
+			],
+			"helpers": [],
+			"archive": "provenance/upstream/test/maestro/audit-stop-notices.test.ts",
+			"blob": "68464261d662d65b6841a59537055fdb79f79898"
+		},
+		{
+			"source": "test/maestro/deferred-tools.test.ts",
+			"destination": "test/maestro/deferred-tools.test.ts",
+			"selections": [
+				{
+					"start": 8423,
+					"end": 10314,
+					"line": 264
+				},
+				{
+					"start": 10317,
+					"end": 11231,
+					"line": 317
+				},
+				{
+					"start": 11234,
+					"end": 11631,
+					"line": 345
+				},
+				{
+					"start": 11634,
+					"end": 13489,
+					"line": 357
+				},
+				{
+					"start": 13562,
+					"end": 13919,
+					"line": 412
+				},
+				{
+					"start": 13922,
+					"end": 14545,
+					"line": 423
+				},
+				{
+					"start": 14548,
+					"end": 15063,
+					"line": 446
+				},
+				{
+					"start": 15066,
+					"end": 15715,
+					"line": 462
+				},
+				{
+					"start": 15810,
+					"end": 16579,
+					"line": 486
+				},
+				{
+					"start": 16582,
+					"end": 17030,
+					"line": 511
+				},
+				{
+					"start": 17033,
+					"end": 17619,
+					"line": 528
+				},
+				{
+					"start": 17622,
+					"end": 18009,
+					"line": 552
+				},
+				{
+					"start": 18629,
+					"end": 19309,
+					"line": 594
+				},
+				{
+					"start": 19312,
+					"end": 20625,
+					"line": 613
+				},
+				{
+					"start": 20628,
+					"end": 21209,
+					"line": 647
+				}
+			],
+			"helpers": [
+				{
+					"start": 18074,
+					"end": 18300,
+					"line": 568
+				},
+				{
+					"start": 18302,
+					"end": 18626,
+					"line": 578
+				},
+				{
+					"start": 1099,
+					"end": 1159,
+					"line": 39
+				},
+				{
+					"start": 1160,
+					"end": 1217,
+					"line": 40
+				},
+				{
+					"start": 1218,
+					"end": 1277,
+					"line": 41
+				},
+				{
+					"start": 1278,
+					"end": 1375,
+					"line": 42
+				},
+				{
+					"start": 1376,
+					"end": 1577,
+					"line": 45
+				},
+				{
+					"start": 1579,
+					"end": 1673,
+					"line": 51
+				},
+				{
+					"start": 1675,
+					"end": 1883,
+					"line": 56
+				},
+				{
+					"start": 1884,
+					"end": 1929,
+					"line": 67
+				},
+				{
+					"start": 1930,
+					"end": 1981,
+					"line": 68
+				},
+				{
+					"start": 1982,
+					"end": 2029,
+					"line": 69
+				},
+				{
+					"start": 2030,
+					"end": 2085,
+					"line": 70
+				},
+				{
+					"start": 2087,
+					"end": 2147,
+					"line": 72
+				},
+				{
+					"start": 2149,
+					"end": 2387,
+					"line": 74
+				},
+				{
+					"start": 2389,
+					"end": 2440,
+					"line": 83
+				},
+				{
+					"start": 2442,
+					"end": 2604,
+					"line": 85
+				},
+				{
+					"start": 2605,
+					"end": 2658,
+					"line": 91
+				},
+				{
+					"start": 2660,
+					"end": 3028,
+					"line": 93
+				},
+				{
+					"start": 3030,
+					"end": 3561,
+					"line": 106
+				},
+				{
+					"start": 3563,
+					"end": 4097,
+					"line": 121
+				},
+				{
+					"start": 4099,
+					"end": 4120,
+					"line": 140
+				},
+				{
+					"start": 4251,
+					"end": 8224,
+					"line": 146
+				},
+				{
+					"start": 8226,
+					"end": 8341,
+					"line": 260
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/deferred-tools.test.ts",
+			"blob": "a623d7a95ac50dbdbfcc61d31de90c23e82f26af"
+		},
+		{
+			"source": "test/maestro/pr110-persistent-regressions.test.ts",
+			"destination": "test/maestro/pr110-persistent-regressions.test.ts",
+			"whole": true,
+			"selections": [
+				{
+					"start": 1793,
+					"end": 1814,
+					"line": 46
+				},
+				{
+					"start": 1815,
+					"end": 1888,
+					"line": 47
+				},
+				{
+					"start": 1890,
+					"end": 2038,
+					"line": 49
+				},
+				{
+					"start": 2040,
+					"end": 2169,
+					"line": 57
+				},
+				{
+					"start": 2171,
+					"end": 7661,
+					"line": 62
+				},
+				{
+					"start": 7663,
+					"end": 9354,
+					"line": 269
+				},
+				{
+					"start": 9356,
+					"end": 11490,
+					"line": 307
+				},
+				{
+					"start": 11492,
+					"end": 11561,
+					"line": 391
+				},
+				{
+					"start": 11562,
+					"end": 11827,
+					"line": 392
+				},
+				{
+					"start": 11828,
+					"end": 12227,
+					"line": 398
+				},
+				{
+					"start": 12229,
+					"end": 13146,
+					"line": 410
+				},
+				{
+					"start": 13148,
+					"end": 13736,
+					"line": 430
+				},
+				{
+					"start": 13738,
+					"end": 15242,
+					"line": 446
+				},
+				{
+					"start": 15244,
+					"end": 15939,
+					"line": 486
+				},
+				{
+					"start": 15941,
+					"end": 16799,
+					"line": 509
+				}
+			],
+			"helpers": [],
+			"archive": "provenance/upstream/test/maestro/pr110-persistent-regressions.test.ts",
+			"blob": "d175a49d71f247c2ac1b6a25c571e6ee078df1a2"
+		},
+		{
+			"source": "test/maestro/script-launch.test.ts",
+			"destination": "test/maestro/script-launch-tools.test.ts",
+			"selections": [
+				{
+					"start": 23686,
+					"end": 24862,
+					"line": 805,
+					"baseline_start": 23565,
+					"baseline_end": 24741
+				}
+			],
+			"helpers": [
+				{
+					"start": 18826,
+					"end": 18915,
+					"line": 644
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/script-launch.test.ts",
+			"blob": "723126df6b7886132cf279077b0c3db5d33c1417",
+			"baseline_archive": "provenance/baseline/upstream/test/maestro/script-launch.test.ts",
+			"baseline_blob": "d363607cdbd5bb4a7965031889808da7e00a0191"
+		},
+		{
+			"source": "test/maestro/socket-path.test.ts",
+			"destination": "test/maestro/socket-path.test.ts",
+			"whole": true,
+			"selections": [
+				{
+					"start": 356,
+					"end": 624,
+					"line": 11
+				},
+				{
+					"start": 626,
+					"end": 1135,
+					"line": 19
+				},
+				{
+					"start": 1137,
+					"end": 1797,
+					"line": 32
+				}
+			],
+			"helpers": [],
+			"archive": "provenance/upstream/test/maestro/socket-path.test.ts",
+			"blob": "2255a353397bd67d1afd8e5a6c4d15b0b913f49c"
+		},
+		{
+			"source": "test/maestro/specialist-notice.test.ts",
+			"destination": "test/maestro/specialist-notice-tools.test.ts",
+			"selections": [
+				{
+					"start": 3790,
+					"end": 5100,
+					"line": 117
+				},
+				{
+					"start": 5103,
+					"end": 5381,
+					"line": 149
+				},
+				{
+					"start": 5384,
+					"end": 5873,
+					"line": 158
+				},
+				{
+					"start": 5876,
+					"end": 6131,
+					"line": 175
+				},
+				{
+					"start": 6134,
+					"end": 6823,
+					"line": 186
+				},
+				{
+					"start": 6826,
+					"end": 7379,
+					"line": 208
+				},
+				{
+					"start": 9319,
+					"end": 9979,
+					"line": 280
+				},
+				{
+					"start": 14784,
+					"end": 15081,
+					"line": 467
+				},
+				{
+					"start": 15084,
+					"end": 16147,
+					"line": 483
+				}
+			],
+			"helpers": [
+				{
+					"start": 1642,
+					"end": 1702,
+					"line": 35
+				},
+				{
+					"start": 1704,
+					"end": 1933,
+					"line": 37
+				},
+				{
+					"start": 2018,
+					"end": 2640,
+					"line": 45
+				},
+				{
+					"start": 2642,
+					"end": 3729,
+					"line": 70
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/specialist-notice.test.ts",
+			"blob": "d23acf995c32158ecd1bbb26c46fa04444a962ea",
+			"retained": [
+				{
+					"line": 224,
+					"reason": "Renders subagent_notice through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+				},
+				{
+					"line": 256,
+					"reason": "Renders subagent_notice expanded through the registered renderer; terminal message/tool rendering (renderers.ts / tool-renderers.ts, pi-tui) stays upstream; asserts rendered component output."
+				}
+			]
+		},
+		{
+			"source": "test/maestro/task-model-approval.test.ts",
+			"destination": "test/maestro/task-model-approval.test.ts",
+			"selections": [
+				{
+					"start": 4162,
+					"end": 4894,
+					"line": 136
+				},
+				{
+					"start": 4897,
+					"end": 7075,
+					"line": 158
+				},
+				{
+					"start": 7078,
+					"end": 7427,
+					"line": 228
+				},
+				{
+					"start": 7430,
+					"end": 8605,
+					"line": 237
+				},
+				{
+					"start": 8608,
+					"end": 8971,
+					"line": 274
+				},
+				{
+					"start": 8974,
+					"end": 9692,
+					"line": 286
+				},
+				{
+					"start": 9695,
+					"end": 10369,
+					"line": 308
+				},
+				{
+					"start": 10372,
+					"end": 10623,
+					"line": 330
+				},
+				{
+					"start": 10626,
+					"end": 11208,
+					"line": 339
+				},
+				{
+					"start": 11211,
+					"end": 12006,
+					"line": 357
+				},
+				{
+					"start": 12009,
+					"end": 13840,
+					"line": 382
+				},
+				{
+					"start": 13843,
+					"end": 14664,
+					"line": 435
+				},
+				{
+					"start": 14667,
+					"end": 15386,
+					"line": 460
+				},
+				{
+					"start": 15389,
+					"end": 16590,
+					"line": 481
+				},
+				{
+					"start": 16593,
+					"end": 17601,
+					"line": 530
+				},
+				{
+					"start": 17604,
+					"end": 18735,
+					"line": 560
+				},
+				{
+					"start": 18738,
+					"end": 19400,
+					"line": 603
+				},
+				{
+					"start": 19403,
+					"end": 20017,
+					"line": 622
+				},
+				{
+					"start": 20020,
+					"end": 21373,
+					"line": 642
+				},
+				{
+					"start": 21376,
+					"end": 21988,
+					"line": 693
+				},
+				{
+					"start": 21991,
+					"end": 22920,
+					"line": 714
+				},
+				{
+					"start": 22923,
+					"end": 24918,
+					"line": 743
+				},
+				{
+					"start": 24921,
+					"end": 26246,
+					"line": 814
+				},
+				{
+					"start": 26249,
+					"end": 27467,
+					"line": 859
+				},
+				{
+					"start": 27470,
+					"end": 27984,
+					"line": 897
+				},
+				{
+					"start": 27987,
+					"end": 29314,
+					"line": 914
+				},
+				{
+					"start": 29317,
+					"end": 31223,
+					"line": 965
+				}
+			],
+			"helpers": [
+				{
+					"start": 957,
+					"end": 981,
+					"line": 35
+				},
+				{
+					"start": 982,
+					"end": 1012,
+					"line": 36
+				},
+				{
+					"start": 1013,
+					"end": 1108,
+					"line": 37
+				},
+				{
+					"start": 1109,
+					"end": 1363,
+					"line": 41
+				},
+				{
+					"start": 1364,
+					"end": 1465,
+					"line": 50
+				},
+				{
+					"start": 1466,
+					"end": 1668,
+					"line": 55
+				},
+				{
+					"start": 1669,
+					"end": 1821,
+					"line": 61
+				},
+				{
+					"start": 1822,
+					"end": 2781,
+					"line": 68
+				},
+				{
+					"start": 2782,
+					"end": 2842,
+					"line": 101
+				},
+				{
+					"start": 2843,
+					"end": 3511,
+					"line": 102
+				},
+				{
+					"start": 3512,
+					"end": 3662,
+					"line": 118
+				},
+				{
+					"start": 3663,
+					"end": 3916,
+					"line": 121
+				},
+				{
+					"start": 3917,
+					"end": 4112,
+					"line": 126
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/task-model-approval.test.ts",
+			"blob": "76ada69c04ba8e73c94128e74cd8fc9c197f007a"
+		},
+		{
+			"source": "test/maestro/task-thinking-wiring.test.ts",
+			"destination": "test/maestro/task-thinking-wiring.test.ts",
+			"selections": [
+				{
+					"start": 1092,
+					"end": 2136,
+					"line": 35
+				},
+				{
+					"start": 2139,
+					"end": 3739,
+					"line": 67
+				}
+			],
+			"helpers": [
+				{
+					"start": 487,
+					"end": 774,
+					"line": 11
+				},
+				{
+					"start": 775,
+					"end": 840,
+					"line": 26
+				},
+				{
+					"start": 841,
+					"end": 1043,
+					"line": 27
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/task-thinking-wiring.test.ts",
+			"blob": "2e457a56e925513c226846fe4b9b663c4289e1b0"
+		},
+		{
+			"source": "test/maestro/task-thinking.test.ts",
+			"destination": "test/maestro/task-thinking-tools.test.ts",
+			"selections": [
+				{
+					"start": 2167,
+					"end": 2429,
+					"line": 78
+				},
+				{
+					"start": 2432,
+					"end": 2982,
+					"line": 85
+				},
+				{
+					"start": 3885,
+					"end": 4467,
+					"line": 135
+				},
+				{
+					"start": 4470,
+					"end": 5345,
+					"line": 164
+				},
+				{
+					"start": 5348,
+					"end": 5804,
+					"line": 196
+				},
+				{
+					"start": 5807,
+					"end": 6198,
+					"line": 213
+				}
+			],
+			"helpers": [
+				{
+					"start": 823,
+					"end": 1110,
+					"line": 23
+				},
+				{
+					"start": 1111,
+					"end": 1313,
+					"line": 38
+				},
+				{
+					"start": 1314,
+					"end": 1393,
+					"line": 44
+				},
+				{
+					"start": 1394,
+					"end": 1459,
+					"line": 45
+				},
+				{
+					"start": 1557,
+					"end": 1836,
+					"line": 51
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/task-thinking.test.ts",
+			"blob": "49a11574ab73030035e51fe286727b600c0bb28a"
+		},
+		{
+			"source": "test/maestro/tool-schema.test.ts",
+			"destination": "test/maestro/tool-schema.test.ts",
+			"selections": [
+				{
+					"start": 1389,
+					"end": 1692,
+					"line": 47
+				},
+				{
+					"start": 1695,
+					"end": 2036,
+					"line": 55
+				},
+				{
+					"start": 2039,
+					"end": 2468,
+					"line": 67
+				},
+				{
+					"start": 2471,
+					"end": 3067,
+					"line": 79
+				},
+				{
+					"start": 3070,
+					"end": 3478,
+					"line": 93
+				},
+				{
+					"start": 3582,
+					"end": 4114,
+					"line": 105
+				},
+				{
+					"start": 4117,
+					"end": 4345,
+					"line": 131
+				},
+				{
+					"start": 4348,
+					"end": 4590,
+					"line": 140
+				},
+				{
+					"start": 4593,
+					"end": 4728,
+					"line": 150
+				},
+				{
+					"start": 4731,
+					"end": 5013,
+					"line": 157
+				},
+				{
+					"start": 5016,
+					"end": 5160,
+					"line": 168
+				},
+				{
+					"start": 5163,
+					"end": 5828,
+					"line": 175
+				},
+				{
+					"start": 5831,
+					"end": 6633,
+					"line": 203
+				},
+				{
+					"start": 6636,
+					"end": 7206,
+					"line": 227
+				},
+				{
+					"start": 7209,
+					"end": 7974,
+					"line": 249
+				},
+				{
+					"start": 7977,
+					"end": 8184,
+					"line": 271
+				},
+				{
+					"start": 8187,
+					"end": 8565,
+					"line": 277
+				},
+				{
+					"start": 8568,
+					"end": 8817,
+					"line": 290
+				},
+				{
+					"start": 9130,
+					"end": 9983,
+					"line": 313
+				},
+				{
+					"start": 9986,
+					"end": 10707,
+					"line": 341
+				},
+				{
+					"start": 10710,
+					"end": 11273,
+					"line": 367
+				},
+				{
+					"start": 11276,
+					"end": 11901,
+					"line": 380
+				}
+			],
+			"helpers": [
+				{
+					"start": 3537,
+					"end": 3579,
+					"line": 103
+				},
+				{
+					"start": 8864,
+					"end": 9127,
+					"line": 302
+				},
+				{
+					"start": 481,
+					"end": 652,
+					"line": 14
+				},
+				{
+					"start": 654,
+					"end": 866,
+					"line": 22
+				},
+				{
+					"start": 868,
+					"end": 1077,
+					"line": 28
+				},
+				{
+					"start": 1079,
+					"end": 1218,
+					"line": 38
+				},
+				{
+					"start": 1220,
+					"end": 1338,
+					"line": 43
+				},
+				{
+					"start": 11907,
+					"end": 12150,
+					"line": 403
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/tool-schema.test.ts",
+			"blob": "82d206031d5e90cad878fc33f47ddd7c20875cfb"
+		},
+		{
+			"source": "test/maestro/windows-support-scope.test.ts",
+			"destination": "test/maestro/windows-support-scope-tools.test.ts",
+			"selections": [
+				{
+					"start": 9170,
+					"end": 9675,
+					"line": 308
+				},
+				{
+					"start": 9677,
+					"end": 10084,
+					"line": 324
+				},
+				{
+					"start": 10086,
+					"end": 10465,
+					"line": 334
+				},
+				{
+					"start": 10467,
+					"end": 10993,
+					"line": 345
+				},
+				{
+					"start": 10995,
+					"end": 11761,
+					"line": 366
+				},
+				{
+					"start": 11886,
+					"end": 12652,
+					"line": 391
+				}
+			],
+			"helpers": [
+				{
+					"start": 1591,
+					"end": 1682,
+					"line": 40
+				},
+				{
+					"start": 1683,
+					"end": 1757,
+					"line": 42
+				},
+				{
+					"start": 3652,
+					"end": 3837,
+					"line": 97
+				},
+				{
+					"start": 3889,
+					"end": 4092,
+					"line": 109
+				},
+				{
+					"start": 4094,
+					"end": 4205,
+					"line": 120
+				},
+				{
+					"start": 4207,
+					"end": 4444,
+					"line": 124
+				},
+				{
+					"start": 4446,
+					"end": 9168,
+					"line": 136
+				}
+			],
+			"archive": "provenance/upstream/test/maestro/windows-support-scope.test.ts",
+			"blob": "44e85e1f54c7a29585127116a15452450ce75182"
+		},
+		{
+			"source": "test/runtime-routing.test.ts",
+			"destination": "test/runtime-routing-tools.test.ts",
+			"selections": [
+				{
+					"start": 7915,
+					"end": 9052,
+					"line": 267
+				},
+				{
+					"start": 9054,
+					"end": 10549,
+					"line": 312
+				},
+				{
+					"start": 2621,
+					"end": 6790,
+					"line": 96
+				}
+			],
+			"helpers": [
+				{
+					"start": 794,
+					"end": 1082,
+					"line": 28
+				},
+				{
+					"start": 2272,
+					"end": 2619,
+					"line": 83
+				}
+			],
+			"archive": "provenance/upstream/test/runtime-routing.test.ts",
+			"blob": "a9c048a4a118bf73fc97d7c517ee27771d3cd0e7"
+		}
+	],
+	"resource_mappings": [
+		{
+			"from": "../pi-extension/subagents/index.ts",
+			"to": "./helpers/pi-extension.ts"
+		},
+		{
+			"from": "../../pi-extension/subagents/index.ts",
+			"to": "../helpers/pi-extension.ts"
+		}
+	]
+}

@@ -36,6 +36,8 @@ export interface TestMigrationMap {
 	copy_sha: string;
 	files: TestMigration[];
 	import_mappings?: { from: string; to: string }[];
+	/** Module paths inside dynamic import() arguments (fresh per-load imports). */
+	resource_mappings?: { from: string; to: string }[];
 	/** Revision of the original identity ledger (provenance/baseline). */
 	identity_sha?: string;
 }
@@ -137,8 +139,74 @@ export function anchorEntry(
 	}
 }
 
+/**
+ * Rewrite a mapped module path at the start of a string/template literal that is
+ * an argument (or nested in an argument) of a dynamic import() call, such as
+ * `import(`../x.ts?reload-${n}`)` or `import(new URL("../x.ts", base).href)`.
+ * Only the exact `from` path followed by end of text or `?` is replaced; the
+ * query suffix and every other token stay. Nothing else is rewritten.
+ */
+export function rewriteResourcePaths(
+	text: string,
+	mappings: { from: string; to: string }[] = [],
+): string {
+	if (!mappings.length) return text;
+	const source = ts.createSourceFile(
+		"resource.ts",
+		text,
+		ts.ScriptTarget.Latest,
+		true,
+	);
+	const replacements: { start: number; end: number; value: string }[] = [];
+	function literal(node: ts.Node): void {
+		if (
+			ts.isStringLiteral(node) ||
+			ts.isNoSubstitutionTemplateLiteral(node) ||
+			ts.isTemplateHead(node)
+		) {
+			const mapping = mappings.find(
+				(entry) =>
+					node.text === entry.from || node.text.startsWith(`${entry.from}?`),
+			);
+			if (mapping) {
+				const start = node.getStart(source) + 1;
+				assert.equal(
+					text.slice(start, start + mapping.from.length),
+					mapping.from,
+					"Escaped resource path",
+				);
+				replacements.push({
+					start,
+					end: start + mapping.from.length,
+					value: mapping.to,
+				});
+			}
+		}
+		ts.forEachChild(node, literal);
+	}
+	function visit(node: ts.Node): void {
+		if (
+			ts.isCallExpression(node) &&
+			node.expression.kind === ts.SyntaxKind.ImportKeyword
+		)
+			for (const argument of node.arguments) literal(argument);
+		else ts.forEachChild(node, visit);
+	}
+	visit(source);
+	for (const replacement of replacements.sort((a, b) => b.start - a.start))
+		text =
+			text.slice(0, replacement.start) +
+			replacement.value +
+			text.slice(replacement.end);
+	return text;
+}
+
 /** Per-step maps; each keeps its own finite import mappings. Later maps are optional. */
-export const TEST_MAPS = ["m2-test-map.json", "m3-test-map.json"];
+export const TEST_MAPS = [
+	"m2-test-map.json",
+	"m3-test-map.json",
+	"m4-test-map.json",
+];
 
 export function readTestMap(path: string): TestMigrationMap {
 	try {
@@ -167,6 +235,82 @@ export function tokens(text: string): string {
 	return JSON.stringify(result);
 }
 
+/**
+ * A shared test helper the plan requires to change (e.g. the parameterized
+ * schema-capture loader, §5/D3). Every pinned top-level statement must survive
+ * token-identically except the named `changed` declarations; the destination
+ * may add only the named `added` declarations.
+ */
+export interface AdaptedHelper {
+	source: string;
+	destination: string;
+	archive: string;
+	blob: string;
+	changed: string[];
+	added: string[];
+	reason: string;
+}
+
+function topLevel(text: string, path: string) {
+	const file = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true);
+	return file.statements.map((node) => {
+		const names: string[] = [];
+		if (
+			(ts.isFunctionDeclaration(node) ||
+				ts.isInterfaceDeclaration(node) ||
+				ts.isTypeAliasDeclaration(node) ||
+				ts.isClassDeclaration(node)) &&
+			node.name
+		)
+			names.push(node.name.text);
+		if (ts.isVariableStatement(node))
+			for (const declaration of node.declarationList.declarations)
+				if (ts.isIdentifier(declaration.name))
+					names.push(declaration.name.text);
+		return { names, tokens: tokens(node.getText(file)) };
+	});
+}
+
+export function checkAdaptedHelper(
+	root: string,
+	helper: AdaptedHelper,
+	tree: { files: { path: string; blob: string }[] },
+): void {
+	const bytes = readFileSync(resolve(root, helper.archive));
+	assert.equal(gitBlob(bytes), helper.blob, helper.source);
+	assert.equal(
+		tree.files.find((file) => file.path === helper.source)?.blob,
+		helper.blob,
+		`Adapted helper source not at the pin: ${helper.source}`,
+	);
+	const before = topLevel(bytes.toString("utf8"), helper.source);
+	const after = topLevel(
+		readFileSync(resolve(root, helper.destination), "utf8"),
+		helper.destination,
+	);
+	const declared = new Set([...helper.changed, ...helper.added]);
+	const kept = new Set(after.map((statement) => statement.tokens));
+	for (const statement of before)
+		if (!statement.names.some((name) => helper.changed.includes(name)))
+			assert(
+				kept.has(statement.tokens),
+				`Adapted helper changed an undeclared statement: ${helper.destination} ${statement.names.join(",") || "<statement>"}`,
+			);
+	const original = new Set(before.map((statement) => statement.tokens));
+	for (const statement of after)
+		if (!original.has(statement.tokens))
+			assert(
+				statement.names.length &&
+					statement.names.every((name) => declared.has(name)),
+				`Adapted helper added an undeclared statement: ${helper.destination} ${statement.names.join(",") || "<statement>"}`,
+			);
+	for (const name of helper.changed)
+		assert(
+			before.some((statement) => statement.names.includes(name)),
+			`Declared change is not an upstream declaration: ${name}`,
+		);
+}
+
 export function checkTestMigration(root: string): TestMigrationMap {
 	let tree: { copy_sha: string; files: { path: string; blob: string }[] };
 	try {
@@ -180,6 +324,16 @@ export function checkTestMigration(root: string): TestMigrationMap {
 		(name, index) =>
 			index === 0 || existsSync(resolve(root, "provenance", name)),
 	).map((name) => readTestMap(resolve(root, "provenance", name)));
+	const adaptedPath = resolve(root, "provenance/adapted-helpers.json");
+	if (existsSync(adaptedPath)) {
+		let adapted: AdaptedHelper[];
+		try {
+			adapted = JSON.parse(readFileSync(adaptedPath, "utf8"));
+		} catch (cause) {
+			throw new Error("Cannot read adapted helpers", { cause });
+		}
+		for (const helper of adapted) checkAdaptedHelper(root, helper, tree);
+	}
 	const destinations = new Set<string>();
 	for (const map of maps) {
 		assert.equal(map.copy_sha, tree.copy_sha);
@@ -272,7 +426,14 @@ function checkEntry(
 					range.end <= original.length,
 			);
 			assert(
-				statements.has(tokens(original.slice(range.start, range.end))),
+				statements.has(
+					tokens(
+						rewriteResourcePaths(
+							original.slice(range.start, range.end),
+							map.resource_mappings,
+						),
+					),
+				),
 				`Changed or missing test/helper body: ${entry.source}:${range.line ?? range.start} -> ${entry.destination}`,
 			);
 		}
@@ -323,7 +484,12 @@ function checkEntry(
 					.filter((n) => !ts.isImportDeclaration(n))
 					.map((n) => tokens(n.getText(parsed))),
 				entry.selections.map((range) =>
-					tokens(original.slice(range.start, range.end)),
+					tokens(
+						rewriteResourcePaths(
+							original.slice(range.start, range.end),
+							map.resource_mappings,
+						),
+					),
 				),
 				`Changed whole-file test body: ${entry.source}`,
 			);

@@ -1,0 +1,11 @@
+[
+	{
+		"source": "test/helpers/tool-schema-capture.ts",
+		"destination": "test/helpers/tool-schema-capture.ts",
+		"archive": "provenance/upstream/test/helpers/tool-schema-capture.ts",
+		"blob": "2ed09794edd8ff7a61579944171f4fecad72d525",
+		"changed": ["captureScope", "captureToolSchemas"],
+		"added": ["ExtensionEntries", "sourceEntries"],
+		"reason": "Plan §5 and D3: parameterize the real source/packed entry loader. Upstream loaded the terminal entry (pi-extension/subagents/index.ts, which stays upstream) and the child forwarder by fixed path. The entries are now a parameter: by default the actual createPiExtension factory through test/helpers/pi-extension.ts plus the protocol child entry; test:package passes the installed package. Env pinning, fresh per-load import, scopes, merge and output shape are unchanged."
+	}
+]

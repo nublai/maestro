@@ -8,6 +8,7 @@ import { gitBlob } from "./check-copy-fidelity.ts";
 import {
 	anchorEntry,
 	readTestMap,
+	rewriteResourcePaths,
 	TEST_MAPS,
 	type SourceRange,
 	type TestMigration,
@@ -25,6 +26,8 @@ export interface MigrationPlan {
 	map: string;
 	identity_sha: string;
 	import_mappings: { from: string; to: string }[];
+	/** Module paths inside dynamic import() arguments (fresh per-load imports). */
+	resource_mappings?: { from: string; to: string }[];
 	files: {
 		source: string;
 		destination: string;
@@ -254,6 +257,7 @@ export function migrateFile(
 	mappings: { from: string; to: string }[],
 	skipped: SourceRange[],
 	exclude: { line: number; reason: string }[],
+	resourceMappings: { from: string; to: string }[] = [],
 ): MigratedFile {
 	const file = ts.createSourceFile(source, text, ts.ScriptTarget.Latest, true);
 	const lineOf = (node: ts.Node) =>
@@ -303,7 +307,10 @@ export function migrateFile(
 				: ts.isTemplateExpression(child)
 					? child.head.text
 					: undefined;
-			const path = text?.split("?")[0];
+			const literal = text?.split("?")[0];
+			const path =
+				resourceMappings.find((mapping) => mapping.from === literal)?.to ??
+				literal;
 			if (
 				path &&
 				/^\.\.?\/.*\.[cm]?[jt]s$/.test(path) &&
@@ -496,7 +503,10 @@ export function migrateFile(
 				helpers: [],
 			}
 		: { source, destination, selections, helpers };
-	return { output: `${emitted.join("\n")}\n\n${body.text}\n`, entry };
+	return {
+		output: `${emitted.join("\n")}\n\n${rewriteResourcePaths(body.text, resourceMappings)}\n`,
+		entry,
+	};
 }
 
 if (
@@ -538,6 +548,7 @@ if (
 		import_mappings: plan.import_mappings,
 		files: [],
 	};
+	if (plan.resource_mappings) map.resource_mappings = plan.resource_mappings;
 	for (const spec of plan.files) {
 		const bytes = show(tree.copy_sha, spec.source);
 		assert(bytes, `Missing pinned source: ${spec.source}`);
@@ -553,6 +564,7 @@ if (
 			plan.import_mappings,
 			skipped,
 			spec.exclude ?? [],
+			plan.resource_mappings,
 		);
 		const archive = `provenance/upstream/${spec.source}`;
 		mkdirSync(dirname(resolve(root, archive)), { recursive: true });
