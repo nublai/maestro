@@ -158,9 +158,10 @@ export async function capturePiFactory(
 			tools,
 			commands,
 			renderers,
-			events: [...handlers].map(
-				([event, list]): [string, number] => [event, list.length],
-			),
+			events: [...handlers].map(([event, list]): [string, number] => [
+				event,
+				list.length,
+			]),
 		};
 	};
 	const parent = await load({});
