@@ -137,22 +137,31 @@ test("the actual lint CLI rejects module mocking and unsafe assertions in tests"
 	);
 });
 
-test("M2 closes same-pin drift and records the generic owner copies and test migrations", () => {
+test("M3 closes the drift ledger and records the Pi adapter/runtime copies from the H1 pin", () => {
 	const copies = readManifest(new URL("provenance/copy-manifest.json", root));
 	const drift = JSON.parse(read("provenance/drift-ledger.json"));
 	const inventory = JSON.parse(read("provenance/inventory.json"));
 	const tests = JSON.parse(read("provenance/test-manifest.json"));
 	assert.equal(drift.status, "closed");
-	assert.equal(drift.previous_pin, drift.base_main_sha);
+	assert.equal(drift.step, "M3");
 	assert.equal(copies.base_main_sha, drift.base_main_sha);
-	assert.equal(copies.copy_sha, drift.base_main_sha);
+	assert.equal(copies.copy_sha, drift.copy_sha);
+	assert.notEqual(drift.previous_pin, drift.base_main_sha);
 	assert.equal(
 		copies.entries.filter(
 			(entry) => entry.kind === "copy" && entry.source.startsWith("maestro/"),
 		).length,
-		43,
+		72,
 	);
-	assert.deepEqual(drift.touching_commits, []);
+	for (const commit of drift.touching_commits)
+		assert.match(commit.disposition, /^(?:carried|no-impact)$/);
+	assert(
+		!copies.entries.some(
+			(entry) =>
+				entry.destination === "maestro/adapters/pi/child/subagent-done.ts",
+		),
+		"the legacy terminal child forwarder stays upstream",
+	);
 	assert.equal(inventory.production.length, 98);
 	assert.equal(tests.original_test_tree.length, 110);
 	assert.equal(tests.original_unit_entries.length, 67);

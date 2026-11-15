@@ -1,7 +1,7 @@
 {
 	"name": "@nubl/maestro",
 	"version": "0.0.1",
-	"description": "Harness-neutral subagent engine. M2 generic owner extracted from pi-herdr-agents; root placeholder retained until M6.",
+	"description": "Harness-neutral subagent engine. M3 Pi adapters/runtime with host ports extracted from pi-herdr-agents; root placeholder retained until M6.",
 	"license": "MIT",
 	"type": "module",
 	"main": "./dist/index.js",
@@ -22,6 +22,11 @@
 			"types": "./dist/maestro/testing/index.d.ts",
 			"import": "./dist/maestro/testing/index.js",
 			"default": "./dist/maestro/testing/index.js"
+		},
+		"./runtime": {
+			"types": "./dist/maestro/runtime/index.d.ts",
+			"import": "./dist/maestro/runtime/index.js",
+			"default": "./dist/maestro/runtime/index.js"
 		},
 		"./core/accept": {
 			"types": "./dist/maestro/core/accept.d.ts",
@@ -227,6 +232,126 @@
 			"types": "./dist/maestro/runtime/surface-retention.d.ts",
 			"import": "./dist/maestro/runtime/surface-retention.js",
 			"default": "./dist/maestro/runtime/surface-retention.js"
+		},
+		"./runtime/accept-recheck": {
+			"types": "./dist/maestro/runtime/accept-recheck.d.ts",
+			"import": "./dist/maestro/runtime/accept-recheck.js",
+			"default": "./dist/maestro/runtime/accept-recheck.js"
+		},
+		"./runtime/delegated-marker": {
+			"types": "./dist/maestro/runtime/delegated-marker.d.ts",
+			"import": "./dist/maestro/runtime/delegated-marker.js",
+			"default": "./dist/maestro/runtime/delegated-marker.js"
+		},
+		"./runtime/host-surface-binding": {
+			"types": "./dist/maestro/runtime/host-surface-binding.d.ts",
+			"import": "./dist/maestro/runtime/host-surface-binding.js",
+			"default": "./dist/maestro/runtime/host-surface-binding.js"
+		},
+		"./runtime/pi-persistent-io": {
+			"types": "./dist/maestro/runtime/pi-persistent-io.d.ts",
+			"import": "./dist/maestro/runtime/pi-persistent-io.js",
+			"default": "./dist/maestro/runtime/pi-persistent-io.js"
+		},
+		"./runtime/pi-run-session-types": {
+			"types": "./dist/maestro/runtime/pi-run-session-types.d.ts",
+			"import": "./dist/maestro/runtime/pi-run-session-types.js",
+			"default": "./dist/maestro/runtime/pi-run-session-types.js"
+		},
+		"./runtime/pi-run-session": {
+			"types": "./dist/maestro/runtime/pi-run-session.d.ts",
+			"import": "./dist/maestro/runtime/pi-run-session.js",
+			"default": "./dist/maestro/runtime/pi-run-session.js"
+		},
+		"./runtime/task-model-init": {
+			"types": "./dist/maestro/runtime/task-model-init.d.ts",
+			"import": "./dist/maestro/runtime/task-model-init.js",
+			"default": "./dist/maestro/runtime/task-model-init.js"
+		},
+		"./runtime/worktree-operations": {
+			"types": "./dist/maestro/runtime/worktree-operations.d.ts",
+			"import": "./dist/maestro/runtime/worktree-operations.js",
+			"default": "./dist/maestro/runtime/worktree-operations.js"
+		},
+		"./adapters/pi/accept-groups": {
+			"types": "./dist/maestro/adapters/pi/accept-groups.d.ts",
+			"import": "./dist/maestro/adapters/pi/accept-groups.js",
+			"default": "./dist/maestro/adapters/pi/accept-groups.js"
+		},
+		"./adapters/pi/accept-runner": {
+			"types": "./dist/maestro/adapters/pi/accept-runner.d.ts",
+			"import": "./dist/maestro/adapters/pi/accept-runner.js",
+			"default": "./dist/maestro/adapters/pi/accept-runner.js"
+		},
+		"./adapters/pi/activity-file": {
+			"types": "./dist/maestro/adapters/pi/activity-file.d.ts",
+			"import": "./dist/maestro/adapters/pi/activity-file.js",
+			"default": "./dist/maestro/adapters/pi/activity-file.js"
+		},
+		"./adapters/pi/completion": {
+			"types": "./dist/maestro/adapters/pi/completion.d.ts",
+			"import": "./dist/maestro/adapters/pi/completion.js",
+			"default": "./dist/maestro/adapters/pi/completion.js"
+		},
+		"./adapters/pi/launch-command": {
+			"types": "./dist/maestro/adapters/pi/launch-command.d.ts",
+			"import": "./dist/maestro/adapters/pi/launch-command.js",
+			"default": "./dist/maestro/adapters/pi/launch-command.js"
+		},
+		"./adapters/pi/launch-operations": {
+			"types": "./dist/maestro/adapters/pi/launch-operations.d.ts",
+			"import": "./dist/maestro/adapters/pi/launch-operations.js",
+			"default": "./dist/maestro/adapters/pi/launch-operations.js"
+		},
+		"./adapters/pi/launch-resume": {
+			"types": "./dist/maestro/adapters/pi/launch-resume.d.ts",
+			"import": "./dist/maestro/adapters/pi/launch-resume.js",
+			"default": "./dist/maestro/adapters/pi/launch-resume.js"
+		},
+		"./adapters/pi/launch": {
+			"types": "./dist/maestro/adapters/pi/launch.d.ts",
+			"import": "./dist/maestro/adapters/pi/launch.js",
+			"default": "./dist/maestro/adapters/pi/launch.js"
+		},
+		"./adapters/pi/model-registry": {
+			"types": "./dist/maestro/adapters/pi/model-registry.d.ts",
+			"import": "./dist/maestro/adapters/pi/model-registry.js",
+			"default": "./dist/maestro/adapters/pi/model-registry.js"
+		},
+		"./adapters/pi/pi-harness-adapter": {
+			"types": "./dist/maestro/adapters/pi/pi-harness-adapter.d.ts",
+			"import": "./dist/maestro/adapters/pi/pi-harness-adapter.js",
+			"default": "./dist/maestro/adapters/pi/pi-harness-adapter.js"
+		},
+		"./adapters/pi/process-identity": {
+			"types": "./dist/maestro/adapters/pi/process-identity.d.ts",
+			"import": "./dist/maestro/adapters/pi/process-identity.js",
+			"default": "./dist/maestro/adapters/pi/process-identity.js"
+		},
+		"./adapters/pi/process-tree": {
+			"types": "./dist/maestro/adapters/pi/process-tree.d.ts",
+			"import": "./dist/maestro/adapters/pi/process-tree.js",
+			"default": "./dist/maestro/adapters/pi/process-tree.js"
+		},
+		"./adapters/pi/script-shell": {
+			"types": "./dist/maestro/adapters/pi/script-shell.d.ts",
+			"import": "./dist/maestro/adapters/pi/script-shell.js",
+			"default": "./dist/maestro/adapters/pi/script-shell.js"
+		},
+		"./adapters/pi/session": {
+			"types": "./dist/maestro/adapters/pi/session.d.ts",
+			"import": "./dist/maestro/adapters/pi/session.js",
+			"default": "./dist/maestro/adapters/pi/session.js"
+		},
+		"./adapters/pi/task-model-init": {
+			"types": "./dist/maestro/adapters/pi/task-model-init.d.ts",
+			"import": "./dist/maestro/adapters/pi/task-model-init.js",
+			"default": "./dist/maestro/adapters/pi/task-model-init.js"
+		},
+		"./pi/child": {
+			"types": "./dist/maestro/adapters/pi/child/entry.d.ts",
+			"import": "./dist/maestro/adapters/pi/child/entry.js",
+			"default": "./dist/maestro/adapters/pi/child/entry.js"
 		}
 	},
 	"files": [
