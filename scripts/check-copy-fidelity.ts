@@ -28,10 +28,14 @@ const Manifest = Type.Object({
 export type CopyManifest = Static<typeof Manifest>;
 
 export function readManifest(path: string | URL): CopyManifest {
-	const input: unknown = JSON.parse(readFileSync(path, "utf8"));
-	if (!Value.Check(Manifest, input))
-		throw new Error(`Invalid copy manifest: ${path}`);
-	return input;
+	try {
+		const input: unknown = JSON.parse(readFileSync(path, "utf8"));
+		if (!Value.Check(Manifest, input))
+			throw new Error("Copy manifest schema mismatch");
+		return input;
+	} catch (cause) {
+		throw new Error(`Invalid copy manifest: ${path}`, { cause });
+	}
 }
 
 /** Change only AST-identified module specifier contents, never printed AST text. */
@@ -61,14 +65,16 @@ export function normalizeImports(
 		mapping.set(entry.from, entry.to);
 	}
 	function specifier(node: ts.Node | undefined): void {
-		if (!node || !ts.isStringLiteral(node)) return;
+		if (!node || !ts.isStringLiteralLike(node)) return;
 		const replacement = mapping.get(node.text);
 		if (replacement === undefined) return;
 		const start = node.getStart(source) + 1;
 		const quote = text[start - 1];
 		const value = JSON.stringify(replacement)
 			.slice(1, -1)
-			.replace(/'/g, quote === "'" ? "\\'" : "'");
+			.replace(/'/g, quote === "'" ? "\\'" : "'")
+			.replace(/`/g, quote === "`" ? "\\`" : "`")
+			.replace(/\$\{/g, quote === "`" ? "\\${" : "${");
 		replacements.push({ start, end: node.getEnd() - 1, value });
 	}
 	function visit(node: ts.Node): void {

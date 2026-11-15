@@ -20,11 +20,12 @@ export * from '../old.ts';
 type I = import("../old.ts").T;
 const load = () => import('../old.ts');
 const text = "../old.ts";
-const computed = () => import(\`../old.ts\`);
+const literalTemplate = () => import(\`../old.ts\`);
+const computed = () => import(\`../\${part}.ts\`);
 `;
 const mappings = [{ from: "../old.ts", to: "@nubl/maestro/core/old" }];
 const expected = source.replace(
-	/(from |import\()["']\.\.\/old\.ts["']/g,
+	/(from |import\()["'`]\.\.\/old\.ts["'`]/g,
 	(match) => match.replace("../old.ts", "@nubl/maestro/core/old"),
 );
 
@@ -62,7 +63,8 @@ test("normalizes only static, re-export, import-type and literal dynamic specifi
 	assert.equal(normalizeImports(source, "original.ts", mappings), expected);
 	assert(expected.includes('const text = "../old.ts"'));
 	assert(expected.includes("// Keep ../old.ts exactly"));
-	assert(expected.includes("import(`../old.ts`)"));
+	assert(expected.includes("import(`../${part}.ts`)"));
+	assert(expected.includes("import(`@nubl/maestro/core/old`)"));
 	assert.equal(normalizeImports(source, "original.ts", []), source);
 });
 
@@ -124,7 +126,7 @@ for (const [name, change] of [
 	["unlisted specifier", expected.replace("@nubl/maestro/core/old", "other")],
 	[
 		"computed import",
-		expected.replace("import(`../old.ts`)", "import(`other`)"),
+		expected.replace("import(`../${part}.ts`)", "import(`other`)"),
 	],
 ] as const) {
 	test(`rejects changed ${name}`, (t) => {
@@ -167,6 +169,11 @@ test("explicit new-file entries require a file and a reason", (t) => {
 		}),
 	);
 	assert.throws(() => readManifest(join(f.root, "manifest.json")), /Invalid/);
+	writeFileSync(join(f.root, "manifest.json"), "{");
+	assert.throws(
+		() => readManifest(join(f.root, "manifest.json")),
+		/Invalid copy manifest/,
+	);
 	f.manifest.entries.push(f.manifest.entries[0]);
 	assert.throws(
 		() => checkCopyFidelity(f.manifest, f.root),
