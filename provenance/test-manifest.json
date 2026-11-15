@@ -1,0 +1,702 @@
+{
+	"base_main_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+	"original_unit_entries": [
+		"test/test.ts",
+		"test/verify-lab-guards.test.ts",
+		"test/worktree-cleanup.test.ts",
+		"test/launch.test.ts",
+		"test/runtime-routing.test.ts",
+		"test/release-workflow.test.ts",
+		"test/system-prompt-mode.test.ts",
+		"test/package-manifest.test.js",
+		"test/sidebar-plugin.test.js",
+		"test/maestro/accept-check.test.ts",
+		"test/maestro/accept-recheck.test.ts",
+		"test/maestro/accept-shutdown.test.ts",
+		"test/maestro/async-io.test.ts",
+		"test/maestro/audit-discovery.test.ts",
+		"test/maestro/audit-fork.test.ts",
+		"test/maestro/audit-git-environment.test.ts",
+		"test/maestro/audit-herdr-dispatch.test.ts",
+		"test/maestro/audit-ownership.test.ts",
+		"test/maestro/audit-persistent.test.ts",
+		"test/maestro/audit-reload.test.ts",
+		"test/maestro/audit-stop-notices.test.ts",
+		"test/maestro/audit-uncertain-retry.test.ts",
+		"test/maestro/core-lab.test.ts",
+		"test/maestro/core-parent.test.ts",
+		"test/maestro/core-roles-config.test.ts",
+		"test/maestro/deadline.test.ts",
+		"test/maestro/declared-skills.test.ts",
+		"test/maestro/deferred-tools.test.ts",
+		"test/maestro/delegated-marker.test.ts",
+		"test/maestro/delegation-depth.test.ts",
+		"test/maestro/dependency-rule.test.ts",
+		"test/maestro/fake-harness-adapter.test.ts",
+		"test/maestro/fake-surface-provider.test.ts",
+		"test/maestro/git-handoff-async.test.ts",
+		"test/maestro/herdr-available.test.ts",
+		"test/maestro/herdr-cli.test.ts",
+		"test/maestro/herdr-core-execution.test.ts",
+		"test/maestro/herdr-lab.test.ts",
+		"test/maestro/herdr-placement-async.test.ts",
+		"test/maestro/herdr-socket.test.ts",
+		"test/maestro/herdr-surface-provider.test.ts",
+		"test/maestro/linux-integration-driver.test.ts",
+		"test/maestro/opened-primary-workspace.test.ts",
+		"test/maestro/pi-harness-adapter.test.ts",
+		"test/maestro/pi-readiness-windows.test.ts",
+		"test/maestro/pi-run-session.test.ts",
+		"test/maestro/pr110-persistent-regressions.test.ts",
+		"test/maestro/process-cleanup.test.ts",
+		"test/maestro/process-environment.test.ts",
+		"test/maestro/process-identity.test.ts",
+		"test/maestro/process-tree.test.ts",
+		"test/maestro/realpath-without-opening.test.ts",
+		"test/maestro/run-session-cancel.test.ts",
+		"test/maestro/run-session.test.ts",
+		"test/maestro/script-launch.test.ts",
+		"test/maestro/sidebar-fixture-ownership.test.ts",
+		"test/maestro/socket-path.test.ts",
+		"test/maestro/specialist-notice.test.ts",
+		"test/maestro/supervision-wake.test.ts",
+		"test/maestro/task-model-approval.test.ts",
+		"test/maestro/task-model-init.test.ts",
+		"test/maestro/task-thinking-wiring.test.ts",
+		"test/maestro/task-thinking.test.ts",
+		"test/maestro/test-environment.test.ts",
+		"test/maestro/tool-schema.test.ts",
+		"test/maestro/windows-support-scope.test.ts",
+		"test/maestro/worktree-operations.test.ts"
+	],
+	"original_test_tree": [
+		{
+			"source": "test/bench/README.md",
+			"fate": "split",
+			"reason": "Supervision benchmark follows moving engine; retain host invocation/benchmark documentation with package imports upstream."
+		},
+		{
+			"source": "test/bench/supervision-bench.mjs",
+			"fate": "split",
+			"reason": "Supervision benchmark follows moving engine; retain host invocation/benchmark documentation with package imports upstream."
+		},
+		{
+			"source": "test/clean-host-env.ts",
+			"fate": "split",
+			"reason": "Shared test support copied only where needed in both suites; preserve isolation, assertions and fixture semantics."
+		},
+		{
+			"source": "test/fake-herdr-socket.ts",
+			"fate": "stay",
+			"reason": "Herdr socket protocol fixture; concrete transport remains upstream."
+		},
+		{
+			"source": "test/fixtures/tool-schema/current.json",
+			"fate": "split",
+			"reason": "Identical immutable contract fixture in both packages while both registration surfaces are checked; no regeneration during extraction."
+		},
+		{
+			"source": "test/fixtures/tool-schema/released.json",
+			"fate": "split",
+			"reason": "Identical immutable contract fixture in both packages while both registration surfaces are checked; no regeneration during extraction."
+		},
+		{
+			"source": "test/helpers/mock-extension-api.ts",
+			"fate": "split",
+			"reason": "Shared test support copied only where needed in both suites; preserve isolation, assertions and fixture semantics."
+		},
+		{
+			"source": "test/helpers/process-cleanup.ts",
+			"fate": "split",
+			"reason": "Shared test support copied only where needed in both suites; preserve isolation, assertions and fixture semantics."
+		},
+		{
+			"source": "test/helpers/tool-schema-capture.ts",
+			"fate": "split",
+			"reason": "Shared test support copied only where needed in both suites; preserve isolation, assertions and fixture semantics."
+		},
+		{
+			"source": "test/helpers/tool-schema-compat.ts",
+			"fate": "split",
+			"reason": "Shared test support copied only where needed in both suites; preserve isolation, assertions and fixture semantics."
+		},
+		{
+			"source": "test/helpers/windows-scope.ts",
+			"fate": "split",
+			"reason": "Shared test support copied only where needed in both suites; preserve isolation, assertions and fixture semantics."
+		},
+		{
+			"source": "test/integration/agents/test-coordinator.md",
+			"fate": "split",
+			"reason": "Fixture role for real delegation; retain host lab copy and copy only as needed for package child-entry smoke."
+		},
+		{
+			"source": "test/integration/agents/test-echo.md",
+			"fate": "split",
+			"reason": "Fixture role reused for package child-entry smoke and host labs; test-only copy."
+		},
+		{
+			"source": "test/integration/agents/test-interactive.md",
+			"fate": "split",
+			"reason": "Fixture role reused for package protocol smoke and host labs; test-only copy."
+		},
+		{
+			"source": "test/integration/agents/test-ping.md",
+			"fate": "split",
+			"reason": "Fixture role reused for caller_ping parity and host labs; test-only copy."
+		},
+		{
+			"source": "test/integration/agents/test-restricted.md",
+			"fate": "split",
+			"reason": "Fixture role reused for tool-policy parity and host labs; test-only copy."
+		},
+		{
+			"source": "test/integration/audit-stop-shutdown-fixture.ts",
+			"fate": "stay",
+			"reason": "Real terminal/Core/sidebar integration or its fixture; run upstream against installed Maestro with retained host wrapper."
+		},
+		{
+			"source": "test/integration/audit-stop.test.ts",
+			"fate": "stay",
+			"reason": "Real terminal/Core/sidebar integration or its fixture; run upstream against installed Maestro with retained host wrapper."
+		},
+		{
+			"source": "test/integration/core-controls.test.ts",
+			"fate": "stay",
+			"reason": "Real terminal/Core/sidebar integration or its fixture; run upstream against installed Maestro with retained host wrapper."
+		},
+		{
+			"source": "test/integration/core-lifecycle.test.ts",
+			"fate": "stay",
+			"reason": "Real terminal/Core/sidebar integration or its fixture; run upstream against installed Maestro with retained host wrapper."
+		},
+		{
+			"source": "test/integration/core-parent.ts",
+			"fate": "stay",
+			"reason": "Real terminal/Core/sidebar integration or its fixture; run upstream against installed Maestro with retained host wrapper."
+		},
+		{
+			"source": "test/integration/fake-provider.ts",
+			"fate": "split",
+			"reason": "Credential-free model-service fixture reused by both package consumer smoke and retained terminal labs; test-only copy."
+		},
+		{
+			"source": "test/integration/hang-advisory.test.ts",
+			"fate": "split",
+			"reason": "Pi-host/session-file behavior with no real provider imports: move behavior cases, retain wrapper entry smoke upstream."
+		},
+		{
+			"source": "test/integration/harness-conformance.test.ts",
+			"fate": "stay",
+			"reason": "Real terminal/Core/sidebar integration or its fixture; run upstream against installed Maestro with retained host wrapper."
+		},
+		{
+			"source": "test/integration/harness.ts",
+			"fate": "stay",
+			"reason": "Real terminal/Core/sidebar integration or its fixture; run upstream against installed Maestro with retained host wrapper."
+		},
+		{
+			"source": "test/integration/herdr-core-lab.ts",
+			"fate": "stay",
+			"reason": "Real terminal/Core/sidebar integration or its fixture; run upstream against installed Maestro with retained host wrapper."
+		},
+		{
+			"source": "test/integration/herdr-core.test.ts",
+			"fate": "stay",
+			"reason": "Real terminal/Core/sidebar integration or its fixture; run upstream against installed Maestro with retained host wrapper."
+		},
+		{
+			"source": "test/integration/herdr-lab.ts",
+			"fate": "stay",
+			"reason": "Real terminal/Core/sidebar integration or its fixture; run upstream against installed Maestro with retained host wrapper."
+		},
+		{
+			"source": "test/integration/mux-surface.test.ts",
+			"fate": "stay",
+			"reason": "Real terminal/Core/sidebar integration or its fixture; run upstream against installed Maestro with retained host wrapper."
+		},
+		{
+			"source": "test/integration/persistent-specialist.test.ts",
+			"fate": "stay",
+			"reason": "Real terminal/Core/sidebar integration or its fixture; run upstream against installed Maestro with retained host wrapper."
+		},
+		{
+			"source": "test/integration/placement.test.ts",
+			"fate": "stay",
+			"reason": "Real terminal/Core/sidebar integration or its fixture; run upstream against installed Maestro with retained host wrapper."
+		},
+		{
+			"source": "test/integration/sidebar-fixture.ts",
+			"fate": "stay",
+			"reason": "Real terminal/Core/sidebar integration or its fixture; run upstream against installed Maestro with retained host wrapper."
+		},
+		{
+			"source": "test/integration/sidebar-lifecycle.test.ts",
+			"fate": "stay",
+			"reason": "Real terminal/Core/sidebar integration or its fixture; run upstream against installed Maestro with retained host wrapper."
+		},
+		{
+			"source": "test/integration/sidebar.test.ts",
+			"fate": "stay",
+			"reason": "Real terminal/Core/sidebar integration or its fixture; run upstream against installed Maestro with retained host wrapper."
+		},
+		{
+			"source": "test/integration/subagent-cancel.test.ts",
+			"fate": "stay",
+			"reason": "Real terminal/Core/sidebar integration or its fixture; run upstream against installed Maestro with retained host wrapper."
+		},
+		{
+			"source": "test/integration/subagent-lifecycle.test.ts",
+			"fate": "stay",
+			"reason": "Real terminal/Core/sidebar integration or its fixture; run upstream against installed Maestro with retained host wrapper."
+		},
+		{
+			"source": "test/integration/supervision.test.ts",
+			"fate": "split",
+			"reason": "Move generic supervision/completion/message cases; retain actual wrapper-composition coverage upstream."
+		},
+		{
+			"source": "test/integration/surface-conformance.test.ts",
+			"fate": "stay",
+			"reason": "Real terminal/Core/sidebar integration or its fixture; run upstream against installed Maestro with retained host wrapper."
+		},
+		{
+			"source": "test/isolated-agent-dir.ts",
+			"fate": "split",
+			"reason": "Shared test support copied only where needed in both suites; preserve isolation, assertions and fixture semantics."
+		},
+		{
+			"source": "test/launch.test.ts",
+			"fate": "split",
+			"reason": "Move fake-surface Pi launch transactions; retain Herdr CLI/terminal dispatch and host composition cases."
+		},
+		{
+			"source": "test/maestro/accept-check.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/accept-recheck.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/accept-shutdown.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/async-io.test.ts",
+			"fate": "split",
+			"reason": "Move generic RunSession async acquisition cases; retain concrete Herdr nonblocking observation/dispatch cases."
+		},
+		{
+			"source": "test/maestro/audit-discovery.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/audit-fork.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/audit-git-environment.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/audit-herdr-dispatch.test.ts",
+			"fate": "stay",
+			"reason": "Herdr dispatch uncertainty/ownership assertions remain with concrete provider."
+		},
+		{
+			"source": "test/maestro/audit-ownership.test.ts",
+			"fate": "split",
+			"reason": "Move Pi ownership cases; retain concrete terminal launch-hook assertions."
+		},
+		{
+			"source": "test/maestro/audit-persistent.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/audit-reload.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/audit-stop-notices.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/audit-uncertain-retry.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/core-lab.test.ts",
+			"fate": "stay",
+			"reason": "Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+		},
+		{
+			"source": "test/maestro/core-parent.test.ts",
+			"fate": "stay",
+			"reason": "Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+		},
+		{
+			"source": "test/maestro/core-roles-config.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/deadline.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/declared-skills.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/deferred-tools.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/delegated-marker.test.ts",
+			"fate": "split",
+			"reason": "Move marker state-machine cases with injected callbacks; retain socket transport/protocol mapping cases."
+		},
+		{
+			"source": "test/maestro/delegation-depth.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/dependency-rule.test.ts",
+			"fate": "split",
+			"reason": "Preserve rule-parser tests in both scopes; tighten Maestro no-Herdr/no-TUI boundary and retain host provider-boundary checks."
+		},
+		{
+			"source": "test/maestro/fake-harness-adapter.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/fake-surface-provider.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/git-handoff-async.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/harness-adapter.conformance.ts",
+			"fate": "split",
+			"reason": "One reusable conformance implementation in Maestro testing entry; host imports it for real-Pi conformance."
+		},
+		{
+			"source": "test/maestro/herdr-available.test.ts",
+			"fate": "stay",
+			"reason": "Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+		},
+		{
+			"source": "test/maestro/herdr-cli.test.ts",
+			"fate": "stay",
+			"reason": "Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+		},
+		{
+			"source": "test/maestro/herdr-core-execution.test.ts",
+			"fate": "split",
+			"reason": "Keep Core protocol/acquisition/termination composition upstream; move generic runtime injected-native-binding assertions without weakening them."
+		},
+		{
+			"source": "test/maestro/herdr-lab.test.ts",
+			"fate": "stay",
+			"reason": "Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+		},
+		{
+			"source": "test/maestro/herdr-placement-async.test.ts",
+			"fate": "stay",
+			"reason": "Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+		},
+		{
+			"source": "test/maestro/herdr-socket.test.ts",
+			"fate": "stay",
+			"reason": "Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+		},
+		{
+			"source": "test/maestro/herdr-surface-provider.test.ts",
+			"fate": "stay",
+			"reason": "Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+		},
+		{
+			"source": "test/maestro/linux-integration-driver.test.ts",
+			"fate": "stay",
+			"reason": "Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+		},
+		{
+			"source": "test/maestro/opened-primary-workspace.test.ts",
+			"fate": "split",
+			"reason": "Move pure claim/cleanup policy; retain Herdr snapshot/report implementation cases."
+		},
+		{
+			"source": "test/maestro/pi-harness-adapter.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/pi-readiness-windows.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/pi-run-session.test.ts",
+			"fate": "split",
+			"reason": "Move runtime/fake infrastructure cases; retain default-provider/ambient host wiring and terminal-hook cases."
+		},
+		{
+			"source": "test/maestro/pr110-persistent-regressions.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/process-cleanup.test.ts",
+			"fate": "split",
+			"reason": "Shared process-helper safety checks needed by both suites; test-only copy."
+		},
+		{
+			"source": "test/maestro/process-environment.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/process-identity.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/process-tree.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/realpath-without-opening.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/run-session-cancel.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/run-session.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/script-launch.test.ts",
+			"fate": "split",
+			"reason": "Move shell quoting/Pi trust resolution cases; retain Windows concrete pane-provider/script dispatch cases."
+		},
+		{
+			"source": "test/maestro/sidebar-fixture-ownership.test.ts",
+			"fate": "stay",
+			"reason": "Concrete host provider/transport or integration-lab coverage; remain upstream and exercise package dependencies."
+		},
+		{
+			"source": "test/maestro/socket-path.test.ts",
+			"fate": "split",
+			"reason": "Shared helper conformance needed by both suites; test-only copy."
+		},
+		{
+			"source": "test/maestro/specialist-notice.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/supervision-wake.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/surface-provider.conformance.ts",
+			"fate": "split",
+			"reason": "One reusable conformance implementation in Maestro testing entry; host imports it for concrete Herdr conformance."
+		},
+		{
+			"source": "test/maestro/task-model-approval.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/task-model-init.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/task-thinking-wiring.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/task-thinking.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/maestro/test-environment.test.ts",
+			"fate": "split",
+			"reason": "Both npm test entry lists need their own first-import/isolation guard."
+		},
+		{
+			"source": "test/maestro/tool-schema.test.ts",
+			"fate": "split",
+			"reason": "Move contract/capture/compatibility/docs cases; retain wrapper capture parity against same frozen fixtures upstream."
+		},
+		{
+			"source": "test/maestro/windows-support-scope.test.ts",
+			"fate": "split",
+			"reason": "Move platform-policy/tool refusals; retain concrete host binding selection and provider wiring cases."
+		},
+		{
+			"source": "test/maestro/worktree-operations.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/package-manifest.test.js",
+			"fate": "stay",
+			"reason": "Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+		},
+		{
+			"source": "test/release-workflow.test.ts",
+			"fate": "stay",
+			"reason": "Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+		},
+		{
+			"source": "test/runtime-routing.test.ts",
+			"fate": "move",
+			"reason": "Tests follow moving core/Pi/tool behavior; rewrite imports only and retain every assertion."
+		},
+		{
+			"source": "test/sidebar-plugin.test.js",
+			"fate": "stay",
+			"reason": "Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+		},
+		{
+			"source": "test/socket-path.ts",
+			"fate": "split",
+			"reason": "Shared test support copied only where needed in both suites; preserve isolation, assertions and fixture semantics."
+		},
+		{
+			"source": "test/system-prompt-mode.test.ts",
+			"fate": "move",
+			"reason": "Legacy simulation-only smoke follows role/launch behavior; preserve but do not count it as real public-surface parity proof."
+		},
+		{
+			"source": "test/test.ts",
+			"fate": "split",
+			"reason": "Mixed 17,644-line suite: migrate every test by title/line manifest; engine/schema/protocol cases move, Herdr/widget/host-composition cases stay (\u00a75)."
+		},
+		{
+			"source": "test/verify-lab-guards.test.ts",
+			"fate": "stay",
+			"reason": "Existing host packaging/release/sidebar/lab policy; add separate Maestro packaging checks, do not transplant host assumptions."
+		},
+		{
+			"source": "test/worktree-cleanup-fixture.ts",
+			"fate": "split",
+			"reason": "Shared test support copied only where needed in both suites; preserve isolation, assertions and fixture semantics."
+		},
+		{
+			"source": "test/worktree-cleanup.test.ts",
+			"fate": "split",
+			"reason": "Move eligibility/Git/manifest cases; retain concrete Herdr workspace-removal composition cases."
+		}
+	],
+	"migrated": [],
+	"retained_unit_entries": [
+		"test/test.ts",
+		"test/verify-lab-guards.test.ts",
+		"test/worktree-cleanup.test.ts",
+		"test/launch.test.ts",
+		"test/runtime-routing.test.ts",
+		"test/release-workflow.test.ts",
+		"test/system-prompt-mode.test.ts",
+		"test/package-manifest.test.js",
+		"test/sidebar-plugin.test.js",
+		"test/maestro/accept-check.test.ts",
+		"test/maestro/accept-recheck.test.ts",
+		"test/maestro/accept-shutdown.test.ts",
+		"test/maestro/async-io.test.ts",
+		"test/maestro/audit-discovery.test.ts",
+		"test/maestro/audit-fork.test.ts",
+		"test/maestro/audit-git-environment.test.ts",
+		"test/maestro/audit-herdr-dispatch.test.ts",
+		"test/maestro/audit-ownership.test.ts",
+		"test/maestro/audit-persistent.test.ts",
+		"test/maestro/audit-reload.test.ts",
+		"test/maestro/audit-stop-notices.test.ts",
+		"test/maestro/audit-uncertain-retry.test.ts",
+		"test/maestro/core-lab.test.ts",
+		"test/maestro/core-parent.test.ts",
+		"test/maestro/core-roles-config.test.ts",
+		"test/maestro/deadline.test.ts",
+		"test/maestro/declared-skills.test.ts",
+		"test/maestro/deferred-tools.test.ts",
+		"test/maestro/delegated-marker.test.ts",
+		"test/maestro/delegation-depth.test.ts",
+		"test/maestro/dependency-rule.test.ts",
+		"test/maestro/fake-harness-adapter.test.ts",
+		"test/maestro/fake-surface-provider.test.ts",
+		"test/maestro/git-handoff-async.test.ts",
+		"test/maestro/herdr-available.test.ts",
+		"test/maestro/herdr-cli.test.ts",
+		"test/maestro/herdr-core-execution.test.ts",
+		"test/maestro/herdr-lab.test.ts",
+		"test/maestro/herdr-placement-async.test.ts",
+		"test/maestro/herdr-socket.test.ts",
+		"test/maestro/herdr-surface-provider.test.ts",
+		"test/maestro/linux-integration-driver.test.ts",
+		"test/maestro/opened-primary-workspace.test.ts",
+		"test/maestro/pi-harness-adapter.test.ts",
+		"test/maestro/pi-readiness-windows.test.ts",
+		"test/maestro/pi-run-session.test.ts",
+		"test/maestro/pr110-persistent-regressions.test.ts",
+		"test/maestro/process-cleanup.test.ts",
+		"test/maestro/process-environment.test.ts",
+		"test/maestro/process-identity.test.ts",
+		"test/maestro/process-tree.test.ts",
+		"test/maestro/realpath-without-opening.test.ts",
+		"test/maestro/run-session-cancel.test.ts",
+		"test/maestro/run-session.test.ts",
+		"test/maestro/script-launch.test.ts",
+		"test/maestro/sidebar-fixture-ownership.test.ts",
+		"test/maestro/socket-path.test.ts",
+		"test/maestro/specialist-notice.test.ts",
+		"test/maestro/supervision-wake.test.ts",
+		"test/maestro/task-model-approval.test.ts",
+		"test/maestro/task-model-init.test.ts",
+		"test/maestro/task-thinking-wiring.test.ts",
+		"test/maestro/task-thinking.test.ts",
+		"test/maestro/test-environment.test.ts",
+		"test/maestro/tool-schema.test.ts",
+		"test/maestro/windows-support-scope.test.ts",
+		"test/maestro/worktree-operations.test.ts"
+	],
+	"maestro_unit_entries": [
+		"test/index.test.js",
+		"test/copy-fidelity.test.ts",
+		"test/scaffold.test.ts"
+	],
+	"identity_ledger": "baseline/test-identities.json.gz",
+	"identity_capture": "evidence/baseline-final/baseline.jsonl",
+	"identity_note": "Structured event lineage capture has one timing failure; identities and skip statuses are complete. Green unchanged-source coverage is the prior baseline-isolated run; all attempts retained. No migrated identities before M2."
+}

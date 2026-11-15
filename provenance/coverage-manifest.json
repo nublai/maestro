@@ -1,0 +1,1896 @@
+{
+	"base_main_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+	"node": "26.12.1",
+	"original_unit_entries": [
+		"test/test.ts",
+		"test/verify-lab-guards.test.ts",
+		"test/worktree-cleanup.test.ts",
+		"test/launch.test.ts",
+		"test/runtime-routing.test.ts",
+		"test/release-workflow.test.ts",
+		"test/system-prompt-mode.test.ts",
+		"test/package-manifest.test.js",
+		"test/sidebar-plugin.test.js",
+		"test/maestro/accept-check.test.ts",
+		"test/maestro/accept-recheck.test.ts",
+		"test/maestro/accept-shutdown.test.ts",
+		"test/maestro/async-io.test.ts",
+		"test/maestro/audit-discovery.test.ts",
+		"test/maestro/audit-fork.test.ts",
+		"test/maestro/audit-git-environment.test.ts",
+		"test/maestro/audit-herdr-dispatch.test.ts",
+		"test/maestro/audit-ownership.test.ts",
+		"test/maestro/audit-persistent.test.ts",
+		"test/maestro/audit-reload.test.ts",
+		"test/maestro/audit-stop-notices.test.ts",
+		"test/maestro/audit-uncertain-retry.test.ts",
+		"test/maestro/core-lab.test.ts",
+		"test/maestro/core-parent.test.ts",
+		"test/maestro/core-roles-config.test.ts",
+		"test/maestro/deadline.test.ts",
+		"test/maestro/declared-skills.test.ts",
+		"test/maestro/deferred-tools.test.ts",
+		"test/maestro/delegated-marker.test.ts",
+		"test/maestro/delegation-depth.test.ts",
+		"test/maestro/dependency-rule.test.ts",
+		"test/maestro/fake-harness-adapter.test.ts",
+		"test/maestro/fake-surface-provider.test.ts",
+		"test/maestro/git-handoff-async.test.ts",
+		"test/maestro/herdr-available.test.ts",
+		"test/maestro/herdr-cli.test.ts",
+		"test/maestro/herdr-core-execution.test.ts",
+		"test/maestro/herdr-lab.test.ts",
+		"test/maestro/herdr-placement-async.test.ts",
+		"test/maestro/herdr-socket.test.ts",
+		"test/maestro/herdr-surface-provider.test.ts",
+		"test/maestro/linux-integration-driver.test.ts",
+		"test/maestro/opened-primary-workspace.test.ts",
+		"test/maestro/pi-harness-adapter.test.ts",
+		"test/maestro/pi-readiness-windows.test.ts",
+		"test/maestro/pi-run-session.test.ts",
+		"test/maestro/pr110-persistent-regressions.test.ts",
+		"test/maestro/process-cleanup.test.ts",
+		"test/maestro/process-environment.test.ts",
+		"test/maestro/process-identity.test.ts",
+		"test/maestro/process-tree.test.ts",
+		"test/maestro/realpath-without-opening.test.ts",
+		"test/maestro/run-session-cancel.test.ts",
+		"test/maestro/run-session.test.ts",
+		"test/maestro/script-launch.test.ts",
+		"test/maestro/sidebar-fixture-ownership.test.ts",
+		"test/maestro/socket-path.test.ts",
+		"test/maestro/specialist-notice.test.ts",
+		"test/maestro/supervision-wake.test.ts",
+		"test/maestro/task-model-approval.test.ts",
+		"test/maestro/task-model-init.test.ts",
+		"test/maestro/task-thinking-wiring.test.ts",
+		"test/maestro/task-thinking.test.ts",
+		"test/maestro/test-environment.test.ts",
+		"test/maestro/tool-schema.test.ts",
+		"test/maestro/windows-support-scope.test.ts",
+		"test/maestro/worktree-operations.test.ts"
+	],
+	"capture": "baseline/coverage.json.gz",
+	"coverage_status": "captured from green unchanged original suite, no migrated population",
+	"counts": {
+		"tests": 1769,
+		"failed": 0,
+		"passed": 1768,
+		"cancelled": 0,
+		"skipped": 1,
+		"todo": 0,
+		"topLevel": 517,
+		"suites": 160
+	},
+	"metrics": {
+		"core": {
+			"floor_line_mean": 98.0,
+			"files": 36,
+			"observed_arithmetic_line_mean": 98.0485953725156,
+			"observed_weighted_line_percent": 97.92215393620134
+		},
+		"runtime": {
+			"floor_line_mean": 98.9,
+			"files": 10,
+			"observed_arithmetic_line_mean": 98.94096225077136,
+			"observed_weighted_line_percent": 98.0637813211845
+		},
+		"surfaces": {
+			"floor_line_mean": 85.2,
+			"files": 9,
+			"observed_arithmetic_line_mean": 91.19073215228121,
+			"observed_weighted_line_percent": 91.6102443332352
+		}
+	},
+	"gate_method": "Arithmetic mean over original-file population at local M6/H2; per-file non-regression during migration; report weighted ratio too. Merge raw hits via ownership/source maps, not means of suite reports; fail missing original files. Adapters/tools reported per file, package-only and A0 separate.",
+	"original_files": [
+		{
+			"source": "maestro/adapters/fake/fake-harness-adapter.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 98.47908745247149,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 259,
+			"total_lines": 263,
+			"branch_function_variants": [
+				{
+					"branch": 82.53968253968253,
+					"function": 96.7741935483871,
+					"report_index": 0
+				}
+			]
+		},
+		{
+			"source": "maestro/adapters/pi/accept-groups.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 104,
+			"total_lines": 104,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 1
+				}
+			]
+		},
+		{
+			"source": "maestro/adapters/pi/accept-runner.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 96.17224880382776,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 201,
+			"total_lines": 209,
+			"branch_function_variants": [
+				{
+					"branch": 84.28571428571429,
+					"function": 81.48148148148148,
+					"report_index": 2
+				}
+			]
+		},
+		{
+			"source": "maestro/adapters/pi/activity-file.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 86.5414710485133,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 553,
+			"total_lines": 639,
+			"branch_function_variants": [
+				{
+					"branch": 88.02816901408451,
+					"function": 76.92307692307693,
+					"report_index": 3
+				}
+			]
+		},
+		{
+			"source": "maestro/adapters/pi/child/accept-check.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 96.55172413793103,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 112,
+			"total_lines": 116,
+			"branch_function_variants": [
+				{
+					"branch": 83.33333333333334,
+					"function": 100,
+					"report_index": 4
+				}
+			]
+		},
+		{
+			"source": "maestro/adapters/pi/child/declared-skills.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 95.02487562189054,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 191,
+			"total_lines": 201,
+			"branch_function_variants": [
+				{
+					"branch": 90.9090909090909,
+					"function": 100,
+					"report_index": 5
+				}
+			]
+		},
+		{
+			"source": "maestro/adapters/pi/child/done-nudge.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 95.91836734693878,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 94,
+			"total_lines": 98,
+			"branch_function_variants": [
+				{
+					"branch": 81.48148148148148,
+					"function": 100,
+					"report_index": 6
+				}
+			]
+		},
+		{
+			"source": "maestro/adapters/pi/child/subagent-done.ts",
+			"fate": "split",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 95.41984732824427,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 625,
+			"total_lines": 655,
+			"branch_function_variants": [
+				{
+					"branch": 86.23188405797102,
+					"function": 82.6086956521739,
+					"report_index": 7
+				},
+				{
+					"branch": 25,
+					"function": 10.256410256410255,
+					"report_index": 8
+				}
+			]
+		},
+		{
+			"source": "maestro/adapters/pi/completion.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 98.58757062146893,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 349,
+			"total_lines": 354,
+			"branch_function_variants": [
+				{
+					"branch": 99.21259842519686,
+					"function": 90.9090909090909,
+					"report_index": 9
+				}
+			]
+		},
+		{
+			"source": "maestro/adapters/pi/launch-command.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 96,
+			"total_lines": 96,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 10
+				}
+			]
+		},
+		{
+			"source": "maestro/adapters/pi/launch-operations.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 97.83132530120481,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 406,
+			"total_lines": 415,
+			"branch_function_variants": [
+				{
+					"branch": 89.69072164948454,
+					"function": 92,
+					"report_index": 11
+				}
+			]
+		},
+		{
+			"source": "maestro/adapters/pi/launch-resume.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 258,
+			"total_lines": 258,
+			"branch_function_variants": [
+				{
+					"branch": 96.05263157894737,
+					"function": 100,
+					"report_index": 12
+				}
+			]
+		},
+		{
+			"source": "maestro/adapters/pi/launch.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 99.13793103448276,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 1035,
+			"total_lines": 1044,
+			"branch_function_variants": [
+				{
+					"branch": 93.56223175965665,
+					"function": 100,
+					"report_index": 13
+				}
+			]
+		},
+		{
+			"source": "maestro/adapters/pi/model-registry.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 46,
+			"total_lines": 46,
+			"branch_function_variants": [
+				{
+					"branch": 76.92307692307693,
+					"function": 100,
+					"report_index": 14
+				}
+			]
+		},
+		{
+			"source": "maestro/adapters/pi/pi-harness-adapter.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 94.0934065934066,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 685,
+			"total_lines": 728,
+			"branch_function_variants": [
+				{
+					"branch": 87.6923076923077,
+					"function": 95.1219512195122,
+					"report_index": 15
+				}
+			]
+		},
+		{
+			"source": "maestro/adapters/pi/process-identity.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 98.82697947214076,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 337,
+			"total_lines": 341,
+			"branch_function_variants": [
+				{
+					"branch": 95.83333333333334,
+					"function": 100,
+					"report_index": 16
+				}
+			]
+		},
+		{
+			"source": "maestro/adapters/pi/process-tree.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 90.9090909090909,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 110,
+			"total_lines": 121,
+			"branch_function_variants": [
+				{
+					"branch": 80,
+					"function": 71.42857142857143,
+					"report_index": 17
+				}
+			]
+		},
+		{
+			"source": "maestro/adapters/pi/script-shell.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 77,
+			"total_lines": 77,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 18
+				}
+			]
+		},
+		{
+			"source": "maestro/adapters/pi/session.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 96.6887417218543,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 1022,
+			"total_lines": 1057,
+			"branch_function_variants": [
+				{
+					"branch": 91.9298245614035,
+					"function": 100,
+					"report_index": 19
+				}
+			]
+		},
+		{
+			"source": "maestro/adapters/pi/task-model-init.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 55,
+			"total_lines": 55,
+			"branch_function_variants": [
+				{
+					"branch": 94.73684210526315,
+					"function": 100,
+					"report_index": 20
+				}
+			]
+		},
+		{
+			"source": "maestro/core/accept.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 97.61904761904762,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 369,
+			"total_lines": 378,
+			"branch_function_variants": [
+				{
+					"branch": 89.01098901098901,
+					"function": 100,
+					"report_index": 21
+				}
+			]
+		},
+		{
+			"source": "maestro/core/activity.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 29,
+			"total_lines": 29,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 22
+				}
+			]
+		},
+		{
+			"source": "maestro/core/child-busy.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 21,
+			"total_lines": 21,
+			"branch_function_variants": [
+				{
+					"branch": 66.66666666666666,
+					"function": 100,
+					"report_index": 23
+				}
+			]
+		},
+		{
+			"source": "maestro/core/config/guidelines-config.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 79,
+			"total_lines": 79,
+			"branch_function_variants": [
+				{
+					"branch": 94.44444444444444,
+					"function": 100,
+					"report_index": 24
+				}
+			]
+		},
+		{
+			"source": "maestro/core/config/herdr-config.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 88,
+			"total_lines": 88,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 25
+				}
+			]
+		},
+		{
+			"source": "maestro/core/config/model-config.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 98.46350832266326,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 769,
+			"total_lines": 781,
+			"branch_function_variants": [
+				{
+					"branch": 93.65079365079364,
+					"function": 100,
+					"report_index": 26
+				}
+			]
+		},
+		{
+			"source": "maestro/core/config/outcome-ledger-config.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 87.93103448275862,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 51,
+			"total_lines": 58,
+			"branch_function_variants": [
+				{
+					"branch": 81.81818181818183,
+					"function": 100,
+					"report_index": 27
+				}
+			]
+		},
+		{
+			"source": "maestro/core/config/pane-config.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 96.34146341463415,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 158,
+			"total_lines": 164,
+			"branch_function_variants": [
+				{
+					"branch": 97.77777777777777,
+					"function": 87.5,
+					"report_index": 28
+				}
+			]
+		},
+		{
+			"source": "maestro/core/config/persistent-config.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 96.26168224299066,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 103,
+			"total_lines": 107,
+			"branch_function_variants": [
+				{
+					"branch": 91.66666666666666,
+					"function": 100,
+					"report_index": 29
+				}
+			]
+		},
+		{
+			"source": "maestro/core/config/role-config.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 99,
+			"total_lines": 99,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 30
+				}
+			]
+		},
+		{
+			"source": "maestro/core/config/spawning-config.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 91.66666666666667,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 77,
+			"total_lines": 84,
+			"branch_function_variants": [
+				{
+					"branch": 95.45454545454545,
+					"function": 100,
+					"report_index": 31
+				}
+			]
+		},
+		{
+			"source": "maestro/core/config/supervision-config.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 95.83333333333333,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 92,
+			"total_lines": 96,
+			"branch_function_variants": [
+				{
+					"branch": 93.54838709677419,
+					"function": 100,
+					"report_index": 32
+				}
+			]
+		},
+		{
+			"source": "maestro/core/config/task-model-init.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 270,
+			"total_lines": 270,
+			"branch_function_variants": [
+				{
+					"branch": 98.30508474576271,
+					"function": 92.3076923076923,
+					"report_index": 33
+				}
+			]
+		},
+		{
+			"source": "maestro/core/config/task-model-types.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 45,
+			"total_lines": 45,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 34
+				}
+			]
+		},
+		{
+			"source": "maestro/core/config/type-guards.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 51,
+			"total_lines": 51,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 35
+				}
+			]
+		},
+		{
+			"source": "maestro/core/deadline.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 35,
+			"total_lines": 35,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 36
+				}
+			]
+		},
+		{
+			"source": "maestro/core/declared-skills.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 59,
+			"total_lines": 59,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 37
+				}
+			]
+		},
+		{
+			"source": "maestro/core/delegation-depth.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 79,
+			"total_lines": 79,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 38
+				}
+			]
+		},
+		{
+			"source": "maestro/core/git-environment.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 33,
+			"total_lines": 33,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 39
+				}
+			]
+		},
+		{
+			"source": "maestro/core/host-text.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 130,
+			"total_lines": 130,
+			"branch_function_variants": [
+				{
+					"branch": 76,
+					"function": 100,
+					"report_index": 40
+				}
+			]
+		},
+		{
+			"source": "maestro/core/lifecycle.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 94.07407407407408,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 508,
+			"total_lines": 540,
+			"branch_function_variants": [
+				{
+					"branch": 89.02439024390245,
+					"function": 100,
+					"report_index": 41
+				}
+			]
+		},
+		{
+			"source": "maestro/core/opened-primary-workspace.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 89.81481481481481,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 97,
+			"total_lines": 108,
+			"branch_function_variants": [
+				{
+					"branch": 78.57142857142857,
+					"function": 81.81818181818183,
+					"report_index": 42
+				}
+			]
+		},
+		{
+			"source": "maestro/core/platform-support.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 31,
+			"total_lines": 31,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 43
+				}
+			]
+		},
+		{
+			"source": "maestro/core/realpath-without-opening.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 95.55555555555556,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 43,
+			"total_lines": 45,
+			"branch_function_variants": [
+				{
+					"branch": 80,
+					"function": 100,
+					"report_index": 44
+				}
+			]
+		},
+		{
+			"source": "maestro/core/roles/discovery.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 99.32885906040268,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 592,
+			"total_lines": 596,
+			"branch_function_variants": [
+				{
+					"branch": 97.14285714285714,
+					"function": 96.7741935483871,
+					"report_index": 45
+				}
+			]
+		},
+		{
+			"source": "maestro/core/routing.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 99.29278642149929,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 702,
+			"total_lines": 707,
+			"branch_function_variants": [
+				{
+					"branch": 97.75784753363229,
+					"function": 100,
+					"report_index": 46
+				}
+			]
+		},
+		{
+			"source": "maestro/core/script-launch.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 128,
+			"total_lines": 128,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 47
+				}
+			]
+		},
+		{
+			"source": "maestro/core/shell.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 3,
+			"total_lines": 3,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 48
+				}
+			]
+		},
+		{
+			"source": "maestro/core/specialist-notice.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 98.46153846153847,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 64,
+			"total_lines": 65,
+			"branch_function_variants": [
+				{
+					"branch": 94.11764705882352,
+					"function": 100,
+					"report_index": 49
+				}
+			]
+		},
+		{
+			"source": "maestro/core/status.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 95.26315789473684,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 543,
+			"total_lines": 570,
+			"branch_function_variants": [
+				{
+					"branch": 76.03305785123968,
+					"function": 100,
+					"report_index": 50
+				}
+			]
+		},
+		{
+			"source": "maestro/core/supervision.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 99.33554817275747,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 299,
+			"total_lines": 301,
+			"branch_function_variants": [
+				{
+					"branch": 95.32710280373831,
+					"function": 96.875,
+					"report_index": 51
+				}
+			]
+		},
+		{
+			"source": "maestro/core/surface-provider.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 340,
+			"total_lines": 340,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 52
+				}
+			]
+		},
+		{
+			"source": "maestro/core/undelivered-children.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 43,
+			"total_lines": 43,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 53
+				}
+			]
+		},
+		{
+			"source": "maestro/core/wake.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 94.96402877697842,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 132,
+			"total_lines": 139,
+			"branch_function_variants": [
+				{
+					"branch": 95.45454545454545,
+					"function": 85.71428571428571,
+					"report_index": 54
+				}
+			]
+		},
+		{
+			"source": "maestro/core/worktree-cleanup.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 99.54233409610984,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 435,
+			"total_lines": 437,
+			"branch_function_variants": [
+				{
+					"branch": 94.0828402366864,
+					"function": 96.29629629629629,
+					"report_index": 55
+				}
+			]
+		},
+		{
+			"source": "maestro/core/worktree.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "core",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 95,
+			"total_lines": 95,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 56
+				}
+			]
+		},
+		{
+			"source": "maestro/runtime/accept-recheck.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "runtime",
+			"line": 98.46153846153847,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 128,
+			"total_lines": 130,
+			"branch_function_variants": [
+				{
+					"branch": 79.06976744186046,
+					"function": 100,
+					"report_index": 57
+				}
+			]
+		},
+		{
+			"source": "maestro/runtime/delegated-marker.ts",
+			"fate": "split",
+			"current_owner": "pi-herdr-agents",
+			"population": "runtime",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 250,
+			"total_lines": 250,
+			"branch_function_variants": [
+				{
+					"branch": 96,
+					"function": 100,
+					"report_index": 58
+				}
+			]
+		},
+		{
+			"source": "maestro/runtime/herdr-backend.ts",
+			"fate": "split",
+			"current_owner": "pi-herdr-agents",
+			"population": "runtime",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 32,
+			"total_lines": 32,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 59
+				}
+			]
+		},
+		{
+			"source": "maestro/runtime/index.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "runtime",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 48,
+			"total_lines": 48,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 60
+				}
+			]
+		},
+		{
+			"source": "maestro/runtime/pi-persistent-io.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "runtime",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 101,
+			"total_lines": 101,
+			"branch_function_variants": [
+				{
+					"branch": 96.7741935483871,
+					"function": 100,
+					"report_index": 61
+				}
+			]
+		},
+		{
+			"source": "maestro/runtime/pi-run-session.ts",
+			"fate": "split",
+			"current_owner": "pi-herdr-agents",
+			"population": "runtime",
+			"line": 96.89497716894977,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 1061,
+			"total_lines": 1095,
+			"branch_function_variants": [
+				{
+					"branch": 94.13919413919413,
+					"function": 92.72727272727272,
+					"report_index": 62
+				}
+			]
+		},
+		{
+			"source": "maestro/runtime/run-session.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "runtime",
+			"line": 99.46062567421791,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 922,
+			"total_lines": 927,
+			"branch_function_variants": [
+				{
+					"branch": 96.55172413793103,
+					"function": 100,
+					"report_index": 63
+				}
+			]
+		},
+		{
+			"source": "maestro/runtime/surface-retention.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "runtime",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 6,
+			"total_lines": 6,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 64
+				}
+			]
+		},
+		{
+			"source": "maestro/runtime/task-model-init.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "runtime",
+			"line": 97.6,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 122,
+			"total_lines": 125,
+			"branch_function_variants": [
+				{
+					"branch": 96.96969696969697,
+					"function": 100,
+					"report_index": 65
+				}
+			]
+		},
+		{
+			"source": "maestro/runtime/worktree-operations.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "runtime",
+			"line": 96.99248120300751,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 774,
+			"total_lines": 798,
+			"branch_function_variants": [
+				{
+					"branch": 85.5,
+					"function": 92.98245614035088,
+					"report_index": 66
+				}
+			]
+		},
+		{
+			"source": "maestro/surfaces/fake/fake-surface-provider.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "surfaces",
+			"line": 90.28213166144201,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 288,
+			"total_lines": 319,
+			"branch_function_variants": [
+				{
+					"branch": 92.85714285714286,
+					"function": 82.5,
+					"report_index": 67
+				}
+			]
+		},
+		{
+			"source": "maestro/surfaces/herdr/herdr-cli.ts",
+			"fate": "stay",
+			"current_owner": "pi-herdr-agents",
+			"population": "surfaces",
+			"line": 92.37288135593221,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 218,
+			"total_lines": 236,
+			"branch_function_variants": [
+				{
+					"branch": 88.52459016393442,
+					"function": 95.45454545454545,
+					"report_index": 68
+				}
+			]
+		},
+		{
+			"source": "maestro/surfaces/herdr/herdr-core-protocol.ts",
+			"fate": "stay",
+			"current_owner": "pi-herdr-agents",
+			"population": "surfaces",
+			"line": 99.64788732394366,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 283,
+			"total_lines": 284,
+			"branch_function_variants": [
+				{
+					"branch": 87.09677419354838,
+					"function": 100,
+					"report_index": 69
+				}
+			]
+		},
+		{
+			"source": "maestro/surfaces/herdr/herdr-core-surface-provider.ts",
+			"fate": "stay",
+			"current_owner": "pi-herdr-agents",
+			"population": "surfaces",
+			"line": 93.51851851851852,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 303,
+			"total_lines": 324,
+			"branch_function_variants": [
+				{
+					"branch": 91.01123595505618,
+					"function": 78.26086956521739,
+					"report_index": 70
+				}
+			]
+		},
+		{
+			"source": "maestro/surfaces/herdr/herdr-pane.ts",
+			"fate": "stay",
+			"current_owner": "pi-herdr-agents",
+			"population": "surfaces",
+			"line": 93.13432835820896,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 312,
+			"total_lines": 335,
+			"branch_function_variants": [
+				{
+					"branch": 81.30841121495327,
+					"function": 87.5,
+					"report_index": 71
+				}
+			]
+		},
+		{
+			"source": "maestro/surfaces/herdr/herdr-socket.ts",
+			"fate": "stay",
+			"current_owner": "pi-herdr-agents",
+			"population": "surfaces",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 207,
+			"total_lines": 207,
+			"branch_function_variants": [
+				{
+					"branch": 98.14814814814815,
+					"function": 100,
+					"report_index": 72
+				}
+			]
+		},
+		{
+			"source": "maestro/surfaces/herdr/herdr-surface-provider.ts",
+			"fate": "stay",
+			"current_owner": "pi-herdr-agents",
+			"population": "surfaces",
+			"line": 94.91525423728814,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 224,
+			"total_lines": 236,
+			"branch_function_variants": [
+				{
+					"branch": 92,
+					"function": 96.55172413793103,
+					"report_index": 73
+				}
+			]
+		},
+		{
+			"source": "maestro/surfaces/herdr/herdr.ts",
+			"fate": "stay",
+			"current_owner": "pi-herdr-agents",
+			"population": "surfaces",
+			"line": 92.47311827956989,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 1118,
+			"total_lines": 1209,
+			"branch_function_variants": [
+				{
+					"branch": 84.7328244274809,
+					"function": 90.12345679012346,
+					"report_index": 74
+				},
+				{
+					"branch": 42.22222222222222,
+					"function": 28.57142857142857,
+					"report_index": 75
+				},
+				{
+					"branch": 42.857142857142854,
+					"function": 26.984126984126984,
+					"report_index": 76
+				}
+			]
+		},
+		{
+			"source": "maestro/surfaces/herdr/terminal.ts",
+			"fate": "stay",
+			"current_owner": "pi-herdr-agents",
+			"population": "surfaces",
+			"line": 64.37246963562752,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 159,
+			"total_lines": 247,
+			"branch_function_variants": [
+				{
+					"branch": 86.36363636363636,
+					"function": 30.434782608695656,
+					"report_index": 77
+				}
+			]
+		},
+		{
+			"source": "pi-extension/subagents/catalog.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 355,
+			"total_lines": 355,
+			"branch_function_variants": [
+				{
+					"branch": 98.55072463768117,
+					"function": 100,
+					"report_index": 78
+				}
+			]
+		},
+		{
+			"source": "pi-extension/subagents/config-path.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 26,
+			"total_lines": 26,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 79
+				}
+			]
+		},
+		{
+			"source": "pi-extension/subagents/control-tools.ts",
+			"fate": "split",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 62.34939759036145,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 207,
+			"total_lines": 332,
+			"branch_function_variants": [
+				{
+					"branch": 75,
+					"function": 42.857142857142854,
+					"report_index": 80
+				}
+			]
+		},
+		{
+			"source": "pi-extension/subagents/controls.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 95.47169811320755,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 253,
+			"total_lines": 265,
+			"branch_function_variants": [
+				{
+					"branch": 90.38461538461539,
+					"function": 90.9090909090909,
+					"report_index": 81
+				}
+			]
+		},
+		{
+			"source": "pi-extension/subagents/deferred-tools.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 98,
+			"total_lines": 98,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 82
+				}
+			]
+		},
+		{
+			"source": "pi-extension/subagents/delivery.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 99.42196531791907,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 516,
+			"total_lines": 519,
+			"branch_function_variants": [
+				{
+					"branch": 87.82608695652175,
+					"function": 100,
+					"report_index": 83
+				}
+			]
+		},
+		{
+			"source": "pi-extension/subagents/index.ts",
+			"fate": "split",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 92.80701754385964,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 529,
+			"total_lines": 570,
+			"branch_function_variants": [
+				{
+					"branch": 82.6923076923077,
+					"function": 84.21052631578947,
+					"report_index": 84
+				},
+				{
+					"branch": 63.63636363636363,
+					"function": 50,
+					"report_index": 85
+				},
+				{
+					"branch": 50,
+					"function": 50,
+					"report_index": 86
+				},
+				{
+					"branch": 55.55555555555556,
+					"function": 55.55555555555556,
+					"report_index": 87
+				},
+				{
+					"branch": 45.45454545454545,
+					"function": 50,
+					"report_index": 88
+				},
+				{
+					"branch": 60,
+					"function": 55.55555555555556,
+					"report_index": 89
+				},
+				{
+					"branch": 60,
+					"function": 55.55555555555556,
+					"report_index": 89
+				},
+				{
+					"branch": 25,
+					"function": 0,
+					"report_index": 91
+				},
+				{
+					"branch": 55.55555555555556,
+					"function": 22.22222222222222,
+					"report_index": 92
+				},
+				{
+					"branch": 52.63157894736842,
+					"function": 44.44444444444444,
+					"report_index": 93
+				},
+				{
+					"branch": 45,
+					"function": 44.44444444444444,
+					"report_index": 94
+				},
+				{
+					"branch": 50,
+					"function": 44.44444444444444,
+					"report_index": 95
+				},
+				{
+					"branch": 45,
+					"function": 44.44444444444444,
+					"report_index": 94
+				},
+				{
+					"branch": 53.333333333333336,
+					"function": 38.88888888888889,
+					"report_index": 97
+				},
+				{
+					"branch": 50,
+					"function": 38.88888888888889,
+					"report_index": 98
+				},
+				{
+					"branch": 50,
+					"function": 27.77777777777778,
+					"report_index": 99
+				},
+				{
+					"branch": 46.15384615384615,
+					"function": 27.77777777777778,
+					"report_index": 100
+				}
+			]
+		},
+		{
+			"source": "pi-extension/subagents/launch-tools.ts",
+			"fate": "split",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 84.68899521531101,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 531,
+			"total_lines": 627,
+			"branch_function_variants": [
+				{
+					"branch": 75.89285714285714,
+					"function": 80,
+					"report_index": 101
+				}
+			]
+		},
+		{
+			"source": "pi-extension/subagents/launch.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 94.5945945945946,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 210,
+			"total_lines": 222,
+			"branch_function_variants": [
+				{
+					"branch": 83.72093023255815,
+					"function": 71.42857142857143,
+					"report_index": 102
+				}
+			]
+		},
+		{
+			"source": "pi-extension/subagents/model-registry.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 87,
+			"total_lines": 87,
+			"branch_function_variants": [
+				{
+					"branch": 93.93939393939394,
+					"function": 100,
+					"report_index": 103
+				}
+			]
+		},
+		{
+			"source": "pi-extension/subagents/observation.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 95.63492063492063,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 241,
+			"total_lines": 252,
+			"branch_function_variants": [
+				{
+					"branch": 78.57142857142857,
+					"function": 100,
+					"report_index": 104
+				}
+			]
+		},
+		{
+			"source": "pi-extension/subagents/persistent.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 97.30337078651685,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 433,
+			"total_lines": 445,
+			"branch_function_variants": [
+				{
+					"branch": 86.36363636363636,
+					"function": 100,
+					"report_index": 105
+				}
+			]
+		},
+		{
+			"source": "pi-extension/subagents/presentation.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 97.10144927536231,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 670,
+			"total_lines": 690,
+			"branch_function_variants": [
+				{
+					"branch": 94.15584415584416,
+					"function": 95.1219512195122,
+					"report_index": 106
+				}
+			]
+		},
+		{
+			"source": "pi-extension/subagents/renderers.ts",
+			"fate": "stay",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 90.96209912536443,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 312,
+			"total_lines": 343,
+			"branch_function_variants": [
+				{
+					"branch": 66.21621621621621,
+					"function": 84.61538461538461,
+					"report_index": 107
+				}
+			]
+		},
+		{
+			"source": "pi-extension/subagents/state.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 282,
+			"total_lines": 282,
+			"branch_function_variants": [
+				{
+					"branch": 94.87179487179486,
+					"function": 100,
+					"report_index": 108
+				}
+			]
+		},
+		{
+			"source": "pi-extension/subagents/task-models.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 473,
+			"total_lines": 473,
+			"branch_function_variants": [
+				{
+					"branch": 98.13084112149532,
+					"function": 94.11764705882352,
+					"report_index": 109
+				}
+			]
+		},
+		{
+			"source": "pi-extension/subagents/tool-boundary.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 100.0,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 67,
+			"total_lines": 67,
+			"branch_function_variants": [
+				{
+					"branch": 100,
+					"function": 100,
+					"report_index": 110
+				}
+			]
+		},
+		{
+			"source": "pi-extension/subagents/widgets.ts",
+			"fate": "stay",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 93.86666666666666,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 352,
+			"total_lines": 375,
+			"branch_function_variants": [
+				{
+					"branch": 88.63636363636364,
+					"function": 93.75,
+					"report_index": 111
+				}
+			]
+		},
+		{
+			"source": "pi-extension/subagents/worktree-tools.ts",
+			"fate": "move",
+			"current_owner": "pi-herdr-agents",
+			"population": "adapters/tools",
+			"line": 86.71875,
+			"split_line_map": [],
+			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"covered_lines": 222,
+			"total_lines": 256,
+			"branch_function_variants": [
+				{
+					"branch": 76.36363636363637,
+					"function": 100,
+					"report_index": 112
+				}
+			]
+		}
+	],
+	"normalization": "Node reports three reload-query variants of herdr.ts under one path. Original-file line hits are unioned by line before computing the nine-file surfaces mean. Raw branch/function variants are retained unchanged; M6 must merge branch ranges from raw V8, not average these variants."
+}

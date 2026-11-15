@@ -1,0 +1,827 @@
+{
+	"source_repository": "giuseppecrj/pi-herdr-agents",
+	"inventory_sha": "e020a148bbf9424f4e92635ecd9d138c94982292",
+	"base_main_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+	"experimental_sha": "f9e6cc5367dd203e7d32e6b4059aa389f3003a8d",
+	"production": [
+		{
+			"source": "maestro/adapters/fake/fake-harness-adapter.ts",
+			"fate": "move",
+			"reason": "Engine/provider conformance fake; expose only through testing entry."
+		},
+		{
+			"source": "maestro/adapters/pi/accept-groups.ts",
+			"fate": "move",
+			"reason": "Pi protocol/adapter implementation and its existing dependencies; publish emitted JS."
+		},
+		{
+			"source": "maestro/adapters/pi/accept-runner.ts",
+			"fate": "move",
+			"reason": "Pi protocol/adapter implementation and its existing dependencies; publish emitted JS."
+		},
+		{
+			"source": "maestro/adapters/pi/activity-file.ts",
+			"fate": "move",
+			"reason": "Pi protocol/adapter implementation and its existing dependencies; publish emitted JS."
+		},
+		{
+			"source": "maestro/adapters/pi/child/accept-check.ts",
+			"fate": "move",
+			"reason": "Pi protocol/adapter implementation and its existing dependencies; publish emitted JS."
+		},
+		{
+			"source": "maestro/adapters/pi/child/declared-skills.ts",
+			"fate": "move",
+			"reason": "Pi protocol/adapter implementation and its existing dependencies; publish emitted JS."
+		},
+		{
+			"source": "maestro/adapters/pi/child/done-nudge.ts",
+			"fate": "move",
+			"reason": "Pi protocol/adapter implementation and its existing dependencies; publish emitted JS."
+		},
+		{
+			"source": "maestro/adapters/pi/child/subagent-done.ts",
+			"fate": "split",
+			"reason": "H4: child protocol/caller_ping/accept/persistent logic moves; terminal widget stays and is injected; add tiny reporter entry."
+		},
+		{
+			"source": "maestro/adapters/pi/completion.ts",
+			"fate": "move",
+			"reason": "Pi protocol/adapter implementation and its existing dependencies; publish emitted JS."
+		},
+		{
+			"source": "maestro/adapters/pi/launch-command.ts",
+			"fate": "move",
+			"reason": "Preserve command helpers; resolve emitted child entry instead of deriving a source-only path (H4)."
+		},
+		{
+			"source": "maestro/adapters/pi/launch-operations.ts",
+			"fate": "move",
+			"reason": "Pi protocol/adapter implementation and its existing dependencies; publish emitted JS."
+		},
+		{
+			"source": "maestro/adapters/pi/launch-resume.ts",
+			"fate": "move",
+			"reason": "Preserve launch transaction; replace literal child .ts resource path with supplied/emitted entry (H4)."
+		},
+		{
+			"source": "maestro/adapters/pi/launch.ts",
+			"fate": "move",
+			"reason": "Preserve launch transaction; replace literal child .ts resource path with supplied/emitted entry (H4)."
+		},
+		{
+			"source": "maestro/adapters/pi/model-registry.ts",
+			"fate": "move",
+			"reason": "Pi protocol/adapter implementation and its existing dependencies; publish emitted JS."
+		},
+		{
+			"source": "maestro/adapters/pi/pi-harness-adapter.ts",
+			"fate": "move",
+			"reason": "Pi protocol/adapter implementation and its existing dependencies; publish emitted JS."
+		},
+		{
+			"source": "maestro/adapters/pi/process-identity.ts",
+			"fate": "move",
+			"reason": "Pi protocol/adapter implementation and its existing dependencies; publish emitted JS."
+		},
+		{
+			"source": "maestro/adapters/pi/process-tree.ts",
+			"fate": "move",
+			"reason": "Pi protocol/adapter implementation and its existing dependencies; publish emitted JS."
+		},
+		{
+			"source": "maestro/adapters/pi/script-shell.ts",
+			"fate": "move",
+			"reason": "Pi protocol/adapter implementation and its existing dependencies; publish emitted JS."
+		},
+		{
+			"source": "maestro/adapters/pi/session.ts",
+			"fate": "move",
+			"reason": "Pi protocol/adapter implementation and its existing dependencies; publish emitted JS."
+		},
+		{
+			"source": "maestro/adapters/pi/task-model-init.ts",
+			"fate": "move",
+			"reason": "Pi protocol/adapter implementation and its existing dependencies; publish emitted JS."
+		},
+		{
+			"source": "maestro/core/accept.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/activity.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/child-busy.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/config/guidelines-config.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/config/herdr-config.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/config/model-config.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/config/outcome-ledger-config.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/config/pane-config.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/config/persistent-config.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/config/role-config.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/config/spawning-config.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/config/supervision-config.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/config/task-model-init.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/config/task-model-types.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/config/type-guards.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/deadline.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/declared-skills.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/delegation-depth.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/git-environment.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/harness-adapter.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/host-text.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/index.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/lifecycle.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/opened-primary-workspace.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/platform-support.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/realpath-without-opening.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/roles/discovery.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/routing.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/script-launch.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/shell.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/specialist-notice.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/status.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/supervision.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/surface-provider.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/types.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/undelivered-children.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/wake.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/worktree-cleanup.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/core/worktree.ts",
+			"fate": "move",
+			"reason": "Existing core contract/policy/helper; retain current DTOs, defaults and semantics, including legacy names."
+		},
+		{
+			"source": "maestro/runtime/accept-recheck.ts",
+			"fate": "move",
+			"reason": "Runtime orchestration/I/O owned by Maestro; preserve existing operation order and evidence."
+		},
+		{
+			"source": "maestro/runtime/delegated-marker.ts",
+			"fate": "split",
+			"reason": "H2: marker algorithm/constants and structural DTOs move; Herdr socket reader/writer factories stay."
+		},
+		{
+			"source": "maestro/runtime/herdr-backend.ts",
+			"fate": "split",
+			"reason": "H1: concrete selection/factories stay in host; neutral factory/binding option contract moves into runtime composition."
+		},
+		{
+			"source": "maestro/runtime/index.ts",
+			"fate": "move",
+			"reason": "Runtime orchestration/I/O owned by Maestro; preserve existing operation order and evidence."
+		},
+		{
+			"source": "maestro/runtime/pi-persistent-io.ts",
+			"fate": "move",
+			"reason": "Runtime orchestration/I/O owned by Maestro; preserve existing operation order and evidence."
+		},
+		{
+			"source": "maestro/runtime/pi-run-session-types.ts",
+			"fate": "move",
+			"reason": "Runtime orchestration/I/O owned by Maestro; preserve existing operation order and evidence."
+		},
+		{
+			"source": "maestro/runtime/pi-run-session.ts",
+			"fate": "split",
+			"reason": "H1/H2: owning Pi session moves; concrete default/per-launch factories and ambient marker wiring become supplied host callbacks."
+		},
+		{
+			"source": "maestro/runtime/run-session.ts",
+			"fate": "move",
+			"reason": "Runtime orchestration/I/O owned by Maestro; preserve existing operation order and evidence."
+		},
+		{
+			"source": "maestro/runtime/surface-retention.ts",
+			"fate": "move",
+			"reason": "Runtime orchestration/I/O owned by Maestro; preserve existing operation order and evidence."
+		},
+		{
+			"source": "maestro/runtime/task-model-init.ts",
+			"fate": "move",
+			"reason": "Runtime orchestration/I/O owned by Maestro; preserve existing operation order and evidence."
+		},
+		{
+			"source": "maestro/runtime/worktree-operations.ts",
+			"fate": "move",
+			"reason": "Runtime orchestration/I/O owned by Maestro; preserve existing operation order and evidence."
+		},
+		{
+			"source": "maestro/surfaces/fake/fake-surface-provider.ts",
+			"fate": "move",
+			"reason": "Engine/provider conformance fake; expose only through testing entry."
+		},
+		{
+			"source": "maestro/surfaces/herdr/herdr-cli.ts",
+			"fate": "stay",
+			"reason": "Concrete Herdr/Core transport, placement or terminal execution; host-owned provider implementation."
+		},
+		{
+			"source": "maestro/surfaces/herdr/herdr-core-protocol.ts",
+			"fate": "stay",
+			"reason": "Concrete Herdr/Core transport, placement or terminal execution; host-owned provider implementation."
+		},
+		{
+			"source": "maestro/surfaces/herdr/herdr-core-surface-provider.ts",
+			"fate": "stay",
+			"reason": "Concrete Herdr/Core transport, placement or terminal execution; host-owned provider implementation."
+		},
+		{
+			"source": "maestro/surfaces/herdr/herdr-pane.ts",
+			"fate": "stay",
+			"reason": "Concrete Herdr/Core transport, placement or terminal execution; host-owned provider implementation."
+		},
+		{
+			"source": "maestro/surfaces/herdr/herdr-socket.ts",
+			"fate": "stay",
+			"reason": "Concrete Herdr/Core transport, placement or terminal execution; host-owned provider implementation."
+		},
+		{
+			"source": "maestro/surfaces/herdr/herdr-surface-provider.ts",
+			"fate": "stay",
+			"reason": "Concrete Herdr/Core transport, placement or terminal execution; host-owned provider implementation."
+		},
+		{
+			"source": "maestro/surfaces/herdr/herdr.ts",
+			"fate": "stay",
+			"reason": "Concrete Herdr/Core transport, placement or terminal execution; host-owned provider implementation."
+		},
+		{
+			"source": "maestro/surfaces/herdr/terminal.ts",
+			"fate": "stay",
+			"reason": "Concrete Herdr/Core transport, placement or terminal execution; host-owned provider implementation."
+		},
+		{
+			"source": "pi-extension/subagents/catalog.ts",
+			"fate": "move",
+			"reason": "Pi host/tool implementation or model-facing contract; keep schema, defaults and result text unchanged."
+		},
+		{
+			"source": "pi-extension/subagents/config-path.ts",
+			"fate": "move",
+			"reason": "Preserve herdr-agents config namespace; inject asset root/example path to remove source-tree layout assumption (H4)."
+		},
+		{
+			"source": "pi-extension/subagents/control-tools.ts",
+			"fate": "split",
+			"reason": "H3: schemas/execution move; inline renderCall/renderResult and pi-tui dependency stay."
+		},
+		{
+			"source": "pi-extension/subagents/controls.ts",
+			"fate": "move",
+			"reason": "Pi host/tool implementation or model-facing contract; keep schema, defaults and result text unchanged."
+		},
+		{
+			"source": "pi-extension/subagents/deferred-tools.ts",
+			"fate": "move",
+			"reason": "Pi host/tool implementation or model-facing contract; keep schema, defaults and result text unchanged."
+		},
+		{
+			"source": "pi-extension/subagents/delivery.ts",
+			"fate": "move",
+			"reason": "Pi host/tool implementation or model-facing contract; keep schema, defaults and result text unchanged."
+		},
+		{
+			"source": "pi-extension/subagents/index.ts",
+			"fate": "split",
+			"reason": "H3: config/controller/tool/session registration moves into per-load factory; terminal wrapper, widget/render registration and UI timer composition stay."
+		},
+		{
+			"source": "pi-extension/subagents/launch-tools.ts",
+			"fate": "split",
+			"reason": "H3: schemas/execution/commands move; inline renderCall/renderResult and pi-tui dependency stay."
+		},
+		{
+			"source": "pi-extension/subagents/launch.ts",
+			"fate": "move",
+			"reason": "Pi host/tool implementation or model-facing contract; keep schema, defaults and result text unchanged."
+		},
+		{
+			"source": "pi-extension/subagents/model-registry.ts",
+			"fate": "move",
+			"reason": "Pi host/tool implementation or model-facing contract; keep schema, defaults and result text unchanged."
+		},
+		{
+			"source": "pi-extension/subagents/observation.ts",
+			"fate": "move",
+			"reason": "Pi host/tool implementation or model-facing contract; keep schema, defaults and result text unchanged."
+		},
+		{
+			"source": "pi-extension/subagents/persistent.ts",
+			"fate": "move",
+			"reason": "Pi host/tool implementation or model-facing contract; keep schema, defaults and result text unchanged."
+		},
+		{
+			"source": "pi-extension/subagents/presentation.ts",
+			"fate": "move",
+			"reason": "Model-facing ParentMessage serializer/envelope/provenance/size bounds, not terminal UI; essential outcome contract."
+		},
+		{
+			"source": "pi-extension/subagents/renderers.ts",
+			"fate": "stay",
+			"reason": "Terminal-only widget/status timers or message rendering; receives Maestro state/serializer via host hooks."
+		},
+		{
+			"source": "pi-extension/subagents/state.ts",
+			"fate": "move",
+			"reason": "Pi host/tool implementation or model-facing contract; keep schema, defaults and result text unchanged."
+		},
+		{
+			"source": "pi-extension/subagents/task-models.ts",
+			"fate": "move",
+			"reason": "Pi host/tool implementation or model-facing contract; keep schema, defaults and result text unchanged."
+		},
+		{
+			"source": "pi-extension/subagents/tool-boundary.ts",
+			"fate": "move",
+			"reason": "Pi host/tool implementation or model-facing contract; keep schema, defaults and result text unchanged."
+		},
+		{
+			"source": "pi-extension/subagents/widgets.ts",
+			"fate": "stay",
+			"reason": "Terminal-only widget/status timers or message rendering; receives Maestro state/serializer via host hooks."
+		},
+		{
+			"source": "pi-extension/subagents/worktree-tools.ts",
+			"fate": "move",
+			"reason": "Pi host/tool implementation or model-facing contract; keep schema, defaults and result text unchanged."
+		}
+	],
+	"support": [
+		{
+			"source": ".pi/skills/verify-pi-herdr-agents/scripts/lab.ts",
+			"fate": "stay",
+			"reason": "Isolated terminal-host integration driver/lab; replace moving imports with package subpaths."
+		},
+		{
+			"source": ".pi/skills/verify-pi-herdr-agents/scripts/pin.ts",
+			"fate": "stay",
+			"reason": "Host registration pinning tool; adapt constructed imports to wrapper and retained/shared mock fixture."
+		},
+		{
+			"source": "LICENSE",
+			"fate": "stay",
+			"reason": "Maestro ships its own nubl MIT LICENSE; nothing is copied."
+		},
+		{
+			"source": ".github/workflows/*",
+			"fate": "stay",
+			"reason": "Host CI/publishing stays upstream; Maestro owns its separate workflows."
+		},
+		{
+			"source": ".npmignore",
+			"fate": "stay",
+			"reason": "Host packaging rules; Maestro defines its own emitted-artifact allowlist."
+		},
+		{
+			"source": "CONTEXT.md",
+			"fate": "stay",
+			"reason": "Host context, not engine/package contract."
+		},
+		{
+			"source": "RELEASING.md",
+			"fate": "stay",
+			"reason": "Host release procedure; Maestro uses its own OIDC workflow."
+		},
+		{
+			"source": "docs/configuration.md",
+			"fate": "stay",
+			"reason": "Host configuration guide; package docs describe explicit composition options."
+		},
+		{
+			"source": "docs/roles.md",
+			"fate": "stay",
+			"reason": "Host role-pack guide; contract fixtures move only as listed."
+		},
+		{
+			"source": "biome.json",
+			"fate": "split",
+			"reason": "Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified."
+		},
+		{
+			"source": "config.json.example",
+			"fate": "split",
+			"reason": "Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified."
+		},
+		{
+			"source": "docs/delegation-outcome-contract.md",
+			"fate": "split",
+			"reason": "Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified."
+		},
+		{
+			"source": "docs/tools.md",
+			"fate": "split",
+			"reason": "Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified."
+		},
+		{
+			"source": "examples/role-pack/extension.ts",
+			"fate": "split",
+			"reason": "Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified."
+		},
+		{
+			"source": "examples/role-pack/package.json",
+			"fate": "split",
+			"reason": "Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified."
+		},
+		{
+			"source": "examples/role-pack/roles/example-reviewer.md",
+			"fate": "split",
+			"reason": "Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified."
+		},
+		{
+			"source": "oxlint.config.ts",
+			"fate": "split",
+			"reason": "Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified."
+		},
+		{
+			"source": "package-lock.json",
+			"fate": "split",
+			"reason": "Use upstream resolved versions as the dependency baseline, then generate a Maestro lockfile for its own package metadata/dependencies; keep host lockfile upstream."
+		},
+		{
+			"source": "package.json",
+			"fate": "split",
+			"reason": "Port test/tool versions and relevant scripts into the existing Maestro manifest; preserve Maestro identity, Node floor and trusted publishing, and retain host metadata upstream."
+		},
+		{
+			"source": "plugins/sidebar/README.md",
+			"fate": "stay",
+			"reason": "Terminal-host plugin or operating guide; update package references upstream only, do not move host UI/workflow guidance into engine."
+		},
+		{
+			"source": "plugins/sidebar/herdr-plugin.toml",
+			"fate": "stay",
+			"reason": "Terminal-host plugin or operating guide; update package references upstream only, do not move host UI/workflow guidance into engine."
+		},
+		{
+			"source": "plugins/sidebar/sidebar.mjs",
+			"fate": "stay",
+			"reason": "Terminal-host plugin or operating guide; update package references upstream only, do not move host UI/workflow guidance into engine."
+		},
+		{
+			"source": "scripts/run-linux-integration.ts",
+			"fate": "stay",
+			"reason": "Isolated terminal-host integration driver/lab; replace moving imports with package subpaths."
+		},
+		{
+			"source": "scripts/tool-docs.ts",
+			"fate": "split",
+			"reason": "Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified."
+		},
+		{
+			"source": "scripts/update-tool-docs.ts",
+			"fate": "split",
+			"reason": "Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified."
+		},
+		{
+			"source": "skills/pi-herdr-agents/SKILL.md",
+			"fate": "stay",
+			"reason": "Terminal-host plugin or operating guide; update package references upstream only, do not move host UI/workflow guidance into engine."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/effect/index.ts",
+			"fate": "stay",
+			"reason": "Not in the active upstream Oxlint plugin import closure; no Effect tooling expansion during extraction."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/effect/rules/no-service-constructor-imports.ts",
+			"fate": "stay",
+			"reason": "Not in the active upstream Oxlint plugin import closure; retain unused upstream development rule only."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/index.ts",
+			"fate": "split",
+			"reason": "Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/rules/no-chained-type-assertions.ts",
+			"fate": "split",
+			"reason": "Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/rules/no-conditional-empty-object-spread.ts",
+			"fate": "split",
+			"reason": "Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/rules/no-known-value-widening.ts",
+			"fate": "split",
+			"reason": "Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/rules/no-module-mocking.ts",
+			"fate": "split",
+			"reason": "Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/rules/no-object-parameters.ts",
+			"fate": "split",
+			"reason": "Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/rules/no-reflect-apply.ts",
+			"fate": "split",
+			"reason": "Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/rules/no-reflect-get.ts",
+			"fate": "split",
+			"reason": "Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/rules/no-runtime-typeof.ts",
+			"fate": "split",
+			"reason": "Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/rules/no-shape-in-symbol-names.ts",
+			"fate": "split",
+			"reason": "Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/rules/no-unknown-parameters.ts",
+			"fate": "split",
+			"reason": "Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/rules/no-unknown-returns.ts",
+			"fate": "split",
+			"reason": "Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/rules/no-unknown-type-aliases.ts",
+			"fate": "split",
+			"reason": "Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/rules/no-unsafe-dictionary-type.ts",
+			"fate": "split",
+			"reason": "Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/rules/no-widen-then-assert.ts",
+			"fate": "split",
+			"reason": "Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/rules/require-safety-comment-for-type-assertion.ts",
+			"fate": "split",
+			"reason": "Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/shared/dictionary-types.ts",
+			"fate": "split",
+			"reason": "Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/shared/lexical-type-parameters.ts",
+			"fate": "split",
+			"reason": "Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption."
+		},
+		{
+			"source": "tools/oxlint/anti-slop/shared/reflect-method.ts",
+			"fate": "split",
+			"reason": "Copy the formatter/lint plugin dependency closure for identical tooling; leave upstream development copy. Effect-specific rules are tooling only, not Effect adoption."
+		},
+		{
+			"source": "tsconfig.json",
+			"fate": "split",
+			"reason": "Copy required config/tooling/contract/fixture into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified."
+		}
+	],
+	"experimental": [
+		{
+			"source": "maestro/core/worker-execution.ts",
+			"fate": "move",
+			"reason": "A0 seam/DTOs only; destination experimental worker module, not new stable core execution API."
+		},
+		{
+			"source": "maestro/adapters/pi/worker-client.ts",
+			"fate": "move",
+			"reason": "A0 HTTP/SSE transport; explicit experimental export, no retry/decoder redesign."
+		},
+		{
+			"source": "maestro/runtime/pi-worker-session.ts",
+			"fate": "move",
+			"reason": "A0 separate owner retained only under experimental namespace; unification is step 2."
+		},
+		{
+			"source": "pi-extension/subagents/worker-backend.ts",
+			"fate": "split",
+			"reason": "Move parent registration to experimental entry and FD branch to tiny child entry; do not import into stable factory."
+		},
+		{
+			"source": "pi-extension/subagents/index.ts",
+			"fate": "split",
+			"reason": "A0 :299 early-return selector is evidence, NOT copied into main-based stable entry. Experimental wrapper preserves opt-in selection separately."
+		},
+		{
+			"source": "maestro/runtime/index.ts",
+			"fate": "split",
+			"reason": "A0 worker re-exports go to experimental facade only; stable runtime uses main inventory."
+		},
+		{
+			"source": "maestro/adapters/pi/launch.ts",
+			"fate": "stay",
+			"reason": "Do not import A0 branch-wide modifications; use main version and only planned packaging path change."
+		},
+		{
+			"source": "maestro/adapters/pi/launch-resume.ts",
+			"fate": "stay",
+			"reason": "Do not import A0 branch-wide modifications; main is behavior baseline."
+		},
+		{
+			"source": "maestro/adapters/pi/session.ts",
+			"fate": "stay",
+			"reason": "A0 variant not transplanted; main is behavior baseline."
+		},
+		{
+			"source": "maestro/surfaces/herdr/a0-terminal-trap.ts",
+			"fate": "stay",
+			"reason": "A0 terminal-provider instrumentation belongs in experimental host tests, not package runtime."
+		},
+		{
+			"source": "maestro/surfaces/herdr/herdr-surface-provider.ts",
+			"fate": "stay",
+			"reason": "Concrete provider and A0 trap stay outside Maestro; no A0 provider changes merged into main by extraction."
+		},
+		{
+			"source": "maestro/surfaces/herdr/herdr-core-surface-provider.ts",
+			"fate": "stay",
+			"reason": "Concrete provider and A0 trap stay outside Maestro."
+		},
+		{
+			"source": "test/fixtures/worker-cut.ts",
+			"fate": "move",
+			"reason": "A0 crash-cut subprocess fixture; adjust executable resource path for source/packed test runners."
+		},
+		{
+			"source": "test/maestro/worker-backend.test.ts",
+			"fate": "split",
+			"reason": "Worker seam cases move; concrete terminal-trap case remains experimental host coverage. Add package import-closure gate without pretending it replaces the trap case."
+		},
+		{
+			"source": "test/maestro/worker-crash.test.ts",
+			"fate": "move",
+			"reason": "Linux SIGKILL/fsync ordering probe; preserve scope and no-power-loss/no-adoption caveats."
+		},
+		{
+			"source": "test/maestro/worker-delivery.test.ts",
+			"fate": "move",
+			"reason": "A0 transport/settlement/cancel/help behavior; isolated Unix socket and Git fixtures."
+		},
+		{
+			"source": "docs/experimental-pi-worker.md",
+			"fate": "split",
+			"reason": "Copy experiment limitations/provenance; host setup details stay with experimental host branch."
+		}
+	]
+}

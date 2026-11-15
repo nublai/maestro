@@ -1,0 +1,115 @@
+{
+	"runs": [
+		{
+			"id": "baseline",
+			"node": "v26.12.1",
+			"exit_code": 1,
+			"entry_count": 66,
+			"note": "Invalid preliminary capture: entry expansion omitted test/test.ts; HOME under /tmp also triggers an original guard assertion. Not baseline evidence.",
+			"reports": [
+				{
+					"path": "evidence/baseline/baseline.jsonl",
+					"sha256": "4fce1b0c033bb758179c017b661f9e2eceb1e967e63a094f6961078fa304ba33",
+					"bytes": 1299748
+				},
+				{
+					"path": "evidence/baseline/baseline.tap",
+					"sha256": "d316240923a9a59e09d8800972355bb30206452e9a4163e80a1dda23224afc47",
+					"bytes": 319592
+				},
+				{
+					"path": "evidence/baseline/stderr.log",
+					"sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+					"bytes": 0
+				}
+			],
+			"raw_v8_index": "baseline/baseline-v8-index.json.gz",
+			"raw_v8_files": 171
+		},
+		{
+			"id": "baseline-full",
+			"node": "v26.12.1",
+			"exit_code": 1,
+			"entry_count": 67,
+			"note": "Invalid isolation: TMPDIR under a module package made extensionless CommonJS fixture binaries ESM, and worktrees in fixture cwd tripped a prompt assertion. All original entries ran, no source changes.",
+			"reports": [
+				{
+					"path": "evidence/baseline-full/baseline.jsonl",
+					"sha256": "3cb92aad806f68d65560c237c507bbfb3e43a0d5e3d84850f81d2062cbdeeb97",
+					"bytes": 1609881
+				},
+				{
+					"path": "evidence/baseline-full/baseline.tap",
+					"sha256": "971ee2a037a5c2a44073a934d9d0893c9ea8a505c279b89a75f050a7fa6036a0",
+					"bytes": 458028
+				},
+				{
+					"path": "evidence/baseline-full/stderr.log",
+					"sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+					"bytes": 0
+				}
+			],
+			"raw_v8_index": "baseline/baseline-full-v8-index.json.gz",
+			"raw_v8_files": 158
+		},
+		{
+			"id": "baseline-isolated",
+			"node": "v26.12.1",
+			"exit_code": 0,
+			"entry_count": 67,
+			"note": "Accepted green original-suite coverage: isolated HOME outside /tmp and source tree; fixture TMPDIR=/tmp.",
+			"reports": [
+				{
+					"path": "evidence/baseline-isolated/baseline.jsonl",
+					"sha256": "1ebca8ae7e8272b210f4f107fc10c553620f31f66df361e5bb176afddf7b7fb2",
+					"bytes": 1610127
+				},
+				{
+					"path": "evidence/baseline-isolated/baseline.tap",
+					"sha256": "76dab446d5dbf1e023619d576ca3060e29758a20a70d07d4970ebddc3e6f11ac",
+					"bytes": 438311
+				},
+				{
+					"path": "evidence/baseline-isolated/stderr.log",
+					"sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+					"bytes": 0
+				}
+			],
+			"raw_v8_index": "baseline/baseline-isolated-v8-index.json.gz",
+			"raw_v8_files": 175
+		},
+		{
+			"id": "baseline-final",
+			"node": "v26.12.1",
+			"exit_code": 1,
+			"entry_count": 67,
+			"note": "Structured lineage capture: all original identities recorded. One timing-sensitive host snapshot test failed under full load; no retries hidden and no test/source changes. Known missing-pane cohort independently passed.",
+			"reports": [
+				{
+					"path": "evidence/baseline-final/baseline.jsonl",
+					"sha256": "4172bb789104f158b7b2b988fc2009bcc1e9b57eb9e3667de286f6a695751212",
+					"bytes": 1686745
+				},
+				{
+					"path": "evidence/baseline-final/baseline.tap",
+					"sha256": "72ff1e9752bd68e3ca8c18efee6290040e407625f8e3cf6e98e5e067a86be37e",
+					"bytes": 439336
+				},
+				{
+					"path": "evidence/baseline-final/stderr.log",
+					"sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+					"bytes": 0
+				},
+				{
+					"path": "evidence/baseline-final/herdr-surface-independent.tap",
+					"sha256": "44e5d33899e5b2dd29a2f719e3c566b667aa648625301c0edb4c74af4c2559f9",
+					"bytes": 3307
+				}
+			],
+			"raw_v8_index": "baseline/baseline-final-v8-index.json.gz",
+			"raw_v8_files": 175
+		}
+	],
+	"raw_evidence": "Private ignored evidence/ directory retained locally; no raw source-map contents published. Committed compressed coverage retains all per-line/branch/function hit records.",
+	"source_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149"
+}
