@@ -36,9 +36,9 @@ Appendices A–D are the exhaustive ownership and import checklists.
   encoding, scopes, deferred-tool exposure, defaults, report bounds/provenance,
   cancellation ordering, accept verdicts, persistent semantics and notices.
   Package relocation alone does not justify a wire-version or schema change.
-- Node >=26.12.1; MIT. Upstream `LICENSE:3` actually says **Copyright (c) 2026
-  HazAT**. Retain that notice and any file-specific headers, as well as this
-  repository's nubl notice. Do not infer copyright from repository ownership.
+- Node >=26.12.1; MIT under this repository's nubl LICENSE. The founder owns
+  the extracted code; the upstream `LICENSE:3` name is an accidental paste
+  (founder, 2026-11-15) and is not carried over.
 - No upstream push without the founder's go. This plan authorizes neither an
   implementation nor a release. The current task commits only these documents.
 
@@ -297,11 +297,9 @@ smokes. Add proposed scripts `build`, `test:coverage`, `test:package` and
 `docs:tools:check`, `test`. Their names below are implementation acceptance
 requirements, not commands available in the placeholder today.
 
-Publish upstream's complete MIT text in `LICENSE.upstream`, preserve original
-file headers, and add an extraction provenance comment where absent, naming the
-source repository/revision and upstream notice. Keep this repository's LICENSE.
-Ensure both notices and headers survive `npm pack`; attribution is not satisfied
-by a link to an upstream license alone.
+Ship this repository's MIT LICENSE only; no upstream license copy or per-file
+notices. Record the source repository and revision of each extraction in the
+PR description, not in file headers.
 
 ## 5. Test migration and acceptance
 
@@ -630,7 +628,7 @@ here; no credentials or token-bearing URLs are included.
 | --- | --- | --- |
 | `.pi/skills/verify-pi-herdr-agents/scripts/lab.ts` | **stay** | Isolated terminal-host integration driver/lab; replace moving imports with package subpaths. |
 | `.pi/skills/verify-pi-herdr-agents/scripts/pin.ts` | **stay** | Host registration pinning tool; adapt constructed imports to wrapper and retained/shared mock fixture. |
-| `LICENSE` | **split** | Copy required config/tooling/contract/fixture or attribution into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
+| `LICENSE` | **stay** | Maestro ships its own nubl MIT LICENSE; nothing is copied. |
 | `biome.json` | **split** | Copy required config/tooling/contract/fixture or attribution into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
 | `config.json.example` | **split** | Copy required config/tooling/contract/fixture or attribution into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |
 | `docs/delegation-outcome-contract.md` | **split** | Copy required config/tooling/contract/fixture or attribution into Maestro; original host asset remains. Adapt only package/build/entry ownership as specified. |

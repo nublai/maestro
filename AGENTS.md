@@ -45,12 +45,10 @@ Herdr, Core, worker sockets, account stores or credentials. Preserve the source
 suite's environment-cleaning helpers. Test published JavaScript from an installed
 tarball; passing strip-types tests alone does not prove the npm package works.
 
-## Attribution and releases
+## License and releases
 
-Preserve MIT headers and copyright notices in extracted files, including in
-emitted JS. The pinned upstream LICENSE says **Copyright (c) 2026 HazAT**;
-keep that notice with extracted material rather than replacing it with nubl's
-copyright. Preserve this repository's nubl MIT notice too; package both notices.
+This package is MIT under the repository LICENSE (nubl). Extracted code needs no
+per-file notices; name the source repository and revision in the PR description.
 
 Publishing is through `.github/workflows/publish.yml`: authorized `v*` tags,
 matching `package.json` version, GitHub environment `npm-publish`, npm trusted
