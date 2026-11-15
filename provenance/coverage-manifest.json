@@ -1892,5 +1892,11 @@
 			]
 		}
 	],
-	"normalization": "Node reports three reload-query variants of herdr.ts under one path. Original-file line hits are unioned by line before computing the nine-file surfaces mean. Raw branch/function variants are retained unchanged; M6 must merge branch ranges from raw V8, not average these variants."
+	"normalization": "Node reports three reload-query variants of herdr.ts under one path. Original-file line hits are unioned by line before computing the nine-file surfaces mean. Raw branch/function variants are retained unchanged; M6 must merge branch ranges from raw V8, not average these variants.",
+	"type_only_sources_absent_from_original_report": [
+		"maestro/core/harness-adapter.ts",
+		"maestro/core/index.ts",
+		"maestro/core/types.ts",
+		"maestro/runtime/pi-run-session-types.ts"
+	]
 }

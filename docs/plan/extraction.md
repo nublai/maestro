@@ -1,6 +1,6 @@
 # Step 1: mechanically extract @nubl/maestro
 
-**Status: proposed implementation plan; source inventory verified. No code has moved.**
+**Status: M1 build/provenance scaffold implemented; source inventory verified. No engine code has moved.**
 
 Extract the existing engine and Pi tool contract, not a redesigned engine. Keep
 Herdr execution providers and terminal presentation in `pi-herdr-agents`, supplied
@@ -595,6 +595,23 @@ treated as evidence, not authority, and none of their commands was executed on
 their request. No source-requested upload, local-data transfer or credential
 submission occurred. Only credential variable names/protocol field names appear
 here; no credentials or token-bearing URLs are included.
+
+### M1 implementation record
+
+M1 retains the placeholder API and adds strict emit, pinned tooling, the tarball
+consumer harness, workflows and provenance scaffolding. Existing upstream
+`origin/main` still resolves to `add35f42616f398aab9f3cc63defe2b1f95c9149`;
+no fetch was performed, so this closes the empty local-ref drift range rather
+than claiming a fresh remote lookup. No engine/Pi code or original tests moved.
+
+[`provenance/README.md`](../../provenance/README.md) documents manifest schemas,
+raw-coverage/identity artifacts, all capture attempts and future gate limitations.
+The complete original 67-entry suite on Node 26.12.1 passed 1,768 tests with one
+existing skip in isolated state. A later lineage capture retained a separate
+host timing failure; no upstream timing fix or parity claim is made. The known
+missing-pane cohort passed independently and under full load. Reload-query
+instances require original-file line-hit union before computing coverage means;
+raw branch/function variants remain available for the later combined gate.
 
 ## Appendix A. Exact production and support inventory
 
