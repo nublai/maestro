@@ -1,0 +1,26 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"noEmit": true,
+		"allowImportingTsExtensions": true,
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
+		"target": "es2023",
+		"skipLibCheck": true,
+		"verbatimModuleSyntax": true,
+		"erasableSyntaxOnly": true,
+		"allowJs": true,
+		"checkJs": true,
+		"types": ["node"]
+	},
+	"include": [
+		"index.js",
+		"index.d.ts",
+		"scripts/**/*.ts",
+		"test/**/*.ts",
+		"test/**/*.js",
+		"tools/**/*.ts",
+		"oxlint.config.ts"
+	],
+	"exclude": ["node_modules", "dist", "test/fixtures"]
+}

@@ -1,0 +1,27 @@
+{
+	"files": {
+		"includes": [
+			"pi-extension/**",
+			"test/**",
+			"maestro/**",
+			"plugins/**",
+			"scripts/**",
+			"provenance/**",
+			"index.js",
+			"index.d.ts",
+			"package.json",
+			"biome.json",
+			"tsconfig*.json",
+			"!**/*.md"
+		]
+	},
+	"formatter": {
+		"enabled": true
+	},
+	"linter": {
+		"enabled": false
+	},
+	"assist": {
+		"enabled": false
+	}
+}

@@ -1,0 +1,90 @@
+{
+	"source_repository": "giuseppecrj/pi-herdr-agents",
+	"copy_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+	"files": [
+		{
+			"path": "biome.json",
+			"blob": "640109c390aef75d2415245b2ea2a5356b803d47"
+		},
+		{
+			"path": "oxlint.config.ts",
+			"blob": "867fadc5fa7d0a5575ad6586f46e86b8333ccc73"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/index.ts",
+			"blob": "20cfb0966421bcf718ba7eebd1260a0e6ea4b361"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-chained-type-assertions.ts",
+			"blob": "eabbd91c8ad85461dcc7a5f6e14053619d287edd"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-conditional-empty-object-spread.ts",
+			"blob": "ae7248d36e54851b67ad1f5d78813bf09ac3dd6a"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-known-value-widening.ts",
+			"blob": "8dc5013f88d9f1012dfe3445bfbdf5dae787d992"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-module-mocking.ts",
+			"blob": "d803730669e2c22551d235bbf82149cc2666e89d"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-object-parameters.ts",
+			"blob": "4b25bbf916de0b4127fbfddd68e8bd275d15b0b8"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-reflect-apply.ts",
+			"blob": "1f5469f032d30c3dff36fa19b27181f00df79e3e"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-reflect-get.ts",
+			"blob": "c8169dfed152fc9a66534aaf6530790dd4dd268f"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-runtime-typeof.ts",
+			"blob": "6a25c2475d9a49c2145408b20892a7db2b7129c4"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-shape-in-symbol-names.ts",
+			"blob": "3ad2fb6c1c3e76e3c254647eba5b53d2d3b26543"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-unknown-parameters.ts",
+			"blob": "50b2eef80dbc3d3a9fe2d7144ff259f8f9bc06a2"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-unknown-returns.ts",
+			"blob": "6841f54e0d0d61aea2a79ccf197881ae20473eff"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-unknown-type-aliases.ts",
+			"blob": "4c18bae66ee02c635ae0fe61dafdcff14c0461bb"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-unsafe-dictionary-type.ts",
+			"blob": "5e0be15d3f12065452eb55eb9e8da96d644ea75b"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-widen-then-assert.ts",
+			"blob": "b6553f06361e85b104163af15a1b3a489943649f"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/require-safety-comment-for-type-assertion.ts",
+			"blob": "d543106a48f72c7b3f3ab8fdef2db488d65c4daa"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/shared/dictionary-types.ts",
+			"blob": "47eda24f964885b5ad46960bafb6d38ffed9a0bc"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/shared/lexical-type-parameters.ts",
+			"blob": "ced1f2e64fb95f69e2386b6e8250fff80300b63a"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/shared/reflect-method.ts",
+			"blob": "cfd3a17687788fb3e5d03a2223fcaa07b61b115b"
+		}
+	]
+}
