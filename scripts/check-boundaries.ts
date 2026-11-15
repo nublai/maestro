@@ -85,6 +85,31 @@ export function checkEngineClosure(
 	}
 }
 
+/**
+ * The protocol-only child entry loads child protocol dependencies only: never
+ * the parent runtime/launch composition, a provider or the tool surface (§2.4).
+ */
+export function checkChildClosure(
+	path: string,
+	seen = new Set<string>(),
+): void {
+	const absolute = resolve(path);
+	if (seen.has(absolute)) return;
+	seen.add(absolute);
+	const text = readFileSync(absolute, "utf8");
+	for (const entry of ts.preProcessFile(text, true, true).importedFiles) {
+		const specifier = entry.fileName;
+		assert(
+			!/pi-extension|\/runtime\/|^\.\.?\/runtime\/|pi-harness-adapter|\/launch|^\.\/launch|surfaces\/|@earendil-works\/pi-tui/.test(
+				specifier,
+			),
+			`Parent/provider dependency in child closure: ${path} -> ${specifier}`,
+		);
+		if (specifier.startsWith("."))
+			checkChildClosure(resolve(dirname(absolute), specifier), seen);
+	}
+}
+
 export function scan(path: string): void {
 	if (!existsSync(path)) return;
 	if (/\.[cm]?[jt]sx?$/.test(path)) {
@@ -114,7 +139,12 @@ if (
 		"dist/maestro/engine.js",
 	])
 		checkEngineClosure(path);
+	for (const path of [
+		"maestro/adapters/pi/child/entry.ts",
+		"dist/maestro/adapters/pi/child/entry.js",
+	])
+		checkChildClosure(path);
 	console.log(
-		"Source/emitted package boundaries and transitive Pi-free root/engine closures: passed.",
+		"Source/emitted package boundaries, transitive Pi-free root/engine closures and the protocol-only child closure: passed.",
 	);
 }
