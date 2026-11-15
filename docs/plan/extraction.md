@@ -668,6 +668,15 @@ The review and inspected data requested no secret submission, upload or external
 mutation. Existing source operational commands were treated as evidence only;
 only task-authorized gates and locally authored fixture checks were run.
 
+### M2 re-baseline
+
+Resolved the already-fetched local upstream `origin/main` at the start of M2:
+`add35f42616f398aab9f3cc63defe2b1f95c9149`, unchanged from M1. Both
+`base_main_sha` and `copy_sha` remain this SHA. The old-pin..new-pin range is
+empty across every moving/split production, test and support path: **zero drift
+entries**, ledger closed. No fetch, upstream mutation or remote-freshness claim.
+Source repository: `giuseppecrj/pi-herdr-agents`.
+
 ## Appendix A. Exact production and support inventory
 
 **move** means Maestro owns the implementation after switch-over; it is copied first, then removed upstream only after installed-consumer parity. **stay** means pi-herdr-agents keeps ownership. **split** identifies a source file whose portions or shared test/tooling assets have both owners; the reason names the boundary. Source paths below exist at main unless in Appendix C. Destination defaults to the same relative path in this repository, compiled under `dist/`; stayed portions retain their upstream path or a host-local extracted sibling. New hook/facade names in §§2–3 are proposed, not falsely inventoried as existing source files.

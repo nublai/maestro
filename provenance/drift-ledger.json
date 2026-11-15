@@ -1,10 +1,18 @@
 {
-	"step": "M1",
+	"step": "M2",
 	"previous_pin": "add35f42616f398aab9f3cc63defe2b1f95c9149",
 	"base_main_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
 	"resolved_ref": "origin/main",
 	"resolution": "Existing local upstream ref; no fetch, as requested. Local main is not substituted for origin/main.",
 	"status": "closed",
 	"touching_commits": [],
-	"scope": "Every move/split path in Appendices A-C, tests and supporting assets; same-pin range is empty. Experimental A0 remains separate."
+	"scope": "Every move/split path in Appendices A-C, tests and supporting assets; same-pin range is empty. Experimental A0 remains separate.",
+	"history": [
+		{
+			"step": "M1",
+			"base_main_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+			"touching_commits": [],
+			"status": "closed"
+		}
+	]
 }
