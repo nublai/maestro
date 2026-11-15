@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import {
+	cpSync,
 	existsSync,
+	mkdirSync,
 	mkdtempSync,
 	readFileSync,
 	readdirSync,
@@ -62,12 +64,8 @@ try {
 		"dist",
 		"package.json",
 	]);
-	assert.deepEqual(readdirSync(join(installed, "dist")).sort(), [
-		"index.d.ts",
-		"index.d.ts.map",
-		"index.js",
-		"index.js.map",
-	]);
+	assert(existsSync(join(installed, "dist/maestro/engine.js")));
+	assert(!existsSync(join(installed, "test")));
 	const sourceMap = JSON.parse(
 		readFileSync(join(installed, "dist/index.js.map"), "utf8"),
 	);
@@ -86,20 +84,58 @@ import assert from "node:assert/strict";
 import { version } from "@nubl/maestro";
 import pkg from "@nubl/maestro/package.json" with { type: "json" };
 assert.equal(version, pkg.version);
-assert.deepEqual(Object.keys(pkg.exports), [".", "./package.json"]);
+assert(pkg.exports["./engine"]);
+assert(pkg.exports["./testing"]);
+assert(!Object.keys(pkg.exports).some(name => name.includes("*")));
 assert.equal(pkg.pi, undefined);
 assert.equal(pkg.dependencies, undefined);
 for (const name of Object.keys(pkg.exports)) {
  const specifier = name === "." ? "@nubl/maestro" : "@nubl/maestro/" + name.slice(2);
  assert(import.meta.resolve(specifier).includes("node_modules/@nubl/maestro/"));
+ await import(specifier, name === "./package.json" ? { with: { type: "json" } } : undefined);
 }
 assert(!process.execArgv.some(arg => /loader|strip-types|import/.test(arg)));
+const { createRunSession, defaultRetainSurface } = await import("@nubl/maestro/engine");
+const { FakeHarnessAdapter, FakeSurfaceProvider, registerHarnessAdapterConformance, registerSurfaceProviderConformance } = await import("@nubl/maestro/testing");
+assert.equal(typeof defaultRetainSurface, "function");
+assert.equal(typeof registerHarnessAdapterConformance, "function");
+assert.equal(typeof registerSurfaceProviderConformance, "function");
+assert.equal(new FakeSurfaceProvider().isAvailable(), true);
+const adapter = new FakeHarnessAdapter();
+const role = { name: "fixture", version: "1", description: "fixture", systemPrompt: "fixture", allowedTools: [] };
+const task = { id: "fixture", name: "fixture", prompt: "fixture", role: "fixture", cwd: process.cwd() };
+const session = createRunSession({ adapter, roles: [role], cwd: process.cwd() });
+const handle = await session.spawn(task);
+const completion = session.supervise(handle, task);
+adapter.complete(handle.id, { reason: "done", exitCode: 0 });
+assert.equal((await completion).outcome, "completed");
 `,
 	);
 	run(process.execPath, ["consumer.js"]);
+	// Explicit development-only Node types; no Pi peers or source TS fallbacks.
+	mkdirSync(join(fixture, "node_modules/@types"), { recursive: true });
+	cpSync(
+		join(root, "node_modules/@types/node"),
+		join(fixture, "node_modules/@types/node"),
+		{ recursive: true },
+	);
+	cpSync(
+		join(root, "node_modules/undici-types"),
+		join(fixture, "node_modules/undici-types"),
+		{ recursive: true },
+	);
+	const pkg = JSON.parse(readFileSync(join(installed, "package.json"), "utf8"));
+	const imports = Object.keys(pkg.exports)
+		.filter((name) => name !== "./package.json")
+		.map(
+			(name, index) =>
+				`import * as entry${index} from ${JSON.stringify(name === "." ? "@nubl/maestro" : "@nubl/maestro/" + name.slice(2))};\nvoid entry${index};`,
+		)
+		.join("\n");
 	writeFileSync(
 		join(fixture, "consumer.ts"),
-		'import { version } from "@nubl/maestro";\nasync function consume(): Promise<string> { return version; }\nvoid consume();\n',
+		imports +
+			'\nimport { createRunSession, type RunSession, type RunResult } from "@nubl/maestro/engine";\nimport { FakeHarnessAdapter } from "@nubl/maestro/testing";\nconst role = { name: "fixture", version: "1", description: "fixture", systemPrompt: "fixture", allowedTools: [] };\nconst session: RunSession = createRunSession({ adapter: new FakeHarnessAdapter(), roles: [role], cwd: "/fixture" });\nasync function consume(): Promise<RunResult> { const task = { id: "fixture", name: "fixture", prompt: "fixture", role: "fixture", cwd: "/fixture" }; return session.supervise(await session.spawn(task), task); }\nvoid consume;\n',
 	);
 	writeFileSync(
 		join(fixture, "tsconfig.json"),
@@ -109,7 +145,7 @@ assert(!process.execArgv.some(arg => /loader|strip-types|import/.test(arg)));
 				noEmit: true,
 				module: "nodenext",
 				target: "es2023",
-				types: [],
+				types: ["node"],
 				skipLibCheck: false,
 			},
 			files: ["consumer.ts"],
@@ -121,10 +157,10 @@ assert(!process.execArgv.some(arg => /loader|strip-types|import/.test(arg)));
 		"tsconfig.json",
 	]);
 	console.log(
-		"Packed JS import, all M1 exports, peer-free strict TS consumer, maps, license and discovery allowlist: passed.",
+		"Packed JS generic-owner lifecycle, all 45 finite exports and declarations, peer-free strict Promise consumer (Node dev types supplied), maps, license and discovery allowlist: passed.",
 	);
 	console.log(
-		"Pi factory/child/schema/asset smokes remain pending M3/M4; no such API exists in M1.",
+		"Pi factory/child/schema/asset smokes remain pending M3/M4; no such API exists in M2.",
 	);
 } finally {
 	rmSync(fixture, { recursive: true, force: true });

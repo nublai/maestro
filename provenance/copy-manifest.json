@@ -2,5 +2,372 @@
 	"base_main_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
 	"copy_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
 	"mappings": [],
-	"entries": []
+	"entries": [
+		{
+			"kind": "new",
+			"destination": "maestro/engine.ts",
+			"reason": "Pi-free facade for the M2 generic owner; placeholder root remains until M6."
+		},
+		{
+			"kind": "new",
+			"destination": "maestro/testing/index.ts",
+			"reason": "Testing facade for copied fakes and conformance runners."
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/adapters/fake/fake-harness-adapter.ts",
+			"destination": "maestro/adapters/fake/fake-harness-adapter.ts",
+			"blob": "08fd565694ea048846e9970213be2288f8ac3d19",
+			"archive": "provenance/upstream/maestro/adapters/fake/fake-harness-adapter.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/accept.ts",
+			"destination": "maestro/core/accept.ts",
+			"blob": "b88cf38fb774710f25c10ba31c1e0edb8d6c81a1",
+			"archive": "provenance/upstream/maestro/core/accept.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/activity.ts",
+			"destination": "maestro/core/activity.ts",
+			"blob": "a0aa18dd6c31b80750f1765f7c83c0e64ff799f1",
+			"archive": "provenance/upstream/maestro/core/activity.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/child-busy.ts",
+			"destination": "maestro/core/child-busy.ts",
+			"blob": "de3e087c9582673b414a50ea424cb0040520704a",
+			"archive": "provenance/upstream/maestro/core/child-busy.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/config/guidelines-config.ts",
+			"destination": "maestro/core/config/guidelines-config.ts",
+			"blob": "a6fe9925c6699f2322d199ca3ff185e545d9aaec",
+			"archive": "provenance/upstream/maestro/core/config/guidelines-config.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/config/herdr-config.ts",
+			"destination": "maestro/core/config/herdr-config.ts",
+			"blob": "72fa9eca37e055841cb149fe95e3de1f50b5751f",
+			"archive": "provenance/upstream/maestro/core/config/herdr-config.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/config/model-config.ts",
+			"destination": "maestro/core/config/model-config.ts",
+			"blob": "29af385bddd374e823b7f30f2faf265adcf855a4",
+			"archive": "provenance/upstream/maestro/core/config/model-config.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/config/outcome-ledger-config.ts",
+			"destination": "maestro/core/config/outcome-ledger-config.ts",
+			"blob": "12efbc5c14645ee448e227d9e6f978f6d6515f79",
+			"archive": "provenance/upstream/maestro/core/config/outcome-ledger-config.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/config/pane-config.ts",
+			"destination": "maestro/core/config/pane-config.ts",
+			"blob": "0d4d2b91e588471c0e349e2ea4dae2a655b2445f",
+			"archive": "provenance/upstream/maestro/core/config/pane-config.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/config/persistent-config.ts",
+			"destination": "maestro/core/config/persistent-config.ts",
+			"blob": "7b01901ff86ea27b74fcc1367276219eb9901bd8",
+			"archive": "provenance/upstream/maestro/core/config/persistent-config.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/config/role-config.ts",
+			"destination": "maestro/core/config/role-config.ts",
+			"blob": "a82cedfff030c74813240c1506fabbb56632fbd3",
+			"archive": "provenance/upstream/maestro/core/config/role-config.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/config/spawning-config.ts",
+			"destination": "maestro/core/config/spawning-config.ts",
+			"blob": "a341c19f775777b4256cb24667768d9804309ada",
+			"archive": "provenance/upstream/maestro/core/config/spawning-config.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/config/supervision-config.ts",
+			"destination": "maestro/core/config/supervision-config.ts",
+			"blob": "b43fc71236aa95d9cf31f2163bbf1fa846752433",
+			"archive": "provenance/upstream/maestro/core/config/supervision-config.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/config/task-model-init.ts",
+			"destination": "maestro/core/config/task-model-init.ts",
+			"blob": "03150c818b3255db5f13885e0e69c35d29b52d36",
+			"archive": "provenance/upstream/maestro/core/config/task-model-init.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/config/task-model-types.ts",
+			"destination": "maestro/core/config/task-model-types.ts",
+			"blob": "642885bb5ac7aaaf95a8e1278ecc1b311a8b239c",
+			"archive": "provenance/upstream/maestro/core/config/task-model-types.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/config/type-guards.ts",
+			"destination": "maestro/core/config/type-guards.ts",
+			"blob": "eb108137f20f4fc6f7b5dc73a3d70adf49fdecb6",
+			"archive": "provenance/upstream/maestro/core/config/type-guards.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/deadline.ts",
+			"destination": "maestro/core/deadline.ts",
+			"blob": "ad352949ebfa73b24790712103b776a395ea202a",
+			"archive": "provenance/upstream/maestro/core/deadline.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/declared-skills.ts",
+			"destination": "maestro/core/declared-skills.ts",
+			"blob": "448b820f24964f1884c0fba9ddc07d30f7756bfb",
+			"archive": "provenance/upstream/maestro/core/declared-skills.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/delegation-depth.ts",
+			"destination": "maestro/core/delegation-depth.ts",
+			"blob": "c83b9d3d68a09b02560fffff2f254dee8c5e08b0",
+			"archive": "provenance/upstream/maestro/core/delegation-depth.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/git-environment.ts",
+			"destination": "maestro/core/git-environment.ts",
+			"blob": "66d7e8e449da31afdcb82df242345d7c42e56cda",
+			"archive": "provenance/upstream/maestro/core/git-environment.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/harness-adapter.ts",
+			"destination": "maestro/core/harness-adapter.ts",
+			"blob": "b2148810e1ede34b515b10e66438b0a467d725d7",
+			"archive": "provenance/upstream/maestro/core/harness-adapter.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/host-text.ts",
+			"destination": "maestro/core/host-text.ts",
+			"blob": "d1235ad2ea25d4d40d6edd7d46d626fe3807b436",
+			"archive": "provenance/upstream/maestro/core/host-text.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/index.ts",
+			"destination": "maestro/core/index.ts",
+			"blob": "caa51685cabb70116dde62907994996282eb6a07",
+			"archive": "provenance/upstream/maestro/core/index.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/lifecycle.ts",
+			"destination": "maestro/core/lifecycle.ts",
+			"blob": "d8633668dae77106dd4607cce6f94e3036735458",
+			"archive": "provenance/upstream/maestro/core/lifecycle.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/opened-primary-workspace.ts",
+			"destination": "maestro/core/opened-primary-workspace.ts",
+			"blob": "7b828a8695a6dd9b684becd3e02be41097f5a1f0",
+			"archive": "provenance/upstream/maestro/core/opened-primary-workspace.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/platform-support.ts",
+			"destination": "maestro/core/platform-support.ts",
+			"blob": "c7cb7d67610b0af7f9f33d40c870815e0a7967d9",
+			"archive": "provenance/upstream/maestro/core/platform-support.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/realpath-without-opening.ts",
+			"destination": "maestro/core/realpath-without-opening.ts",
+			"blob": "780d327d45dd06231ccbe6e6c8427992a60debc5",
+			"archive": "provenance/upstream/maestro/core/realpath-without-opening.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/roles/discovery.ts",
+			"destination": "maestro/core/roles/discovery.ts",
+			"blob": "d3662f93bca1af1abd7bd0b68505eec138460f2f",
+			"archive": "provenance/upstream/maestro/core/roles/discovery.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/routing.ts",
+			"destination": "maestro/core/routing.ts",
+			"blob": "f9a3c1fee57a589b3c0d6279e8cb9008869efbed",
+			"archive": "provenance/upstream/maestro/core/routing.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/script-launch.ts",
+			"destination": "maestro/core/script-launch.ts",
+			"blob": "303f8f42bc20973578daa5f74cc358d5129e168c",
+			"archive": "provenance/upstream/maestro/core/script-launch.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/shell.ts",
+			"destination": "maestro/core/shell.ts",
+			"blob": "063969d95e420a7f9d91971ac9724cbd73516f76",
+			"archive": "provenance/upstream/maestro/core/shell.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/specialist-notice.ts",
+			"destination": "maestro/core/specialist-notice.ts",
+			"blob": "aff9eec17160893f21bcdb183e24afabb83614fb",
+			"archive": "provenance/upstream/maestro/core/specialist-notice.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/status.ts",
+			"destination": "maestro/core/status.ts",
+			"blob": "fe2c2be59d63aef55a4db4a34bbef977d6818a9b",
+			"archive": "provenance/upstream/maestro/core/status.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/supervision.ts",
+			"destination": "maestro/core/supervision.ts",
+			"blob": "3faaa7a7eff1eaa85cef71cce863337cb60f4064",
+			"archive": "provenance/upstream/maestro/core/supervision.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/surface-provider.ts",
+			"destination": "maestro/core/surface-provider.ts",
+			"blob": "ca8db1447add22a608bcda09653372ee7e859dc8",
+			"archive": "provenance/upstream/maestro/core/surface-provider.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/types.ts",
+			"destination": "maestro/core/types.ts",
+			"blob": "8cd2d264f055d6e831ed6262c4b4e391375ea361",
+			"archive": "provenance/upstream/maestro/core/types.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/undelivered-children.ts",
+			"destination": "maestro/core/undelivered-children.ts",
+			"blob": "4cd823eb6593cf0ff855470a37881894c690a56c",
+			"archive": "provenance/upstream/maestro/core/undelivered-children.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/wake.ts",
+			"destination": "maestro/core/wake.ts",
+			"blob": "88930e1576d3635fd856062bef146d37b6853107",
+			"archive": "provenance/upstream/maestro/core/wake.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/worktree-cleanup.ts",
+			"destination": "maestro/core/worktree-cleanup.ts",
+			"blob": "c606b897c62990b0977bc3890c0170c7cf063b95",
+			"archive": "provenance/upstream/maestro/core/worktree-cleanup.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/core/worktree.ts",
+			"destination": "maestro/core/worktree.ts",
+			"blob": "edd659a9b35f98bf21a7ad8e16e0153e3c7b00ca",
+			"archive": "provenance/upstream/maestro/core/worktree.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/runtime/run-session.ts",
+			"destination": "maestro/runtime/run-session.ts",
+			"blob": "2d0f444debb54698df366f1486cffff724db76bd",
+			"archive": "provenance/upstream/maestro/runtime/run-session.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/runtime/surface-retention.ts",
+			"destination": "maestro/runtime/surface-retention.ts",
+			"blob": "f76d624a73d3833f7adad0b6117b5138225a7b08",
+			"archive": "provenance/upstream/maestro/runtime/surface-retention.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "maestro/surfaces/fake/fake-surface-provider.ts",
+			"destination": "maestro/surfaces/fake/fake-surface-provider.ts",
+			"blob": "af9647832346703e24ec97f37136ee9f35da6026",
+			"archive": "provenance/upstream/maestro/surfaces/fake/fake-surface-provider.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "test/maestro/harness-adapter.conformance.ts",
+			"destination": "maestro/testing/harness-adapter.conformance.ts",
+			"blob": "e18f806ac521b52dbb01eb1f345a6474271d0d0e",
+			"archive": "provenance/upstream/test/maestro/harness-adapter.conformance.ts",
+			"classification": "split"
+		},
+		{
+			"kind": "copy",
+			"source": "test/maestro/surface-provider.conformance.ts",
+			"destination": "maestro/testing/surface-provider.conformance.ts",
+			"blob": "0c6d6c40aaf7bfe23b71c7352fbbce1638811ab8",
+			"archive": "provenance/upstream/test/maestro/surface-provider.conformance.ts",
+			"classification": "split"
+		},
+		{
+			"kind": "copy",
+			"source": "test/clean-host-env.ts",
+			"destination": "test/clean-host-env.ts",
+			"blob": "2747fea10def1ce9d9a553f9fab65b94b12ff300",
+			"archive": "provenance/upstream/test/clean-host-env.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "config.json.example",
+			"destination": "config.json.example",
+			"archive": "provenance/upstream/config.json.example",
+			"blob": "e185371e79b7ed4b63c2e394f57bc2d3b19f0920",
+			"classification": "split"
+		},
+		{
+			"kind": "copy",
+			"source": "test/isolated-agent-dir.ts",
+			"destination": "test/isolated-agent-dir.ts",
+			"blob": "528b41533c25d781a5d8d389a58df85282d9c7f7",
+			"archive": "provenance/upstream/test/isolated-agent-dir.ts",
+			"classification": "split"
+		},
+		{
+			"kind": "copy",
+			"source": "test/helpers/windows-scope.ts",
+			"destination": "test/helpers/windows-scope.ts",
+			"blob": "d4ab058dd30825e9be6a32126cd2d22ea9229738",
+			"archive": "provenance/upstream/test/helpers/windows-scope.ts",
+			"classification": "split"
+		},
+		{
+			"kind": "copy",
+			"source": "test/worktree-cleanup-fixture.ts",
+			"destination": "test/worktree-cleanup-fixture.ts",
+			"blob": "5f5bc734a3775ba1b8edfc7d3dad81bd19abc635",
+			"archive": "provenance/upstream/test/worktree-cleanup-fixture.ts",
+			"classification": "split"
+		}
+	]
 }

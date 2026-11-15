@@ -1,0 +1,1516 @@
+{
+	"copy_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+	"import_mappings": [
+		{
+			"from": "../../maestro/runtime/index.ts",
+			"to": "../../maestro/engine.ts"
+		},
+		{
+			"from": "./harness-adapter.conformance.ts",
+			"to": "../../maestro/testing/harness-adapter.conformance.ts"
+		},
+		{
+			"from": "./surface-provider.conformance.ts",
+			"to": "../../maestro/testing/surface-provider.conformance.ts"
+		},
+		{
+			"from": "../pi-extension/subagents/config-path.ts",
+			"to": "./helpers/config-example.ts"
+		}
+	],
+	"files": [
+		{
+			"source": "test/maestro/core-roles-config.test.ts",
+			"destination": "test/maestro/core-roles-config.test.ts",
+			"archive": "provenance/upstream/test/maestro/core-roles-config.test.ts",
+			"blob": "921c4939ceaa446e207b1b625eccaefe33659f2a",
+			"selections": [
+				{
+					"start": 729,
+					"end": 3829,
+					"line": 14
+				},
+				{
+					"start": 3831,
+					"end": 6170,
+					"line": 115
+				},
+				{
+					"start": 6172,
+					"end": 8696,
+					"line": 172
+				}
+			],
+			"helpers": [],
+			"whole": true
+		},
+		{
+			"source": "test/maestro/deadline.test.ts",
+			"destination": "test/maestro/deadline.test.ts",
+			"archive": "provenance/upstream/test/maestro/deadline.test.ts",
+			"blob": "bac3d73bd8edfd005ca1531c9d6130610aeb95b2",
+			"selections": [
+				{
+					"start": 166,
+					"end": 697,
+					"line": 6
+				}
+			],
+			"helpers": [],
+			"whole": true
+		},
+		{
+			"source": "test/maestro/delegation-depth.test.ts",
+			"destination": "test/maestro/delegation-depth.test.ts",
+			"archive": "provenance/upstream/test/maestro/delegation-depth.test.ts",
+			"blob": "64008b5016f25f1268ac8949ec30a65f3996956c",
+			"selections": [
+				{
+					"start": 353,
+					"end": 2011,
+					"line": 12
+				},
+				{
+					"start": 2013,
+					"end": 3070,
+					"line": 57
+				}
+			],
+			"helpers": [],
+			"whole": true
+		},
+		{
+			"source": "test/maestro/fake-harness-adapter.test.ts",
+			"destination": "test/maestro/fake-harness-adapter.test.ts",
+			"archive": "provenance/upstream/test/maestro/fake-harness-adapter.test.ts",
+			"blob": "416d3b07bcd3188503928d037bd96afe846a04e6",
+			"selections": [
+				{
+					"start": 479,
+					"end": 507,
+					"line": 10
+				},
+				{
+					"start": 509,
+					"end": 1165,
+					"line": 12
+				},
+				{
+					"start": 1167,
+					"end": 10827,
+					"line": 41
+				},
+				{
+					"start": 10829,
+					"end": 11181,
+					"line": 336
+				},
+				{
+					"start": 11183,
+					"end": 11297,
+					"line": 352
+				},
+				{
+					"start": 11299,
+					"end": 11728,
+					"line": 356
+				}
+			],
+			"helpers": [],
+			"whole": true
+		},
+		{
+			"source": "test/maestro/fake-surface-provider.test.ts",
+			"destination": "test/maestro/fake-surface-provider.test.ts",
+			"archive": "provenance/upstream/test/maestro/fake-surface-provider.test.ts",
+			"blob": "00dd32f620eb594688cb12d0809e87cee2748f5a",
+			"selections": [
+				{
+					"start": 435,
+					"end": 463,
+					"line": 13
+				},
+				{
+					"start": 465,
+					"end": 855,
+					"line": 15
+				},
+				{
+					"start": 857,
+					"end": 6976,
+					"line": 31
+				},
+				{
+					"start": 6978,
+					"end": 7275,
+					"line": 262
+				}
+			],
+			"helpers": [],
+			"whole": true
+		},
+		{
+			"source": "test/maestro/realpath-without-opening.test.ts",
+			"destination": "test/maestro/realpath-without-opening.test.ts",
+			"archive": "provenance/upstream/test/maestro/realpath-without-opening.test.ts",
+			"blob": "171038784e88b6bcb46921289e3e3798115b1ec0",
+			"selections": [
+				{
+					"start": 371,
+					"end": 593,
+					"line": 15
+				},
+				{
+					"start": 595,
+					"end": 897,
+					"line": 20
+				},
+				{
+					"start": 899,
+					"end": 1559,
+					"line": 29
+				}
+			],
+			"helpers": [],
+			"whole": true
+		},
+		{
+			"source": "test/maestro/run-session-cancel.test.ts",
+			"destination": "test/maestro/run-session-cancel.test.ts",
+			"archive": "provenance/upstream/test/maestro/run-session-cancel.test.ts",
+			"blob": "ee24d50a22989bdf217d9af8b0975e9ff8686bf7",
+			"selections": [
+				{
+					"start": 501,
+					"end": 635,
+					"line": 19
+				},
+				{
+					"start": 636,
+					"end": 829,
+					"line": 26
+				},
+				{
+					"start": 830,
+					"end": 1075,
+					"line": 31
+				},
+				{
+					"start": 1076,
+					"end": 1321,
+					"line": 42
+				},
+				{
+					"start": 1322,
+					"end": 1395,
+					"line": 51
+				},
+				{
+					"start": 1565,
+					"end": 2168,
+					"line": 57
+				},
+				{
+					"start": 2169,
+					"end": 3367,
+					"line": 77
+				},
+				{
+					"start": 3368,
+					"end": 3572,
+					"line": 129
+				},
+				{
+					"start": 3573,
+					"end": 3675,
+					"line": 134
+				},
+				{
+					"start": 3676,
+					"end": 4161,
+					"line": 137
+				},
+				{
+					"start": 4163,
+					"end": 22220,
+					"line": 151
+				}
+			],
+			"helpers": [],
+			"whole": true
+		},
+		{
+			"source": "test/maestro/run-session.test.ts",
+			"destination": "test/maestro/run-session.test.ts",
+			"archive": "provenance/upstream/test/maestro/run-session.test.ts",
+			"blob": "38516c3d6c4863f9eb7aac9b6fac8807ebc9b28f",
+			"selections": [
+				{
+					"start": 796,
+					"end": 857,
+					"line": 29
+				},
+				{
+					"start": 858,
+					"end": 992,
+					"line": 30
+				},
+				{
+					"start": 993,
+					"end": 1186,
+					"line": 37
+				},
+				{
+					"start": 1187,
+					"end": 1367,
+					"line": 42
+				},
+				{
+					"start": 1368,
+					"end": 1525,
+					"line": 52
+				},
+				{
+					"start": 1526,
+					"end": 1764,
+					"line": 58
+				},
+				{
+					"start": 1765,
+					"end": 3582,
+					"line": 67
+				},
+				{
+					"start": 3583,
+					"end": 4405,
+					"line": 131
+				},
+				{
+					"start": 4406,
+					"end": 5065,
+					"line": 162
+				},
+				{
+					"start": 5066,
+					"end": 5331,
+					"line": 186
+				},
+				{
+					"start": 5332,
+					"end": 6155,
+					"line": 201
+				},
+				{
+					"start": 6156,
+					"end": 6470,
+					"line": 235
+				},
+				{
+					"start": 6471,
+					"end": 6635,
+					"line": 245
+				},
+				{
+					"start": 6637,
+					"end": 7595,
+					"line": 250
+				},
+				{
+					"start": 7597,
+					"end": 13614,
+					"line": 276
+				},
+				{
+					"start": 13616,
+					"end": 19143,
+					"line": 454
+				},
+				{
+					"start": 19145,
+					"end": 30884,
+					"line": 633
+				},
+				{
+					"start": 30886,
+					"end": 38096,
+					"line": 969
+				},
+				{
+					"start": 38098,
+					"end": 46868,
+					"line": 1193
+				},
+				{
+					"start": 46870,
+					"end": 72341,
+					"line": 1483
+				}
+			],
+			"helpers": [],
+			"whole": true
+		},
+		{
+			"source": "test/maestro/supervision-wake.test.ts",
+			"destination": "test/maestro/supervision-wake.test.ts",
+			"archive": "provenance/upstream/test/maestro/supervision-wake.test.ts",
+			"blob": "fe0be84031994a69df13005b1fad561109c6e34a",
+			"selections": [
+				{
+					"start": 447,
+					"end": 496,
+					"line": 11
+				},
+				{
+					"start": 498,
+					"end": 645,
+					"line": 13
+				},
+				{
+					"start": 647,
+					"end": 2093,
+					"line": 17
+				},
+				{
+					"start": 2095,
+					"end": 2211,
+					"line": 57
+				},
+				{
+					"start": 2288,
+					"end": 3029,
+					"line": 65
+				},
+				{
+					"start": 3031,
+					"end": 3285,
+					"line": 99
+				},
+				{
+					"start": 3287,
+					"end": 10101,
+					"line": 112
+				}
+			],
+			"helpers": [],
+			"whole": true
+		},
+		{
+			"source": "test/maestro/audit-uncertain-retry.test.ts",
+			"destination": "test/maestro/audit-uncertain-retry.test.ts",
+			"archive": "provenance/upstream/test/maestro/audit-uncertain-retry.test.ts",
+			"blob": "5bcc39fe1cb2aa46c6e52f717fb9cd5c2f097f8e",
+			"selections": [
+				{
+					"start": 617,
+					"end": 690,
+					"line": 21
+				},
+				{
+					"start": 691,
+					"end": 806,
+					"line": 22
+				},
+				{
+					"start": 807,
+					"end": 1028,
+					"line": 29
+				},
+				{
+					"start": 1030,
+					"end": 1635,
+					"line": 42
+				},
+				{
+					"start": 1637,
+					"end": 2323,
+					"line": 62
+				},
+				{
+					"start": 2325,
+					"end": 3778,
+					"line": 89
+				},
+				{
+					"start": 3780,
+					"end": 5209,
+					"line": 124
+				},
+				{
+					"start": 5211,
+					"end": 6019,
+					"line": 158
+				},
+				{
+					"start": 6021,
+					"end": 12376,
+					"line": 175
+				},
+				{
+					"start": 12378,
+					"end": 13149,
+					"line": 341
+				},
+				{
+					"start": 13151,
+					"end": 13813,
+					"line": 362
+				},
+				{
+					"start": 13815,
+					"end": 15488,
+					"line": 381
+				},
+				{
+					"start": 15490,
+					"end": 17271,
+					"line": 442
+				}
+			],
+			"helpers": [],
+			"whole": true
+		},
+		{
+			"source": "test/test.ts",
+			"destination": "test/core-monolith.test.ts",
+			"archive": "provenance/upstream/test/test.ts",
+			"blob": "74c72b170285ca317aa81c39529285d06297fdd7",
+			"selections": [
+				{
+					"start": 130671,
+					"end": 130862,
+					"line": 4123
+				},
+				{
+					"start": 130865,
+					"end": 131138,
+					"line": 4132
+				},
+				{
+					"start": 131141,
+					"end": 131559,
+					"line": 4144
+				},
+				{
+					"start": 131562,
+					"end": 131924,
+					"line": 4161
+				},
+				{
+					"start": 131927,
+					"end": 132256,
+					"line": 4175
+				},
+				{
+					"start": 132259,
+					"end": 132608,
+					"line": 4188
+				},
+				{
+					"start": 132611,
+					"end": 133118,
+					"line": 4200
+				},
+				{
+					"start": 133121,
+					"end": 133526,
+					"line": 4217
+				},
+				{
+					"start": 133529,
+					"end": 134128,
+					"line": 4227
+				},
+				{
+					"start": 134131,
+					"end": 134623,
+					"line": 4251
+				},
+				{
+					"start": 134626,
+					"end": 135322,
+					"line": 4271
+				},
+				{
+					"start": 135325,
+					"end": 135928,
+					"line": 4296
+				},
+				{
+					"start": 135931,
+					"end": 136670,
+					"line": 4319
+				},
+				{
+					"start": 136673,
+					"end": 137383,
+					"line": 4348
+				},
+				{
+					"start": 137386,
+					"end": 138282,
+					"line": 4383
+				},
+				{
+					"start": 138285,
+					"end": 139937,
+					"line": 4422
+				},
+				{
+					"start": 139940,
+					"end": 140974,
+					"line": 4495
+				},
+				{
+					"start": 140977,
+					"end": 142466,
+					"line": 4538
+				},
+				{
+					"start": 143049,
+					"end": 143273,
+					"line": 4616
+				},
+				{
+					"start": 154774,
+					"end": 154953,
+					"line": 5004
+				},
+				{
+					"start": 154956,
+					"end": 155155,
+					"line": 5012
+				},
+				{
+					"start": 155158,
+					"end": 155988,
+					"line": 5019
+				},
+				{
+					"start": 155991,
+					"end": 156579,
+					"line": 5056
+				},
+				{
+					"start": 156582,
+					"end": 156975,
+					"line": 5077
+				},
+				{
+					"start": 156978,
+					"end": 157745,
+					"line": 5093
+				},
+				{
+					"start": 157792,
+					"end": 158121,
+					"line": 5125
+				},
+				{
+					"start": 158124,
+					"end": 158289,
+					"line": 5140
+				},
+				{
+					"start": 158292,
+					"end": 158884,
+					"line": 5145
+				},
+				{
+					"start": 158887,
+					"end": 159179,
+					"line": 5168
+				},
+				{
+					"start": 159182,
+					"end": 159606,
+					"line": 5175
+				},
+				{
+					"start": 159609,
+					"end": 160731,
+					"line": 5191
+				},
+				{
+					"start": 160734,
+					"end": 161246,
+					"line": 5236
+				},
+				{
+					"start": 161249,
+					"end": 162311,
+					"line": 5254
+				},
+				{
+					"start": 162314,
+					"end": 163346,
+					"line": 5291
+				},
+				{
+					"start": 163349,
+					"end": 164595,
+					"line": 5326
+				},
+				{
+					"start": 164598,
+					"end": 165465,
+					"line": 5371
+				},
+				{
+					"start": 165468,
+					"end": 166635,
+					"line": 5402
+				},
+				{
+					"start": 166638,
+					"end": 167989,
+					"line": 5435
+				},
+				{
+					"start": 168943,
+					"end": 169918,
+					"line": 5523
+				},
+				{
+					"start": 169921,
+					"end": 171122,
+					"line": 5547
+				},
+				{
+					"start": 171125,
+					"end": 172739,
+					"line": 5581
+				},
+				{
+					"start": 172742,
+					"end": 174166,
+					"line": 5638
+				},
+				{
+					"start": 174169,
+					"end": 175159,
+					"line": 5682
+				},
+				{
+					"start": 175162,
+					"end": 176111,
+					"line": 5718
+				},
+				{
+					"start": 176114,
+					"end": 176873,
+					"line": 5751
+				},
+				{
+					"start": 176876,
+					"end": 178298,
+					"line": 5778
+				},
+				{
+					"start": 178301,
+					"end": 179997,
+					"line": 5832
+				},
+				{
+					"start": 180000,
+					"end": 183477,
+					"line": 5893
+				},
+				{
+					"start": 183540,
+					"end": 183996,
+					"line": 5997
+				},
+				{
+					"start": 183999,
+					"end": 184347,
+					"line": 6010
+				},
+				{
+					"start": 184399,
+					"end": 184881,
+					"line": 6025
+				},
+				{
+					"start": 184884,
+					"end": 185453,
+					"line": 6040
+				},
+				{
+					"start": 185456,
+					"end": 186474,
+					"line": 6056
+				},
+				{
+					"start": 186513,
+					"end": 187714,
+					"line": 6094
+				},
+				{
+					"start": 187717,
+					"end": 188566,
+					"line": 6135
+				},
+				{
+					"start": 188569,
+					"end": 189411,
+					"line": 6170
+				},
+				{
+					"start": 189414,
+					"end": 190605,
+					"line": 6198
+				},
+				{
+					"start": 190608,
+					"end": 191377,
+					"line": 6241
+				},
+				{
+					"start": 191380,
+					"end": 192889,
+					"line": 6266
+				},
+				{
+					"start": 192892,
+					"end": 194096,
+					"line": 6308
+				},
+				{
+					"start": 194099,
+					"end": 194992,
+					"line": 6345
+				},
+				{
+					"start": 194995,
+					"end": 196389,
+					"line": 6376
+				},
+				{
+					"start": 196435,
+					"end": 196641,
+					"line": 6429
+				},
+				{
+					"start": 196644,
+					"end": 197224,
+					"line": 6434
+				},
+				{
+					"start": 197227,
+					"end": 197740,
+					"line": 6451
+				},
+				{
+					"start": 197743,
+					"end": 198137,
+					"line": 6470
+				},
+				{
+					"start": 198140,
+					"end": 198361,
+					"line": 6481
+				},
+				{
+					"start": 198364,
+					"end": 199057,
+					"line": 6488
+				},
+				{
+					"start": 270134,
+					"end": 270243,
+					"line": 8826
+				},
+				{
+					"start": 270247,
+					"end": 270506,
+					"line": 8830
+				},
+				{
+					"start": 288668,
+					"end": 289149,
+					"line": 9417
+				},
+				{
+					"start": 289152,
+					"end": 289843,
+					"line": 9430
+				},
+				{
+					"start": 289846,
+					"end": 290625,
+					"line": 9458
+				},
+				{
+					"start": 290628,
+					"end": 290971,
+					"line": 9489
+				},
+				{
+					"start": 290974,
+					"end": 291485,
+					"line": 9502
+				},
+				{
+					"start": 291488,
+					"end": 291842,
+					"line": 9511
+				},
+				{
+					"start": 291845,
+					"end": 292339,
+					"line": 9522
+				},
+				{
+					"start": 292342,
+					"end": 293493,
+					"line": 9538
+				},
+				{
+					"start": 293496,
+					"end": 293991,
+					"line": 9577
+				},
+				{
+					"start": 293994,
+					"end": 294299,
+					"line": 9593
+				},
+				{
+					"start": 294302,
+					"end": 294775,
+					"line": 9603
+				},
+				{
+					"start": 294778,
+					"end": 295400,
+					"line": 9619
+				},
+				{
+					"start": 295403,
+					"end": 296236,
+					"line": 9641
+				},
+				{
+					"start": 296239,
+					"end": 296672,
+					"line": 9673
+				},
+				{
+					"start": 296675,
+					"end": 297108,
+					"line": 9688
+				},
+				{
+					"start": 297111,
+					"end": 297708,
+					"line": 9703
+				},
+				{
+					"start": 297711,
+					"end": 298697,
+					"line": 9723
+				},
+				{
+					"start": 388875,
+					"end": 389181,
+					"line": 12628
+				},
+				{
+					"start": 424585,
+					"end": 424795,
+					"line": 13876
+				},
+				{
+					"start": 520051,
+					"end": 520460,
+					"line": 17209
+				}
+			],
+			"helpers": [
+				{
+					"start": 8042,
+					"end": 8208
+				},
+				{
+					"start": 7696,
+					"end": 7802
+				},
+				{
+					"start": 168460,
+					"end": 168566
+				},
+				{
+					"start": 168187,
+					"end": 168458
+				},
+				{
+					"start": 168053,
+					"end": 168151
+				},
+				{
+					"start": 168153,
+					"end": 168185
+				},
+				{
+					"start": 168857,
+					"end": 168940
+				},
+				{
+					"start": 168568,
+					"end": 168855
+				},
+				{
+					"start": 288259,
+					"end": 288665
+				},
+				{
+					"start": 388540,
+					"end": 388872
+				}
+			]
+		},
+		{
+			"source": "test/maestro/async-io.test.ts",
+			"destination": "test/maestro/async-io.test.ts",
+			"archive": "provenance/upstream/test/maestro/async-io.test.ts",
+			"blob": "6f2cb21dd6c72601698c6718857a09ff779345ca",
+			"selections": [
+				{
+					"start": 1984,
+					"end": 2517,
+					"line": 75
+				}
+			],
+			"helpers": [
+				{
+					"start": 1646,
+					"end": 1761
+				},
+				{
+					"start": 1762,
+					"end": 1982
+				}
+			]
+		},
+		{
+			"source": "test/maestro/accept-check.test.ts",
+			"destination": "test/maestro/accept-check.test.ts",
+			"archive": "provenance/upstream/test/maestro/accept-check.test.ts",
+			"blob": "be405664c59b4724e89a3105deb29f5498929e61",
+			"selections": [
+				{
+					"start": 1812,
+					"end": 3031,
+					"line": 49
+				},
+				{
+					"start": 3555,
+					"end": 3921,
+					"line": 110
+				},
+				{
+					"start": 5330,
+					"end": 5755,
+					"line": 163
+				},
+				{
+					"start": 5758,
+					"end": 6025,
+					"line": 179
+				},
+				{
+					"start": 6028,
+					"end": 6216,
+					"line": 188
+				},
+				{
+					"start": 6265,
+					"end": 6809,
+					"line": 197
+				},
+				{
+					"start": 6850,
+					"end": 7877,
+					"line": 214
+				},
+				{
+					"start": 7880,
+					"end": 8769,
+					"line": 253
+				}
+			],
+			"helpers": []
+		},
+		{
+			"source": "test/maestro/audit-discovery.test.ts",
+			"destination": "test/maestro/audit-discovery.test.ts",
+			"archive": "provenance/upstream/test/maestro/audit-discovery.test.ts",
+			"blob": "efa9182c01446d32c91d788699c97e8f9d5498c4",
+			"selections": [
+				{
+					"start": 604,
+					"end": 3225,
+					"line": 23
+				}
+			],
+			"helpers": [
+				{
+					"start": 516,
+					"end": 602
+				}
+			]
+		},
+		{
+			"source": "test/maestro/audit-git-environment.test.ts",
+			"destination": "test/maestro/audit-git-environment.test.ts",
+			"archive": "provenance/upstream/test/maestro/audit-git-environment.test.ts",
+			"blob": "591c39c188789f4fd388e7a985657a568430369a",
+			"selections": [
+				{
+					"start": 759,
+					"end": 1855,
+					"line": 26
+				}
+			],
+			"helpers": []
+		},
+		{
+			"source": "test/maestro/declared-skills.test.ts",
+			"destination": "test/maestro/declared-skills.test.ts",
+			"archive": "provenance/upstream/test/maestro/declared-skills.test.ts",
+			"blob": "15fd9aa209e83c642484b9c44796accec670db52",
+			"selections": [
+				{
+					"start": 2512,
+					"end": 3014,
+					"line": 83
+				},
+				{
+					"start": 3017,
+					"end": 3414,
+					"line": 95
+				},
+				{
+					"start": 3417,
+					"end": 3736,
+					"line": 107
+				}
+			],
+			"helpers": []
+		},
+		{
+			"source": "test/maestro/opened-primary-workspace.test.ts",
+			"destination": "test/maestro/opened-primary-workspace.test.ts",
+			"archive": "provenance/upstream/test/maestro/opened-primary-workspace.test.ts",
+			"blob": "a6c336246c7614dcfd9179173e48207e9c1834de",
+			"selections": [
+				{
+					"start": 17415,
+					"end": 18379,
+					"line": 617
+				},
+				{
+					"start": 18382,
+					"end": 19092,
+					"line": 650
+				},
+				{
+					"start": 19095,
+					"end": 19551,
+					"line": 668
+				},
+				{
+					"start": 19554,
+					"end": 20213,
+					"line": 679
+				}
+			],
+			"helpers": [
+				{
+					"start": 919,
+					"end": 1051
+				},
+				{
+					"start": 1053,
+					"end": 1185
+				}
+			]
+		},
+		{
+			"source": "test/maestro/script-launch.test.ts",
+			"destination": "test/maestro/script-launch.test.ts",
+			"archive": "provenance/upstream/test/maestro/script-launch.test.ts",
+			"blob": "d363607cdbd5bb4a7965031889808da7e00a0191",
+			"selections": [
+				{
+					"start": 2070,
+					"end": 2294,
+					"line": 66
+				},
+				{
+					"start": 2297,
+					"end": 2657,
+					"line": 73
+				},
+				{
+					"start": 2660,
+					"end": 2854,
+					"line": 82
+				},
+				{
+					"start": 2857,
+					"end": 3370,
+					"line": 89
+				},
+				{
+					"start": 3373,
+					"end": 3587,
+					"line": 103
+				},
+				{
+					"start": 3590,
+					"end": 3991,
+					"line": 110
+				},
+				{
+					"start": 3994,
+					"end": 4410,
+					"line": 127
+				},
+				{
+					"start": 4413,
+					"end": 4753,
+					"line": 145
+				},
+				{
+					"start": 4756,
+					"end": 5738,
+					"line": 156
+				},
+				{
+					"start": 5741,
+					"end": 6233,
+					"line": 196
+				},
+				{
+					"start": 6236,
+					"end": 6547,
+					"line": 219
+				},
+				{
+					"start": 6550,
+					"end": 6671,
+					"line": 226
+				},
+				{
+					"start": 6716,
+					"end": 7223,
+					"line": 232
+				},
+				{
+					"start": 7226,
+					"end": 7439,
+					"line": 245
+				}
+			],
+			"helpers": [
+				{
+					"start": 1784,
+					"end": 2007
+				},
+				{
+					"start": 1557,
+					"end": 1626
+				},
+				{
+					"start": 1444,
+					"end": 1501
+				},
+				{
+					"start": 1502,
+					"end": 1556
+				},
+				{
+					"start": 1680,
+					"end": 1726
+				},
+				{
+					"start": 1727,
+					"end": 1782
+				},
+				{
+					"start": 1627,
+					"end": 1678
+				}
+			]
+		},
+		{
+			"source": "test/maestro/task-model-init.test.ts",
+			"destination": "test/maestro/task-model-init.test.ts",
+			"archive": "provenance/upstream/test/maestro/task-model-init.test.ts",
+			"blob": "fbc6af1b4da2817bc66d334bedd88885dcfdef3b",
+			"selections": [
+				{
+					"start": 13439,
+					"end": 14787,
+					"line": 425
+				},
+				{
+					"start": 14790,
+					"end": 15384,
+					"line": 459
+				},
+				{
+					"start": 15387,
+					"end": 15878,
+					"line": 478
+				}
+			],
+			"helpers": [
+				{
+					"start": 1420,
+					"end": 1573
+				}
+			]
+		},
+		{
+			"source": "test/maestro/task-thinking.test.ts",
+			"destination": "test/maestro/task-thinking.test.ts",
+			"archive": "provenance/upstream/test/maestro/task-thinking.test.ts",
+			"blob": "49a11574ab73030035e51fe286727b600c0bb28a",
+			"selections": [
+				{
+					"start": 1882,
+					"end": 2164,
+					"line": 68
+				},
+				{
+					"start": 2984,
+					"end": 3541,
+					"line": 98
+				},
+				{
+					"start": 3544,
+					"end": 3882,
+					"line": 119
+				},
+				{
+					"start": 6201,
+					"end": 7886,
+					"line": 224
+				}
+			],
+			"helpers": [
+				{
+					"start": 1394,
+					"end": 1459
+				},
+				{
+					"start": 823,
+					"end": 1110
+				},
+				{
+					"start": 1460,
+					"end": 1555
+				}
+			]
+		},
+		{
+			"source": "test/maestro/windows-support-scope.test.ts",
+			"destination": "test/maestro/windows-support-scope.test.ts",
+			"archive": "provenance/upstream/test/maestro/windows-support-scope.test.ts",
+			"blob": "44e85e1f54c7a29585127116a15452450ce75182",
+			"selections": [
+				{
+					"start": 1823,
+					"end": 2278,
+					"line": 45
+				},
+				{
+					"start": 2280,
+					"end": 3590,
+					"line": 59
+				}
+			],
+			"helpers": [
+				{
+					"start": 1758,
+					"end": 1821
+				},
+				{
+					"start": 1591,
+					"end": 1682
+				}
+			]
+		},
+		{
+			"source": "test/worktree-cleanup.test.ts",
+			"destination": "test/worktree-cleanup.test.ts",
+			"archive": "provenance/upstream/test/worktree-cleanup.test.ts",
+			"blob": "ccf284aed7b1be82abcdff246c59d8e3ef48ab02",
+			"selections": [
+				{
+					"start": 35159,
+					"end": 35951,
+					"line": 1071
+				},
+				{
+					"start": 37493,
+					"end": 37908,
+					"line": 1138
+				},
+				{
+					"start": 37910,
+					"end": 38355,
+					"line": 1151
+				},
+				{
+					"start": 39516,
+					"end": 40163,
+					"line": 1209
+				},
+				{
+					"start": 40838,
+					"end": 41250,
+					"line": 1251
+				},
+				{
+					"start": 41252,
+					"end": 42041,
+					"line": 1266
+				},
+				{
+					"start": 42043,
+					"end": 42373,
+					"line": 1293
+				},
+				{
+					"start": 42375,
+					"end": 42726,
+					"line": 1299
+				},
+				{
+					"start": 43856,
+					"end": 44379,
+					"line": 1347
+				},
+				{
+					"start": 44381,
+					"end": 44858,
+					"line": 1364
+				},
+				{
+					"start": 44860,
+					"end": 45178,
+					"line": 1379
+				},
+				{
+					"start": 45180,
+					"end": 45577,
+					"line": 1389
+				},
+				{
+					"start": 45579,
+					"end": 46162,
+					"line": 1399
+				},
+				{
+					"start": 46164,
+					"end": 46582,
+					"line": 1419
+				},
+				{
+					"start": 46584,
+					"end": 47577,
+					"line": 1430
+				},
+				{
+					"start": 47579,
+					"end": 48081,
+					"line": 1463
+				},
+				{
+					"start": 48083,
+					"end": 48499,
+					"line": 1478
+				},
+				{
+					"start": 48501,
+					"end": 48966,
+					"line": 1488
+				}
+			],
+			"helpers": []
+		},
+		{
+			"source": "test/runtime-routing.test.ts",
+			"destination": "test/runtime-routing.test.ts",
+			"archive": "provenance/upstream/test/runtime-routing.test.ts",
+			"blob": "a9c048a4a118bf73fc97d7c517ee27771d3cd0e7",
+			"selections": [
+				{
+					"start": 6792,
+					"end": 7860,
+					"line": 230
+				},
+				{
+					"start": 11296,
+					"end": 11613,
+					"line": 395
+				},
+				{
+					"start": 11615,
+					"end": 11938,
+					"line": 404
+				},
+				{
+					"start": 11940,
+					"end": 12371,
+					"line": 413
+				},
+				{
+					"start": 12373,
+					"end": 12783,
+					"line": 422
+				}
+			],
+			"helpers": [
+				{
+					"start": 794,
+					"end": 1082
+				},
+				{
+					"start": 10699,
+					"end": 11294
+				},
+				{
+					"start": 10555,
+					"end": 10646
+				},
+				{
+					"start": 698,
+					"end": 792
+				}
+			]
+		},
+		{
+			"source": "test/maestro/herdr-core-execution.test.ts",
+			"destination": "test/maestro/herdr-core-execution.test.ts",
+			"archive": "provenance/upstream/test/maestro/herdr-core-execution.test.ts",
+			"blob": "fab053df7cd0a63bb6bf7f97ae7365214226e95d",
+			"selections": [
+				{
+					"start": 13039,
+					"end": 14594,
+					"line": 471
+				},
+				{
+					"start": 35413,
+					"end": 36474,
+					"line": 1149
+				}
+			],
+			"helpers": []
+		}
+	]
+}

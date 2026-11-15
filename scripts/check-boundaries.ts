@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
@@ -63,6 +63,28 @@ export function checkBoundaryText(text: string, path: string): void {
 	visit(source);
 }
 
+/** Follow both runtime and type edges from the lean facade, not the Pi-aware runtime barrel. */
+export function checkEngineClosure(
+	path: string,
+	seen = new Set<string>(),
+): void {
+	const absolute = resolve(path);
+	if (seen.has(absolute)) return;
+	seen.add(absolute);
+	const text = readFileSync(absolute, "utf8");
+	for (const entry of ts.preProcessFile(text, true, true).importedFiles) {
+		const specifier = entry.fileName;
+		assert(
+			!/^@earendil-works\/pi-|^@sinclair\/typebox|pi-extension|adapters\/pi|runtime\/pi-/.test(
+				specifier,
+			),
+			`Pi dependency in engine closure: ${path} -> ${specifier}`,
+		);
+		if (specifier.startsWith("."))
+			checkEngineClosure(resolve(dirname(absolute), specifier), seen);
+	}
+}
+
 export function scan(path: string): void {
 	if (!existsSync(path)) return;
 	if (/\.[cm]?[jt]sx?$/.test(path)) {
@@ -85,5 +107,14 @@ if (
 	);
 	for (const path of ["index.js", "maestro", "pi-extension", "dist"])
 		scan(path);
-	console.log("Source and emitted imports satisfy package boundaries.");
+	for (const path of [
+		"index.js",
+		"maestro/engine.ts",
+		"dist/index.js",
+		"dist/maestro/engine.js",
+	])
+		checkEngineClosure(path);
+	console.log(
+		"Source/emitted package boundaries and transitive Pi-free root/engine closures: passed.",
+	);
 }

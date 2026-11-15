@@ -107,11 +107,18 @@
 		{
 			"source": "maestro/adapters/fake/fake-harness-adapter.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "adapters/tools",
 			"line": 98.47908745247149,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 263,
+					"destination": "maestro/adapters/fake/fake-harness-adapter.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 259,
 			"total_lines": 263,
 			"branch_function_variants": [
@@ -127,7 +134,7 @@
 			"fate": "move",
 			"current_owner": "pi-herdr-agents",
 			"population": "adapters/tools",
-			"line": 100.0,
+			"line": 100,
 			"split_line_map": [],
 			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
 			"covered_lines": 104,
@@ -276,7 +283,7 @@
 			"fate": "move",
 			"current_owner": "pi-herdr-agents",
 			"population": "adapters/tools",
-			"line": 100.0,
+			"line": 100,
 			"split_line_map": [],
 			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
 			"covered_lines": 96,
@@ -312,7 +319,7 @@
 			"fate": "move",
 			"current_owner": "pi-herdr-agents",
 			"population": "adapters/tools",
-			"line": 100.0,
+			"line": 100,
 			"split_line_map": [],
 			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
 			"covered_lines": 258,
@@ -348,7 +355,7 @@
 			"fate": "move",
 			"current_owner": "pi-herdr-agents",
 			"population": "adapters/tools",
-			"line": 100.0,
+			"line": 100,
 			"split_line_map": [],
 			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
 			"covered_lines": 46,
@@ -420,7 +427,7 @@
 			"fate": "move",
 			"current_owner": "pi-herdr-agents",
 			"population": "adapters/tools",
-			"line": 100.0,
+			"line": 100,
 			"split_line_map": [],
 			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
 			"covered_lines": 77,
@@ -456,7 +463,7 @@
 			"fate": "move",
 			"current_owner": "pi-herdr-agents",
 			"population": "adapters/tools",
-			"line": 100.0,
+			"line": 100,
 			"split_line_map": [],
 			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
 			"covered_lines": 55,
@@ -472,11 +479,18 @@
 		{
 			"source": "maestro/core/accept.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
 			"line": 97.61904761904762,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 378,
+					"destination": "maestro/core/accept.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 369,
 			"total_lines": 378,
 			"branch_function_variants": [
@@ -490,11 +504,18 @@
 		{
 			"source": "maestro/core/activity.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 29,
+					"destination": "maestro/core/activity.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 29,
 			"total_lines": 29,
 			"branch_function_variants": [
@@ -508,11 +529,18 @@
 		{
 			"source": "maestro/core/child-busy.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 21,
+					"destination": "maestro/core/child-busy.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 21,
 			"total_lines": 21,
 			"branch_function_variants": [
@@ -526,11 +554,18 @@
 		{
 			"source": "maestro/core/config/guidelines-config.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 79,
+					"destination": "maestro/core/config/guidelines-config.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 79,
 			"total_lines": 79,
 			"branch_function_variants": [
@@ -544,11 +579,18 @@
 		{
 			"source": "maestro/core/config/herdr-config.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 88,
+					"destination": "maestro/core/config/herdr-config.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 88,
 			"total_lines": 88,
 			"branch_function_variants": [
@@ -562,11 +604,18 @@
 		{
 			"source": "maestro/core/config/model-config.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
 			"line": 98.46350832266326,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 781,
+					"destination": "maestro/core/config/model-config.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 769,
 			"total_lines": 781,
 			"branch_function_variants": [
@@ -580,11 +629,18 @@
 		{
 			"source": "maestro/core/config/outcome-ledger-config.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
 			"line": 87.93103448275862,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 58,
+					"destination": "maestro/core/config/outcome-ledger-config.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 51,
 			"total_lines": 58,
 			"branch_function_variants": [
@@ -598,11 +654,18 @@
 		{
 			"source": "maestro/core/config/pane-config.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
 			"line": 96.34146341463415,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 164,
+					"destination": "maestro/core/config/pane-config.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 158,
 			"total_lines": 164,
 			"branch_function_variants": [
@@ -616,11 +679,18 @@
 		{
 			"source": "maestro/core/config/persistent-config.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
 			"line": 96.26168224299066,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 107,
+					"destination": "maestro/core/config/persistent-config.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 103,
 			"total_lines": 107,
 			"branch_function_variants": [
@@ -634,11 +704,18 @@
 		{
 			"source": "maestro/core/config/role-config.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 99,
+					"destination": "maestro/core/config/role-config.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 99,
 			"total_lines": 99,
 			"branch_function_variants": [
@@ -652,11 +729,18 @@
 		{
 			"source": "maestro/core/config/spawning-config.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
 			"line": 91.66666666666667,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 84,
+					"destination": "maestro/core/config/spawning-config.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 77,
 			"total_lines": 84,
 			"branch_function_variants": [
@@ -670,11 +754,18 @@
 		{
 			"source": "maestro/core/config/supervision-config.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
 			"line": 95.83333333333333,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 96,
+					"destination": "maestro/core/config/supervision-config.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 92,
 			"total_lines": 96,
 			"branch_function_variants": [
@@ -688,11 +779,18 @@
 		{
 			"source": "maestro/core/config/task-model-init.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 270,
+					"destination": "maestro/core/config/task-model-init.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 270,
 			"total_lines": 270,
 			"branch_function_variants": [
@@ -706,11 +804,18 @@
 		{
 			"source": "maestro/core/config/task-model-types.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 45,
+					"destination": "maestro/core/config/task-model-types.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 45,
 			"total_lines": 45,
 			"branch_function_variants": [
@@ -724,11 +829,18 @@
 		{
 			"source": "maestro/core/config/type-guards.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 51,
+					"destination": "maestro/core/config/type-guards.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 51,
 			"total_lines": 51,
 			"branch_function_variants": [
@@ -742,11 +854,18 @@
 		{
 			"source": "maestro/core/deadline.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 35,
+					"destination": "maestro/core/deadline.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 35,
 			"total_lines": 35,
 			"branch_function_variants": [
@@ -760,11 +879,18 @@
 		{
 			"source": "maestro/core/declared-skills.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 59,
+					"destination": "maestro/core/declared-skills.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 59,
 			"total_lines": 59,
 			"branch_function_variants": [
@@ -778,11 +904,18 @@
 		{
 			"source": "maestro/core/delegation-depth.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 79,
+					"destination": "maestro/core/delegation-depth.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 79,
 			"total_lines": 79,
 			"branch_function_variants": [
@@ -796,11 +929,18 @@
 		{
 			"source": "maestro/core/git-environment.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 33,
+					"destination": "maestro/core/git-environment.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 33,
 			"total_lines": 33,
 			"branch_function_variants": [
@@ -814,11 +954,18 @@
 		{
 			"source": "maestro/core/host-text.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 130,
+					"destination": "maestro/core/host-text.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 130,
 			"total_lines": 130,
 			"branch_function_variants": [
@@ -832,11 +979,18 @@
 		{
 			"source": "maestro/core/lifecycle.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
 			"line": 94.07407407407408,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 540,
+					"destination": "maestro/core/lifecycle.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 508,
 			"total_lines": 540,
 			"branch_function_variants": [
@@ -850,11 +1004,18 @@
 		{
 			"source": "maestro/core/opened-primary-workspace.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
 			"line": 89.81481481481481,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 108,
+					"destination": "maestro/core/opened-primary-workspace.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 97,
 			"total_lines": 108,
 			"branch_function_variants": [
@@ -868,11 +1029,18 @@
 		{
 			"source": "maestro/core/platform-support.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 31,
+					"destination": "maestro/core/platform-support.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 31,
 			"total_lines": 31,
 			"branch_function_variants": [
@@ -886,11 +1054,18 @@
 		{
 			"source": "maestro/core/realpath-without-opening.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
 			"line": 95.55555555555556,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 45,
+					"destination": "maestro/core/realpath-without-opening.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 43,
 			"total_lines": 45,
 			"branch_function_variants": [
@@ -904,11 +1079,18 @@
 		{
 			"source": "maestro/core/roles/discovery.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
 			"line": 99.32885906040268,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 596,
+					"destination": "maestro/core/roles/discovery.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 592,
 			"total_lines": 596,
 			"branch_function_variants": [
@@ -922,11 +1104,18 @@
 		{
 			"source": "maestro/core/routing.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
 			"line": 99.29278642149929,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 707,
+					"destination": "maestro/core/routing.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 702,
 			"total_lines": 707,
 			"branch_function_variants": [
@@ -940,11 +1129,18 @@
 		{
 			"source": "maestro/core/script-launch.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 128,
+					"destination": "maestro/core/script-launch.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 128,
 			"total_lines": 128,
 			"branch_function_variants": [
@@ -958,11 +1154,18 @@
 		{
 			"source": "maestro/core/shell.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 3,
+					"destination": "maestro/core/shell.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 3,
 			"total_lines": 3,
 			"branch_function_variants": [
@@ -976,11 +1179,18 @@
 		{
 			"source": "maestro/core/specialist-notice.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
 			"line": 98.46153846153847,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 65,
+					"destination": "maestro/core/specialist-notice.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 64,
 			"total_lines": 65,
 			"branch_function_variants": [
@@ -994,11 +1204,18 @@
 		{
 			"source": "maestro/core/status.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
 			"line": 95.26315789473684,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 570,
+					"destination": "maestro/core/status.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 543,
 			"total_lines": 570,
 			"branch_function_variants": [
@@ -1012,11 +1229,18 @@
 		{
 			"source": "maestro/core/supervision.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
 			"line": 99.33554817275747,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 301,
+					"destination": "maestro/core/supervision.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 299,
 			"total_lines": 301,
 			"branch_function_variants": [
@@ -1030,11 +1254,18 @@
 		{
 			"source": "maestro/core/surface-provider.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 340,
+					"destination": "maestro/core/surface-provider.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 340,
 			"total_lines": 340,
 			"branch_function_variants": [
@@ -1048,11 +1279,18 @@
 		{
 			"source": "maestro/core/undelivered-children.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 43,
+					"destination": "maestro/core/undelivered-children.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 43,
 			"total_lines": 43,
 			"branch_function_variants": [
@@ -1066,11 +1304,18 @@
 		{
 			"source": "maestro/core/wake.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
 			"line": 94.96402877697842,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 139,
+					"destination": "maestro/core/wake.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 132,
 			"total_lines": 139,
 			"branch_function_variants": [
@@ -1084,11 +1329,18 @@
 		{
 			"source": "maestro/core/worktree-cleanup.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
 			"line": 99.54233409610984,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 437,
+					"destination": "maestro/core/worktree-cleanup.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 435,
 			"total_lines": 437,
 			"branch_function_variants": [
@@ -1102,11 +1354,18 @@
 		{
 			"source": "maestro/core/worktree.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "core",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 95,
+					"destination": "maestro/core/worktree.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 95,
 			"total_lines": 95,
 			"branch_function_variants": [
@@ -1140,7 +1399,7 @@
 			"fate": "split",
 			"current_owner": "pi-herdr-agents",
 			"population": "runtime",
-			"line": 100.0,
+			"line": 100,
 			"split_line_map": [],
 			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
 			"covered_lines": 250,
@@ -1158,7 +1417,7 @@
 			"fate": "split",
 			"current_owner": "pi-herdr-agents",
 			"population": "runtime",
-			"line": 100.0,
+			"line": 100,
 			"split_line_map": [],
 			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
 			"covered_lines": 32,
@@ -1176,7 +1435,7 @@
 			"fate": "move",
 			"current_owner": "pi-herdr-agents",
 			"population": "runtime",
-			"line": 100.0,
+			"line": 100,
 			"split_line_map": [],
 			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
 			"covered_lines": 48,
@@ -1194,7 +1453,7 @@
 			"fate": "move",
 			"current_owner": "pi-herdr-agents",
 			"population": "runtime",
-			"line": 100.0,
+			"line": 100,
 			"split_line_map": [],
 			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
 			"covered_lines": 101,
@@ -1228,11 +1487,18 @@
 		{
 			"source": "maestro/runtime/run-session.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "runtime",
 			"line": 99.46062567421791,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 927,
+					"destination": "maestro/runtime/run-session.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 922,
 			"total_lines": 927,
 			"branch_function_variants": [
@@ -1246,11 +1512,18 @@
 		{
 			"source": "maestro/runtime/surface-retention.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "runtime",
-			"line": 100.0,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"line": 100,
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 6,
+					"destination": "maestro/runtime/surface-retention.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 6,
 			"total_lines": 6,
 			"branch_function_variants": [
@@ -1300,11 +1573,18 @@
 		{
 			"source": "maestro/surfaces/fake/fake-surface-provider.ts",
 			"fate": "move",
-			"current_owner": "pi-herdr-agents",
+			"current_owner": "@nubl/maestro",
 			"population": "surfaces",
 			"line": 90.28213166144201,
-			"split_line_map": [],
-			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
+			"split_line_map": [
+				{
+					"source_start": 1,
+					"source_end": 319,
+					"destination": "maestro/surfaces/fake/fake-surface-provider.ts",
+					"destination_start": 1
+				}
+			],
+			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
 			"covered_lines": 288,
 			"total_lines": 319,
 			"branch_function_variants": [
@@ -1392,7 +1672,7 @@
 			"fate": "stay",
 			"current_owner": "pi-herdr-agents",
 			"population": "surfaces",
-			"line": 100.0,
+			"line": 100,
 			"split_line_map": [],
 			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
 			"covered_lines": 207,
@@ -1474,7 +1754,7 @@
 			"fate": "move",
 			"current_owner": "pi-herdr-agents",
 			"population": "adapters/tools",
-			"line": 100.0,
+			"line": 100,
 			"split_line_map": [],
 			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
 			"covered_lines": 355,
@@ -1492,7 +1772,7 @@
 			"fate": "move",
 			"current_owner": "pi-herdr-agents",
 			"population": "adapters/tools",
-			"line": 100.0,
+			"line": 100,
 			"split_line_map": [],
 			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
 			"covered_lines": 26,
@@ -1546,7 +1826,7 @@
 			"fate": "move",
 			"current_owner": "pi-herdr-agents",
 			"population": "adapters/tools",
-			"line": 100.0,
+			"line": 100,
 			"split_line_map": [],
 			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
 			"covered_lines": 98,
@@ -1716,7 +1996,7 @@
 			"fate": "move",
 			"current_owner": "pi-herdr-agents",
 			"population": "adapters/tools",
-			"line": 100.0,
+			"line": 100,
 			"split_line_map": [],
 			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
 			"covered_lines": 87,
@@ -1806,7 +2086,7 @@
 			"fate": "move",
 			"current_owner": "pi-herdr-agents",
 			"population": "adapters/tools",
-			"line": 100.0,
+			"line": 100,
 			"split_line_map": [],
 			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
 			"covered_lines": 282,
@@ -1824,7 +2104,7 @@
 			"fate": "move",
 			"current_owner": "pi-herdr-agents",
 			"population": "adapters/tools",
-			"line": 100.0,
+			"line": 100,
 			"split_line_map": [],
 			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
 			"covered_lines": 473,
@@ -1842,7 +2122,7 @@
 			"fate": "move",
 			"current_owner": "pi-herdr-agents",
 			"population": "adapters/tools",
-			"line": 100.0,
+			"line": 100,
 			"split_line_map": [],
 			"mapping_status": "original owner; assign copied/split ranges at migration, before M6 combined gate",
 			"covered_lines": 67,

@@ -47,7 +47,9 @@ test("placeholder package has emitted-only exports and optional host peers, no S
 	assert.equal(pkg.engines.node, ">=26.12.1");
 	assert.equal(pkg.main, "./dist/index.js");
 	assert.equal(pkg.types, "./dist/index.d.ts");
-	assert.deepEqual(Object.keys(pkg.exports), [".", "./package.json"]);
+	assert(pkg.exports["./engine"]);
+	assert(pkg.exports["./testing"]);
+	assert(!Object.keys(pkg.exports).some((name) => name.includes("*")));
 	assert.equal(pkg.exports["."].import, pkg.main);
 	assert.equal(pkg.exports["."].default, pkg.main);
 	assert.equal(pkg.dependencies, undefined);
@@ -69,7 +71,6 @@ test("placeholder package has emitted-only exports and optional host peers, no S
 		"skills",
 		"prompts",
 		"themes",
-		"maestro",
 		"pi-extension",
 	])
 		assert(!existsSync(new URL(path, root)));
@@ -136,7 +137,7 @@ test("the actual lint CLI rejects module mocking and unsafe assertions in tests"
 	);
 });
 
-test("M1 closes same-pin drift but claims no copied engine files or migrated tests", () => {
+test("M2 closes same-pin drift and records the generic owner copies and test migrations", () => {
 	const copies = readManifest(new URL("provenance/copy-manifest.json", root));
 	const drift = JSON.parse(read("provenance/drift-ledger.json"));
 	const inventory = JSON.parse(read("provenance/inventory.json"));
@@ -145,14 +146,19 @@ test("M1 closes same-pin drift but claims no copied engine files or migrated tes
 	assert.equal(drift.previous_pin, drift.base_main_sha);
 	assert.equal(copies.base_main_sha, drift.base_main_sha);
 	assert.equal(copies.copy_sha, drift.base_main_sha);
-	assert.deepEqual(copies.entries, []);
+	assert.equal(
+		copies.entries.filter(
+			(entry) => entry.kind === "copy" && entry.source.startsWith("maestro/"),
+		).length,
+		43,
+	);
 	assert.deepEqual(drift.touching_commits, []);
 	assert.equal(inventory.production.length, 98);
 	assert.equal(tests.original_test_tree.length, 110);
 	assert.equal(tests.original_unit_entries.length, 67);
 	assert(tests.original_unit_entries.includes("test/test.ts"));
 	assert.deepEqual(tests.retained_unit_entries, tests.original_unit_entries);
-	assert.deepEqual(tests.migrated, []);
+	assert(tests.migrated.length > 0);
 });
 
 test("baseline preserves nested identities, locations, skip status and original-file coverage populations", () => {

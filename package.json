@@ -1,7 +1,7 @@
 {
 	"name": "@nubl/maestro",
 	"version": "0.0.1",
-	"description": "Harness-neutral subagent engine: delegation, checked outcomes and a pluggable execution seam. Placeholder; extraction from pi-herdr-agents has not started.",
+	"description": "Harness-neutral subagent engine. M2 generic owner extracted from pi-herdr-agents; root placeholder retained until M6.",
 	"license": "MIT",
 	"type": "module",
 	"main": "./dist/index.js",
@@ -12,7 +12,222 @@
 			"import": "./dist/index.js",
 			"default": "./dist/index.js"
 		},
-		"./package.json": "./package.json"
+		"./package.json": "./package.json",
+		"./engine": {
+			"types": "./dist/maestro/engine.d.ts",
+			"import": "./dist/maestro/engine.js",
+			"default": "./dist/maestro/engine.js"
+		},
+		"./testing": {
+			"types": "./dist/maestro/testing/index.d.ts",
+			"import": "./dist/maestro/testing/index.js",
+			"default": "./dist/maestro/testing/index.js"
+		},
+		"./core/accept": {
+			"types": "./dist/maestro/core/accept.d.ts",
+			"import": "./dist/maestro/core/accept.js",
+			"default": "./dist/maestro/core/accept.js"
+		},
+		"./core/activity": {
+			"types": "./dist/maestro/core/activity.d.ts",
+			"import": "./dist/maestro/core/activity.js",
+			"default": "./dist/maestro/core/activity.js"
+		},
+		"./core/child-busy": {
+			"types": "./dist/maestro/core/child-busy.d.ts",
+			"import": "./dist/maestro/core/child-busy.js",
+			"default": "./dist/maestro/core/child-busy.js"
+		},
+		"./core/config/guidelines-config": {
+			"types": "./dist/maestro/core/config/guidelines-config.d.ts",
+			"import": "./dist/maestro/core/config/guidelines-config.js",
+			"default": "./dist/maestro/core/config/guidelines-config.js"
+		},
+		"./core/config/herdr-config": {
+			"types": "./dist/maestro/core/config/herdr-config.d.ts",
+			"import": "./dist/maestro/core/config/herdr-config.js",
+			"default": "./dist/maestro/core/config/herdr-config.js"
+		},
+		"./core/config/model-config": {
+			"types": "./dist/maestro/core/config/model-config.d.ts",
+			"import": "./dist/maestro/core/config/model-config.js",
+			"default": "./dist/maestro/core/config/model-config.js"
+		},
+		"./core/config/outcome-ledger-config": {
+			"types": "./dist/maestro/core/config/outcome-ledger-config.d.ts",
+			"import": "./dist/maestro/core/config/outcome-ledger-config.js",
+			"default": "./dist/maestro/core/config/outcome-ledger-config.js"
+		},
+		"./core/config/pane-config": {
+			"types": "./dist/maestro/core/config/pane-config.d.ts",
+			"import": "./dist/maestro/core/config/pane-config.js",
+			"default": "./dist/maestro/core/config/pane-config.js"
+		},
+		"./core/config/persistent-config": {
+			"types": "./dist/maestro/core/config/persistent-config.d.ts",
+			"import": "./dist/maestro/core/config/persistent-config.js",
+			"default": "./dist/maestro/core/config/persistent-config.js"
+		},
+		"./core/config/role-config": {
+			"types": "./dist/maestro/core/config/role-config.d.ts",
+			"import": "./dist/maestro/core/config/role-config.js",
+			"default": "./dist/maestro/core/config/role-config.js"
+		},
+		"./core/config/spawning-config": {
+			"types": "./dist/maestro/core/config/spawning-config.d.ts",
+			"import": "./dist/maestro/core/config/spawning-config.js",
+			"default": "./dist/maestro/core/config/spawning-config.js"
+		},
+		"./core/config/supervision-config": {
+			"types": "./dist/maestro/core/config/supervision-config.d.ts",
+			"import": "./dist/maestro/core/config/supervision-config.js",
+			"default": "./dist/maestro/core/config/supervision-config.js"
+		},
+		"./core/config/task-model-init": {
+			"types": "./dist/maestro/core/config/task-model-init.d.ts",
+			"import": "./dist/maestro/core/config/task-model-init.js",
+			"default": "./dist/maestro/core/config/task-model-init.js"
+		},
+		"./core/config/task-model-types": {
+			"types": "./dist/maestro/core/config/task-model-types.d.ts",
+			"import": "./dist/maestro/core/config/task-model-types.js",
+			"default": "./dist/maestro/core/config/task-model-types.js"
+		},
+		"./core/config/type-guards": {
+			"types": "./dist/maestro/core/config/type-guards.d.ts",
+			"import": "./dist/maestro/core/config/type-guards.js",
+			"default": "./dist/maestro/core/config/type-guards.js"
+		},
+		"./core/deadline": {
+			"types": "./dist/maestro/core/deadline.d.ts",
+			"import": "./dist/maestro/core/deadline.js",
+			"default": "./dist/maestro/core/deadline.js"
+		},
+		"./core/declared-skills": {
+			"types": "./dist/maestro/core/declared-skills.d.ts",
+			"import": "./dist/maestro/core/declared-skills.js",
+			"default": "./dist/maestro/core/declared-skills.js"
+		},
+		"./core/delegation-depth": {
+			"types": "./dist/maestro/core/delegation-depth.d.ts",
+			"import": "./dist/maestro/core/delegation-depth.js",
+			"default": "./dist/maestro/core/delegation-depth.js"
+		},
+		"./core/git-environment": {
+			"types": "./dist/maestro/core/git-environment.d.ts",
+			"import": "./dist/maestro/core/git-environment.js",
+			"default": "./dist/maestro/core/git-environment.js"
+		},
+		"./core/harness-adapter": {
+			"types": "./dist/maestro/core/harness-adapter.d.ts",
+			"import": "./dist/maestro/core/harness-adapter.js",
+			"default": "./dist/maestro/core/harness-adapter.js"
+		},
+		"./core/host-text": {
+			"types": "./dist/maestro/core/host-text.d.ts",
+			"import": "./dist/maestro/core/host-text.js",
+			"default": "./dist/maestro/core/host-text.js"
+		},
+		"./core/index": {
+			"types": "./dist/maestro/core/index.d.ts",
+			"import": "./dist/maestro/core/index.js",
+			"default": "./dist/maestro/core/index.js"
+		},
+		"./core/lifecycle": {
+			"types": "./dist/maestro/core/lifecycle.d.ts",
+			"import": "./dist/maestro/core/lifecycle.js",
+			"default": "./dist/maestro/core/lifecycle.js"
+		},
+		"./core/opened-primary-workspace": {
+			"types": "./dist/maestro/core/opened-primary-workspace.d.ts",
+			"import": "./dist/maestro/core/opened-primary-workspace.js",
+			"default": "./dist/maestro/core/opened-primary-workspace.js"
+		},
+		"./core/platform-support": {
+			"types": "./dist/maestro/core/platform-support.d.ts",
+			"import": "./dist/maestro/core/platform-support.js",
+			"default": "./dist/maestro/core/platform-support.js"
+		},
+		"./core/realpath-without-opening": {
+			"types": "./dist/maestro/core/realpath-without-opening.d.ts",
+			"import": "./dist/maestro/core/realpath-without-opening.js",
+			"default": "./dist/maestro/core/realpath-without-opening.js"
+		},
+		"./core/roles/discovery": {
+			"types": "./dist/maestro/core/roles/discovery.d.ts",
+			"import": "./dist/maestro/core/roles/discovery.js",
+			"default": "./dist/maestro/core/roles/discovery.js"
+		},
+		"./core/routing": {
+			"types": "./dist/maestro/core/routing.d.ts",
+			"import": "./dist/maestro/core/routing.js",
+			"default": "./dist/maestro/core/routing.js"
+		},
+		"./core/script-launch": {
+			"types": "./dist/maestro/core/script-launch.d.ts",
+			"import": "./dist/maestro/core/script-launch.js",
+			"default": "./dist/maestro/core/script-launch.js"
+		},
+		"./core/shell": {
+			"types": "./dist/maestro/core/shell.d.ts",
+			"import": "./dist/maestro/core/shell.js",
+			"default": "./dist/maestro/core/shell.js"
+		},
+		"./core/specialist-notice": {
+			"types": "./dist/maestro/core/specialist-notice.d.ts",
+			"import": "./dist/maestro/core/specialist-notice.js",
+			"default": "./dist/maestro/core/specialist-notice.js"
+		},
+		"./core/status": {
+			"types": "./dist/maestro/core/status.d.ts",
+			"import": "./dist/maestro/core/status.js",
+			"default": "./dist/maestro/core/status.js"
+		},
+		"./core/supervision": {
+			"types": "./dist/maestro/core/supervision.d.ts",
+			"import": "./dist/maestro/core/supervision.js",
+			"default": "./dist/maestro/core/supervision.js"
+		},
+		"./core/surface-provider": {
+			"types": "./dist/maestro/core/surface-provider.d.ts",
+			"import": "./dist/maestro/core/surface-provider.js",
+			"default": "./dist/maestro/core/surface-provider.js"
+		},
+		"./core/types": {
+			"types": "./dist/maestro/core/types.d.ts",
+			"import": "./dist/maestro/core/types.js",
+			"default": "./dist/maestro/core/types.js"
+		},
+		"./core/undelivered-children": {
+			"types": "./dist/maestro/core/undelivered-children.d.ts",
+			"import": "./dist/maestro/core/undelivered-children.js",
+			"default": "./dist/maestro/core/undelivered-children.js"
+		},
+		"./core/wake": {
+			"types": "./dist/maestro/core/wake.d.ts",
+			"import": "./dist/maestro/core/wake.js",
+			"default": "./dist/maestro/core/wake.js"
+		},
+		"./core/worktree-cleanup": {
+			"types": "./dist/maestro/core/worktree-cleanup.d.ts",
+			"import": "./dist/maestro/core/worktree-cleanup.js",
+			"default": "./dist/maestro/core/worktree-cleanup.js"
+		},
+		"./core/worktree": {
+			"types": "./dist/maestro/core/worktree.d.ts",
+			"import": "./dist/maestro/core/worktree.js",
+			"default": "./dist/maestro/core/worktree.js"
+		},
+		"./runtime/run-session": {
+			"types": "./dist/maestro/runtime/run-session.d.ts",
+			"import": "./dist/maestro/runtime/run-session.js",
+			"default": "./dist/maestro/runtime/run-session.js"
+		},
+		"./runtime/surface-retention": {
+			"types": "./dist/maestro/runtime/surface-retention.d.ts",
+			"import": "./dist/maestro/runtime/surface-retention.js",
+			"default": "./dist/maestro/runtime/surface-retention.js"
+		}
 	},
 	"files": [
 		"dist/",
@@ -29,16 +244,16 @@
 		"access": "public"
 	},
 	"scripts": {
-		"format": "biome format --write index.js test scripts biome.json tsconfig.json tsconfig.build.json package.json provenance",
-		"format:check": "biome format index.js test scripts biome.json tsconfig.json tsconfig.build.json package.json provenance",
-		"lint": "oxlint index.js test scripts oxlint.config.ts",
+		"format": "biome format --write index.js maestro test scripts biome.json tsconfig.json tsconfig.build.json package.json provenance",
+		"format:check": "biome format index.js maestro test scripts biome.json tsconfig.json tsconfig.build.json package.json provenance",
+		"lint": "oxlint index.js maestro test scripts oxlint.config.ts",
 		"typecheck": "tsc -p tsconfig.json",
-		"test": "node --experimental-strip-types --test test/index.test.js test/copy-fidelity.test.ts test/scaffold.test.ts",
-		"test:fidelity": "node --experimental-strip-types --test test/copy-fidelity.test.ts",
+		"test": "node --experimental-strip-types scripts/test-unit.ts",
+		"test:fidelity": "node --experimental-strip-types --test test/copy-fidelity.test.ts test/test-migration.test.ts",
 		"build": "node --experimental-strip-types scripts/build.ts",
 		"prepack": "npm run build",
 		"test:package": "node --experimental-strip-types scripts/test-package.ts",
-		"test:coverage": "node --experimental-strip-types --enable-source-maps --experimental-test-coverage --test test/index.test.js test/copy-fidelity.test.ts test/scaffold.test.ts",
+		"test:coverage": "node --experimental-strip-types scripts/test-unit.ts --coverage",
 		"check:copy-fidelity": "node --experimental-strip-types scripts/check-copy-fidelity.ts",
 		"check:boundaries": "node --experimental-strip-types scripts/check-boundaries.ts",
 		"docs:tools:check": "node --experimental-strip-types scripts/check-tool-docs.ts"
