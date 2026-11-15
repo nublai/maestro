@@ -66,14 +66,22 @@ test("placeholder package has emitted-only exports and optional host peers, no S
 		assert(pkg.devDependencies[name]);
 	}
 	assert.equal(pkg.devDependencies["@types/node"], "26.6.4");
-	for (const path of [
-		"extensions",
-		"skills",
-		"prompts",
-		"themes",
-		"pi-extension",
-	])
+	for (const path of ["extensions", "skills", "prompts", "themes"])
 		assert(!existsSync(new URL(path, root)));
+	// M4: the tool surface moved; the terminal entry, its host composition and
+	// all terminal presentation stay upstream (§2.3), so nothing here registers
+	// widgets/renderers or loads itself as a second Pi extension.
+	for (const path of [
+		"index.ts",
+		"widgets.ts",
+		"renderers.ts",
+		"tool-renderers.ts",
+		"host-surface.ts",
+		"marker-transport.ts",
+		"child.ts",
+		"child-widget.ts",
+	])
+		assert(!existsSync(new URL(`pi-extension/subagents/${path}`, root)), path);
 });
 
 test("lint plugin closure is pinned byte-for-byte, including module-mocking and assertion rules", () => {

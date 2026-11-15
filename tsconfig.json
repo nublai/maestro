@@ -16,6 +16,7 @@
 	"include": [
 		"index.js",
 		"maestro/**/*.ts",
+		"pi-extension/**/*.ts",
 		"scripts/**/*.ts",
 		"test/**/*.ts",
 		"test/**/*.js",

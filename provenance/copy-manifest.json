@@ -23,6 +23,46 @@
 		},
 		{
 			"kind": "copy",
+			"source": "docs/delegation-outcome-contract.md",
+			"destination": "docs/delegation-outcome-contract.md",
+			"blob": "bfd79eba1b94d75c351594df4b0c8d4a85153618",
+			"archive": "provenance/upstream/docs/delegation-outcome-contract.md",
+			"classification": "split"
+		},
+		{
+			"kind": "copy",
+			"source": "docs/tools.md",
+			"destination": "docs/tools.md",
+			"blob": "edfd04d261745a323a919474557e3084a97f459d",
+			"archive": "provenance/upstream/docs/tools.md",
+			"classification": "split"
+		},
+		{
+			"kind": "copy",
+			"source": "examples/role-pack/extension.ts",
+			"destination": "examples/role-pack/extension.ts",
+			"blob": "f93ccf76c3fb533821a46f26479186ede7223ac9",
+			"archive": "provenance/upstream/examples/role-pack/extension.ts",
+			"classification": "split"
+		},
+		{
+			"kind": "copy",
+			"source": "examples/role-pack/package.json",
+			"destination": "examples/role-pack/package.json",
+			"blob": "69e59b848e6a74d7c09b346469b6b4d69a396192",
+			"archive": "provenance/upstream/examples/role-pack/package.json",
+			"classification": "split"
+		},
+		{
+			"kind": "copy",
+			"source": "examples/role-pack/roles/example-reviewer.md",
+			"destination": "examples/role-pack/roles/example-reviewer.md",
+			"blob": "39cc38c82a88912f6889c9e7744a4eed306084e9",
+			"archive": "provenance/upstream/examples/role-pack/roles/example-reviewer.md",
+			"classification": "split"
+		},
+		{
+			"kind": "copy",
 			"source": "maestro/adapters/fake/fake-harness-adapter.ts",
 			"destination": "maestro/adapters/fake/fake-harness-adapter.ts",
 			"blob": "08fd565694ea048846e9970213be2288f8ac3d19",
@@ -545,10 +585,168 @@
 		},
 		{
 			"kind": "copy",
+			"source": "pi-extension/subagents/catalog.ts",
+			"destination": "pi-extension/subagents/catalog.ts",
+			"blob": "8d1e996375c1d98443613cf7dce20211aa814650",
+			"archive": "provenance/upstream/pi-extension/subagents/catalog.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "pi-extension/subagents/config-path.ts",
+			"destination": "pi-extension/subagents/config-path.ts",
+			"blob": "4d55b9dc36774517990ba77c3956251c902fe746",
+			"archive": "provenance/upstream/pi-extension/subagents/config-path.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "pi-extension/subagents/control-tools.ts",
+			"destination": "pi-extension/subagents/control-tools.ts",
+			"blob": "5cbcbde880594c3f73586a18e911d478e108cabd",
+			"archive": "provenance/upstream/pi-extension/subagents/control-tools.ts",
+			"classification": "split"
+		},
+		{
+			"kind": "copy",
+			"source": "pi-extension/subagents/controls.ts",
+			"destination": "pi-extension/subagents/controls.ts",
+			"blob": "047a987db5d73d6e640b72cdb50ee3431673ef4b",
+			"archive": "provenance/upstream/pi-extension/subagents/controls.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "pi-extension/subagents/deferred-tools.ts",
+			"destination": "pi-extension/subagents/deferred-tools.ts",
+			"blob": "2fb3a060bd530519addcedf4896c336ce80ee7df",
+			"archive": "provenance/upstream/pi-extension/subagents/deferred-tools.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "pi-extension/subagents/delivery.ts",
+			"destination": "pi-extension/subagents/delivery.ts",
+			"blob": "6f6b9abaa63abcb6443fbbc00a2d22a002d2b44a",
+			"archive": "provenance/upstream/pi-extension/subagents/delivery.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "pi-extension/subagents/extension.ts",
+			"destination": "pi-extension/subagents/extension.ts",
+			"blob": "eb0f5142908b4dedf0f158b455cde6954ea5a76e",
+			"archive": "provenance/upstream/pi-extension/subagents/extension.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "pi-extension/subagents/launch-tools.ts",
+			"destination": "pi-extension/subagents/launch-tools.ts",
+			"blob": "264d47a04c96858dcccb09c1be49439d4356947b",
+			"archive": "provenance/upstream/pi-extension/subagents/launch-tools.ts",
+			"classification": "split"
+		},
+		{
+			"kind": "copy",
+			"source": "pi-extension/subagents/launch.ts",
+			"destination": "pi-extension/subagents/launch.ts",
+			"blob": "dcb6c903a7ced7cf5e795fdac38b112baa795f41",
+			"archive": "provenance/upstream/pi-extension/subagents/launch.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "pi-extension/subagents/model-registry.ts",
+			"destination": "pi-extension/subagents/model-registry.ts",
+			"blob": "9abd8b642be128b58237bca96027d037519bffbe",
+			"archive": "provenance/upstream/pi-extension/subagents/model-registry.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "pi-extension/subagents/observation.ts",
+			"destination": "pi-extension/subagents/observation.ts",
+			"blob": "ec5a0338ed0b2e8b8d25469539a6f97983a87fbc",
+			"archive": "provenance/upstream/pi-extension/subagents/observation.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "pi-extension/subagents/persistent.ts",
+			"destination": "pi-extension/subagents/persistent.ts",
+			"blob": "7ef99411500a30206a861e43f8d5fe7afac6d4d8",
+			"archive": "provenance/upstream/pi-extension/subagents/persistent.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "pi-extension/subagents/presentation-hooks.ts",
+			"destination": "pi-extension/subagents/presentation-hooks.ts",
+			"blob": "fd1ffddcd00ec158079092d7751f66780ed04bd9",
+			"archive": "provenance/upstream/pi-extension/subagents/presentation-hooks.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "pi-extension/subagents/presentation.ts",
+			"destination": "pi-extension/subagents/presentation.ts",
+			"blob": "529179ef4077c7d32852aeb5d1d136032f59d4d6",
+			"archive": "provenance/upstream/pi-extension/subagents/presentation.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "pi-extension/subagents/state.ts",
+			"destination": "pi-extension/subagents/state.ts",
+			"blob": "f77f4a5c79cf1bb410db68fbcc78dfa1d9acbe11",
+			"archive": "provenance/upstream/pi-extension/subagents/state.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "pi-extension/subagents/task-models.ts",
+			"destination": "pi-extension/subagents/task-models.ts",
+			"blob": "fbb0bfb0b2f117e77ddf1721f377dc81a12393dd",
+			"archive": "provenance/upstream/pi-extension/subagents/task-models.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "pi-extension/subagents/tool-boundary.ts",
+			"destination": "pi-extension/subagents/tool-boundary.ts",
+			"blob": "4d0ad512b642615c137c2dd30f23b68292731d2f",
+			"archive": "provenance/upstream/pi-extension/subagents/tool-boundary.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "pi-extension/subagents/worktree-tools.ts",
+			"destination": "pi-extension/subagents/worktree-tools.ts",
+			"blob": "6d3bfa9409387831f3e9bb2d1c7be2f1e95cb692",
+			"archive": "provenance/upstream/pi-extension/subagents/worktree-tools.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "scripts/tool-docs.ts",
+			"destination": "scripts/tool-docs.ts",
+			"blob": "296b57e3fc14b5b5182162ce7151e0b7fbcae926",
+			"archive": "provenance/upstream/scripts/tool-docs.ts",
+			"classification": "split"
+		},
+		{
+			"kind": "copy",
+			"source": "scripts/update-tool-docs.ts",
+			"destination": "scripts/update-tool-docs.ts",
+			"blob": "c43729aaf6855a844623e33587866fc4629bad3b",
+			"archive": "provenance/upstream/scripts/update-tool-docs.ts",
+			"classification": "split"
+		},
+		{
+			"kind": "copy",
 			"source": "test/clean-host-env.ts",
 			"destination": "test/clean-host-env.ts",
 			"blob": "2747fea10def1ce9d9a553f9fab65b94b12ff300",
 			"archive": "provenance/upstream/test/clean-host-env.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "test/fixtures/tool-schema/current.json",
+			"destination": "test/fixtures/tool-schema/current.json",
+			"blob": "7720f5698f352b4ff909cadc8b09aa32ebe9dfd5",
+			"archive": "provenance/upstream/test/fixtures/tool-schema/current.json"
+		},
+		{
+			"kind": "copy",
+			"source": "test/fixtures/tool-schema/released.json",
+			"destination": "test/fixtures/tool-schema/released.json",
+			"blob": "7720f5698f352b4ff909cadc8b09aa32ebe9dfd5",
+			"archive": "provenance/upstream/test/fixtures/tool-schema/released.json"
 		},
 		{
 			"kind": "copy",
@@ -563,6 +761,13 @@
 			"destination": "test/helpers/process-cleanup.ts",
 			"blob": "b85f35965a9b77559525f95fcc12e1f4e3ff6341",
 			"archive": "provenance/upstream/test/helpers/process-cleanup.ts"
+		},
+		{
+			"kind": "copy",
+			"source": "test/helpers/tool-schema-compat.ts",
+			"destination": "test/helpers/tool-schema-compat.ts",
+			"blob": "c37439cc170a0d50e6c9ed5cd4ec707fcdaa662d",
+			"archive": "provenance/upstream/test/helpers/tool-schema-compat.ts"
 		},
 		{
 			"kind": "copy",

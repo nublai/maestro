@@ -1,7 +1,7 @@
 {
 	"name": "@nubl/maestro",
 	"version": "0.0.1",
-	"description": "Harness-neutral subagent engine. M3 Pi adapters/runtime with host ports extracted from pi-herdr-agents; root placeholder retained until M6.",
+	"description": "Harness-neutral subagent engine. M4 Pi tools, schemas and createPiExtension factory extracted from pi-herdr-agents; root placeholder retained until M6.",
 	"license": "MIT",
 	"type": "module",
 	"main": "./dist/index.js",
@@ -369,9 +369,9 @@
 		"access": "public"
 	},
 	"scripts": {
-		"format": "biome format --write index.js maestro test scripts biome.json tsconfig.json tsconfig.build.json package.json provenance",
-		"format:check": "biome format index.js maestro test scripts biome.json tsconfig.json tsconfig.build.json package.json provenance",
-		"lint": "oxlint index.js maestro test scripts oxlint.config.ts",
+		"format": "biome format --write index.js maestro pi-extension test scripts biome.json tsconfig.json tsconfig.build.json package.json provenance",
+		"format:check": "biome format index.js maestro pi-extension test scripts biome.json tsconfig.json tsconfig.build.json package.json provenance",
+		"lint": "oxlint index.js maestro pi-extension test scripts oxlint.config.ts",
 		"typecheck": "tsc -p tsconfig.json",
 		"test": "node --experimental-strip-types scripts/test-unit.ts",
 		"test:fidelity": "node --experimental-strip-types --test test/copy-fidelity.test.ts test/test-migration.test.ts",
@@ -381,7 +381,7 @@
 		"test:coverage": "node --experimental-strip-types scripts/test-unit.ts --coverage",
 		"check:copy-fidelity": "node --experimental-strip-types scripts/check-copy-fidelity.ts",
 		"check:boundaries": "node --experimental-strip-types scripts/check-boundaries.ts",
-		"docs:tools:check": "node --experimental-strip-types scripts/check-tool-docs.ts"
+		"docs:tools:check": "node --experimental-strip-types scripts/update-tool-docs.ts --check"
 	},
 	"peerDependencies": {
 		"@earendil-works/pi-ai": "*",
