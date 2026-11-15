@@ -1,0 +1,243 @@
+{
+	"base_main_sha": "4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5",
+	"copy_sha": "27dee407403906d5bac359702e21a04309be2f64",
+	"node": "26.13.0",
+	"runs": [
+		{
+			"path": "evidence/m2-run-IKbvzV",
+			"success": true,
+			"exit_status": 0,
+			"coverage": false,
+			"entries": 61,
+			"counts": {
+				"tests": 938,
+				"failed": 0,
+				"passed": 937,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 311,
+				"suites": 92
+			},
+			"artifacts": {
+				"events.jsonl": "4b6e9344ac38f7029fd434557a139cae96deb03f772a179b07fbe1b681a6e2f4",
+				"tests.tap": "84603f3a5649ba4f027de6e184ffe13212186cb9da02099ba33ae2780251f830",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+			},
+			"note": "First full M3 unit run (pre-rename prefix): all migrated identities matched; no coverage."
+		},
+		{
+			"path": "evidence/m2-run-R4G7NG",
+			"success": false,
+			"exit_status": 0,
+			"coverage": true,
+			"entries": 61,
+			"counts": {
+				"tests": 938,
+				"failed": 0,
+				"passed": 937,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 311,
+				"suites": 92
+			},
+			"artifacts": {
+				"events.jsonl": "1f298ebdcc980112a320f9bc8ad8042ae94e88b1733304db33e826262035835c",
+				"tests.tap": "4581aa6b64d2e3ed45565a5c1230789b91076aabe1fe5099370bb1191c862cc5",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+			},
+			"note": "Coverage gate failed: the M2 gate required unchanged original line populations, false for files H1/#145 changed. Led to split_line_map line mapping (scripts/map-coverage-lines.ts)."
+		},
+		{
+			"path": "evidence/m2-run-qKQe03",
+			"success": false,
+			"exit_status": 0,
+			"coverage": true,
+			"entries": 61,
+			"counts": {
+				"tests": 938,
+				"failed": 0,
+				"passed": 937,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 311,
+				"suites": 92
+			},
+			"artifacts": {
+				"events.jsonl": "cff8328e676da309c70b1518f185675187214cf04ad4a80518cc8df40d276ebd",
+				"tests.tap": "6efc8ccbc5fa02e2be65e33c4808c820c0dfa36db2d68f4eab222681d8eed35d",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+			},
+			"note": "Line-mapped gate: per-file floors failed (subagent-done/protocol split mapped 261/655 lines before indentation-insensitive mapping)."
+		},
+		{
+			"path": "evidence/m2-run-PtpbTB",
+			"success": false,
+			"exit_status": 0,
+			"coverage": true,
+			"entries": 61,
+			"counts": {
+				"tests": 938,
+				"failed": 0,
+				"passed": 937,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 311,
+				"suites": 92
+			},
+			"artifacts": {
+				"events.jsonl": "62478ff5093fc37bab20d87c4f247c41f5bf7704492ee72aab23ffe23a600507",
+				"tests.tap": "33ea4626588e457cdbfcd7960c1f0614611ebeabab9a21bec693fe371aaca848",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+			},
+			"note": "Per-file floors failed for 10 copied files: paths upstream reaches only through retained Herdr/Core providers, the terminal child forwarder or the tool surface. Raw coverage not archived by this attempt (written after the failing assertion)."
+		},
+		{
+			"path": "evidence/m2-run-1hZTJl",
+			"success": false,
+			"exit_status": 0,
+			"coverage": true,
+			"entries": 61,
+			"counts": {
+				"tests": 938,
+				"failed": 0,
+				"passed": 937,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 311,
+				"suites": 92
+			},
+			"artifacts": {
+				"events.jsonl": "eb540214cb1e1a1a228caff3fed1d08423ee8b6757910e109473676f38d6776c",
+				"tests.tap": "404d1f5a729c1dd4fe0617d9b17ba4f6c3a8e4b0c9f680cc48430df2d1e4b289",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+				"coverage.json.gz": "4694e7289cb9c4bf9071fa9d9f44e8aae5505db6a14b2a70c0104d2211f03913"
+			},
+			"note": "Same ten-file shortfall, raw coverage archived for line analysis (about 430 lines)."
+		},
+		{
+			"path": "evidence/m2-run-iKPQB3",
+			"success": false,
+			"exit_status": 0,
+			"coverage": true,
+			"entries": 62,
+			"counts": {
+				"tests": 943,
+				"failed": 0,
+				"passed": 942,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 316,
+				"suites": 92
+			},
+			"artifacts": {
+				"events.jsonl": "818f4a364039539f0e3f2a963e7a0d9c133ceb76a77ae3ebd3974e92477b5bb3",
+				"tests.tap": "eb7ce2d53997589eb7ce0101dfbc095d6021a13044c861d396808c3cce29a7a2",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+				"coverage.json.gz": "b129391b85af8e859f42c6b959be79b95b119615260062d3a06682385c04b9ee"
+			},
+			"note": "After pi-host-ports supplemental tests: 7 files short (worktree-operations by 225 lines)."
+		},
+		{
+			"path": "evidence/m2-run-Oo42PB",
+			"success": false,
+			"exit_status": 0,
+			"coverage": true,
+			"entries": 63,
+			"counts": {
+				"tests": 951,
+				"failed": 0,
+				"passed": 950,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 324,
+				"suites": 92
+			},
+			"artifacts": {
+				"events.jsonl": "afef1c3c8aa45db525cb36ec5958ed846f38d367ec1822f8f142496e752bb349",
+				"tests.tap": "c7c883de8a0510b6f205a0eee5fcf0c2b330d3da2094fd25f17054b54943747b",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+				"coverage.json.gz": "605046ac9ea717ac3afd4f566922ae2fceeaf23abc7fdd6c19d4be639cc2846f"
+			},
+			"note": "After pi-adapter-paths supplemental tests: worktree-operations short by 13 lines."
+		},
+		{
+			"path": "evidence/m2-run-LlEnz6",
+			"success": true,
+			"exit_status": 0,
+			"coverage": true,
+			"entries": 63,
+			"counts": {
+				"tests": 951,
+				"failed": 0,
+				"passed": 950,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 324,
+				"suites": 92
+			},
+			"artifacts": {
+				"events.jsonl": "6f4ffee7f391c23ddfd5730b5309cb69e35882ddd543ddc9b3deb84894307138",
+				"tests.tap": "20d7747b6750417465d533d6cd09f5aece9e483010e1e7da67361046796b40e1",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+				"coverage.json.gz": "1ba79656ee29d4895c7a8134d6bf7bf344da96b59b302d30f95796bef25e696d"
+			},
+			"note": "First green coverage run: every per-file floor met."
+		},
+		{
+			"path": "evidence/unit-run-qbhtLS",
+			"success": true,
+			"exit_status": 0,
+			"coverage": false,
+			"entries": 63,
+			"counts": {
+				"tests": 952,
+				"failed": 0,
+				"passed": 951,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 325,
+				"suites": 92
+			},
+			"artifacts": {
+				"events.jsonl": "724b61155b542172f74359bc97a4aa82284b6bf369d7cdf82d09d5cdc38a36fe",
+				"tests.tap": "1ffa3a8d3eb8b1feb811071bc8dc097bf433a2f79d7cae0c921a39d10d72c387",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+			},
+			"note": "Final gate npm test (renamed evidence prefix)."
+		},
+		{
+			"path": "evidence/unit-run-SlQhWI",
+			"success": true,
+			"exit_status": 0,
+			"coverage": true,
+			"entries": 63,
+			"counts": {
+				"tests": 952,
+				"failed": 0,
+				"passed": 951,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 325,
+				"suites": 92
+			},
+			"artifacts": {
+				"events.jsonl": "5f0816ddeb378ed49b77c65a62eef7a39c7673b0d615c87c81dfc459bd6b21d5",
+				"tests.tap": "ed63cbd9e3e1a81a0e087612d1a396f9fb53453bb035b99c8f17b2d4f68bd5e4",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+				"coverage.json.gz": "d6b46c7f2b27f91e4e6102d0078c12e311e0e7db711b10f04e43ec6c2d2827a4"
+			},
+			"note": "Final gate npm run test:coverage; archived as provenance/m3/coverage.json(.gz) and test-identities.json.gz."
+		}
+	],
+	"unarchived": "Before the first full run, each migrated file was also run individually with isolated HOME (logs in a private /tmp, not retained). Those runs exposed 9 cases that load retained upstream resources by constructed path (the terminal child forwarder, Herdr source files, pi-extension modules); the generator now taints missing literal resource paths and m3-test-plan.json records 4 explicit exclusions with reasons. No migrated assertion was edited."
+}

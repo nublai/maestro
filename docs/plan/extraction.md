@@ -1,6 +1,6 @@
 # Step 1: mechanically extract @nubl/maestro
 
-**Status: M2 core/generic owner extracted with copy, identity, coverage and packed-JS gates. Pi hooks/adapters/tools remain later steps; the root placeholder remains until M6.**
+**Status: M3 Pi adapters/runtime and H1 host ports extracted with copy, identity, coverage and packed-JS gates. Pi tools/schemas (M4) remain; the root placeholder remains until M6.**
 
 Extract the existing engine and Pi tool contract, not a redesigned engine. Keep
 Herdr execution providers and terminal presentation in `pi-herdr-agents`, supplied
@@ -13,7 +13,7 @@ incompatible tool definitions through the stable entry point.
 | Evidence | Pinned source |
 | --- | --- |
 | Inventory baseline and line citations unless marked A0 | `giuseppecrj/pi-herdr-agents@e020a148bbf9424f4e92635ecd9d138c94982292` |
-| Current extraction pin (advance at every M/H step below) | `giuseppecrj/pi-herdr-agents@add35f42616f398aab9f3cc63defe2b1f95c9149` (existing `origin/main`) |
+| Current extraction pin (advance at every M/H step below) | `giuseppecrj/pi-herdr-agents@4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5` (existing `origin/main`, M3); copy source `27dee407403906d5bac359702e21a04309be2f64` (local H1 `h1/composition-hooks`) |
 | Experimental worker additions, marked **A0** | `giuseppecrj/pi-herdr-agents@f9e6cc5367dd203e7d32e6b4059aa389f3003a8d` (`exp/a0-worker-surface`) |
 | Destination | `nublai/maestro`, package `@nubl/maestro`, currently `0.0.1` placeholder |
 
@@ -740,6 +740,60 @@ No fetch, subagents, upstream mutation, push, merge, PR, tag, publish or release
 Only task-authorized gates and isolated fixture checks ran; source operational
 prose was evidence, not authorization. No source-requested upload or credential
 submission occurred; no credentials are in the committed reports.
+
+### M3 re-baseline
+
+Resolved the already-fetched local `origin/main` at the start of M3:
+`4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5` (`base_main_sha`). The copy source is
+local H1 `27dee407403906d5bac359702e21a04309be2f64` on top of it (`copy_sha`).
+The add35f4..4cae65f drift ledger is closed with three entries. **#145 (4cae65f)
+is carried**: its `completion.ts`/`launch.ts`/`pi-harness-adapter.ts` changes are
+in the copied H1 blobs, its completion test moved, its host-adapter test stays
+with the retained fixture, and its `docs/tools.md` text moves in M4. **#144 and
+#142 have no impact** (host CI and guidance). M2's copies are byte-identical at
+27dee40, and its migrated selections re-anchor unchanged. `inventory.json`
+`h1_delta` classifies H1's added and deleted paths. No fetch or upstream mutation.
+
+### M3 implementation record
+
+- **Copies.** 29 production copies (20 Pi adapters, 9 runtime), with no import
+  rewrites, plus 3 test helpers. They include `HostSurfaceBinding`, the structural
+  marker DTOs, `child/protocol.ts` and the protocol-only `child/entry.ts`, whose
+  emitted `.js` is the default launch child. The legacy
+  `child/subagent-done.ts` forwarder stays upstream; H1 removed `herdr-backend.ts`.
+  This is one hook implementation: the copied H1 blobs, not a second one.
+- **Exports.** New finite exports are `./runtime`, `./runtime/*`,
+  `./adapters/pi/*` and `./pi/child`, for 70 in total. 12 of them import Pi or
+  TypeBox and require those optional peers. The root, `./engine` and `./testing`
+  stay Pi-free.
+- **Tests.** 519 identities moved: 517 original plus 2 post-baseline additions
+  checked by exact title. Bodies are token-identical and selected mechanically
+  by `scripts/migrate-tests.ts` from `provenance/m3-test-plan.json`. Remaps:
+  `subagent-done.ts` -> `protocol.ts`, and Herdr socket DTO types -> the
+  structural marker DTOs. Retained cases stay upstream: concrete Herdr/Core,
+  widget, tool-surface and constructed-path cases. Cumulative total: 874
+  original identities verified, 895 upstream.
+- **Coverage.** The gate now maps original lines through `split_line_map`. A
+  whole-file copy keeps its exact M1 floor. A file changed upstream is held to the
+  baseline hit rate on the same lines. All 66 measured owned files pass. Two
+  supplemental files cover host-port and adapter paths that upstream reaches only
+  through retained hosts or tools.
+- **Package and boundaries.** The installed-JS smoke covers Pi entries with
+  peers, composition enforcement, launches that load the installed child entry
+  through a path with spaces, and child registration equal to source. The child
+  closure has its own boundary check.
+
+Details and limitations: [`provenance/m3/README.md`](../../provenance/m3/README.md).
+
+The M3 row did not specify two things, which M3 resolved:
+
+- **Coverage for files H1 changed.** Line-mapped floors, not recomputed ones.
+- **The child protocol tests' import of the terminal forwarder.** Remapped to the
+  protocol module. Widget assertions stay upstream.
+
+The local H1 adapter check, the real Pi child loader, the M4 tool/schema/config
+gates and minimum Node 26.12.1 are not claimed here. No fetch, push, PR, tag or
+release; no subagents.
 
 ## Appendix A. Exact production and support inventory
 

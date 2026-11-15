@@ -164,3 +164,19 @@ and installed-JS validation of every finite export. The M1 coverage and identity
 archives remain unchanged. Source archives, selected test ranges, actual-event
 identity comparison, full-precision per-file coverage and every local attempt
 are retained; the full runtime/surfaces combined gate is still M6/H2.
+
+## M3 verified cohort
+
+[M3 evidence](m3/README.md) records:
+
+- the pin advance to main 4cae65f and the H1 copy source 27dee40, with the closed
+  drift ledger (#145 carried);
+- 29 Pi adapter/runtime/host-port copies plus 3 test helpers, which
+  `scripts/refresh-copies.ts` can recopy from the manifest;
+- 519 moved test identities (517 original, 2 post-baseline), selected by
+  `scripts/migrate-tests.ts`;
+- line-mapped per-file coverage for all 66 owned files;
+- the installed-JS Pi entry and child smokes.
+
+M2 selections keep identity-baseline anchors into `baseline/upstream/` for the
+sources that changed after add35f4.

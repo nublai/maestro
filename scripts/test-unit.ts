@@ -71,7 +71,7 @@ assert(
 	manifest.maestro_unit_entries.length ===
 		new Set(manifest.maestro_unit_entries).size,
 );
-const evidence = mkdtempSync(join(root, "evidence/m2-run-"));
+const evidence = mkdtempSync(join(root, "evidence/unit-run-"));
 const home = mkdtempSync(join(tmpdir(), "maestro-unit-home-"));
 const args = ["--experimental-strip-types", "--enable-source-maps"];
 if (coverage)
@@ -251,7 +251,7 @@ try {
 		gzipSync(JSON.stringify(identities)),
 	);
 	console.log(
-		`Unit tests: ${summary.counts.passed}/${summary.counts.tests} passed, ${summary.counts.skipped} skipped. ${migrated.length} original test identities preserved; ${1769 - migrated.length} remain upstream.`,
+		`Unit tests: ${summary.counts.passed}/${summary.counts.tests} passed, ${summary.counts.skipped} skipped. ${migrated.length - added.length} original test identities preserved (+${added.length} added upstream after the identity baseline); ${1769 - migrated.length + added.length} remain upstream.`,
 	);
 	if (coverage) {
 		const baselineCoverage: { original_files: OriginalFile[] } = JSON.parse(
