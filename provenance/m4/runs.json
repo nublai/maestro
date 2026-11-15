@@ -188,7 +188,77 @@
 				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
 				"coverage.json.gz": "bcdda1ccc8047ac5f111ff8a80bd0692031c41c7006dc98b2fb494617c27f83a"
 			},
-			"note": "Final clean-install gate sequence: npm run test:coverage; archived as provenance/m4/coverage.json(.gz) and test-identities.json.gz."
+			"note": "Clean-install gate sequence: npm run test:coverage (superseded as the archived report by unit-run-plKjP4; same per-file results)."
+		},
+		{
+			"path": "evidence/unit-run-WF5Slv",
+			"success": false,
+			"exit_status": 1,
+			"coverage": false,
+			"entries": 81,
+			"counts": {
+				"tests": 1393,
+				"failed": 1,
+				"passed": 1391,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 451,
+				"suites": 136
+			},
+			"artifacts": {
+				"events.jsonl": "6540ab070d4aaaf5cd0a20c6f453fece575e0f80fd7dfbea26947b3f037b1e34",
+				"tests.tap": "6fcecfe50bfff292061b1d2b9f568af29094c79d8ad1315d0cc6f044efcb4209",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+			},
+			"note": "Re-run after the provenance commit: 1 failure, the M3 scaffold drift-ledger test still pinned step M3 and a moving pin. Updated to the M4 state (unchanged pin, empty range, M3 kept in history)."
+		},
+		{
+			"path": "evidence/unit-run-Yp5wIb",
+			"success": true,
+			"exit_status": 0,
+			"coverage": false,
+			"entries": 81,
+			"counts": {
+				"tests": 1393,
+				"failed": 0,
+				"passed": 1392,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 451,
+				"suites": 136
+			},
+			"artifacts": {
+				"events.jsonl": "c1b59da5ea89bdf7739d81d86e95c53f7dd624fcb34d289d1c91ba2136eb8f73",
+				"tests.tap": "547917140bec0caba6ab8c64e36cc42a31e312047a1caea6fbd0a78fce8f0255",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+			},
+			"note": "Final gate sequence at the fixed head: npm test."
+		},
+		{
+			"path": "evidence/unit-run-plKjP4",
+			"success": true,
+			"exit_status": 0,
+			"coverage": true,
+			"entries": 81,
+			"counts": {
+				"tests": 1393,
+				"failed": 0,
+				"passed": 1392,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 451,
+				"suites": 136
+			},
+			"artifacts": {
+				"events.jsonl": "4625e954f9b8fcb8dbe9cd93e332a3cf40a9ada82081a4318a7b63ea2a1e5487",
+				"tests.tap": "b9ccb9bc4d40507fc7021929f4a85d79f372a89e3fe63cc8ff38eb4c768148d1",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+				"coverage.json.gz": "5db1b5fffcb434cbe61432f25ea17b5d0957f2f171b202c5f63d46b26d4e3fea"
+			},
+			"note": "Final gate sequence at the fixed head: npm run test:coverage; archived as provenance/m4/coverage.json(.gz) and test-identities.json.gz."
 		}
 	],
 	"wrapper_comparison": {

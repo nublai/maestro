@@ -145,21 +145,36 @@ test("the actual lint CLI rejects module mocking and unsafe assertions in tests"
 	);
 });
 
-test("M3 closes the drift ledger and records the Pi adapter/runtime copies from the H1 pin", () => {
+test("M4 closes the drift ledger and records the Pi adapter/runtime and tool-surface copies from the H1 pin", () => {
 	const copies = readManifest(new URL("provenance/copy-manifest.json", root));
 	const drift = JSON.parse(read("provenance/drift-ledger.json"));
 	const inventory = JSON.parse(read("provenance/inventory.json"));
 	const tests = JSON.parse(read("provenance/test-manifest.json"));
 	assert.equal(drift.status, "closed");
-	assert.equal(drift.step, "M3");
+	assert.equal(drift.step, "M4");
 	assert.equal(copies.base_main_sha, drift.base_main_sha);
 	assert.equal(copies.copy_sha, drift.copy_sha);
-	assert.notEqual(drift.previous_pin, drift.base_main_sha);
+	// The pin did not move in M4: an empty range, so no touching commits.
+	assert.equal(drift.previous_pin, drift.base_main_sha);
+	assert.deepEqual(drift.touching_commits, []);
+	const m3 = drift.history.find(
+		(entry: { step: string }) => entry.step === "M3",
+	);
+	assert.equal(m3.status, "closed");
+	assert.notEqual(m3.previous_pin, m3.base_main_sha);
+	assert.equal(m3.base_main_sha, drift.base_main_sha);
 	assert.equal(
 		copies.entries.filter(
 			(entry) => entry.kind === "copy" && entry.source.startsWith("maestro/"),
 		).length,
 		72,
+	);
+	assert.equal(
+		copies.entries.filter(
+			(entry) =>
+				entry.kind === "copy" && entry.source.startsWith("pi-extension/"),
+		).length,
+		18,
 	);
 	for (const commit of drift.touching_commits)
 		assert.match(commit.disposition, /^(?:carried|no-impact)$/);
