@@ -1,5 +1,5 @@
 {
-  "name": "@nublai/maestro",
+  "name": "@nubl/maestro",
   "version": "0.0.0",
   "description": "Harness-neutral subagent engine: delegation, checked outcomes and a pluggable execution seam. Placeholder; extraction from pi-herdr-agents has not started.",
   "license": "MIT",

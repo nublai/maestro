@@ -1,4 +1,4 @@
-# @nublai/maestro
+# @nubl/maestro
 
 Harness-neutral subagent engine: delegation, checked outcomes and a pluggable execution seam. It will serve both pi-worker and pi-herdr-agents.
 
