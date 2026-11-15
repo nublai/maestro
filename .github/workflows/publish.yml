@@ -20,8 +20,9 @@ jobs:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: 26
+          node-version: 26.12.1
           registry-url: https://registry.npmjs.org
+          cache: npm
       - name: Tag matches package.json version
         run: |
           v=$(node -p "require('./package.json').version")
@@ -30,5 +31,20 @@ jobs:
         run: |
           npm --version
           node -e "const [a,b,c]=process.argv[1].split('.').map(Number); process.exit(a>11||(a===11&&(b>5||(b===5&&c>=1)))?0:1)" "$(npm --version)"
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run typecheck
       - run: npm test
-      - run: npm publish --access public
+      - run: npm run test:fidelity
+      - run: npm run build
+      - run: npm run check:boundaries
+      - run: npm run test:package
+      - run: npm pack --dry-run
+      - name: Publish stable to latest or prerelease to next
+        run: |
+          v=$(node -p "require('./package.json').version")
+          case "${v%%+*}" in
+            *-*) npm publish --access public --tag next ;;
+            *) npm publish --access public ;;
+          esac

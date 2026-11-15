@@ -1,0 +1,252 @@
+import assert from "node:assert/strict";
+import { execFileSync, spawnSync } from "node:child_process";
+import {
+	existsSync,
+	mkdtempSync,
+	readFileSync,
+	rmSync,
+	writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { test } from "node:test";
+import { gunzipSync } from "node:zlib";
+import { fileURLToPath } from "node:url";
+import { gitBlob, readManifest } from "../scripts/check-copy-fidelity.ts";
+
+const root = new URL("../", import.meta.url);
+const read = (path: string) => readFileSync(new URL(path, root), "utf8");
+const pkg = JSON.parse(read("package.json"));
+
+interface ToolingFile {
+	path: string;
+	blob: string;
+}
+interface ToolingManifest {
+	files: ToolingFile[];
+}
+interface OriginalFile {
+	source: string;
+	population: string;
+	line: number;
+}
+interface Identity {
+	kind: string;
+	file: string;
+	line: number;
+	titles: string[];
+	nesting: number;
+	skip: boolean | string;
+}
+
+test("placeholder package has emitted-only exports and optional host peers, no SDK runtime dependencies", () => {
+	assert.equal(pkg.version, "0.0.1");
+	assert.equal(pkg.engines.node, ">=26.12.1");
+	assert.equal(pkg.main, "./dist/index.js");
+	assert.equal(pkg.types, "./dist/index.d.ts");
+	assert.deepEqual(Object.keys(pkg.exports), [".", "./package.json"]);
+	assert.equal(pkg.exports["."].import, pkg.main);
+	assert.equal(pkg.exports["."].default, pkg.main);
+	assert.equal(pkg.dependencies, undefined);
+	assert.equal(pkg.pi, undefined);
+	assert.deepEqual(pkg.files, ["dist/", "LICENSE"]);
+	for (const name of [
+		"@earendil-works/pi-ai",
+		"@earendil-works/pi-coding-agent",
+		"@earendil-works/pi-tui",
+		"@sinclair/typebox",
+	]) {
+		assert.equal(pkg.peerDependencies[name], "*");
+		assert.equal(pkg.peerDependenciesMeta[name].optional, true);
+		assert(pkg.devDependencies[name]);
+	}
+	assert.equal(pkg.devDependencies["@types/node"], "26.6.4");
+	for (const path of [
+		"extensions",
+		"skills",
+		"prompts",
+		"themes",
+		"maestro",
+		"pi-extension",
+	])
+		assert(!existsSync(new URL(path, root)));
+});
+
+test("lint plugin closure is pinned byte-for-byte, including module-mocking and assertion rules", () => {
+	const tooling: ToolingManifest = JSON.parse(read("provenance/tooling.json"));
+	for (const entry of tooling.files) {
+		if (entry.path === "biome.json") continue; // Only formatter ownership includes are adapted.
+		assert.equal(
+			gitBlob(Buffer.from(read(entry.path))),
+			entry.blob,
+			entry.path,
+		);
+	}
+	assert(
+		tooling.files.some((entry: ToolingFile) =>
+			entry.path.endsWith("no-module-mocking.ts"),
+		),
+	);
+	assert(
+		tooling.files.some((entry: ToolingFile) =>
+			entry.path.endsWith("require-safety-comment-for-type-assertion.ts"),
+		),
+	);
+	assert(
+		!tooling.files.some((entry: ToolingFile) =>
+			entry.path.includes("/effect/"),
+		),
+	);
+	const biome = JSON.parse(read("biome.json"));
+	assert.deepEqual(biome.formatter, { enabled: true });
+	assert.deepEqual(biome.linter, { enabled: false });
+	assert.deepEqual(biome.assist, { enabled: false });
+});
+
+test("the actual lint CLI rejects module mocking and unsafe assertions in tests", (t) => {
+	const fixture = mkdtempSync(join(tmpdir(), "maestro-lint-fixture-"));
+	t.after(() => rmSync(fixture, { recursive: true, force: true }));
+	writeFileSync(
+		join(fixture, "unsafe.test.ts"),
+		'import { vi } from "vitest";\nvi.mock("example");\nconst value = "x" as string;\nvoid value;\n',
+	);
+	const result = spawnSync(
+		process.execPath,
+		[
+			fileURLToPath(new URL("node_modules/oxlint/bin/oxlint", root)),
+			"--config",
+			fileURLToPath(new URL("oxlint.config.ts", root)),
+			"unsafe.test.ts",
+		],
+		{
+			cwd: fixture,
+			env: { PATH: process.env.PATH, HOME: fixture },
+			encoding: "utf8",
+		},
+	);
+	assert.equal(result.status, 1, result.error);
+	const output = result.stdout + result.stderr;
+	assert.match(output, /anti-slop\(no-module-mocking\)/);
+	assert.match(
+		output,
+		/anti-slop\(require-safety-comment-for-type-assertion\)/,
+	);
+});
+
+test("M1 closes same-pin drift but claims no copied engine files or migrated tests", () => {
+	const copies = readManifest(new URL("provenance/copy-manifest.json", root));
+	const drift = JSON.parse(read("provenance/drift-ledger.json"));
+	const inventory = JSON.parse(read("provenance/inventory.json"));
+	const tests = JSON.parse(read("provenance/test-manifest.json"));
+	assert.equal(drift.status, "closed");
+	assert.equal(drift.previous_pin, drift.base_main_sha);
+	assert.equal(copies.base_main_sha, drift.base_main_sha);
+	assert.equal(copies.copy_sha, drift.base_main_sha);
+	assert.deepEqual(copies.entries, []);
+	assert.deepEqual(drift.touching_commits, []);
+	assert.equal(inventory.production.length, 98);
+	assert.equal(tests.original_test_tree.length, 110);
+	assert.equal(tests.original_unit_entries.length, 67);
+	assert(tests.original_unit_entries.includes("test/test.ts"));
+	assert.deepEqual(tests.retained_unit_entries, tests.original_unit_entries);
+	assert.deepEqual(tests.migrated, []);
+});
+
+test("baseline preserves nested identities, locations, skip status and original-file coverage populations", () => {
+	const identities: Identity[] = JSON.parse(
+		gunzipSync(
+			readFileSync(
+				new URL("provenance/baseline/test-identities.json.gz", root),
+			),
+		).toString("utf8"),
+	);
+	const leaves = identities.filter((identity) => identity.kind !== "suite");
+	assert.equal(leaves.length, 1769);
+	assert.equal(leaves.filter((identity) => identity.skip).length, 1);
+	for (const identity of identities) {
+		assert.equal(identity.titles.length, identity.nesting + 1);
+		assert(identity.line > 0);
+		assert(identity.file.startsWith("test/"));
+	}
+	const coverage = JSON.parse(read("provenance/coverage-manifest.json"));
+	const files: OriginalFile[] = coverage.original_files;
+	assert.equal(new Set(files.map((file) => file.source)).size, files.length);
+	assert.equal(coverage.counts.failed, 0);
+	assert.equal(coverage.counts.passed, 1768);
+	for (const [name, population, floor] of [
+		["core", 36, 98],
+		["runtime", 10, 98.9],
+		["surfaces", 9, 85.2],
+	] as const) {
+		const cohort = files.filter((file) => file.population === name);
+		assert.equal(cohort.length, population);
+		assert.equal(coverage.metrics[name].floor_line_mean, floor);
+		const computed =
+			cohort.reduce((sum, file) => sum + file.line, 0) / cohort.length;
+		// Python archived the mean; allow floating-point rounding, never a floor discount.
+		assert(
+			Math.abs(
+				coverage.metrics[name].observed_arithmetic_line_mean - computed,
+			) <=
+				Number.EPSILON * cohort.length * 100,
+		);
+		assert(coverage.metrics[name].observed_arithmetic_line_mean >= floor);
+	}
+});
+
+test("CI and publishing retain OIDC/version guards and execute M1 gates on minimum Node", () => {
+	for (const path of [
+		".github/workflows/ci.yml",
+		".github/workflows/publish.yml",
+	]) {
+		const workflow = read(path);
+		assert(workflow.includes("node-version: 26.12.1"));
+		for (const command of [
+			"npm ci",
+			"npm run format:check",
+			"npm run lint",
+			"npm run typecheck",
+			"npm test",
+			"npm run test:fidelity",
+			"npm run build",
+			"npm run test:package",
+			"npm pack --dry-run",
+		])
+			assert(workflow.includes(`- run: ${command}`));
+	}
+	const publish = read(".github/workflows/publish.yml");
+	assert(publish.includes("id-token: write"));
+	assert(publish.includes("environment: npm-publish"));
+	assert(publish.includes('test "v$v" = "$GITHUB_REF_NAME"'));
+	const script = publish
+		.split(
+			"      - name: Publish stable to latest or prerelease to next\n        run: |\n",
+		)[1]
+		.split("\n")
+		.map((line) => line.replace(/^          /, ""))
+		.join("\n");
+	const fixture = mkdtempSync(join(tmpdir(), "maestro-publish-test-"));
+	try {
+		for (const [version, expected] of [
+			["0.1.0", "publish --access public"],
+			["0.1.0-rc.1", "publish --access public --tag next"],
+			["0.1.0-beta.2+build", "publish --access public --tag next"],
+			["0.1.0+build-with-hyphen", "publish --access public"],
+		]) {
+			writeFileSync(join(fixture, "package.json"), JSON.stringify({ version }));
+			// Execute the exact workflow dispatch with a shell function in place of npm.
+			const result = execFileSync(
+				"bash",
+				["-euc", `npm() { printf '%s\\n' "$*"; };\n${script}`],
+				{
+					cwd: fixture,
+					env: { PATH: process.env.PATH, HOME: fixture },
+					encoding: "utf8",
+				},
+			).trim();
+			assert.equal(result, expected, version);
+		}
+	} finally {
+		rmSync(fixture, { recursive: true, force: true });
+	}
+});

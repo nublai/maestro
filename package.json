@@ -1,29 +1,77 @@
 {
-  "name": "@nubl/maestro",
-  "version": "0.0.1",
-  "description": "Harness-neutral subagent engine: delegation, checked outcomes and a pluggable execution seam. Placeholder; extraction from pi-herdr-agents has not started.",
-  "license": "MIT",
-  "type": "module",
-  "main": "./index.js",
-  "types": "./index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./index.d.ts",
-      "default": "./index.js"
-    }
-  },
-  "files": ["index.js", "index.d.ts"],
-  "engines": {
-    "node": ">=26.12.1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/nublai/maestro.git"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "scripts": {
-    "test": "node --test test/"
-  }
+	"name": "@nubl/maestro",
+	"version": "0.0.1",
+	"description": "Harness-neutral subagent engine: delegation, checked outcomes and a pluggable execution seam. Placeholder; extraction from pi-herdr-agents has not started.",
+	"license": "MIT",
+	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"files": [
+		"dist/",
+		"LICENSE"
+	],
+	"engines": {
+		"node": ">=26.12.1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/nublai/maestro.git"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"format": "biome format --write index.js index.d.ts test scripts biome.json tsconfig.json tsconfig.build.json package.json provenance",
+		"format:check": "biome format index.js index.d.ts test scripts biome.json tsconfig.json tsconfig.build.json package.json provenance",
+		"lint": "oxlint index.js test scripts oxlint.config.ts",
+		"typecheck": "tsc -p tsconfig.json",
+		"test": "node --experimental-strip-types --test test/index.test.js test/copy-fidelity.test.ts test/scaffold.test.ts",
+		"test:fidelity": "node --experimental-strip-types --test test/copy-fidelity.test.ts",
+		"build": "node --experimental-strip-types scripts/build.ts",
+		"prepack": "npm run build",
+		"test:package": "node --experimental-strip-types scripts/test-package.ts",
+		"test:coverage": "node --experimental-strip-types --enable-source-maps --experimental-test-coverage --test test/index.test.js test/copy-fidelity.test.ts test/scaffold.test.ts",
+		"check:copy-fidelity": "node --experimental-strip-types scripts/check-copy-fidelity.ts",
+		"check:boundaries": "node --experimental-strip-types scripts/check-boundaries.ts",
+		"docs:tools:check": "node --experimental-strip-types scripts/check-tool-docs.ts"
+	},
+	"peerDependencies": {
+		"@earendil-works/pi-ai": "*",
+		"@earendil-works/pi-coding-agent": "*",
+		"@earendil-works/pi-tui": "*",
+		"@sinclair/typebox": "*"
+	},
+	"peerDependenciesMeta": {
+		"@earendil-works/pi-ai": {
+			"optional": true
+		},
+		"@earendil-works/pi-coding-agent": {
+			"optional": true
+		},
+		"@earendil-works/pi-tui": {
+			"optional": true
+		},
+		"@sinclair/typebox": {
+			"optional": true
+		}
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.11",
+		"@earendil-works/pi-ai": "^1.5.2",
+		"@earendil-works/pi-coding-agent": "^1.5.2",
+		"@earendil-works/pi-tui": "^1.5.2",
+		"@oxlint/plugins": "^1.80.0",
+		"@sinclair/typebox": "^0.34.52",
+		"@types/node": "26.6.4",
+		"oxlint": "^1.80.0",
+		"typescript": "5.9.3"
+	}
 }
