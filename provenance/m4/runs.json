@@ -1,0 +1,200 @@
+{
+	"base_main_sha": "4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5",
+	"copy_sha": "27dee407403906d5bac359702e21a04309be2f64",
+	"node": "26.13.0",
+	"runs": [
+		{
+			"path": "evidence/unit-run-hvaKVE",
+			"success": false,
+			"exit_status": 1,
+			"coverage": false,
+			"entries": 81,
+			"counts": {
+				"tests": 1383,
+				"failed": 1,
+				"passed": 1381,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 441,
+				"suites": 136
+			},
+			"artifacts": {
+				"events.jsonl": "650e339ef13f1edc1682e7a7e2340adf47f7339d66501348f3bf1f9e62ea6005",
+				"tests.tap": "a8b47d485384662c1ac41c26850e296472a6415d93d0054afe3a11c04bd20495",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+			},
+			"note": "First M4 run: 1 failure, the M1 scaffold guard that forbade pi-extension/ before M4 (replaced by the M4 terminal-module guard)."
+		},
+		{
+			"path": "evidence/unit-run-C4Mks1",
+			"success": false,
+			"exit_status": 0,
+			"coverage": false,
+			"entries": 81,
+			"counts": {
+				"tests": 1383,
+				"failed": 0,
+				"passed": 1382,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 441,
+				"suites": 136
+			},
+			"artifacts": {
+				"events.jsonl": "793b8f91fcb993b63ae647a9e89c0aacc1bc0ac6cf304f2d71e0e2575f20f172",
+				"tests.tap": "7fa70ffbff3cffc0d71721096071fbf029511161f4eff33fd5522596e712a852",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+			},
+			"note": "All tests passed; identity gate failed: the dependency-rule plan entry selected only a helper (file-level identity). That source was dropped from the M4 plan and stays upstream with its Appendix B reason."
+		},
+		{
+			"path": "evidence/unit-run-xTmRbB",
+			"success": true,
+			"exit_status": 0,
+			"coverage": false,
+			"entries": 80,
+			"counts": {
+				"tests": 1382,
+				"failed": 0,
+				"passed": 1381,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 440,
+				"suites": 136
+			},
+			"artifacts": {
+				"events.jsonl": "c55ef888890f8818ee66b73434af8cda90f9b78b0fbc859d40a08f9f99ba9aad",
+				"tests.tap": "8f6dfff6457b8e47e28f687b11deef5309e67c69ed92a94ff175c75846f9a398",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+			},
+			"note": "First green npm test: 1303 original identities verified."
+		},
+		{
+			"path": "evidence/unit-run-TwFG69",
+			"success": false,
+			"exit_status": 0,
+			"coverage": true,
+			"entries": 80,
+			"counts": {
+				"tests": 1384,
+				"failed": 0,
+				"passed": 1383,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 442,
+				"suites": 136
+			},
+			"artifacts": {
+				"events.jsonl": "fe57e72bd51689c96659981ae8deb177e1e40011c20d3774ead79cd107ca7869",
+				"tests.tap": "bb419b5de9b4178eab58dfd2a84ecfe1570e8bd883c9cac3b4312be42294d0a8",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+				"coverage.json.gz": "5e8b2c78432cdd8d534c13ad5d3527482b89ee8158fc94482a03ffe8ad04d987"
+			},
+			"note": "First test:coverage with pi-extension included: per-file gate failed for index.ts (timer-disposal lines), observation.ts (isNormalized) and worktree-tools.ts (child /worktree list), reached upstream only through retained widget/Herdr cases. Supplemental test/pi-factory.test.ts cases followed; no floor changed."
+		},
+		{
+			"path": "evidence/unit-run-gMZ8It",
+			"success": true,
+			"exit_status": 0,
+			"coverage": true,
+			"entries": 81,
+			"counts": {
+				"tests": 1393,
+				"failed": 0,
+				"passed": 1392,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 451,
+				"suites": 136
+			},
+			"artifacts": {
+				"events.jsonl": "3a6d8042e63c0282f9932002f6135ccd5ccdc835f950353d2d23e43d03dced51",
+				"tests.tap": "1c4452c145f3435e6f4aea67132db51d06666df3cc3dbf036e2359a023581d74",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+				"coverage.json.gz": "f6dbde59a1d14786a1b99c84c06e8fd9180a4cce3574ed9906d50b8936e48f79"
+			},
+			"note": "Green test:coverage after the supplemental factory cases; its identities seeded provenance/m4/retained-ledger.json."
+		},
+		{
+			"path": "evidence/unit-run-1yXmsR",
+			"success": true,
+			"exit_status": 0,
+			"coverage": false,
+			"entries": 81,
+			"counts": {
+				"tests": 1393,
+				"failed": 0,
+				"passed": 1392,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 451,
+				"suites": 136
+			},
+			"artifacts": {
+				"events.jsonl": "6914ed06aec091feff1ffd2b7dff1da4f796592dbb15d85fc1fc03b38a21907c",
+				"tests.tap": "f01d6e9d691730a1503b20206d855b3271b222d6029e48e97e616dce10ac8c9e",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+			},
+			"note": "npm test with the retained-ledger gate."
+		},
+		{
+			"path": "evidence/unit-run-qp1MEH",
+			"success": true,
+			"exit_status": 0,
+			"coverage": false,
+			"entries": 81,
+			"counts": {
+				"tests": 1393,
+				"failed": 0,
+				"passed": 1392,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 451,
+				"suites": 136
+			},
+			"artifacts": {
+				"events.jsonl": "05be274c828d32a17b5d46933ecfc23d1e72e61f1682b453198f5f55306eb4bc",
+				"tests.tap": "1cac21e9105eb7ff0bcef7789d08a2edcfe8ccdd89dfb8df69c4f529aaf760fd",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+			},
+			"note": "Final clean-install gate sequence: npm test."
+		},
+		{
+			"path": "evidence/unit-run-D24B6g",
+			"success": true,
+			"exit_status": 0,
+			"coverage": true,
+			"entries": 81,
+			"counts": {
+				"tests": 1393,
+				"failed": 0,
+				"passed": 1392,
+				"cancelled": 0,
+				"skipped": 1,
+				"todo": 0,
+				"topLevel": 451,
+				"suites": 136
+			},
+			"artifacts": {
+				"events.jsonl": "adbfc19a4aba0a1199ea60e6d5b8834ffdd9522e586bcd416d68307db4985253",
+				"tests.tap": "b0a261a76cf4e66b469fe50b26f44af42c94e15a0aa553cab20a2581a432c7e4",
+				"stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+				"coverage.json.gz": "bcdda1ccc8047ac5f111ff8a80bd0692031c41c7006dc98b2fb494617c27f83a"
+			},
+			"note": "Final clean-install gate sequence: npm run test:coverage; archived as provenance/m4/coverage.json(.gz) and test-identities.json.gz."
+		}
+	],
+	"wrapper_comparison": {
+		"path": "evidence/m4-wrapper/run",
+		"tarball_sha256": "965c06e69bd57d8c95cd97eb2451cc6062a7d15ca0952d571833143e7240c5fd",
+		"success": true,
+		"note": "scripts/compare-upstream-wrapper.ts against a tarball packed at the M4 package commit (before the ledger/docs commits, which change no packed file). Both trees passed H1's pin, presentation, real-loader reload and docs:tools:check probes; full registration captures equal. A mutation run (one tool label changed in the tarball's dist) failed the capture comparison as expected; its evidence was under /tmp and not retained."
+	}
+}

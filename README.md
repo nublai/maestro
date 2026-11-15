@@ -2,7 +2,7 @@
 
 Harness-neutral subagent engine: delegation, checked outcomes and a pluggable execution seam. It will serve both pi-worker and pi-herdr-agents.
 
-**Status:** M3 Pi adapters, runtime and host ports extracted; the Pi tool surface and extension factory arrive in M4. The root API remains the `0.0.1` placeholder until M6. Nothing here authorizes a release.
+**Status:** M4 Pi tools, schemas and the `createPiExtension` factory extracted on top of the M3 adapters, runtime and host ports. The root API remains the `0.0.1` placeholder until M6. Nothing here authorizes a release.
 
 ## Development
 
@@ -27,16 +27,24 @@ protocol-only child extension each launch loads by default (its emitted
 import Pi or TypeBox require the optional peers; the root, `./engine` and
 `./testing` stay Pi-free.
 
-The finite `./core/*`, `./runtime/*` and `./adapters/pi/*` compatibility families
-(including nested config/roles modules) are **internal-compat, no stability
-promise**. The stars describe a family, not wildcard exports. No tool surface,
-extension factory, Herdr provider, terminal widget or experimental worker entry
-ships in M3.
+`@nubl/maestro/pi` exports `createPiExtension(hostOptions)`, the per-load Pi
+factory for the public tools (`subagent`, `subagent_cancel`, `subagent_send`,
+`caller_ping` and the rest; see [the tool reference](docs/tools.md) and
+[the delegation-outcome contract](docs/delegation-outcome-contract.md)). A host
+calls it once per Pi load with its `HostSurfaceBinding`, `PiPresentationHooks`
+(widgets, message and tool renderers) and optional child entry/config asset
+paths; the package registers nothing by itself and ships no Pi auto-discovery.
+
+The finite `./core/*`, `./runtime/*`, `./adapters/pi/*` and `./pi/subagents/*`
+compatibility families (including nested config/roles modules) are
+**internal-compat, no stability promise**. The stars describe a family, not
+wildcard exports. No Herdr provider, terminal widget or renderer, terminal
+entry or experimental worker entry ships here.
 
 Run `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm test`,
 `npm run test:fidelity`, `npm run check:copy-fidelity`, `npm run build`,
-`npm run check:boundaries`, `npm run test:coverage`, `npm run test:package` and
-`npm pack --dry-run` before submission. Unit/coverage runs use an isolated HOME,
+`npm run check:boundaries`, `npm run test:coverage`, `npm run docs:tools:check`,
+`npm run test:package` and `npm pack --dry-run` before submission. Unit/coverage runs use an isolated HOME,
 agent directory and credential-free environment; reports remain under ignored
 `evidence/`. Coverage gates every measured copied original file against its
 unchanged M1 floor (lines changed upstream after the baseline are mapped and held

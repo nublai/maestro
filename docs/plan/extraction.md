@@ -1,6 +1,6 @@
 # Step 1: mechanically extract @nubl/maestro
 
-**Status: M3 Pi adapters/runtime and H1 host ports extracted with copy, identity, coverage and packed-JS gates. Pi tools/schemas (M4) remain; the root placeholder remains until M6.**
+**Status: M4 Pi tools, schemas, serializer and the `createPiExtension` factory extracted on top of M3, with copy, identity (ledger complete), coverage, contract-fixture and packed-JS gates. M6 stable exports/parity remain; the root placeholder remains until M6.**
 
 Extract the existing engine and Pi tool contract, not a redesigned engine. Keep
 Herdr execution providers and terminal presentation in `pi-herdr-agents`, supplied
@@ -13,7 +13,7 @@ incompatible tool definitions through the stable entry point.
 | Evidence | Pinned source |
 | --- | --- |
 | Inventory baseline and line citations unless marked A0 | `giuseppecrj/pi-herdr-agents@e020a148bbf9424f4e92635ecd9d138c94982292` |
-| Current extraction pin (advance at every M/H step below) | `giuseppecrj/pi-herdr-agents@4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5` (existing `origin/main`, M3); copy source `27dee407403906d5bac359702e21a04309be2f64` (local H1 `h1/composition-hooks`) |
+| Current extraction pin (advance at every M/H step below) | `giuseppecrj/pi-herdr-agents@4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5` (existing `origin/main`, M3; unchanged at M4); copy source `27dee407403906d5bac359702e21a04309be2f64` (local H1 `h1/composition-hooks`) |
 | Experimental worker additions, marked **A0** | `giuseppecrj/pi-herdr-agents@f9e6cc5367dd203e7d32e6b4059aa389f3003a8d` (`exp/a0-worker-surface`) |
 | Destination | `nublai/maestro`, package `@nubl/maestro`, currently `0.0.1` placeholder |
 
@@ -794,6 +794,71 @@ The M3 row did not specify two things, which M3 resolved:
 The local H1 adapter check, the real Pi child loader, the M4 tool/schema/config
 gates and minimum Node 26.12.1 are not claimed here. No fetch, push, PR, tag or
 release; no subagents.
+
+### M4 re-baseline
+
+At the start of M4, the existing local refs still resolved to
+`4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5` (`origin/main`, `base_main_sha`) and
+`27dee407403906d5bac359702e21a04309be2f64` (H1, `copy_sha`; reviewed: no
+behaviour change). No fetch. The 4cae65f..4cae65f range is empty, so the drift
+ledger is closed with no entries. M3 deferred one item of #145
+(`docs/tools.md`); M4 carries it by copying the doc from 27dee40.
+
+### M4 implementation record
+
+- **Copies.** 18 pi-extension production modules, byte-identical with no
+  import rewrites: tool schemas and registration, per-load controllers, state,
+  catalog, the `ParentMessage` serializer, the encoding boundary, config paths,
+  model registry glue, `PiPresentationHooks` and `createPiExtension`. Also 10
+  split contract assets: `docs/tools.md`, `docs/delegation-outcome-contract.md`,
+  both unchanged schema fixtures, the tool-docs generator and checker, the
+  compatibility helper and the role-pack example.
+  - The terminal entry, host surface, marker transport, widgets, message and
+    tool renderers and the child wrapper stay upstream.
+  - `@nubl/maestro/pi` is the one new facade. It brings the total to 110
+    copies, 3 new files and 89 finite exports.
+- **Tests.** 429 original identities moved, for 1,303 of 1,769 in total. They
+  run through the real factory via a test-only composition entry with fake host
+  hooks; a finite dynamic-import resource mapping keeps the fresh per-load
+  reload cases. Fifteen terminal widget/renderer cases are excluded with
+  reasons.
+- **Ledger.** Each of the 466 identities that stays upstream has a reason in
+  `provenance/m4/retained-ledger.json`, and `npm test` checks it on every run.
+- **Contract.** `tool-schema.test.ts`, `docs:tools:check` and `test:package`
+  capture through the actual factory (source and installed) and match the
+  unchanged `current.json`. `released.json` compatibility holds. The
+  registrations equal H1's pinned parent and child/deny-tool contract.
+- **Coverage.** All 83 owned original files meet their floors. Three needed
+  supplemental factory cases, because their lines were reached only through
+  retained widget/Herdr cases.
+- **Wrapper comparison.** Local only: H1's own pin, presentation, real-loader
+  `/reload` and docs probes pass with the package factory behind the H1 wrapper,
+  and both full captures are equal.
+
+Details and limitations: [`provenance/m4/README.md`](../../provenance/m4/README.md).
+
+The M4 row did not specify several things, which M4 resolved:
+
+- **Declaration emit.** H1's `extension.ts` names three unexported interfaces
+  through its inferred return type (TS4058). A declaration-only build overlay
+  exports them; the JS comes from the unmodified copies. The clean fix is an H1
+  change.
+- **The capture helper.** §5/D3 requires it to change, but M1's gate forbids a
+  `new` file at an upstream path. It is gated instead as an adapted helper:
+  only the declared statements may differ.
+- **Test entry and reload imports.** Upstream tests import the terminal entry,
+  which stays upstream. They are remapped to a test entry, and the fresh-import
+  reload cases need a dynamic-import resource mapping, not only static import
+  rewrites.
+- **`./pi/subagents/index` and `./pi/extension`.** These would be a new file at
+  an upstream path, which M1's gate forbids, or a host-binding-less entry. They
+  wait for M6.
+- **Appendix B rows that cannot move as written.** `test-environment` and
+  `dependency-rule` encode host scripts and layout; Maestro has its own guard
+  and `check:boundaries`. `system-prompt-mode` is a self-contained simulation
+  with no package import. All three stay upstream with reasons.
+
+No fetch, push, PR, tag or release; no subagents.
 
 ## Appendix A. Exact production and support inventory
 

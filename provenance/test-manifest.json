@@ -902,6 +902,95 @@
 			"source": "test/test.ts",
 			"destination": "test/pi-monolith.test.ts",
 			"map": "m3-test-map.json"
+		},
+		{
+			"source": "test/test.ts",
+			"destination": "test/tools-monolith.test.ts",
+			"map": "m4-test-map.json"
+		},
+		{
+			"source": "test/maestro/accept-check.test.ts",
+			"destination": "test/maestro/accept-check-tools.test.ts",
+			"map": "m4-test-map.json"
+		},
+		{
+			"source": "test/maestro/audit-discovery.test.ts",
+			"destination": "test/maestro/audit-discovery-tools.test.ts",
+			"map": "m4-test-map.json"
+		},
+		{
+			"source": "test/maestro/audit-git-environment.test.ts",
+			"destination": "test/maestro/audit-git-environment-tools.test.ts",
+			"map": "m4-test-map.json"
+		},
+		{
+			"source": "test/maestro/audit-persistent.test.ts",
+			"destination": "test/maestro/audit-persistent.test.ts",
+			"whole": true,
+			"map": "m4-test-map.json"
+		},
+		{
+			"source": "test/maestro/audit-stop-notices.test.ts",
+			"destination": "test/maestro/audit-stop-notices.test.ts",
+			"whole": true,
+			"map": "m4-test-map.json"
+		},
+		{
+			"source": "test/maestro/deferred-tools.test.ts",
+			"destination": "test/maestro/deferred-tools.test.ts",
+			"map": "m4-test-map.json"
+		},
+		{
+			"source": "test/maestro/pr110-persistent-regressions.test.ts",
+			"destination": "test/maestro/pr110-persistent-regressions.test.ts",
+			"whole": true,
+			"map": "m4-test-map.json"
+		},
+		{
+			"source": "test/maestro/script-launch.test.ts",
+			"destination": "test/maestro/script-launch-tools.test.ts",
+			"map": "m4-test-map.json"
+		},
+		{
+			"source": "test/maestro/socket-path.test.ts",
+			"destination": "test/maestro/socket-path.test.ts",
+			"whole": true,
+			"map": "m4-test-map.json"
+		},
+		{
+			"source": "test/maestro/specialist-notice.test.ts",
+			"destination": "test/maestro/specialist-notice-tools.test.ts",
+			"map": "m4-test-map.json"
+		},
+		{
+			"source": "test/maestro/task-model-approval.test.ts",
+			"destination": "test/maestro/task-model-approval.test.ts",
+			"map": "m4-test-map.json"
+		},
+		{
+			"source": "test/maestro/task-thinking-wiring.test.ts",
+			"destination": "test/maestro/task-thinking-wiring.test.ts",
+			"map": "m4-test-map.json"
+		},
+		{
+			"source": "test/maestro/task-thinking.test.ts",
+			"destination": "test/maestro/task-thinking-tools.test.ts",
+			"map": "m4-test-map.json"
+		},
+		{
+			"source": "test/maestro/tool-schema.test.ts",
+			"destination": "test/maestro/tool-schema.test.ts",
+			"map": "m4-test-map.json"
+		},
+		{
+			"source": "test/maestro/windows-support-scope.test.ts",
+			"destination": "test/maestro/windows-support-scope-tools.test.ts",
+			"map": "m4-test-map.json"
+		},
+		{
+			"source": "test/runtime-routing.test.ts",
+			"destination": "test/runtime-routing-tools.test.ts",
+			"map": "m4-test-map.json"
 		}
 	],
 	"retained_unit_entries": [
@@ -1058,7 +1147,8 @@
 	],
 	"identity_ledger": "baseline/test-identities.json.gz",
 	"identity_capture": "evidence/baseline-final/baseline.jsonl",
-	"identity_note": "Original 1769-test baseline is unchanged. M2 diffs actual nested titles, source-range identities and skip statuses for 357 copied counterparts; 1412 remain upstream. Original files are retained until H3. M2 supplemental/scaffold tests are separate from this original population.",
-	"migration_identity_ledger": "m2/test-identities.json.gz",
-	"migration_coverage_report": "m2/coverage.json"
+	"identity_note": "Original 1769-test baseline is unchanged. After M4, 1303 original identities have verified Maestro counterparts (actual nested titles, source-range identities and skip statuses; M2 357, M3 517, M4 429) plus 3 post-baseline cases; the other 466 stay upstream, each with a reason in m4/retained-ledger.json that npm test checks against every run. Original files are retained until H3. Supplemental/scaffold tests are separate from this original population.",
+	"migration_identity_ledger": "m4/test-identities.json.gz",
+	"migration_coverage_report": "m4/coverage.json",
+	"retained_identity_ledger": "m4/retained-ledger.json"
 }

@@ -1,42 +1,14 @@
 {
-	"step": "M3",
-	"previous_pin": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+	"step": "M4",
+	"previous_pin": "4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5",
 	"base_main_sha": "4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5",
 	"copy_sha": "27dee407403906d5bac359702e21a04309be2f64",
 	"copy_ref": "h1/composition-hooks (local H1, parent 4cae65f)",
 	"resolved_ref": "origin/main",
-	"resolution": "Existing local upstream refs; no fetch, as requested. Local main is not substituted for origin/main. H1 is local-only, so its pinned blobs are archived under provenance/upstream/.",
+	"resolution": "Existing local upstream refs at the start of M4; no fetch, as requested. origin/main still resolves to 4cae65f and h1/composition-hooks to 27dee40 (reviewed: no behaviour change), so the pin does not advance. H1 is local-only; its pinned blobs are archived under provenance/upstream/.",
 	"status": "closed",
-	"command": "git log --name-status add35f4..4cae65f -- <moving paths>; all paths reviewed, including stay paths for explicit no-impact entries",
-	"touching_commits": [
-		{
-			"sha": "4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5",
-			"subject": "fix(completion): prove a persistent child's exit with a shell-written record (#145)",
-			"paths": [
-				"docs/tools.md",
-				"maestro/adapters/pi/completion.ts",
-				"maestro/adapters/pi/launch.ts",
-				"maestro/adapters/pi/pi-harness-adapter.ts",
-				"test/test.ts"
-			],
-			"disposition": "carried",
-			"evidence": "M3 copies completion.ts, launch.ts and pi-harness-adapter.ts from 27dee40, which contains this fix (check:copy-fidelity). The new completion.ts case ('admits the shell's post-exit record unless the process is known alive') moves with the monolith completion suite in m3-test-map.json. The new host-adapter-migration case uses the retained withAdapterHost Herdr/extension fixture and stays upstream with that suite. docs/tools.md is a split contract asset that has not moved yet; M4 copies it from the pin, so the new shell-exit paragraph is carried there. M2's copied core/fake/generic files are byte-identical at 27dee40; M2's migrated test.ts selections re-anchored without text change."
-		},
-		{
-			"sha": "e7f190a",
-			"subject": "ci: preinstall ripgrep so the lab's Pi does not download it at startup (#144)",
-			"paths": [".github/workflows/linux-integration.yml"],
-			"disposition": "no-impact",
-			"evidence": "Host CI workflow; Appendix A2 'stay'. Maestro owns separate workflows."
-		},
-		{
-			"sha": "d78ad4e",
-			"subject": "docs(skill): route watch and poll requests to a notifying specialist (#142)",
-			"paths": ["AGENTS.md", "CONTEXT.md", "skills/pi-herdr-agents/SKILL.md"],
-			"disposition": "no-impact",
-			"evidence": "Host agent guidance, context and operating skill; all 'stay'. No engine, contract or test change."
-		}
-	],
+	"command": "git log --name-status 4cae65f..4cae65f -- <moving paths>: empty range",
+	"touching_commits": [],
 	"copy_source_commits": [
 		{
 			"sha": "b9f1754",
@@ -51,12 +23,12 @@
 		{
 			"sha": "45c983a",
 			"subject": "refactor: register the Pi extension through a per-load factory with presentation hooks",
-			"note": "pi-extension only; M4."
+			"note": "pi-extension per-load factory (extension.ts) and PiPresentationHooks; copied in M4 with the 16 other moving pi-extension modules. index.ts, widgets/renderers/tool-renderers, host-surface, marker-transport and the child wrapper stay upstream."
 		},
 		{
 			"sha": "aba33a2",
 			"subject": "test: pin H1 composition hooks against the pre-hook contract",
-			"note": "Host-wrapper contract fixtures (pi-extension/host-surface imports); retained upstream."
+			"note": "Host-wrapper contract fixtures stay upstream; M4 archives h1-contract.json as evidence and compares the package factory with it (npm test, test:package) and runs all H1 probes against a wrapper using the package factory (scripts/compare-upstream-wrapper.ts)."
 		},
 		{
 			"sha": "27dee40",
@@ -78,6 +50,34 @@
 			"copy_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
 			"touching_commits": [],
 			"status": "closed"
+		},
+		{
+			"step": "M3",
+			"previous_pin": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+			"base_main_sha": "4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5",
+			"copy_sha": "27dee407403906d5bac359702e21a04309be2f64",
+			"touching_commits": [
+				{
+					"sha": "4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5",
+					"disposition": "carried"
+				},
+				{
+					"sha": "e7f190a",
+					"disposition": "no-impact"
+				},
+				{
+					"sha": "d78ad4e",
+					"disposition": "no-impact"
+				}
+			],
+			"status": "closed"
+		}
+	],
+	"carried_from_earlier_steps": [
+		{
+			"sha": "4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5",
+			"subject": "fix(completion): prove a persistent child's exit with a shell-written record (#145)",
+			"evidence": "M3 deferred docs/tools.md to M4. M4 copies docs/tools.md byte-identically from 27dee40, which contains #145's shell-exit paragraph (check:copy-fidelity), and docs:tools:check regenerates its blocks through the actual factory."
 		}
 	]
 }

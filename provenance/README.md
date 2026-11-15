@@ -151,8 +151,8 @@ packs and installs into a fresh directory with spaces, loads only emitted JS
 without loaders or peers, resolves every current export, typechecks a strict
 Promise-only consumer, checks maps/license and forbids discovery resources.
 Pi factory/child/schema/config-asset and real-loader smokes require APIs introduced
-in M3/M4, so M1 does not simulate them or claim they pass. `docs:tools:check` is an
-explicit no-tools guard pending the actual-factory M4 gate. No copied assets exist
+in M3/M4, so M1 does not simulate them or claim they pass. `docs:tools:check` was an
+explicit no-tools guard until M4, which replaced it with the actual-factory check. No copied assets exist
 for the build to copy yet. Boundary checks cover both source and emitted imports.
 
 ## M2 verified cohort
@@ -180,3 +180,20 @@ are retained; the full runtime/surfaces combined gate is still M6/H2.
 
 M2 selections keep identity-baseline anchors into `baseline/upstream/` for the
 sources that changed after add35f4.
+
+## M4 verified cohort
+
+[M4 evidence](m4/README.md) records:
+
+- the unchanged pin (main 4cae65f, H1 27dee40) with an empty drift range; the
+  #145 `docs/tools.md` carry M3 deferred is now copied;
+- 28 copies: 18 pi-extension modules (tools, schemas, controllers, serializer,
+  `createPiExtension`, `PiPresentationHooks`) and 10 contract assets; the new
+  `@nubl/maestro/pi` facade; a declaration-only build overlay for three
+  unexported interfaces;
+- 429 moved identities (1,303 cumulative), run through the actual factory via a
+  test-only composition entry, and a complete ledger: each of the 466 retained
+  identities has a reason that `npm test` checks;
+- unchanged tool-schema fixtures matched from source, docs and the installed
+  tarball; line-mapped coverage for all 83 owned files;
+- a local comparison of the H1 wrapper with the package factory.

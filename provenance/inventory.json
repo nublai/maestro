@@ -846,12 +846,12 @@
 			{
 				"source": "pi-extension/subagents/extension.ts",
 				"fate": "move",
-				"reason": "H3 createPiExtension per-load factory; M4."
+				"reason": "H3 createPiExtension per-load factory (the moving portion of index.ts). Copied in M4."
 			},
 			{
 				"source": "pi-extension/subagents/presentation-hooks.ts",
 				"fate": "move",
-				"reason": "H3 PiPresentationHooks/PiToolRenderers types; M4."
+				"reason": "H3 PiPresentationHooks/PiToolRenderers types. Copied in M4."
 			},
 			{
 				"source": "pi-extension/subagents/tool-renderers.ts",
@@ -886,7 +886,7 @@
 			{
 				"source": "test/fixtures/h1-contract.json",
 				"fate": "stay",
-				"reason": "Host H1 contract fixture."
+				"reason": "Host H1 contract fixture. Stays upstream; M4 archives its pinned blob as evidence for the factory registration comparison."
 			},
 			{
 				"source": "test/fixtures/h1-presentation-probe.ts",
@@ -920,6 +920,11 @@
 				"source": "maestro/adapters/pi/child/subagent-done.ts",
 				"fate": "stay",
 				"reason": "At H1 it only forwards to pi-extension/subagents/child.ts (terminal wrapper) for existing launch artifacts/policies; its protocol moved to child/protocol.ts."
+			},
+			{
+				"source": "pi-extension/subagents/index.ts",
+				"fate": "stay",
+				"reason": "At H1 the terminal entry only calls createPiExtension with the host's hooks; its moving portion is extension.ts (copied in M4). The entry itself stays upstream as the wrapper Pi loads."
 			}
 		]
 	}

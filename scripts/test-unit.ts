@@ -53,6 +53,19 @@ interface OriginalFile {
 }
 
 const root = fileURLToPath(new URL("../", import.meta.url));
+/** The upstream main the copies were re-baselined on (not the H1 copy pin). */
+function baseMainSha(): string {
+	try {
+		return JSON.parse(
+			readFileSync(
+				new URL("../provenance/copy-manifest.json", import.meta.url),
+				"utf8",
+			),
+		).base_main_sha;
+	} catch (cause) {
+		throw new Error("Cannot read the copy manifest", { cause });
+	}
+}
 const coverage = process.argv.includes("--coverage");
 const migration = checkTestMigration(root);
 let manifest: { maestro_unit_entries: string[] };
@@ -398,7 +411,7 @@ try {
 			},
 		);
 		const report = {
-			base_main_sha: migration.copy_sha,
+			base_main_sha: baseMainSha(),
 			copy_sha: migration.copy_sha,
 			node: process.version,
 			counts: summary.counts,
