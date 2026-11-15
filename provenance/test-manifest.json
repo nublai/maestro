@@ -1034,7 +1034,9 @@
 		"test/maestro/herdr-core-execution-pi.test.ts",
 		"test/worktree-cleanup-pi.test.ts",
 		"test/runtime-routing-pi.test.ts",
-		"test/pi-monolith.test.ts"
+		"test/pi-monolith.test.ts",
+		"test/pi-host-ports.test.ts",
+		"test/pi-adapter-paths.test.ts"
 	],
 	"identity_ledger": "baseline/test-identities.json.gz",
 	"identity_capture": "evidence/baseline-final/baseline.jsonl",
