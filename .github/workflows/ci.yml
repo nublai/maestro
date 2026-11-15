@@ -15,13 +15,16 @@ jobs:
         with:
           node-version: 26.12.1
           cache: npm
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       - run: npm run format:check
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
       - run: npm run test:fidelity
+      - run: npm run check:copy-fidelity
       - run: npm run build
       - run: npm run check:boundaries
+      - run: npm run docs:tools:check
+      - run: npm run test:coverage
       - run: npm run test:package
       - run: npm pack --dry-run

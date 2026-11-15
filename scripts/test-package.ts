@@ -9,7 +9,7 @@ import {
 	writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -30,7 +30,10 @@ function run(binary: string, args: string[], cwd = fixture): string {
 	});
 }
 try {
-	run("npm", ["pack", "--pack-destination", fixture, "--silent"], root);
+	const candidate = process.argv[2] ? resolve(process.argv[2]) : undefined;
+	if (candidate)
+		writeFileSync(join(fixture, basename(candidate)), readFileSync(candidate));
+	else run("npm", ["pack", "--pack-destination", fixture, "--silent"], root);
 	const tarballs = readdirSync(fixture).filter((path) => path.endsWith(".tgz"));
 	assert.equal(tarballs.length, 1);
 	writeFileSync(

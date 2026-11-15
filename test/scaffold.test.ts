@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
 	existsSync,
+	mkdirSync,
 	mkdtempSync,
 	readFileSync,
 	rmSync,
@@ -13,6 +15,7 @@ import { test } from "node:test";
 import { gunzipSync } from "node:zlib";
 import { fileURLToPath } from "node:url";
 import { gitBlob, readManifest } from "../scripts/check-copy-fidelity.ts";
+import { checkBoundaryText } from "../scripts/check-boundaries.ts";
 
 const root = new URL("../", import.meta.url);
 const read = (path: string) => readFileSync(new URL(path, root), "utf8");
@@ -174,16 +177,16 @@ test("baseline preserves nested identities, locations, skip status and original-
 	assert.equal(coverage.counts.failed, 0);
 	assert.equal(coverage.counts.passed, 1768);
 	for (const [name, population, floor] of [
-		["core", 36, 98],
-		["runtime", 10, 98.9],
-		["surfaces", 9, 85.2],
+		["core", 36, 98.0485953725156],
+		["runtime", 10, 98.94096225077136],
+		["surfaces", 9, 91.19073215228121],
 	] as const) {
 		const cohort = files.filter((file) => file.population === name);
 		assert.equal(cohort.length, population);
 		assert.equal(coverage.metrics[name].floor_line_mean, floor);
 		const computed =
 			cohort.reduce((sum, file) => sum + file.line, 0) / cohort.length;
-		// Python archived the mean; allow floating-point rounding, never a floor discount.
+		// Allow arithmetic rounding, never a floor discount.
 		assert(
 			Math.abs(
 				coverage.metrics[name].observed_arithmetic_line_mean - computed,
@@ -194,6 +197,146 @@ test("baseline preserves nested identities, locations, skip status and original-
 	}
 });
 
+for (const statement of [
+	'import "pi-herdr-agents";',
+	'export * from "pi-herdr-agents";',
+	'type T = import("pi-herdr-agents").T;',
+	"import(`pi-herdr-agents`);",
+	"require(`pi-herdr-agents`);",
+	'createRequire(import.meta.url)("pi-herdr-agents");',
+	'createRequire("pi-herdr-agents");',
+	"import.meta.resolve(`@earendil-works/pi-tui`);",
+	'import { createRequire as cr } from "node:module"; const load = cr(import.meta.url); load("effect/Context");',
+	'import * as module from "node:module"; module.createRequire(import.meta.url)("pi-herdr-agents");',
+]) {
+	test(`boundary gate rejects ${statement}`, () => {
+		assert.throws(
+			() => checkBoundaryText(statement, "fixture.mjs"),
+			/Forbidden import/,
+		);
+	});
+}
+
+test("boundary gate permits legitimate template loads and module utilities", () => {
+	checkBoundaryText(
+		'import(`node:fs`); const require = createRequire(import.meta.url); require("node:path"); import.meta.resolve("@nubl/maestro");',
+		"fixture.ts",
+	);
+});
+
+test("capture expands the monolith and glob entries without executing the source shell script", (t) => {
+	const fixture = mkdtempSync(join(tmpdir(), "maestro-capture-"));
+	t.after(() => rmSync(fixture, { recursive: true, force: true }));
+	mkdirSync(join(fixture, "test"));
+	writeFileSync(join(fixture, "test/test.ts"), "");
+	writeFileSync(join(fixture, "test/example.test.ts"), "");
+	writeFileSync(
+		join(fixture, "package.json"),
+		JSON.stringify({
+			scripts: { test: "node --test test/test.ts test/*.test.ts" },
+		}),
+	);
+	const output = execFileSync(
+		"python3",
+		[
+			"-c",
+			'import importlib.util,json,pathlib,sys; s=importlib.util.spec_from_file_location("capture",sys.argv[1]); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); print(json.dumps(m.expand_entries(pathlib.Path(sys.argv[2]))))',
+			fileURLToPath(new URL("scripts/capture-baseline.py", root)),
+			fixture,
+		],
+		{
+			encoding: "utf8",
+			env: { PATH: process.env.PATH, PYTHONDONTWRITEBYTECODE: "1" },
+		},
+	);
+	assert.deepEqual(JSON.parse(output), [
+		"test/test.ts",
+		"test/example.test.ts",
+	]);
+});
+
+test("publish validates the exact tarball checksum and its embedded version", (t) => {
+	const fixture = mkdtempSync(join(tmpdir(), "maestro-candidate-"));
+	t.after(() => rmSync(fixture, { recursive: true, force: true }));
+	mkdirSync(join(fixture, "candidate"));
+	mkdirSync(join(fixture, "package"));
+	writeFileSync(
+		join(fixture, "package/package.json"),
+		JSON.stringify({ version: "0.1.0-rc.1" }),
+	);
+	execFileSync(
+		"tar",
+		["-czf", "candidate/maestro.tgz", "package/package.json"],
+		{ cwd: fixture },
+	);
+	const tarball = join(fixture, "candidate/maestro.tgz");
+	const hash = createHash("sha256").update(readFileSync(tarball)).digest("hex");
+	writeFileSync(
+		join(fixture, "candidate/SHA256SUMS"),
+		`${hash}  maestro.tgz\n`,
+	);
+	const workflow = read(".github/workflows/publish.yml");
+	const script = workflow
+		.split(
+			"      - name: Verify candidate hash and tag version\n        run: |\n",
+		)[1]
+		.split("      - name:")[0]
+		.replace(/^          /gm, "");
+	const verify = (tag: string) =>
+		spawnSync("bash", ["-euc", script], {
+			cwd: fixture,
+			encoding: "utf8",
+			env: { PATH: process.env.PATH, HOME: fixture, GITHUB_REF_NAME: tag },
+		});
+	assert.equal(verify("v0.1.0-rc.1").status, 0);
+	assert.notEqual(verify("v0.1.0").status, 0);
+	writeFileSync(tarball, "tampered");
+	assert.notEqual(verify("v0.1.0-rc.1").status, 0);
+});
+
+test("committed derivation reproduces coverage populations and identity lineage", (t) => {
+	const fixture = mkdtempSync(join(tmpdir(), "maestro-derive-"));
+	t.after(() => rmSync(fixture, { recursive: true, force: true }));
+	execFileSync(
+		"python3",
+		[
+			fileURLToPath(new URL("scripts/derive-baseline.py", root)),
+			"--coverage-report",
+			fileURLToPath(new URL("provenance/baseline/coverage.json.gz", root)),
+			"--identity-report",
+			fileURLToPath(
+				new URL("provenance/baseline/test-identities.json.gz", root),
+			),
+			"--manifest",
+			fileURLToPath(new URL("provenance/coverage-manifest.json", root)),
+			"--output",
+			join(fixture, "derived"),
+			"--pin-floors",
+		],
+		{ env: { PATH: process.env.PATH, HOME: fixture, TMPDIR: fixture } },
+	);
+	assert.deepEqual(
+		JSON.parse(
+			readFileSync(join(fixture, "derived/coverage-manifest.json"), "utf8"),
+		),
+		JSON.parse(read("provenance/coverage-manifest.json")),
+	);
+	assert.deepEqual(
+		JSON.parse(
+			gunzipSync(
+				readFileSync(join(fixture, "derived/test-identities.json.gz")),
+			).toString(),
+		),
+		JSON.parse(
+			gunzipSync(
+				readFileSync(
+					new URL("provenance/baseline/test-identities.json.gz", root),
+				),
+			).toString(),
+		),
+	);
+});
+
 test("CI and publishing retain OIDC/version guards and execute M1 gates on minimum Node", () => {
 	for (const path of [
 		".github/workflows/ci.yml",
@@ -202,19 +345,26 @@ test("CI and publishing retain OIDC/version guards and execute M1 gates on minim
 		const workflow = read(path);
 		assert(workflow.includes("node-version: 26.12.1"));
 		for (const command of [
-			"npm ci",
+			"npm ci --ignore-scripts",
 			"npm run format:check",
 			"npm run lint",
 			"npm run typecheck",
 			"npm test",
 			"npm run test:fidelity",
 			"npm run build",
-			"npm run test:package",
+			"npm run check:copy-fidelity",
+			"npm run check:boundaries",
 			"npm pack --dry-run",
 		])
 			assert(workflow.includes(`- run: ${command}`));
 	}
 	const publish = read(".github/workflows/publish.yml");
+	const [buildJob, publishJob] = publish.split("  publish:\n");
+	assert(!buildJob.includes("id-token: write"));
+	assert(publishJob.includes("needs: build"));
+	assert(!/checkout@|npm (?:ci|install)|cache: npm/.test(publishJob));
+	assert(publishJob.includes("sha256sum --check SHA256SUMS"));
+	assert(buildJob.includes('npm run test:package -- "$PWD"/candidate/*.tgz'));
 	assert(publish.includes("id-token: write"));
 	assert(publish.includes("environment: npm-publish"));
 	assert(publish.includes('test "v$v" = "$GITHUB_REF_NAME"'));
@@ -227,13 +377,27 @@ test("CI and publishing retain OIDC/version guards and execute M1 gates on minim
 		.join("\n");
 	const fixture = mkdtempSync(join(tmpdir(), "maestro-publish-test-"));
 	try {
+		mkdirSync(join(fixture, "candidate"));
+		writeFileSync(join(fixture, "candidate/maestro.tgz"), "fixture");
 		for (const [version, expected] of [
-			["0.1.0", "publish --access public"],
-			["0.1.0-rc.1", "publish --access public --tag next"],
-			["0.1.0-beta.2+build", "publish --access public --tag next"],
-			["0.1.0+build-with-hyphen", "publish --access public"],
+			["0.1.0", "publish ./maestro.tgz --ignore-scripts --access public"],
+			[
+				"0.1.0-rc.1",
+				"publish ./maestro.tgz --ignore-scripts --access public --tag next",
+			],
+			[
+				"0.1.0-beta.2+build",
+				"publish ./maestro.tgz --ignore-scripts --access public --tag next",
+			],
+			[
+				"0.1.0+build-with-hyphen",
+				"publish ./maestro.tgz --ignore-scripts --access public",
+			],
 		]) {
-			writeFileSync(join(fixture, "package.json"), JSON.stringify({ version }));
+			writeFileSync(
+				join(fixture, "candidate/package.json"),
+				JSON.stringify({ version }),
+			);
 			// Execute the exact workflow dispatch with a shell function in place of npm.
 			const result = execFileSync(
 				"bash",

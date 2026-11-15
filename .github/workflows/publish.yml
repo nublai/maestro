@@ -1,50 +1,86 @@
-# Publishes to npm with trusted publishing (OIDC). No npm token is stored.
-# npm side: package settings -> Trusted publishing -> GitHub Actions,
-# organization nublai, repository maestro, workflow publish.yml, environment npm-publish.
+# Trusted publishing: only the publish job can request an OIDC token.
 name: publish
 on:
   push:
     tags: ["v*"]
 permissions:
   contents: read
-  id-token: write
 concurrency:
   group: publish
   cancel-in-progress: false
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
-    environment: npm-publish
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 26.12.1
-          registry-url: https://registry.npmjs.org
           cache: npm
-      - name: Tag matches package.json version
+      - run: npm ci --ignore-scripts
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run test:fidelity
+      - run: npm run check:copy-fidelity
+      - run: npm run build
+      - run: npm run check:boundaries
+      - run: npm run docs:tools:check
+      - run: npm run test:coverage
+      - run: npm pack --dry-run
+      - name: Pack and test exact release candidate
         run: |
+          mkdir candidate
+          npm pack --pack-destination candidate
+          npm run test:package -- "$PWD"/candidate/*.tgz
+          (cd candidate && sha256sum ./*.tgz > SHA256SUMS)
+      # actions/upload-artifact v4.6.2
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: npm-candidate
+          path: candidate/
+          if-no-files-found: error
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment: npm-publish
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      # actions/setup-node v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 26.12.1
+          registry-url: https://registry.npmjs.org
+      # actions/download-artifact v4.3.0
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: npm-candidate
+          path: candidate
+      - name: Verify candidate hash and tag version
+        run: |
+          cd candidate
+          sha256sum --check SHA256SUMS
+          test "$(find . -maxdepth 1 -name '*.tgz' | wc -l)" -eq 1
+          tar -xOf ./*.tgz package/package.json > package.json
           v=$(node -p "require('./package.json').version")
           test "v$v" = "$GITHUB_REF_NAME" || { echo "tag $GITHUB_REF_NAME does not match version $v"; exit 1; }
       - name: npm supports trusted publishing (>= 11.5.1)
         run: |
           npm --version
           node -e "const [a,b,c]=process.argv[1].split('.').map(Number); process.exit(a>11||(a===11&&(b>5||(b===5&&c>=1)))?0:1)" "$(npm --version)"
-      - run: npm ci
-      - run: npm run format:check
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run test:fidelity
-      - run: npm run build
-      - run: npm run check:boundaries
-      - run: npm run test:package
-      - run: npm pack --dry-run
       - name: Publish stable to latest or prerelease to next
         run: |
+          cd candidate
           v=$(node -p "require('./package.json').version")
           case "${v%%+*}" in
-            *-*) npm publish --access public --tag next ;;
-            *) npm publish --access public ;;
+            *-*) npm publish ./*.tgz --ignore-scripts --access public \
+                   --tag next ;;
+            *) npm publish ./*.tgz --ignore-scripts --access public ;;
           esac

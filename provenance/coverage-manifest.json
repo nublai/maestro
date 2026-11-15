@@ -84,19 +84,19 @@
 	},
 	"metrics": {
 		"core": {
-			"floor_line_mean": 98.0,
+			"floor_line_mean": 98.0485953725156,
 			"files": 36,
 			"observed_arithmetic_line_mean": 98.0485953725156,
 			"observed_weighted_line_percent": 97.92215393620134
 		},
 		"runtime": {
-			"floor_line_mean": 98.9,
+			"floor_line_mean": 98.94096225077136,
 			"files": 10,
 			"observed_arithmetic_line_mean": 98.94096225077136,
 			"observed_weighted_line_percent": 98.0637813211845
 		},
 		"surfaces": {
-			"floor_line_mean": 85.2,
+			"floor_line_mean": 91.19073215228121,
 			"files": 9,
 			"observed_arithmetic_line_mean": 91.19073215228121,
 			"observed_weighted_line_percent": 91.6102443332352
@@ -1621,7 +1621,7 @@
 				{
 					"branch": 60,
 					"function": 55.55555555555556,
-					"report_index": 89
+					"report_index": 90
 				},
 				{
 					"branch": 25,
@@ -1651,7 +1651,7 @@
 				{
 					"branch": 45,
 					"function": 44.44444444444444,
-					"report_index": 94
+					"report_index": 96
 				},
 				{
 					"branch": 53.333333333333336,
