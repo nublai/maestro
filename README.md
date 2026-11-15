@@ -12,4 +12,4 @@ Releases publish to npm from GitHub Actions with npm trusted publishing (OIDC). 
 2. Push a tag `vX.Y.Z` that matches the version.
 3. `.github/workflows/publish.yml` checks the tag against `package.json`, runs the tests and runs `npm publish`. The `npm-publish` environment can require an approval.
 
-npm provenance statements are generated only from public repositories, so a private repository publishes without them.
+The repository is public, so npm attaches a provenance statement to every release.
