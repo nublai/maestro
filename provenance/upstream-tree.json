@@ -1,0 +1,1237 @@
+{
+	"copy_sha": "add35f42616f398aab9f3cc63defe2b1f95c9149",
+	"files": [
+		{
+			"path": ".gitattributes",
+			"blob": "d0d6371de329ffb232ba2fb9b79732165a702be7"
+		},
+		{
+			"path": ".github/workflows/ci.yml",
+			"blob": "c5eed7f19ea3942df972dd7b0eac7e12408d8199"
+		},
+		{
+			"path": ".github/workflows/linux-integration.yml",
+			"blob": "38fb210ef6c2b51e46f8b2914b144ec112057bf2"
+		},
+		{
+			"path": ".github/workflows/publish.yml",
+			"blob": "5b92e335d40c0a22de932f02deeb9d0e0b2ca4dc"
+		},
+		{
+			"path": ".gitignore",
+			"blob": "23861dab64f35ee9a5a54023893fe561b529ae4b"
+		},
+		{
+			"path": ".npmignore",
+			"blob": "2408888cfe03710c67deb79f6c7dfe1d14a0a28c"
+		},
+		{
+			"path": ".pi/settings.json",
+			"blob": "b0eb4ceb313568e82befd1dfdc0f02969dbaf170"
+		},
+		{
+			"path": ".pi/skills/release/SKILL.md",
+			"blob": "8e9070f0ec300b806dc36456df413fe2698c6793"
+		},
+		{
+			"path": ".pi/skills/run-integration-tests/SKILL.md",
+			"blob": "e80c122c1d1886fa376ec2bd6eabbbd8dbb38aec"
+		},
+		{
+			"path": ".pi/skills/verify-pi-herdr-agents/SKILL.md",
+			"blob": "66314c6e129899a1e150d634277957b8c35ca742"
+		},
+		{
+			"path": ".pi/skills/verify-pi-herdr-agents/features/README.md",
+			"blob": "88568345c86a137879186502b767ad10111db877"
+		},
+		{
+			"path": ".pi/skills/verify-pi-herdr-agents/features/caller-ping.md",
+			"blob": "6bd7f4ab736613732f038b3c0905c24a2642065d"
+		},
+		{
+			"path": ".pi/skills/verify-pi-herdr-agents/features/cancel-and-interrupt.md",
+			"blob": "d327ae2b53f4ce19b47cc96797bf7c3355df8a9b"
+		},
+		{
+			"path": ".pi/skills/verify-pi-herdr-agents/features/launch-and-delivery.md",
+			"blob": "83fb27f21eb63e42f6ea0d94c6955c723114127e"
+		},
+		{
+			"path": ".pi/skills/verify-pi-herdr-agents/features/persistent-specialist.md",
+			"blob": "385556a7967cec9a08a7ed9d8c1c52d618201a54"
+		},
+		{
+			"path": ".pi/skills/verify-pi-herdr-agents/features/worktree-run.md",
+			"blob": "52aa0fcb2b7991b668a96d750bce69dd2216143e"
+		},
+		{
+			"path": ".pi/skills/verify-pi-herdr-agents/scripts/lab.ts",
+			"blob": "e57719c563e3a358c257934b0075ce8d41d6c8bd"
+		},
+		{
+			"path": ".pi/skills/verify-pi-herdr-agents/scripts/path-guards.ts",
+			"blob": "e84902225a7445f039c26fd7460d69e6e4d4e975"
+		},
+		{
+			"path": ".pi/skills/verify-pi-herdr-agents/scripts/pin.ts",
+			"blob": "947b2687d87c5d413b0ccfdf3da8c68b77bdcf63"
+		},
+		{
+			"path": "AGENTS.md",
+			"blob": "5e9430f2cadc05022c49b84ba9ecd809e8c263d6"
+		},
+		{
+			"path": "CHANGELOG.md",
+			"blob": "adde166eab7c92737ecc43e8450fbf9d7d3781bc"
+		},
+		{
+			"path": "CONTEXT.md",
+			"blob": "10d2b20a26a7df16ecc110abfb1dca0237581ec1"
+		},
+		{
+			"path": "LICENSE",
+			"blob": "869e21dc747c042cb213314b9d554f8adb101674"
+		},
+		{
+			"path": "README.md",
+			"blob": "bf70c1cbb3b313333c6f32788cd72d94ed6b1036"
+		},
+		{
+			"path": "RELEASING.md",
+			"blob": "cd8926bc127036d0b3b328d49a17e15a5fc14a08"
+		},
+		{
+			"path": "biome.json",
+			"blob": "640109c390aef75d2415245b2ea2a5356b803d47"
+		},
+		{
+			"path": "config.json.example",
+			"blob": "e185371e79b7ed4b63c2e394f57bc2d3b19f0920"
+		},
+		{
+			"path": "docs/README.md",
+			"blob": "0754fc92fda953075f77559899baee18b86187d0"
+		},
+		{
+			"path": "docs/accept-check-design.md",
+			"blob": "3b77f2030186038f9dfc10d95af3594dfae1d58d"
+		},
+		{
+			"path": "docs/adr/0001-btw-ephemeral-side-questions.md",
+			"blob": "81d8b5703be7c8eb7b069ae03c87367f2fcb751a"
+		},
+		{
+			"path": "docs/adr/0002-agent-workflow-skill-runtime-taxonomy.md",
+			"blob": "16b6de8213d1dd36594d740b9d6ee7712b2ea0e3"
+		},
+		{
+			"path": "docs/adr/0003-installable-role-packs.md",
+			"blob": "030a4e1702fef58f06692c270188f27007d66a44"
+		},
+		{
+			"path": "docs/adr/0004-require-active-user-approval-for-workflow-execution.md",
+			"blob": "53697d86d0cdd93df2c8d8987cb8e5b13fe7910d"
+		},
+		{
+			"path": "docs/adr/0005-parent-owns-workflow-script-authority.md",
+			"blob": "9a05d6c1d6ff76eb762fd28b06372dd4f85a4d1a"
+		},
+		{
+			"path": "docs/adr/0006-limit-v1-execution-effects-to-isolated-worktrees.md",
+			"blob": "ba96168205cf7bb5299ac3f2996411878aa429db"
+		},
+		{
+			"path": "docs/adr/0007-require-fresh-review-for-workflow-scripts.md",
+			"blob": "cdcc17ba60803cf2cd5051c2d776e779c77754bc"
+		},
+		{
+			"path": "docs/adr/0008-adopt-pi-only-subagent-execution.md",
+			"blob": "35e2dc491b2d7f9fb15fd50c970d3e0a0646c2be"
+		},
+		{
+			"path": "docs/adr/0009-remove-workflow-subsystem.md",
+			"blob": "730ab7bbcded487d653d25595be025d36dbafe93"
+		},
+		{
+			"path": "docs/adr/0010-persistent-specialists-as-session-generations.md",
+			"blob": "77e8db5b9a6ec27277dda0057b9aebde1ff17594"
+		},
+		{
+			"path": "docs/adr/0011-explicit-worktree-cleanup.md",
+			"blob": "103a1d92aedffd7124d1bf5c6b257c46fdb5e1ca"
+		},
+		{
+			"path": "docs/adr/0012-adopt-maestro-seams-in-repo.md",
+			"blob": "f575d47265b5b287d06d9370794e76146371533c"
+		},
+		{
+			"path": "docs/adr/0013-pack-neutral-execution-host.md",
+			"blob": "ccc420bbad906742775296e74213547889765cc6"
+		},
+		{
+			"path": "docs/adr/0014-operator-cancel-terminal-intent.md",
+			"blob": "222e283e363f7dcdd98381855c9c91331639178c"
+		},
+		{
+			"path": "docs/adr/0015-report-opened-primary-workspace.md",
+			"blob": "d58cfbd19af74bd8ae9662c25cc1f4f514539221"
+		},
+		{
+			"path": "docs/adr/0016-delegation-outcome-contract.md",
+			"blob": "45e5fcae07d612e2e4ccebe3a39bf8c18acd0fb6"
+		},
+		{
+			"path": "docs/adr/0017-accept-check.md",
+			"blob": "52f35fa4ebf9e91524570985ad27aba0aa2f04cf"
+		},
+		{
+			"path": "docs/adr/0018-herdr-core-execution.md",
+			"blob": "702d1c4baef4c6e56fa8464b272961a92d0594f0"
+		},
+		{
+			"path": "docs/adr/0019-specialist-notices.md",
+			"blob": "633e274a74f817b35665e6ebd5c5ad7af5aeb065"
+		},
+		{
+			"path": "docs/assets/async-subagent-lifecycle.png",
+			"blob": "fb1b53302e0091002c0835284229d7b3959c872b"
+		},
+		{
+			"path": "docs/assets/async-subagent-lifecycle.svg",
+			"blob": "18a2e1fcdf5efd5e9717326b78d4780464a63bb3"
+		},
+		{
+			"path": "docs/assets/pi-herdr-agents-gallery.png",
+			"blob": "39c285180a9d583eca8981d9c0cbdc113d4c0c70"
+		},
+		{
+			"path": "docs/assets/pi-herdr-agents-gallery.svg",
+			"blob": "2e4d29ab53ab29ebb96fe667a18b497efa162cf5"
+		},
+		{
+			"path": "docs/configuration.md",
+			"blob": "672f219dce40c925c8eb7139473e150041028f49"
+		},
+		{
+			"path": "docs/delegation-outcome-contract.md",
+			"blob": "bfd79eba1b94d75c351594df4b0c8d4a85153618"
+		},
+		{
+			"path": "docs/development.md",
+			"blob": "70d437b1552c84505a93681c843bd98ad60b80bc"
+		},
+		{
+			"path": "docs/orchestrated-review-workflow-plan.md",
+			"blob": "bf90b8b51a24aa905e7aa066fad7ec7f21fe4181"
+		},
+		{
+			"path": "docs/research/pdw-architecture-assessment.md",
+			"blob": "55307bfe38b07aa8e9219da889937c3adccc6109"
+		},
+		{
+			"path": "docs/research/pi-workflows-sol-advisor.md",
+			"blob": "ba582dd323fb0d37eacec231e1013581bf88c759"
+		},
+		{
+			"path": "docs/research/pi-worktree-session-handoff.md",
+			"blob": "50adb705774b222644cebc46327df67ac624a9ea"
+		},
+		{
+			"path": "docs/research/worktree-subagent-orchestration.md",
+			"blob": "2df7dc1904daef748dc391c1c95b658f90630b1a"
+		},
+		{
+			"path": "docs/roles.md",
+			"blob": "866ac38a74df4fca233bd2fd8552898086b00d8e"
+		},
+		{
+			"path": "docs/sidebar-plan.md",
+			"blob": "901f08d055ba7990251b1cb800fec7239ade1017"
+		},
+		{
+			"path": "docs/tools.md",
+			"blob": "4d09b0ed1014825fdc572c163cd66afb5d4bf5f3"
+		},
+		{
+			"path": "docs/troubleshooting.md",
+			"blob": "5d171cdea59451519ef0d71af388105237948010"
+		},
+		{
+			"path": "docs/worktree-subagents.md",
+			"blob": "9f22ac6a3897da845e07d602154053290b3e8ff4"
+		},
+		{
+			"path": "examples/role-pack/extension.ts",
+			"blob": "f93ccf76c3fb533821a46f26479186ede7223ac9"
+		},
+		{
+			"path": "examples/role-pack/package.json",
+			"blob": "69e59b848e6a74d7c09b346469b6b4d69a396192"
+		},
+		{
+			"path": "examples/role-pack/roles/example-reviewer.md",
+			"blob": "39cc38c82a88912f6889c9e7744a4eed306084e9"
+		},
+		{
+			"path": "maestro/adapters/fake/fake-harness-adapter.ts",
+			"blob": "08fd565694ea048846e9970213be2288f8ac3d19"
+		},
+		{
+			"path": "maestro/adapters/pi/accept-groups.ts",
+			"blob": "8b50ce80f2b971adadd5571382da517440d56ead"
+		},
+		{
+			"path": "maestro/adapters/pi/accept-runner.ts",
+			"blob": "d9befc997c61a88444decca186e0e72809080535"
+		},
+		{
+			"path": "maestro/adapters/pi/activity-file.ts",
+			"blob": "a94c87490b0007a05fd1bd715c528a90ae704ed6"
+		},
+		{
+			"path": "maestro/adapters/pi/child/accept-check.ts",
+			"blob": "9fdbb780d71669a175537a13bef7ea9570dde95e"
+		},
+		{
+			"path": "maestro/adapters/pi/child/declared-skills.ts",
+			"blob": "7c496f941373b5196c1875520ec64ec7071e08b0"
+		},
+		{
+			"path": "maestro/adapters/pi/child/done-nudge.ts",
+			"blob": "ad81a790ef59f8ff168ebf6aa3945b0a946256eb"
+		},
+		{
+			"path": "maestro/adapters/pi/child/subagent-done.ts",
+			"blob": "b61a889a41f01ebb3a2a2f5eebf6203329ca33b9"
+		},
+		{
+			"path": "maestro/adapters/pi/completion.ts",
+			"blob": "bd4cbb3471be12e0bc371182c1be1f547ea901e0"
+		},
+		{
+			"path": "maestro/adapters/pi/launch-command.ts",
+			"blob": "af88834cd2f54b8c92d4142f85ba41d8693296bd"
+		},
+		{
+			"path": "maestro/adapters/pi/launch-operations.ts",
+			"blob": "36ee2536a0a37fa1a839f669e588849e4d821b26"
+		},
+		{
+			"path": "maestro/adapters/pi/launch-resume.ts",
+			"blob": "18d15a5e01f06c788bac29662268ea22f366ffc6"
+		},
+		{
+			"path": "maestro/adapters/pi/launch.ts",
+			"blob": "aac14406de3aadc45af53d3115483c5bd760bf38"
+		},
+		{
+			"path": "maestro/adapters/pi/model-registry.ts",
+			"blob": "e7163f22e1584e99a95cbb65e0420b6c07736827"
+		},
+		{
+			"path": "maestro/adapters/pi/pi-harness-adapter.ts",
+			"blob": "73aa32b3cb6b3b7633efd819f60fa8e3b94260ac"
+		},
+		{
+			"path": "maestro/adapters/pi/process-identity.ts",
+			"blob": "5704a0f66be6d43d8d82a7b657f37ab1064ff3c8"
+		},
+		{
+			"path": "maestro/adapters/pi/process-tree.ts",
+			"blob": "5ae5aee53c841598e0cbd4e74fa0da6d808c3f8c"
+		},
+		{
+			"path": "maestro/adapters/pi/script-shell.ts",
+			"blob": "f56a83b6ba3c76f9d150753a4fa51b2d5aa85f0e"
+		},
+		{
+			"path": "maestro/adapters/pi/session.ts",
+			"blob": "1c2ae82a6f41f2fd03afbe08603d99c15310c49c"
+		},
+		{
+			"path": "maestro/adapters/pi/task-model-init.ts",
+			"blob": "5e4dd1edc4e4d6ed48ad72163c71d086c0af1829"
+		},
+		{
+			"path": "maestro/core/accept.ts",
+			"blob": "b88cf38fb774710f25c10ba31c1e0edb8d6c81a1"
+		},
+		{
+			"path": "maestro/core/activity.ts",
+			"blob": "a0aa18dd6c31b80750f1765f7c83c0e64ff799f1"
+		},
+		{
+			"path": "maestro/core/child-busy.ts",
+			"blob": "de3e087c9582673b414a50ea424cb0040520704a"
+		},
+		{
+			"path": "maestro/core/config/guidelines-config.ts",
+			"blob": "a6fe9925c6699f2322d199ca3ff185e545d9aaec"
+		},
+		{
+			"path": "maestro/core/config/herdr-config.ts",
+			"blob": "72fa9eca37e055841cb149fe95e3de1f50b5751f"
+		},
+		{
+			"path": "maestro/core/config/model-config.ts",
+			"blob": "29af385bddd374e823b7f30f2faf265adcf855a4"
+		},
+		{
+			"path": "maestro/core/config/outcome-ledger-config.ts",
+			"blob": "12efbc5c14645ee448e227d9e6f978f6d6515f79"
+		},
+		{
+			"path": "maestro/core/config/pane-config.ts",
+			"blob": "0d4d2b91e588471c0e349e2ea4dae2a655b2445f"
+		},
+		{
+			"path": "maestro/core/config/persistent-config.ts",
+			"blob": "7b01901ff86ea27b74fcc1367276219eb9901bd8"
+		},
+		{
+			"path": "maestro/core/config/role-config.ts",
+			"blob": "a82cedfff030c74813240c1506fabbb56632fbd3"
+		},
+		{
+			"path": "maestro/core/config/spawning-config.ts",
+			"blob": "a341c19f775777b4256cb24667768d9804309ada"
+		},
+		{
+			"path": "maestro/core/config/supervision-config.ts",
+			"blob": "b43fc71236aa95d9cf31f2163bbf1fa846752433"
+		},
+		{
+			"path": "maestro/core/config/task-model-init.ts",
+			"blob": "03150c818b3255db5f13885e0e69c35d29b52d36"
+		},
+		{
+			"path": "maestro/core/config/task-model-types.ts",
+			"blob": "642885bb5ac7aaaf95a8e1278ecc1b311a8b239c"
+		},
+		{
+			"path": "maestro/core/config/type-guards.ts",
+			"blob": "eb108137f20f4fc6f7b5dc73a3d70adf49fdecb6"
+		},
+		{
+			"path": "maestro/core/deadline.ts",
+			"blob": "ad352949ebfa73b24790712103b776a395ea202a"
+		},
+		{
+			"path": "maestro/core/declared-skills.ts",
+			"blob": "448b820f24964f1884c0fba9ddc07d30f7756bfb"
+		},
+		{
+			"path": "maestro/core/delegation-depth.ts",
+			"blob": "c83b9d3d68a09b02560fffff2f254dee8c5e08b0"
+		},
+		{
+			"path": "maestro/core/git-environment.ts",
+			"blob": "66d7e8e449da31afdcb82df242345d7c42e56cda"
+		},
+		{
+			"path": "maestro/core/harness-adapter.ts",
+			"blob": "b2148810e1ede34b515b10e66438b0a467d725d7"
+		},
+		{
+			"path": "maestro/core/host-text.ts",
+			"blob": "d1235ad2ea25d4d40d6edd7d46d626fe3807b436"
+		},
+		{
+			"path": "maestro/core/index.ts",
+			"blob": "caa51685cabb70116dde62907994996282eb6a07"
+		},
+		{
+			"path": "maestro/core/lifecycle.ts",
+			"blob": "d8633668dae77106dd4607cce6f94e3036735458"
+		},
+		{
+			"path": "maestro/core/opened-primary-workspace.ts",
+			"blob": "7b828a8695a6dd9b684becd3e02be41097f5a1f0"
+		},
+		{
+			"path": "maestro/core/platform-support.ts",
+			"blob": "c7cb7d67610b0af7f9f33d40c870815e0a7967d9"
+		},
+		{
+			"path": "maestro/core/realpath-without-opening.ts",
+			"blob": "780d327d45dd06231ccbe6e6c8427992a60debc5"
+		},
+		{
+			"path": "maestro/core/roles/discovery.ts",
+			"blob": "d3662f93bca1af1abd7bd0b68505eec138460f2f"
+		},
+		{
+			"path": "maestro/core/routing.ts",
+			"blob": "f9a3c1fee57a589b3c0d6279e8cb9008869efbed"
+		},
+		{
+			"path": "maestro/core/script-launch.ts",
+			"blob": "303f8f42bc20973578daa5f74cc358d5129e168c"
+		},
+		{
+			"path": "maestro/core/shell.ts",
+			"blob": "063969d95e420a7f9d91971ac9724cbd73516f76"
+		},
+		{
+			"path": "maestro/core/specialist-notice.ts",
+			"blob": "aff9eec17160893f21bcdb183e24afabb83614fb"
+		},
+		{
+			"path": "maestro/core/status.ts",
+			"blob": "fe2c2be59d63aef55a4db4a34bbef977d6818a9b"
+		},
+		{
+			"path": "maestro/core/supervision.ts",
+			"blob": "3faaa7a7eff1eaa85cef71cce863337cb60f4064"
+		},
+		{
+			"path": "maestro/core/surface-provider.ts",
+			"blob": "ca8db1447add22a608bcda09653372ee7e859dc8"
+		},
+		{
+			"path": "maestro/core/types.ts",
+			"blob": "8cd2d264f055d6e831ed6262c4b4e391375ea361"
+		},
+		{
+			"path": "maestro/core/undelivered-children.ts",
+			"blob": "4cd823eb6593cf0ff855470a37881894c690a56c"
+		},
+		{
+			"path": "maestro/core/wake.ts",
+			"blob": "88930e1576d3635fd856062bef146d37b6853107"
+		},
+		{
+			"path": "maestro/core/worktree-cleanup.ts",
+			"blob": "c606b897c62990b0977bc3890c0170c7cf063b95"
+		},
+		{
+			"path": "maestro/core/worktree.ts",
+			"blob": "edd659a9b35f98bf21a7ad8e16e0153e3c7b00ca"
+		},
+		{
+			"path": "maestro/runtime/accept-recheck.ts",
+			"blob": "980a04e20dceed533b570fb01165c0050e52c5f4"
+		},
+		{
+			"path": "maestro/runtime/delegated-marker.ts",
+			"blob": "2401b328f945b9e1165d5f55365a6e62d5b6630f"
+		},
+		{
+			"path": "maestro/runtime/herdr-backend.ts",
+			"blob": "f0c76d7844cffc159d911dc8f54dea3fec2ad030"
+		},
+		{
+			"path": "maestro/runtime/index.ts",
+			"blob": "4dcc7fe14d15fb415fb8f320a9aad835cd671477"
+		},
+		{
+			"path": "maestro/runtime/pi-persistent-io.ts",
+			"blob": "c4b6b4ad716769e0a95f1c9bb976fd64f47a7f54"
+		},
+		{
+			"path": "maestro/runtime/pi-run-session-types.ts",
+			"blob": "7dd791483edd4a67812ce496ad9a07d2dde02e18"
+		},
+		{
+			"path": "maestro/runtime/pi-run-session.ts",
+			"blob": "04410e376adcfa16b1b35585bc76e3008f38b4c4"
+		},
+		{
+			"path": "maestro/runtime/run-session.ts",
+			"blob": "2d0f444debb54698df366f1486cffff724db76bd"
+		},
+		{
+			"path": "maestro/runtime/surface-retention.ts",
+			"blob": "f76d624a73d3833f7adad0b6117b5138225a7b08"
+		},
+		{
+			"path": "maestro/runtime/task-model-init.ts",
+			"blob": "8440ea14528b9683daa00aa5710d7cfb0b0d8f18"
+		},
+		{
+			"path": "maestro/runtime/worktree-operations.ts",
+			"blob": "6477c19e280632a21fa8fa2811f2fb25babf1b3c"
+		},
+		{
+			"path": "maestro/surfaces/fake/fake-surface-provider.ts",
+			"blob": "af9647832346703e24ec97f37136ee9f35da6026"
+		},
+		{
+			"path": "maestro/surfaces/herdr/herdr-cli.ts",
+			"blob": "4538653cbc4b11a7a9f23a3896eb001b4f044210"
+		},
+		{
+			"path": "maestro/surfaces/herdr/herdr-core-protocol.ts",
+			"blob": "c02e250c1370a3a0675e7ad06cc7a79e6b446254"
+		},
+		{
+			"path": "maestro/surfaces/herdr/herdr-core-surface-provider.ts",
+			"blob": "e4c4927e1e9c31b1c724cbfbdb7bd1cacb445c72"
+		},
+		{
+			"path": "maestro/surfaces/herdr/herdr-pane.ts",
+			"blob": "69752c5a7771adc895c6dde7d96d8ae241ef9cf2"
+		},
+		{
+			"path": "maestro/surfaces/herdr/herdr-socket.ts",
+			"blob": "d22a6f242ad7a867ee6e45c942d8106195963b16"
+		},
+		{
+			"path": "maestro/surfaces/herdr/herdr-surface-provider.ts",
+			"blob": "9b6a3527311429ab702248feb6488f0096460bfe"
+		},
+		{
+			"path": "maestro/surfaces/herdr/herdr.ts",
+			"blob": "cae294dd6f5cddeaab2fb7d54495a503eead9065"
+		},
+		{
+			"path": "maestro/surfaces/herdr/terminal.ts",
+			"blob": "4996c0836fda769817833df7c78baeb775fee21f"
+		},
+		{
+			"path": "oxlint.config.ts",
+			"blob": "867fadc5fa7d0a5575ad6586f46e86b8333ccc73"
+		},
+		{
+			"path": "package-lock.json",
+			"blob": "ea9db3fd9a7b7e072fd8949823ee39eba7c0a511"
+		},
+		{
+			"path": "package.json",
+			"blob": "b0e02f7c6e9c20ddf6490567162f7110d6ba7f58"
+		},
+		{
+			"path": "pi-extension/subagents/catalog.ts",
+			"blob": "8d1e996375c1d98443613cf7dce20211aa814650"
+		},
+		{
+			"path": "pi-extension/subagents/config-path.ts",
+			"blob": "3aa620838fd4fc23eea67dcd2fbe2f89c78d86c3"
+		},
+		{
+			"path": "pi-extension/subagents/control-tools.ts",
+			"blob": "8d7854faa5286ad444f3503f882a2761179f01ab"
+		},
+		{
+			"path": "pi-extension/subagents/controls.ts",
+			"blob": "047a987db5d73d6e640b72cdb50ee3431673ef4b"
+		},
+		{
+			"path": "pi-extension/subagents/deferred-tools.ts",
+			"blob": "2fb3a060bd530519addcedf4896c336ce80ee7df"
+		},
+		{
+			"path": "pi-extension/subagents/delivery.ts",
+			"blob": "6f6b9abaa63abcb6443fbbc00a2d22a002d2b44a"
+		},
+		{
+			"path": "pi-extension/subagents/index.ts",
+			"blob": "d148468654d00455f45c7e293f54dae1472315dc"
+		},
+		{
+			"path": "pi-extension/subagents/launch-tools.ts",
+			"blob": "e9f90ce1370239e28cd581744a215c05efe4c474"
+		},
+		{
+			"path": "pi-extension/subagents/launch.ts",
+			"blob": "dcb6c903a7ced7cf5e795fdac38b112baa795f41"
+		},
+		{
+			"path": "pi-extension/subagents/model-registry.ts",
+			"blob": "9abd8b642be128b58237bca96027d037519bffbe"
+		},
+		{
+			"path": "pi-extension/subagents/observation.ts",
+			"blob": "ec5a0338ed0b2e8b8d25469539a6f97983a87fbc"
+		},
+		{
+			"path": "pi-extension/subagents/persistent.ts",
+			"blob": "7ef99411500a30206a861e43f8d5fe7afac6d4d8"
+		},
+		{
+			"path": "pi-extension/subagents/presentation.ts",
+			"blob": "529179ef4077c7d32852aeb5d1d136032f59d4d6"
+		},
+		{
+			"path": "pi-extension/subagents/renderers.ts",
+			"blob": "a5a8b8e42afd571bab3e182b5e3036627fbd70cb"
+		},
+		{
+			"path": "pi-extension/subagents/state.ts",
+			"blob": "f77f4a5c79cf1bb410db68fbcc78dfa1d9acbe11"
+		},
+		{
+			"path": "pi-extension/subagents/task-models.ts",
+			"blob": "b07f06fb6796dbf0acc2c73c74653452af42c7cc"
+		},
+		{
+			"path": "pi-extension/subagents/tool-boundary.ts",
+			"blob": "4d0ad512b642615c137c2dd30f23b68292731d2f"
+		},
+		{
+			"path": "pi-extension/subagents/widgets.ts",
+			"blob": "f1fafa5eaaca96034d46be37bc450ddcd277b1bd"
+		},
+		{
+			"path": "pi-extension/subagents/worktree-tools.ts",
+			"blob": "6d3bfa9409387831f3e9bb2d1c7be2f1e95cb692"
+		},
+		{
+			"path": "plugins/sidebar/README.md",
+			"blob": "8e8742ada934051f2c266f21b85e408235f0d0f8"
+		},
+		{
+			"path": "plugins/sidebar/herdr-plugin.toml",
+			"blob": "c98e9d5e156323a70dfc64981853d090082c110d"
+		},
+		{
+			"path": "plugins/sidebar/sidebar.mjs",
+			"blob": "70c2ad3487ad8b1528d0f88d26126b9ad25954b4"
+		},
+		{
+			"path": "scripts/run-linux-integration.ts",
+			"blob": "dc508456182f585809586071bc07f88355cbce2c"
+		},
+		{
+			"path": "scripts/tool-docs.ts",
+			"blob": "296b57e3fc14b5b5182162ce7151e0b7fbcae926"
+		},
+		{
+			"path": "scripts/update-tool-docs.ts",
+			"blob": "c43729aaf6855a844623e33587866fc4629bad3b"
+		},
+		{
+			"path": "skills/pi-herdr-agents/SKILL.md",
+			"blob": "a9bb61b9f626bb93644767dab97b26dddecde9a7"
+		},
+		{
+			"path": "test/bench/README.md",
+			"blob": "25e387e271d7e057a7e1a512f3724feeac27b6da"
+		},
+		{
+			"path": "test/bench/supervision-bench.mjs",
+			"blob": "374ab9cfb01aade6660f9d043c64183a53285761"
+		},
+		{
+			"path": "test/clean-host-env.ts",
+			"blob": "2747fea10def1ce9d9a553f9fab65b94b12ff300"
+		},
+		{
+			"path": "test/fake-herdr-socket.ts",
+			"blob": "e528fb03b17f38c1aeaf1c2770756ea52ea95f7a"
+		},
+		{
+			"path": "test/fixtures/tool-schema/current.json",
+			"blob": "7720f5698f352b4ff909cadc8b09aa32ebe9dfd5"
+		},
+		{
+			"path": "test/fixtures/tool-schema/released.json",
+			"blob": "7720f5698f352b4ff909cadc8b09aa32ebe9dfd5"
+		},
+		{
+			"path": "test/helpers/mock-extension-api.ts",
+			"blob": "6c91b92038f04c0ea791acff71aa18f36fe25699"
+		},
+		{
+			"path": "test/helpers/process-cleanup.ts",
+			"blob": "b85f35965a9b77559525f95fcc12e1f4e3ff6341"
+		},
+		{
+			"path": "test/helpers/tool-schema-capture.ts",
+			"blob": "2ed09794edd8ff7a61579944171f4fecad72d525"
+		},
+		{
+			"path": "test/helpers/tool-schema-compat.ts",
+			"blob": "c37439cc170a0d50e6c9ed5cd4ec707fcdaa662d"
+		},
+		{
+			"path": "test/helpers/windows-scope.ts",
+			"blob": "d4ab058dd30825e9be6a32126cd2d22ea9229738"
+		},
+		{
+			"path": "test/integration/agents/test-coordinator.md",
+			"blob": "e6bca5ce2e7a74d3aa01bb19daaabb9841101542"
+		},
+		{
+			"path": "test/integration/agents/test-echo.md",
+			"blob": "9066a5b02abdeb4302cf0ec3d28419a49286e6b3"
+		},
+		{
+			"path": "test/integration/agents/test-interactive.md",
+			"blob": "43392f1ba72e8022ef77fdb2d6e7604154b9673f"
+		},
+		{
+			"path": "test/integration/agents/test-ping.md",
+			"blob": "9c992054fabaa16d2d709755fa7b1315259fcff7"
+		},
+		{
+			"path": "test/integration/agents/test-restricted.md",
+			"blob": "9ec34d9fd95798880c6773f46e83c143b23c7f12"
+		},
+		{
+			"path": "test/integration/audit-stop-shutdown-fixture.ts",
+			"blob": "2c07030bbfb2df50354cc59bf4df174e1726d758"
+		},
+		{
+			"path": "test/integration/audit-stop.test.ts",
+			"blob": "093164b226687de6bf7ca40b5db07d030e754260"
+		},
+		{
+			"path": "test/integration/core-controls.test.ts",
+			"blob": "77684d184254e8cc846af920f64442b84b80671f"
+		},
+		{
+			"path": "test/integration/core-lifecycle.test.ts",
+			"blob": "5d332eae054ba4fb9afaa0ef184c1b5def40b2cb"
+		},
+		{
+			"path": "test/integration/core-parent.ts",
+			"blob": "c8304fe8ac64a0581a0971ed405efc358ba7561b"
+		},
+		{
+			"path": "test/integration/fake-provider.ts",
+			"blob": "6e2cb33d14ddbba1e606995947f908e30f8c4562"
+		},
+		{
+			"path": "test/integration/hang-advisory.test.ts",
+			"blob": "a1404f677dadc94d1249f7b826bcb7fd8829149f"
+		},
+		{
+			"path": "test/integration/harness-conformance.test.ts",
+			"blob": "9115b939e09fb105eac3ec3ef04a966ecd18212a"
+		},
+		{
+			"path": "test/integration/harness.ts",
+			"blob": "2328d8f89b670b20a0802040fce1842283fa0938"
+		},
+		{
+			"path": "test/integration/herdr-core-lab.ts",
+			"blob": "73286103daae0dd9894d1d438047288e9fa63783"
+		},
+		{
+			"path": "test/integration/herdr-core.test.ts",
+			"blob": "4949efbb4021fb8969f7824507b37048b7b6e4f0"
+		},
+		{
+			"path": "test/integration/herdr-lab.ts",
+			"blob": "d741b7ec0f5a43dcca1dd809bb0f28a4e4361252"
+		},
+		{
+			"path": "test/integration/mux-surface.test.ts",
+			"blob": "8884f6406c9fdb88e32ead20e1d5df7b7610f952"
+		},
+		{
+			"path": "test/integration/persistent-specialist.test.ts",
+			"blob": "7c641f6a702caa5b3b0415c78bdde51c5aafa7c4"
+		},
+		{
+			"path": "test/integration/placement.test.ts",
+			"blob": "79127c10be15642fd5d7e5f7baa74e01f12bdb4c"
+		},
+		{
+			"path": "test/integration/sidebar-fixture.ts",
+			"blob": "f0372da21cae759efa4c38999f321a7d04d66ddb"
+		},
+		{
+			"path": "test/integration/sidebar-lifecycle.test.ts",
+			"blob": "8858a19501977f0b330410b76de1b801c3551380"
+		},
+		{
+			"path": "test/integration/sidebar.test.ts",
+			"blob": "02bd02c214a89d8752d697c17bf3918c42450c48"
+		},
+		{
+			"path": "test/integration/subagent-cancel.test.ts",
+			"blob": "229d88009442c9650c57fcb9631073304c0ae9da"
+		},
+		{
+			"path": "test/integration/subagent-lifecycle.test.ts",
+			"blob": "b63fb90d029e10702dc89afe1c4942ef5801f4c5"
+		},
+		{
+			"path": "test/integration/supervision.test.ts",
+			"blob": "92bada81abccd38d6a1265e01d67e16405221169"
+		},
+		{
+			"path": "test/integration/surface-conformance.test.ts",
+			"blob": "99b7e84cd1f91b2d440cdba494705f2844e4bab0"
+		},
+		{
+			"path": "test/isolated-agent-dir.ts",
+			"blob": "528b41533c25d781a5d8d389a58df85282d9c7f7"
+		},
+		{
+			"path": "test/launch.test.ts",
+			"blob": "e738776d8ed20a311e576adb05b210298ce82e5d"
+		},
+		{
+			"path": "test/maestro/accept-check.test.ts",
+			"blob": "be405664c59b4724e89a3105deb29f5498929e61"
+		},
+		{
+			"path": "test/maestro/accept-recheck.test.ts",
+			"blob": "364e3d90cde088d8964de1d9fc058740a666dea1"
+		},
+		{
+			"path": "test/maestro/accept-shutdown.test.ts",
+			"blob": "47b34836b10aaf369f77204995c1f3e7d523d1d2"
+		},
+		{
+			"path": "test/maestro/async-io.test.ts",
+			"blob": "6f2cb21dd6c72601698c6718857a09ff779345ca"
+		},
+		{
+			"path": "test/maestro/audit-discovery.test.ts",
+			"blob": "efa9182c01446d32c91d788699c97e8f9d5498c4"
+		},
+		{
+			"path": "test/maestro/audit-fork.test.ts",
+			"blob": "c76e16089245aa0d0254bd3ed723e7aa40f43156"
+		},
+		{
+			"path": "test/maestro/audit-git-environment.test.ts",
+			"blob": "591c39c188789f4fd388e7a985657a568430369a"
+		},
+		{
+			"path": "test/maestro/audit-herdr-dispatch.test.ts",
+			"blob": "424152df1f0330dfe96030cae6747b5df616aab4"
+		},
+		{
+			"path": "test/maestro/audit-ownership.test.ts",
+			"blob": "ff8e9df065b58dec3a8e7845c829f088c530a60c"
+		},
+		{
+			"path": "test/maestro/audit-persistent.test.ts",
+			"blob": "728d2b6b94b459b6a3696decda02f7f6a73b9861"
+		},
+		{
+			"path": "test/maestro/audit-reload.test.ts",
+			"blob": "660c026f28e81093fce523a59bdddabafb55942e"
+		},
+		{
+			"path": "test/maestro/audit-stop-notices.test.ts",
+			"blob": "68464261d662d65b6841a59537055fdb79f79898"
+		},
+		{
+			"path": "test/maestro/audit-uncertain-retry.test.ts",
+			"blob": "5bcc39fe1cb2aa46c6e52f717fb9cd5c2f097f8e"
+		},
+		{
+			"path": "test/maestro/core-lab.test.ts",
+			"blob": "a3bec9d31f85a401b60daf626c53ab01e2f5235b"
+		},
+		{
+			"path": "test/maestro/core-parent.test.ts",
+			"blob": "842d01e0340582ca9937e42c5a87e41efcbf2f3d"
+		},
+		{
+			"path": "test/maestro/core-roles-config.test.ts",
+			"blob": "921c4939ceaa446e207b1b625eccaefe33659f2a"
+		},
+		{
+			"path": "test/maestro/deadline.test.ts",
+			"blob": "bac3d73bd8edfd005ca1531c9d6130610aeb95b2"
+		},
+		{
+			"path": "test/maestro/declared-skills.test.ts",
+			"blob": "15fd9aa209e83c642484b9c44796accec670db52"
+		},
+		{
+			"path": "test/maestro/deferred-tools.test.ts",
+			"blob": "a623d7a95ac50dbdbfcc61d31de90c23e82f26af"
+		},
+		{
+			"path": "test/maestro/delegated-marker.test.ts",
+			"blob": "be2afcda2687abac85f1502f95f2d742bac43b75"
+		},
+		{
+			"path": "test/maestro/delegation-depth.test.ts",
+			"blob": "64008b5016f25f1268ac8949ec30a65f3996956c"
+		},
+		{
+			"path": "test/maestro/dependency-rule.test.ts",
+			"blob": "27edb2c762f4d377b1662434c071edf944355b26"
+		},
+		{
+			"path": "test/maestro/fake-harness-adapter.test.ts",
+			"blob": "416d3b07bcd3188503928d037bd96afe846a04e6"
+		},
+		{
+			"path": "test/maestro/fake-surface-provider.test.ts",
+			"blob": "00dd32f620eb594688cb12d0809e87cee2748f5a"
+		},
+		{
+			"path": "test/maestro/git-handoff-async.test.ts",
+			"blob": "c73db0e03612dbc8394be2f4bbda5f1820a17bf2"
+		},
+		{
+			"path": "test/maestro/harness-adapter.conformance.ts",
+			"blob": "e18f806ac521b52dbb01eb1f345a6474271d0d0e"
+		},
+		{
+			"path": "test/maestro/herdr-available.test.ts",
+			"blob": "3f24458a4ef48852c58ea161dffe0fc426ebc900"
+		},
+		{
+			"path": "test/maestro/herdr-cli.test.ts",
+			"blob": "67d80cca078ba7d03a988b98ea42033df745968b"
+		},
+		{
+			"path": "test/maestro/herdr-core-execution.test.ts",
+			"blob": "fab053df7cd0a63bb6bf7f97ae7365214226e95d"
+		},
+		{
+			"path": "test/maestro/herdr-lab.test.ts",
+			"blob": "f138e7422feeceed1f0be96cc85a24afe490c7a3"
+		},
+		{
+			"path": "test/maestro/herdr-placement-async.test.ts",
+			"blob": "64557ad138a171048d7b1a01ab97e2df8d8e9aa5"
+		},
+		{
+			"path": "test/maestro/herdr-socket.test.ts",
+			"blob": "cff29867ccdc65499b3421b132adff567a99b042"
+		},
+		{
+			"path": "test/maestro/herdr-surface-provider.test.ts",
+			"blob": "0889007ff6f1c03b0b1bb452accfc1c8bf7f4bf8"
+		},
+		{
+			"path": "test/maestro/linux-integration-driver.test.ts",
+			"blob": "c07534ba280e5412270114bd70e2531981e57792"
+		},
+		{
+			"path": "test/maestro/opened-primary-workspace.test.ts",
+			"blob": "a6c336246c7614dcfd9179173e48207e9c1834de"
+		},
+		{
+			"path": "test/maestro/pi-harness-adapter.test.ts",
+			"blob": "004f2fc004700ce88a4b188449133a90be9d7a94"
+		},
+		{
+			"path": "test/maestro/pi-readiness-windows.test.ts",
+			"blob": "7b8636e67af44ccb1b9555c86b091f3c352e9218"
+		},
+		{
+			"path": "test/maestro/pi-run-session.test.ts",
+			"blob": "9fd1de503ed173fa323fadbc0462e369330ed7a2"
+		},
+		{
+			"path": "test/maestro/pr110-persistent-regressions.test.ts",
+			"blob": "d175a49d71f247c2ac1b6a25c571e6ee078df1a2"
+		},
+		{
+			"path": "test/maestro/process-cleanup.test.ts",
+			"blob": "cac20cafe03dacd02e7e07f9df7889276c25f341"
+		},
+		{
+			"path": "test/maestro/process-environment.test.ts",
+			"blob": "1a808fde26cc91c6d1ffc83bdcafa3688445aabe"
+		},
+		{
+			"path": "test/maestro/process-identity.test.ts",
+			"blob": "e236ded0281ead12de41f56ea5170be6549c69ee"
+		},
+		{
+			"path": "test/maestro/process-tree.test.ts",
+			"blob": "89088b9a542c5ce4a5d582c1763aa100d1fa7a88"
+		},
+		{
+			"path": "test/maestro/realpath-without-opening.test.ts",
+			"blob": "171038784e88b6bcb46921289e3e3798115b1ec0"
+		},
+		{
+			"path": "test/maestro/run-session-cancel.test.ts",
+			"blob": "ee24d50a22989bdf217d9af8b0975e9ff8686bf7"
+		},
+		{
+			"path": "test/maestro/run-session.test.ts",
+			"blob": "38516c3d6c4863f9eb7aac9b6fac8807ebc9b28f"
+		},
+		{
+			"path": "test/maestro/script-launch.test.ts",
+			"blob": "d363607cdbd5bb4a7965031889808da7e00a0191"
+		},
+		{
+			"path": "test/maestro/sidebar-fixture-ownership.test.ts",
+			"blob": "f6c65a2bebdf8bf87c331a2fc6267b7f94814a6e"
+		},
+		{
+			"path": "test/maestro/socket-path.test.ts",
+			"blob": "2255a353397bd67d1afd8e5a6c4d15b0b913f49c"
+		},
+		{
+			"path": "test/maestro/specialist-notice.test.ts",
+			"blob": "d23acf995c32158ecd1bbb26c46fa04444a962ea"
+		},
+		{
+			"path": "test/maestro/supervision-wake.test.ts",
+			"blob": "fe0be84031994a69df13005b1fad561109c6e34a"
+		},
+		{
+			"path": "test/maestro/surface-provider.conformance.ts",
+			"blob": "0c6d6c40aaf7bfe23b71c7352fbbce1638811ab8"
+		},
+		{
+			"path": "test/maestro/task-model-approval.test.ts",
+			"blob": "76ada69c04ba8e73c94128e74cd8fc9c197f007a"
+		},
+		{
+			"path": "test/maestro/task-model-init.test.ts",
+			"blob": "fbc6af1b4da2817bc66d334bedd88885dcfdef3b"
+		},
+		{
+			"path": "test/maestro/task-thinking-wiring.test.ts",
+			"blob": "2e457a56e925513c226846fe4b9b663c4289e1b0"
+		},
+		{
+			"path": "test/maestro/task-thinking.test.ts",
+			"blob": "49a11574ab73030035e51fe286727b600c0bb28a"
+		},
+		{
+			"path": "test/maestro/test-environment.test.ts",
+			"blob": "78c92f0b5527464a9aaa130a19e7d7a2b94067ff"
+		},
+		{
+			"path": "test/maestro/tool-schema.test.ts",
+			"blob": "82d206031d5e90cad878fc33f47ddd7c20875cfb"
+		},
+		{
+			"path": "test/maestro/windows-support-scope.test.ts",
+			"blob": "44e85e1f54c7a29585127116a15452450ce75182"
+		},
+		{
+			"path": "test/maestro/worktree-operations.test.ts",
+			"blob": "5dfa1796a14bd89afc41e64c3977164ed9c94422"
+		},
+		{
+			"path": "test/package-manifest.test.js",
+			"blob": "68a9296837e53bbda3e1871a8a798ffdcaeecfd8"
+		},
+		{
+			"path": "test/release-workflow.test.ts",
+			"blob": "11834cc1d3b672f596258f56105153111dc1768f"
+		},
+		{
+			"path": "test/runtime-routing.test.ts",
+			"blob": "a9c048a4a118bf73fc97d7c517ee27771d3cd0e7"
+		},
+		{
+			"path": "test/sidebar-plugin.test.js",
+			"blob": "061353dca0bc0c56957d7e4057aff99417ab9f51"
+		},
+		{
+			"path": "test/socket-path.ts",
+			"blob": "94e5c9b542c52cfd1988d23eca5a17df9c5b03be"
+		},
+		{
+			"path": "test/system-prompt-mode.test.ts",
+			"blob": "51f0bd388996c600d7e8747384c94005c1f83067"
+		},
+		{
+			"path": "test/test.ts",
+			"blob": "74c72b170285ca317aa81c39529285d06297fdd7"
+		},
+		{
+			"path": "test/verify-lab-guards.test.ts",
+			"blob": "69c79f99ac273581f6fa44907feabcad5dc0817a"
+		},
+		{
+			"path": "test/worktree-cleanup-fixture.ts",
+			"blob": "5f5bc734a3775ba1b8edfc7d3dad81bd19abc635"
+		},
+		{
+			"path": "test/worktree-cleanup.test.ts",
+			"blob": "ccf284aed7b1be82abcdff246c59d8e3ef48ab02"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/effect/index.ts",
+			"blob": "37247862ce43dc39066c14e1c143688307eacfe2"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/effect/rules/no-service-constructor-imports.ts",
+			"blob": "55cefb7e7b4c8e0330ccf66ab71096a3976e1f18"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/index.ts",
+			"blob": "20cfb0966421bcf718ba7eebd1260a0e6ea4b361"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-chained-type-assertions.ts",
+			"blob": "eabbd91c8ad85461dcc7a5f6e14053619d287edd"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-conditional-empty-object-spread.ts",
+			"blob": "ae7248d36e54851b67ad1f5d78813bf09ac3dd6a"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-known-value-widening.ts",
+			"blob": "8dc5013f88d9f1012dfe3445bfbdf5dae787d992"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-module-mocking.ts",
+			"blob": "d803730669e2c22551d235bbf82149cc2666e89d"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-object-parameters.ts",
+			"blob": "4b25bbf916de0b4127fbfddd68e8bd275d15b0b8"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-reflect-apply.ts",
+			"blob": "1f5469f032d30c3dff36fa19b27181f00df79e3e"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-reflect-get.ts",
+			"blob": "c8169dfed152fc9a66534aaf6530790dd4dd268f"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-runtime-typeof.ts",
+			"blob": "6a25c2475d9a49c2145408b20892a7db2b7129c4"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-shape-in-symbol-names.ts",
+			"blob": "3ad2fb6c1c3e76e3c254647eba5b53d2d3b26543"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-unknown-parameters.ts",
+			"blob": "50b2eef80dbc3d3a9fe2d7144ff259f8f9bc06a2"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-unknown-returns.ts",
+			"blob": "6841f54e0d0d61aea2a79ccf197881ae20473eff"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-unknown-type-aliases.ts",
+			"blob": "4c18bae66ee02c635ae0fe61dafdcff14c0461bb"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-unsafe-dictionary-type.ts",
+			"blob": "5e0be15d3f12065452eb55eb9e8da96d644ea75b"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/no-widen-then-assert.ts",
+			"blob": "b6553f06361e85b104163af15a1b3a489943649f"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/rules/require-safety-comment-for-type-assertion.ts",
+			"blob": "d543106a48f72c7b3f3ab8fdef2db488d65c4daa"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/shared/dictionary-types.ts",
+			"blob": "47eda24f964885b5ad46960bafb6d38ffed9a0bc"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/shared/lexical-type-parameters.ts",
+			"blob": "ced1f2e64fb95f69e2386b6e8250fff80300b63a"
+		},
+		{
+			"path": "tools/oxlint/anti-slop/shared/reflect-method.ts",
+			"blob": "cfd3a17687788fb3e5d03a2223fcaa07b61b115b"
+		},
+		{
+			"path": "tsconfig.json",
+			"blob": "7fe8cdd3781d82caf2c7b6e4888015422db265bd"
+		}
+	]
+}

@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+	mkdirSync,
+	mkdtempSync,
+	readFileSync,
+	rmSync,
+	writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -11,6 +17,91 @@ import {
 	readManifest,
 	type CopyManifest,
 } from "../scripts/check-copy-fidelity.ts";
+
+test("rejects redirected mapping into unlisted changed logic", (t) => {
+	const root = mkdtempSync(join(tmpdir(), "maestro-redirect-"));
+	t.after(() => rmSync(root, { recursive: true, force: true }));
+	mkdirSync(join(root, "maestro"));
+	mkdirSync(join(root, "provenance"));
+	writeFileSync(
+		join(root, "provenance/inventory.json"),
+		JSON.stringify({ production: [{ source: "maestro/a.ts", fate: "move" }] }),
+	);
+	const original = 'import value from "./b.ts";\n';
+	writeFileSync(
+		join(root, "provenance/upstream-tree.json"),
+		JSON.stringify({
+			copy_sha: "a".repeat(40),
+			files: [{ path: "maestro/a.ts", blob: gitBlob(Buffer.from(original)) }],
+		}),
+	);
+	writeFileSync(join(root, "original.ts"), original);
+	writeFileSync(
+		join(root, "maestro/a.ts"),
+		original.replace("./b.ts", "./b-evil.ts"),
+	);
+	writeFileSync(join(root, "maestro/b-evil.ts"), 'export default "evil";\n');
+	assert.throws(
+		() =>
+			checkCopyFidelity(
+				{
+					base_main_sha: "a".repeat(40),
+					copy_sha: "a".repeat(40),
+					mappings: [{ from: "./b.ts", to: "./b-evil.ts" }],
+					entries: [
+						{
+							kind: "copy",
+							source: "maestro/a.ts",
+							destination: "maestro/a.ts",
+							archive: "original.ts",
+							blob: gitBlob(Buffer.from(original)),
+						},
+					],
+				},
+				root,
+			),
+		/Unlisted destination/,
+	);
+});
+
+test("rejects relabelled upstream module as new despite changed content", (t) => {
+	const root = mkdtempSync(join(tmpdir(), "maestro-relabel-"));
+	t.after(() => rmSync(root, { recursive: true, force: true }));
+	mkdirSync(join(root, "maestro"));
+	mkdirSync(join(root, "provenance"));
+	writeFileSync(join(root, "maestro/a.ts"), 'export default "evil";\n');
+	writeFileSync(
+		join(root, "provenance/inventory.json"),
+		JSON.stringify({ production: [{ source: "maestro/a.ts", fate: "move" }] }),
+	);
+	writeFileSync(
+		join(root, "provenance/upstream-tree.json"),
+		JSON.stringify({
+			copy_sha: "a".repeat(40),
+			files: [
+				{
+					path: "maestro/a.ts",
+					blob: gitBlob(Buffer.from('export default "original";\n')),
+				},
+			],
+		}),
+	);
+	assert.throws(
+		() =>
+			checkCopyFidelity(
+				{
+					base_main_sha: "a".repeat(40),
+					copy_sha: "a".repeat(40),
+					mappings: [],
+					entries: [
+						{ kind: "new", destination: "maestro/a.ts", reason: "facade" },
+					],
+				},
+				root,
+			),
+		/upstream origin/,
+	);
+});
 
 const source = `// Keep ../old.ts exactly, including whitespace.
 import value from "../old.ts";
@@ -23,10 +114,10 @@ const text = "../old.ts";
 const literalTemplate = () => import(\`../old.ts\`);
 const computed = () => import(\`../\${part}.ts\`);
 `;
-const mappings = [{ from: "../old.ts", to: "@nubl/maestro/core/old" }];
+const mappings = [{ from: "../old.ts", to: "./destination.ts" }];
 const expected = source.replace(
 	/(from |import\()["'`]\.\.\/old\.ts["'`]/g,
-	(match) => match.replace("../old.ts", "@nubl/maestro/core/old"),
+	(match) => match.replace("../old.ts", "./destination.ts"),
 );
 
 interface FidelityFixture {
@@ -37,6 +128,18 @@ interface FidelityFixture {
 
 function fixture(): FidelityFixture {
 	const root = mkdtempSync(join(tmpdir(), "maestro-fidelity-"));
+	mkdirSync(join(root, "provenance"));
+	writeFileSync(
+		join(root, "provenance/inventory.json"),
+		JSON.stringify({ production: [] }),
+	);
+	writeFileSync(
+		join(root, "provenance/upstream-tree.json"),
+		JSON.stringify({
+			copy_sha: "a".repeat(40),
+			files: [{ path: "original.ts", blob: gitBlob(Buffer.from(source)) }],
+		}),
+	);
 	writeFileSync(join(root, "original.ts"), source);
 	writeFileSync(join(root, "destination.ts"), expected);
 	return {
@@ -44,7 +147,7 @@ function fixture(): FidelityFixture {
 		manifest: {
 			base_main_sha: "a".repeat(40),
 			copy_sha: "a".repeat(40),
-			mappings,
+			mappings: mappings.map((mapping) => ({ ...mapping })),
 			entries: [
 				{
 					kind: "copy",
@@ -64,7 +167,7 @@ test("normalizes only static, re-export, import-type and literal dynamic specifi
 	assert(expected.includes('const text = "../old.ts"'));
 	assert(expected.includes("// Keep ../old.ts exactly"));
 	assert(expected.includes("import(`../${part}.ts`)"));
-	assert(expected.includes("import(`@nubl/maestro/core/old`)"));
+	assert(expected.includes("import(`./destination.ts`)"));
 	assert.equal(normalizeImports(source, "original.ts", []), source);
 });
 
@@ -72,7 +175,7 @@ test("declaration imports and CRLF/unicode text stay byte-preserving", () => {
 	const text = '// café\r\nexport type T = import("../old.ts").T;\r\n';
 	assert.equal(
 		normalizeImports(text, "entry.d.ts", mappings),
-		text.replace("../old.ts", "@nubl/maestro/core/old"),
+		text.replace("../old.ts", "./destination.ts"),
 	);
 });
 
@@ -80,6 +183,14 @@ test("non-code assets are compared as bytes, never normalized", (t) => {
 	const f = fixture();
 	t.after(f.dispose);
 	const bytes = Buffer.from([0, 255, 13, 10, 128]);
+	f.manifest.mappings = [];
+	writeFileSync(
+		join(f.root, "provenance/upstream-tree.json"),
+		JSON.stringify({
+			copy_sha: f.manifest.copy_sha,
+			files: [{ path: "source.bin", blob: gitBlob(bytes) }],
+		}),
+	);
 	writeFileSync(join(f.root, "source.bin"), bytes);
 	writeFileSync(join(f.root, "asset.bin"), bytes);
 	f.manifest.entries = [
@@ -123,7 +234,7 @@ for (const [name, change] of [
 		"ordinary literal",
 		expected.replace('const text = "../old.ts"', 'const text = "rewritten"'),
 	],
-	["unlisted specifier", expected.replace("@nubl/maestro/core/old", "other")],
+	["unlisted specifier", expected.replace("./destination.ts", "other")],
 	[
 		"computed import",
 		expected.replace("import(`../${part}.ts`)", "import(`other`)"),
@@ -157,6 +268,7 @@ test("rejects missing files, unpinned archives, duplicate mappings and invalid s
 test("explicit new-file entries require a file and a reason", (t) => {
 	const f = fixture();
 	t.after(f.dispose);
+	f.manifest.mappings = [];
 	f.manifest.entries = [
 		{ kind: "new", destination: "destination.ts", reason: "M1 fixture facade" },
 	];
@@ -179,6 +291,56 @@ test("explicit new-file entries require a file and a reason", (t) => {
 		() => checkCopyFidelity(f.manifest, f.root),
 		/Duplicate destination/,
 	);
+});
+
+test("rejects unused mappings and mappings to new rather than copied files", (t) => {
+	const f = fixture();
+	t.after(f.dispose);
+	f.manifest.mappings.push({ from: "unused", to: "./destination.ts" });
+	assert.throws(
+		() => checkCopyFidelity(f.manifest, f.root),
+		/Unused import mapping/,
+	);
+	f.manifest.mappings = [{ from: "../old.ts", to: "./facade.ts" }];
+	writeFileSync(join(f.root, "facade.ts"), "export {};");
+	f.manifest.entries.push({
+		kind: "new",
+		destination: "facade.ts",
+		reason: "fixture",
+	});
+	assert.throws(
+		() => checkCopyFidelity(f.manifest, f.root),
+		/not a copy destination/,
+	);
+});
+
+test("rejects renamed new files with upstream bytes and unclassified splits", (t) => {
+	const f = fixture();
+	t.after(f.dispose);
+	f.manifest.mappings = [];
+	writeFileSync(join(f.root, "destination.ts"), source);
+	f.manifest.entries = [
+		{ kind: "new", destination: "destination.ts", reason: "renamed" },
+	];
+	assert.throws(() => checkCopyFidelity(f.manifest, f.root), /upstream origin/);
+	const entry = {
+		kind: "copy",
+		source: "original.ts",
+		destination: "destination.ts",
+		blob: gitBlob(Buffer.from(source)),
+		archive: "original.ts",
+	} as const;
+	f.manifest.entries = [entry];
+	writeFileSync(
+		join(f.root, "provenance/inventory.json"),
+		JSON.stringify({ production: [{ source: "original.ts", fate: "split" }] }),
+	);
+	assert.throws(
+		() => checkCopyFidelity(f.manifest, f.root),
+		/split classification/,
+	);
+	f.manifest.entries = [{ ...entry, classification: "split" }];
+	assert.equal(checkCopyFidelity(f.manifest, f.root), 1);
 });
 
 test("local git source and archived blobs must agree", (t) => {
@@ -209,6 +371,13 @@ test("local git source and archived blobs must agree", (t) => {
 		"fixture",
 	);
 	f.manifest.copy_sha = git("rev-parse", "HEAD");
+	writeFileSync(
+		join(f.root, "provenance/upstream-tree.json"),
+		JSON.stringify({
+			copy_sha: f.manifest.copy_sha,
+			files: [{ path: "original.ts", blob: gitBlob(Buffer.from(source)) }],
+		}),
+	);
 	assert.equal(checkCopyFidelity(f.manifest, f.root, f.root), 1);
 	writeFileSync(join(f.root, "original.ts"), "tampered");
 	assert.throws(
