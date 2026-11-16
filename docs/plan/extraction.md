@@ -1,6 +1,6 @@
 # Step 1: mechanically extract @nubl/maestro
 
-**Status: M4 Pi tools, schemas, serializer and the `createPiExtension` factory extracted on top of M3, with copy, identity (ledger complete), coverage, contract-fixture and packed-JS gates. M6 stable exports/parity remain; the root placeholder remains until M6.**
+**Status: M6 stable exports and local H2 parity done on the exact `0.1.0` candidate (M1–M4 on main). Release, H2 finalization, H3 and M5 remain; none is authorized by this document. See [release readiness](../release-readiness.md).**
 
 Extract the existing engine and Pi tool contract, not a redesigned engine. Keep
 Herdr execution providers and terminal presentation in `pi-herdr-agents`, supplied
@@ -13,7 +13,7 @@ incompatible tool definitions through the stable entry point.
 | Evidence | Pinned source |
 | --- | --- |
 | Inventory baseline and line citations unless marked A0 | `giuseppecrj/pi-herdr-agents@e020a148bbf9424f4e92635ecd9d138c94982292` |
-| Current extraction pin (advance at every M/H step below) | `giuseppecrj/pi-herdr-agents@4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5` (existing `origin/main`, M3; unchanged at M4); copy source `27dee407403906d5bac359702e21a04309be2f64` (local H1 `h1/composition-hooks`) |
+| Current extraction pin (advance at every M/H step below) | `giuseppecrj/pi-herdr-agents@4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5` (existing `origin/main`, M3; unchanged at M4 and M6, confirmed by `git ls-remote` at M6); copy source `fd9c5d567430f72660e8505eb132c2a64709bfed` (local H1 `h1/composition-hooks`; M3/M4 used its parent `27dee40`) |
 | Experimental worker additions, marked **A0** | `giuseppecrj/pi-herdr-agents@f9e6cc5367dd203e7d32e6b4059aa389f3003a8d` (`exp/a0-worker-surface`) |
 | Destination | `nublai/maestro`, package `@nubl/maestro`, currently `0.0.1` placeholder |
 
@@ -857,6 +857,64 @@ The M4 row did not specify several things, which M4 resolved:
   `dependency-rule` encode host scripts and layout; Maestro has its own guard
   and `check:boundaries`. `system-prompt-mode` is a self-contained simulation
   with no package import. All three stay upstream with reasons.
+
+No fetch, push, PR, tag or release; no subagents.
+
+### M6 re-baseline
+
+At the start of M6, local `origin/main` and a read-only `git ls-remote` both
+resolved to `4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5`. The drift range is
+empty, so the ledger closes with no entries.
+
+H1 gained one local, unpushed commit, `fd9c5d567430f72660e8505eb132c2a64709bfed`.
+It exports `SubagentInterruptDetails`, `SubagentSendDetails` and
+`SubagentStopDetails`, the interfaces `createPiExtension`'s inferred return
+type names. The change is type-only, and H1's gates passed.
+
+M6 recopied from that commit with `scripts/refresh-copies.ts` and deleted the
+declaration-only build overlay (M4's TS4058 workaround).
+
+### M6 implementation record
+
+- **Exports.** 95 finite exports, none experimental. The placeholder
+  `index.js`/`version` is removed, so `.` equals `./engine`. The version is
+  `0.1.0`; this is no tag or publish.
+  - `./pi/child` is a facade over the protocol module: the default child plus
+    the named `createChildExtension` the host's child wrapper needs.
+  - `./pi/extension` is `createPiExtension` as a callable default.
+  - `./pi/subagents/index` re-exports the terminal entry's helpers, with a
+    default that delegates to the factory.
+  - `./adapters/pi/child/{protocol,accept-check,declared-skills,done-nudge}`
+    complete the internal-compat family the retained host imports.
+  - The three facades are `new` files off upstream paths.
+  - `dist/provenance.json` carries `base_main_sha` and `copy_sha` for the H2
+    refusal gate.
+- **Counterparts.** `test/pi-contract-counterparts.test.ts` gives package-side
+  counterparts for the four upstream-only cases the M4 review named:
+  unconfirmed cancel, fallback-owner cancel, the executable Resume line and the
+  U+2028 status label. `provenance/m6/counterparts.json` says what H3 may
+  split and what must stay upstream. Each counterpart fails under a targeted
+  mutation.
+- **Local H2.** Branch `h2/consume-maestro` from H1, never pushed.
+  - It installs the exact candidate tarball as a `file:` dependency.
+  - It redirects 380 imports in 97 retained files to package subpaths
+    (`scripts/redirect-host-imports.ts`) and loads one factory.
+  - It keeps the legacy child forwarder and config root.
+  - Upstream format, docs, lint, typecheck, `npm test` and `npm pack
+    --dry-run` pass, as do the real-Pi `/reload` and pin probes.
+  - `test:integration` passes in the isolated lab: 96 pass, 0 fail, and 11
+    Core cases skip because no `herdr-core` binary is here, which is also why
+    `test:integration:core` cannot run.
+  - No local moved module is loaded anywhere in the suite.
+- **Coverage.** The combined original-population gate covers all 94 files and
+  passes every floor. Means, with the pinned floor in brackets:
+  - core 98.74% (98.05%);
+  - runtime 99.35% (98.94%);
+  - surfaces 92.90% (91.19%).
+
+  It merges raw V8 itself. Node's merged summary under-reports this
+  multi-process suite even on the pristine H1 tree, so it is not comparable.
+  Method, runs and limits: [`provenance/m6/README.md`](../../provenance/m6/README.md).
 
 No fetch, push, PR, tag or release; no subagents.
 

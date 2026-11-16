@@ -1,0 +1,154 @@
+{
+	"note": "Local M6/H2 evidence index. Reports live in ignored evidence/ (private); hashes identify them. No push, tag or publish.",
+	"candidate": {
+		"file": "nubl-maestro-0.1.0.tgz",
+		"sha256": "326553172ca063ec2407f2e458592f784419acc4b6fa16ba766f611a71f90f6b",
+		"maestro_commit": "see docs/plan/extraction.md M6 record",
+		"base_main_sha": "4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5",
+		"copy_sha": "fd9c5d567430f72660e8505eb132c2a64709bfed"
+	},
+	"runs": [
+		{
+			"id": "h1-unit",
+			"checkout": "h1/composition-hooks fd9c5d5 (before commit, same tree)",
+			"node": "v26.13.0",
+			"command": "npm test",
+			"result": "1779/1780 passed, 1 skipped",
+			"report": "h1-test.log",
+			"sha256": "154d8efe9500b09a23ce4e49e45aab07e87274cfb4cc9b4f4154a387f0c623e4"
+		},
+		{
+			"id": "h2-gates",
+			"checkout": "h2/consume-maestro",
+			"node": "v26.13.1",
+			"commands": [
+				"format:check",
+				"docs:tools:check",
+				"lint",
+				"typecheck",
+				"check:maestro-pin",
+				"npm pack --dry-run"
+			],
+			"result": "all exit 0",
+			"reports": [
+				{
+					"path": "h2f-format:check.log",
+					"sha256": "b6a37b8aefd5ab16dc26081acb3de0dfb8b3d6783495fdb4df461d8ecdcde92d"
+				},
+				{
+					"path": "h2f-docs:tools:check.log",
+					"sha256": "2e2446909e7ccf85d69f998fe41f2738933411973da32594887b6ceb0893d1ec"
+				},
+				{
+					"path": "h2f-lint.log",
+					"sha256": "2fc6e143412ec9bb58e70c8443fbc69ace211974b3f88b605dfbfbbd4ac0975b"
+				},
+				{
+					"path": "h2f-typecheck.log",
+					"sha256": "9f315dce386227580a7b7a87fccb9d82b673032ec342aeb029d2810d3d65805a"
+				},
+				{
+					"path": "h2f-check:maestro-pin.log",
+					"sha256": "a4cd87a0499f42e7a22250e92885f14d5ab83203e0f3a3d32f00d6e5111b26bd"
+				},
+				{
+					"path": "h2f-pack.log",
+					"sha256": "415f989cbff10170f2da93ea94e5c9faa8ebb9666b074222096db80051ace7a8"
+				}
+			]
+		},
+		{
+			"id": "h2-unit-attempt1",
+			"checkout": "h2/consume-maestro",
+			"node": "v26.13.1",
+			"command": "npm test",
+			"result": "1778 passed, 1 failed, 1 skipped: the known upstream timing case test/maestro/opened-primary-workspace.test.ts:211 (derived snapshot budget under full load; also failed once in M1 baseline-final). 5 isolated reruns of that file: 34/34 each.",
+			"report": "h2f-test-attempt1-flake.log",
+			"sha256": "935221472a67e1e644d1aa7cb69c23cb0d98d38350a541c08d1ff1c47919b2f9"
+		},
+		{
+			"id": "h2-unit-attempt2",
+			"checkout": "h2/consume-maestro",
+			"node": "v26.13.1",
+			"command": "npm test",
+			"result": "1779/1780 passed, 1 skipped",
+			"report": "h2f-test-attempt2.log",
+			"sha256": "c396df526a2140512344c9b48cb5681ac61b505a3ba1fe7f2c21701aa733b723"
+		},
+		{
+			"id": "h2-integration-plain",
+			"checkout": "h2/consume-maestro",
+			"command": "npm run test:integration (no lab environment)",
+			"result": "invalid environment: 16 failures asserting HERDR_ENV=1 and a lab Herdr are required; 11 Core skips. Superseded by h2-integration-lab.",
+			"report": "h2-integration.log",
+			"sha256": "bc10f9753221149be8c787a378cdf59aa7513588ae50f8e570b6d1db3c592d07"
+		},
+		{
+			"id": "h2-integration-lab",
+			"checkout": "h2/consume-maestro",
+			"node": "v26.13.1",
+			"command": "scripts/run-linux-integration.ts with the HERDR_CORE_BIN requirement removed (no herdr-core binary here): lab doctor/up, real-parent delegation smoke, then every test/integration suite sequentially inside the isolated lab Herdr; lab down afterwards (no leftovers)",
+			"env": "env -i; HOME, XDG_STATE_HOME and VERIFY_EVIDENCE_ROOT under a private /var/tmp root; PI_TEST_LIVE=0; herdr 0.9.5; pi 1.5.2",
+			"result": "107 tests: 96 passed, 0 failed, 11 skipped (herdr-core and pi are required)",
+			"report": "h2-lab-integration.log",
+			"sha256": "57c3a09efb05201f702690933bd6207f4cbcb7d589a66ef2e1e63b218c125454"
+		},
+		{
+			"id": "h2-integration-core",
+			"checkout": "h2/consume-maestro",
+			"command": "npm run test:integration:core",
+			"result": "11/11 skipped: no herdr-core binary on this machine",
+			"report": "h2-core.log",
+			"sha256": "ff188e0bf02e28992f79653da56c6945863a6b2db185dc02d371e0202e6a474a"
+		},
+		{
+			"id": "h2-host-coverage",
+			"checkout": "h2/consume-maestro",
+			"node": "v26.12.1 (official linux-x64 tarball, SHASUMS256-verified)",
+			"command": "evidence/m6-h2/host-cov.sh: plan \u00a75 flags, all 68 upstream unit entries, isolated HOME/agent dir, NODE_V8_COVERAGE",
+			"result": "1779/1780 passed, 1 skipped; no local moved module loaded",
+			"reports": [
+				{
+					"path": "host.tap",
+					"sha256": "7545f6dba6ce4d9d411d2376ac9d5363e136c6a42b3b8c78b800f9b6a690907f"
+				},
+				{
+					"path": "events.jsonl",
+					"sha256": "caa45119a5513dcda1a886638466bb8e49f31a2bd892073b97bc4fd91cd4684c"
+				},
+				{
+					"path": "exit.txt",
+					"sha256": "dc965aa1c1ed793f0f695e832dc3245de22d0b173d3331711a94afe396508b5e"
+				},
+				{
+					"path": "host-cov.sh",
+					"sha256": "2a0d7c5bce40589817141cbfb20655daeede8be37783dcb5a0b104297e021773"
+				}
+			],
+			"raw_v8_files": 180
+		},
+		{
+			"id": "package-coverage",
+			"checkout": "m6/parity",
+			"node": "v26.12.1",
+			"command": "npm run test:coverage",
+			"result": "1396/1397 passed, 1 skipped; per-file floors pass",
+			"report": "evidence/unit-run-m0QjXM"
+		},
+		{
+			"id": "combined",
+			"command": "scripts/combined-coverage.ts <M1 baseline-isolated raw v8> <baseline url root> <package raw v8> <host raw v8> <h2> <upstream>",
+			"result": "94/94 original files meet their floors; core/runtime/surfaces means exceed both the same-method baseline and the pinned floors",
+			"report": "provenance/m6/combined-coverage.json",
+			"sha256": "9de120cd3b02c9065e1267a59c20e3412cb2691d8055528fa3ff7e50c682079a"
+		},
+		{
+			"id": "node-summary-anomaly",
+			"node": "v26.13.1 and v26.12.1",
+			"command": "pristine H1 full suite with --experimental-test-coverage",
+			"result": "Node's merged summary reports herdr-cli.ts 27.12% (M1 baseline 92.37%) for the unchanged bundled engine, so the merged summary is not comparable across these multi-process runs; the gate merges raw V8 itself",
+			"report": "h1-node26.13.1-summary.tap",
+			"sha256": "00fc8bc2b19498b251685b554b2909e8029587501b4f755b5f50d27e2f69fb74"
+		}
+	]
+}
