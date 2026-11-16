@@ -386,3 +386,32 @@ test("local git source and archived blobs must agree", (t) => {
 	);
 	assert.equal(readFileSync(join(f.root, "destination.ts"), "utf8"), expected);
 });
+
+test("an owned change after H2 must match its recorded blob and keep its pin", (t) => {
+	const f = fixture();
+	t.after(f.dispose);
+	const entry = f.manifest.entries[0];
+	assert(entry.kind === "copy");
+	const fixed = `${expected}// #149 fix\n`;
+	writeFileSync(join(f.root, "destination.ts"), fixed);
+	assert.throws(() => checkCopyFidelity(f.manifest, f.root), /Copy differs/);
+	entry.owned_change = { reason: "#149", blob: gitBlob(Buffer.from(fixed)) };
+	assert.equal(checkCopyFidelity(f.manifest, f.root), 1);
+	// Any further edit is unrecorded, and the pinned original is still verified.
+	writeFileSync(join(f.root, "destination.ts"), `${fixed}// more\n`);
+	assert.throws(
+		() => checkCopyFidelity(f.manifest, f.root),
+		/Unrecorded change/,
+	);
+	writeFileSync(join(f.root, "destination.ts"), fixed);
+	writeFileSync(join(f.root, "original.ts"), `${source}// drift\n`);
+	assert.throws(() => checkCopyFidelity(f.manifest, f.root), /Blob mismatch/);
+	writeFileSync(join(f.root, "original.ts"), source);
+	// A record on an unchanged copy is stale.
+	writeFileSync(join(f.root, "destination.ts"), expected);
+	entry.owned_change = { reason: "#149", blob: gitBlob(Buffer.from(expected)) };
+	assert.throws(
+		() => checkCopyFidelity(f.manifest, f.root),
+		/Stale owned change/,
+	);
+});

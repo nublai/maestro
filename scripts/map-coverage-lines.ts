@@ -71,7 +71,10 @@ if (
 	resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
 	const [upstream, step = "M3"] = process.argv.slice(2);
-	assert(upstream, "Usage: map-coverage-lines.ts <upstream-repository> [step]");
+	assert(
+		upstream,
+		"Usage: map-coverage-lines.ts <upstream-repository> [step | owned]",
+	);
 	const root = fileURLToPath(new URL("../", import.meta.url));
 	const manifestPath = resolve(root, "provenance/coverage-manifest.json");
 	let coverage: {
@@ -101,8 +104,19 @@ if (
 		],
 		["pi-extension/subagents/index.ts", "pi-extension/subagents/extension.ts"],
 	]);
+	// `owned` re-maps files Maestro already owns whose copy records an owned change.
+	const owned = new Set(
+		copies.entries.flatMap((entry) =>
+			entry.kind === "copy" && entry.owned_change ? [entry.source] : [],
+		),
+	);
 	for (const original of coverage.original_files) {
-		if (original.current_owner === "@nubl/maestro") continue;
+		if (
+			step === "owned"
+				? !owned.has(original.source)
+				: original.current_owner === "@nubl/maestro"
+		)
+			continue;
 		const destination =
 			splits.get(original.source) ??
 			copies.entries.find(
@@ -131,9 +145,11 @@ if (
 		original.current_owner = "@nubl/maestro";
 		original.split_line_map = ranges;
 		original.mapping_status =
-			mapped === before.length && after.length === before.length
-				? `${step} whole-file identity copy from the H1 pin; no source lines split or omitted. ${step} per-file gate: scripts/test-unit.ts --coverage.`
-				: `${step} copy from the H1 pin (${destination}); ${mapped}/${before.length} original lines map by indentation-insensitive line diff, ${before.length - mapped} changed or removed upstream after the coverage baseline, ${after.length - mapped} destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.`;
+			step === "owned"
+				? `Copy from the H1 pin (${destination}) with a recorded owned change after H2; ${mapped}/${before.length} original lines map by indentation-insensitive line diff, ${before.length - mapped} changed or removed after the coverage baseline, ${after.length - mapped} destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.`
+				: mapped === before.length && after.length === before.length
+					? `${step} whole-file identity copy from the H1 pin; no source lines split or omitted. ${step} per-file gate: scripts/test-unit.ts --coverage.`
+					: `${step} copy from the H1 pin (${destination}); ${mapped}/${before.length} original lines map by indentation-insensitive line diff, ${before.length - mapped} changed or removed upstream after the coverage baseline, ${after.length - mapped} destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.`;
 		console.log(`${original.source}: ${mapped}/${before.length} mapped`);
 	}
 	writeFileSync(manifestPath, JSON.stringify(coverage, null, "\t") + "\n");
