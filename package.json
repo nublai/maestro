@@ -1,6 +1,6 @@
 {
 	"name": "@nubl/maestro",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "Harness-neutral subagent engine extracted from pi-herdr-agents: the generic run owner, Pi adapters/runtime with explicit host ports, and the Pi tool surface behind createPiExtension.",
 	"license": "MIT",
 	"type": "module",
