@@ -606,72 +606,72 @@
 				},
 				{
 					"source_start": 56,
-					"source_end": 57,
+					"source_end": 58,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
 					"destination_start": 56
 				},
 				{
-					"source_start": 58,
+					"source_start": 59,
 					"source_end": 87,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 59
+					"destination_start": 65
 				},
 				{
 					"source_start": 88,
 					"source_end": 210,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 90
+					"destination_start": 95
 				},
 				{
 					"source_start": 211,
 					"source_end": 274,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 214
+					"destination_start": 219
 				},
 				{
 					"source_start": 275,
 					"source_end": 554,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 279
+					"destination_start": 284
 				},
 				{
 					"source_start": 555,
 					"source_end": 583,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 562
+					"destination_start": 567
 				},
 				{
 					"source_start": 585,
 					"source_end": 592,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 592
+					"destination_start": 597
 				},
 				{
 					"source_start": 597,
 					"source_end": 597,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 602
+					"destination_start": 607
 				},
 				{
 					"source_start": 598,
 					"source_end": 601,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 606
+					"destination_start": 611
 				},
 				{
 					"source_start": 602,
 					"source_end": 629,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 616
+					"destination_start": 621
 				},
 				{
 					"source_start": 630,
 					"source_end": 728,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 673
+					"destination_start": 678
 				}
 			],
-			"mapping_status": "Copy from the H1 pin (maestro/adapters/pi/pi-harness-adapter.ts) with a recorded owned change after H2; 722/728 original lines map by indentation-insensitive line diff, 6 changed or removed after the coverage baseline, 49 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
+			"mapping_status": "Copy from the H1 pin (maestro/adapters/pi/pi-harness-adapter.ts) with a recorded owned change after H2; 722/728 original lines map by indentation-insensitive line diff, 6 changed or removed after the coverage baseline, 54 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
 			"covered_lines": 685,
 			"total_lines": 728,
 			"branch_function_variants": [

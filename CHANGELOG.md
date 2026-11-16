@@ -12,7 +12,12 @@ Fixes for giuseppecrj/pi-herdr-agents#149, where every child failed with a bare
   kept every other key; it now also keeps the file owner-only.
 - A child that exits before its session starts reports its last terminal lines
   (at most 12 lines and 2,000 characters, with credential-shaped values masked)
-  after the exit code, so the parent sees why it failed.
+  after the exit code, so the parent sees why it failed. Masking covers AWS
+  access key IDs (`AKIA`, `ASIA` and the other documented prefixes), 40-character
+  AWS secret keys (including `/` and `+`), JWTs of any length, `Authorization`
+  headers in any case, and the earlier API-key, token, URL and opaque shapes.
+  Rows a terminal wrapped are rejoined and masked again, so a credential split
+  across rows is masked on each one. The terminal read waits at most 3 seconds.
 - Copies may now carry a recorded `owned_change` (the reason and the exact blob):
   after H2 Maestro owns the source, and `check:copy-fidelity` still verifies
   the pinned original and fails on any unrecorded edit.

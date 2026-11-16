@@ -55,7 +55,12 @@ import type { WorktreeOperations } from "../../core/worktree.ts";
 import { shellExitFileFor, waitForCompletion } from "./completion.ts";
 import { acceptLaunchRefusal } from "../../core/accept.ts";
 import { notifyLaunchRefusal } from "../../core/specialist-notice.ts";
-import { EXIT_OUTPUT_SCREEN_LINES, extractExitOutput } from "./exit-output.ts";
+import {
+	EXIT_OUTPUT_READ_TIMEOUT_MS,
+	EXIT_OUTPUT_SCREEN_LINES,
+	extractExitOutput,
+	readWithin,
+} from "./exit-output.ts";
 import {
 	appendPersistentDeliveryLedger,
 	findObservedSessionRuntime,
@@ -656,19 +661,19 @@ export class PiHarnessAdapter implements HarnessAdapter {
 			entries?.some((entry) => entry.type === "message")
 		)
 			return undefined;
-		try {
-			return extractExitOutput(
-				await this.options.surface.readScreen(
+		// The output only explains the failure; a terminal that cannot be read
+		// in time leaves the exit code as the result.
+		const screen = await readWithin(
+			() =>
+				this.options.surface.readScreen(
 					child.surface,
 					EXIT_OUTPUT_SCREEN_LINES,
 				),
-				child.launchScriptFile,
-			);
-		} catch {
-			// The output only explains the failure; an unreadable terminal leaves
-			// the exit code as the result.
-			return undefined;
-		}
+			EXIT_OUTPUT_READ_TIMEOUT_MS,
+		);
+		return screen === undefined
+			? undefined
+			: extractExitOutput(screen, child.launchScriptFile);
 	}
 	private joinWait(
 		wait: CompletionWait,
