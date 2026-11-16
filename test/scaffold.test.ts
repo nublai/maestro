@@ -145,18 +145,28 @@ test("the actual lint CLI rejects module mocking and unsafe assertions in tests"
 	);
 });
 
-test("M4 closes the drift ledger and records the Pi adapter/runtime and tool-surface copies from the H1 pin", () => {
+test("M6 closes the drift ledger and records the Pi adapter/runtime and tool-surface copies from the H1 pin", () => {
 	const copies = readManifest(new URL("provenance/copy-manifest.json", root));
 	const drift = JSON.parse(read("provenance/drift-ledger.json"));
 	const inventory = JSON.parse(read("provenance/inventory.json"));
 	const tests = JSON.parse(read("provenance/test-manifest.json"));
 	assert.equal(drift.status, "closed");
-	assert.equal(drift.step, "M4");
+	assert.equal(drift.step, "M6");
 	assert.equal(copies.base_main_sha, drift.base_main_sha);
 	assert.equal(copies.copy_sha, drift.copy_sha);
-	// The pin did not move in M4: an empty range, so no touching commits.
+	// Main did not move in M4 or M6: an empty range, so no touching commits.
+	// M6 recopies from one more local H1 commit (type-only exports).
 	assert.equal(drift.previous_pin, drift.base_main_sha);
 	assert.deepEqual(drift.touching_commits, []);
+	const m4 = drift.history.find(
+		(entry: { step: string }) => entry.step === "M4",
+	);
+	assert.equal(m4.status, "closed");
+	assert.notEqual(m4.copy_sha, drift.copy_sha);
+	assert.equal(
+		drift.copy_source_commits.at(-1).sha,
+		drift.copy_sha.slice(0, 7),
+	);
 	const m3 = drift.history.find(
 		(entry: { step: string }) => entry.step === "M3",
 	);

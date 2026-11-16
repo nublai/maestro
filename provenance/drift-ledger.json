@@ -1,11 +1,11 @@
 {
-	"step": "M4",
+	"step": "M6",
 	"previous_pin": "4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5",
 	"base_main_sha": "4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5",
-	"copy_sha": "27dee407403906d5bac359702e21a04309be2f64",
-	"copy_ref": "h1/composition-hooks (local H1, parent 4cae65f)",
-	"resolved_ref": "origin/main",
-	"resolution": "Existing local upstream refs at the start of M4; no fetch, as requested. origin/main still resolves to 4cae65f and h1/composition-hooks to 27dee40 (reviewed: no behaviour change), so the pin does not advance. H1 is local-only; its pinned blobs are archived under provenance/upstream/.",
+	"copy_sha": "fd9c5d567430f72660e8505eb132c2a64709bfed",
+	"copy_ref": "h1/composition-hooks (local H1, parent 27dee40, then 4cae65f)",
+	"resolved_ref": "origin/main; git ls-remote origin refs/heads/main",
+	"resolution": "At the start of M6, local origin/main and a read-only git ls-remote of the upstream both resolved to 4cae65f, so base_main_sha does not move. H1 gained one local, unpushed commit (fd9c5d5) exporting the three tool-detail interfaces that createPiExtension's inferred return type names; M6 recopies from it and drops the declaration-only build overlay. H1 is local-only; its pinned blobs are archived under provenance/upstream/.",
 	"status": "closed",
 	"command": "git log --name-status 4cae65f..4cae65f -- <moving paths>: empty range",
 	"touching_commits": [],
@@ -34,6 +34,11 @@
 			"sha": "27dee40",
 			"subject": "docs: map the H1 composition hooks in the code map",
 			"note": "Host documentation only."
+		},
+		{
+			"sha": "fd9c5d5",
+			"subject": "refactor: export the three tool-detail interfaces createPiExtension's return type names",
+			"note": "Type-only: controls.ts exports SubagentInterruptDetails; persistent.ts exports SubagentSendDetails and SubagentStopDetails. Recopied in M6; scripts/build.ts no longer overlays declarations. H1 gates (format:check, lint, typecheck, docs:tools:check, npm test 1779/1780 + 1 skip, npm pack --dry-run) passed locally."
 		}
 	],
 	"scope": "Every move/split path in Appendices A-C, tests and supporting assets. Experimental A0 remains separate.",
@@ -70,6 +75,14 @@
 					"disposition": "no-impact"
 				}
 			],
+			"status": "closed"
+		},
+		{
+			"step": "M4",
+			"previous_pin": "4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5",
+			"base_main_sha": "4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5",
+			"copy_sha": "27dee407403906d5bac359702e21a04309be2f64",
+			"touching_commits": [],
 			"status": "closed"
 		}
 	],

@@ -1,6 +1,6 @@
 {
 	"base_main_sha": "4cae65fbc5f9d71c2b29bf76d94247f5c1e653d5",
-	"copy_sha": "27dee407403906d5bac359702e21a04309be2f64",
+	"copy_sha": "fd9c5d567430f72660e8505eb132c2a64709bfed",
 	"mappings": [],
 	"entries": [
 		{
@@ -614,7 +614,7 @@
 			"kind": "copy",
 			"source": "pi-extension/subagents/controls.ts",
 			"destination": "pi-extension/subagents/controls.ts",
-			"blob": "047a987db5d73d6e640b72cdb50ee3431673ef4b",
+			"blob": "4424d794faaae4074bef35f06f0f62b690ccb3a7",
 			"archive": "provenance/upstream/pi-extension/subagents/controls.ts"
 		},
 		{
@@ -671,7 +671,7 @@
 			"kind": "copy",
 			"source": "pi-extension/subagents/persistent.ts",
 			"destination": "pi-extension/subagents/persistent.ts",
-			"blob": "7ef99411500a30206a861e43f8d5fe7afac6d4d8",
+			"blob": "a67d454620964e20a6924c0f05ee1468ac5ffaa8",
 			"archive": "provenance/upstream/pi-extension/subagents/persistent.ts"
 		},
 		{

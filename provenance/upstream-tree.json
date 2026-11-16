@@ -1,5 +1,5 @@
 {
-	"copy_sha": "27dee407403906d5bac359702e21a04309be2f64",
+	"copy_sha": "fd9c5d567430f72660e8505eb132c2a64709bfed",
 	"files": [
 		{
 			"path": ".gitattributes",
@@ -631,7 +631,7 @@
 		},
 		{
 			"path": "pi-extension/subagents/controls.ts",
-			"blob": "047a987db5d73d6e640b72cdb50ee3431673ef4b"
+			"blob": "4424d794faaae4074bef35f06f0f62b690ccb3a7"
 		},
 		{
 			"path": "pi-extension/subagents/deferred-tools.ts",
@@ -675,7 +675,7 @@
 		},
 		{
 			"path": "pi-extension/subagents/persistent.ts",
-			"blob": "7ef99411500a30206a861e43f8d5fe7afac6d4d8"
+			"blob": "a67d454620964e20a6924c0f05ee1468ac5ffaa8"
 		},
 		{
 			"path": "pi-extension/subagents/presentation-hooks.ts",
