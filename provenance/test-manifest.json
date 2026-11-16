@@ -1142,7 +1142,8 @@
 		"test/maestro/task-thinking-tools.test.ts",
 		"test/maestro/tool-schema.test.ts",
 		"test/maestro/windows-support-scope-tools.test.ts",
-		"test/runtime-routing-tools.test.ts"
+		"test/runtime-routing-tools.test.ts",
+		"test/pi-contract-counterparts.test.ts"
 	],
 	"identity_ledger": "baseline/test-identities.json.gz",
 	"identity_capture": "evidence/baseline-final/baseline.jsonl",

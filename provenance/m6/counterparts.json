@@ -1,0 +1,77 @@
+{
+	"note": "M6 package-side counterparts for upstream cases that stay upstream because they also assert terminal output (M4 review, Major). H3 may delete or split an upstream case only for the part listed in 'kept'; 'upstream_only' must stay upstream. Mutation-checked in M6: removing details.repeated, projecting no unconfirmed state onto a transferred owner, an unquoted Resume path and a raw status label each fail a counterpart.",
+	"counterparts": [
+		{
+			"upstream": {
+				"file": "test/test.ts",
+				"titles": [
+					"subagent_cancel public tool",
+					"an unconfirmed termination keeps the run live and quiet until a retry confirms it"
+				]
+			},
+			"counterpart": {
+				"file": "test/pi-contract-counterparts.test.ts",
+				"titles": [
+					"subagent_cancel contract counterparts",
+					"an unconfirmed termination keeps the run live and quiet until a retry confirms it"
+				]
+			},
+			"kept": "unconfirmed status/error/text, run stays live and owned, nothing delivered or relaunched over 10 turns, retry confirmed with repeated and the same requestedAt, exactly one cancelled result",
+			"upstream_only": "renderSubagentWidgetLines shows 'cancel unconfirmed' (widgets.ts)"
+		},
+		{
+			"upstream": {
+				"file": "test/test.ts",
+				"titles": [
+					"subagent_cancel public tool",
+					"a fallback owner transferred after the cancel shows its own unconfirmed kill and stays live"
+				]
+			},
+			"counterpart": {
+				"file": "test/pi-contract-counterparts.test.ts",
+				"titles": [
+					"subagent_cancel contract counterparts",
+					"a fallback owner transferred after the cancel keeps its own unconfirmed kill and stays live"
+				]
+			},
+			"kept": "cancel during fallback launch stays requested, the transferred owner becomes unconfirmed, nothing delivered, third model never launched, its surface stays live",
+			"upstream_only": "renderSubagentWidgetLines shows 'cancel unconfirmed' for the transferred owner (widgets.ts)"
+		},
+		{
+			"upstream": {
+				"file": "test/test.ts",
+				"titles": [
+					"public launch errors and executable commands",
+					"renders the expanded Resume line from the serialized command, never from display text"
+				]
+			},
+			"counterpart": {
+				"file": "test/pi-contract-counterparts.test.ts",
+				"titles": [
+					"Resume line contract counterpart",
+					"serializes one executable Resume line, never display text"
+				]
+			},
+			"kept": "model-facing Resume line equals the one in details.resultContent; the shown command runs as exactly pi --session <path> (including the injection path); unsafe paths are omitted",
+			"upstream_only": "the registered subagent_result message renderer shows that same line (renderers.ts)"
+		},
+		{
+			"upstream": {
+				"file": "test/test.ts",
+				"titles": [
+					"parent messages are structured, not cut",
+					"encodes a U+2028 activity label at the widget and recovery-status sinks"
+				]
+			},
+			"counterpart": {
+				"file": "test/pi-contract-counterparts.test.ts",
+				"titles": [
+					"recovery-status line counterpart",
+					"encodes a U+2028 activity label in the recovery status line"
+				]
+			},
+			"kept": "formatLifecycleTransitionLine over the real activity parser encodes U+2028/U+0085 in the tool label",
+			"upstream_only": "widget lines and the status-refresh delivery through createWidgetController (widgets.ts)"
+		}
+	]
+}

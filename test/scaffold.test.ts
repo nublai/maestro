@@ -474,3 +474,24 @@ test("CI and publishing retain OIDC/version guards and execute M1 gates on minim
 		rmSync(fixture, { recursive: true, force: true });
 	}
 });
+
+test("M6 counterparts name retained upstream identities and existing package cases", () => {
+	const { counterparts } = JSON.parse(read("provenance/m6/counterparts.json"));
+	const retained: { file: string; titles: string[] }[] = JSON.parse(
+		read("provenance/m4/retained-ledger.json"),
+	);
+	assert.equal(counterparts.length, 4);
+	for (const { upstream, counterpart } of counterparts) {
+		assert(
+			retained.some(
+				(entry) =>
+					entry.file === upstream.file &&
+					JSON.stringify(entry.titles) === JSON.stringify(upstream.titles),
+			),
+			upstream.titles.join(" > "),
+		);
+		const text = read(counterpart.file);
+		for (const title of counterpart.titles)
+			assert(text.includes(JSON.stringify(title)), title);
+	}
+});
