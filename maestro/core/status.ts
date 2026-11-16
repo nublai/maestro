@@ -153,9 +153,15 @@ export function parseStatusConfig(
 	source = "config.json",
 ): StatusConfig {
 	const config = requireObject(rawConfig, source, "root");
+	// Optional like every other section (#149): an omitted section or key keeps
+	// the shipped default; a present but malformed one still fails.
+	if (!Object.hasOwn(config, "status"))
+		return { enabled: true, lineLimit: DEFAULT_STATUS_LINE_LIMIT };
 	const status = requireObject(config.status, source, "status");
 	rejectUnsupportedKeys(status, ["enabled"], source, "status");
-	const enabled = requireBoolean(status.enabled, source, "status.enabled");
+	const enabled = Object.hasOwn(status, "enabled")
+		? requireBoolean(status.enabled, source, "status.enabled")
+		: true;
 
 	return {
 		enabled,

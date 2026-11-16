@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+Fixes for giuseppecrj/pi-herdr-agents#149, where every child failed with a bare
+"exit code 1" because `config.json` held only `models`.
+
+- An omitted `status` section, or an omitted `status.enabled`, now keeps the
+  shipped default (enabled), as every other section already did. A present but
+  malformed section still stops the load with an error naming the file and key.
+- The task-model writer publishes `config.json` with mode `0600`. It already
+  kept every other key; it now also keeps the file owner-only.
+- A child that exits before its session starts reports its last terminal lines
+  (at most 12 lines and 2,000 characters, with credential-shaped values masked)
+  after the exit code, so the parent sees why it failed.
+- Copies may now carry a recorded `owned_change` (the reason and the exact blob):
+  after H2 Maestro owns the source, and `check:copy-fidelity` still verifies
+  the pinned original and fails on any unrecorded edit.
+
 ## 0.1.1
 
 Corrective packaging release. No code changes.

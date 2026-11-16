@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import {
+	chmodSync,
 	closeSync,
 	mkdirSync,
 	openSync,
@@ -611,7 +612,9 @@ export function describeTaskModelWriteFailure(
 /**
  * Atomically replace models.tasks, category thinking and models.tasksMeta in the durable user config.
  * `_examplePath` is retained for positional compatibility only; missing files
- * receive the minimal required status setting and proposed models, never an example seed.
+ * receive the minimal status setting and proposed models, never an example seed.
+ * Every other top-level key of an existing file is kept, and the published file
+ * is mode 0600.
  *
  * Cooperating calls use an exclusive sibling lock around snapshot validation
  * and temporary-file publication. Non-cooperating processes can unlink it, so
@@ -670,6 +673,8 @@ export function writeTaskModelConfig(
 		let published = false;
 		try {
 			fileOperations.writeFileSync(temporary, output, { flag: "wx" });
+			// Owner-only before publication, whatever the umask or the old file's mode.
+			chmodSync(temporary, CONFIG_FILE_MODE);
 			if (approved) assertApprovedDirectory(configPath, approved);
 			fileOperations.renameSync(temporary, targetPath);
 			published = true;
@@ -689,6 +694,9 @@ export function writeTaskModelConfig(
 		return saved;
 	});
 }
+
+/** The published config file is owner read/write only (#149). */
+export const CONFIG_FILE_MODE = 0o600;
 
 /** Sibling advisory lock path shared by every cooperating config writer. */
 export function getConfigWriteLockPath(configPath: string): string {
