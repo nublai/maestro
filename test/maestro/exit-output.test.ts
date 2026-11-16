@@ -212,18 +212,50 @@ function wrap(text: string, columns = 80): string {
 		.join("\n");
 }
 
-/** Neither the secret nor any piece of it longer than a few characters survives. */
-function assertMasked(output: string, name: string, secret: string) {
-	const flat = output.replace(/\n/g, "");
-	assert.ok(!flat.includes(secret), `${name} leaked: ${output}`);
-	const piece = Math.min(6, secret.length);
-	for (let at = 0; at + piece <= secret.length; at++) {
-		const fragment = secret.slice(at, at + piece);
-		// Short all-letter pieces ("EXAMPLE") can be ordinary words.
-		if (/^[A-Za-z]+$/.test(fragment)) continue;
+/** Rows trimmed and joined as a terminal wrap joins them. */
+function unwrapped(text: string): string {
+	return text
+		.split("\n")
+		.map((row) => row.trimEnd())
+		.join("");
+}
+
+function occurrences(text: string, piece: string): number {
+	let count = 0;
+	for (
+		let at = text.indexOf(piece);
+		at !== -1;
+		at = text.indexOf(piece, at + 1)
+	)
+		count++;
+	return count;
+}
+
+/**
+ * No piece of `secret` three or more characters long survives in `output`,
+ * letters included: a word-like edge of a wrapped credential ("abc",
+ * "object") counts as a leak. `printed` is the text the secret was printed in;
+ * a piece may appear in `output` only as often as that text, with every copy
+ * of the secret cut out, already holds it ("key" in "invalid api key"). Rows
+ * are joined as a terminal wrap joins them, so a piece split across rows is
+ * still found, and each "[redacted]" counts as a cut.
+ */
+function assertMasked(
+	output: string,
+	name: string,
+	secret: string,
+	printed: string,
+) {
+	const source = unwrapped(printed);
+	assert.ok(source.includes(secret), `${name}: the secret was not printed`);
+	const around = source.replaceAll(secret, "\0");
+	const shown = unwrapped(output).replaceAll("[redacted]", "\0");
+	assert.ok(!shown.includes(secret), `${name} leaked: ${output}`);
+	for (let at = 0; at + 3 <= secret.length; at++) {
+		const piece = secret.slice(at, at + 3);
 		assert.ok(
-			!output.includes(fragment),
-			`${name} leaked "${fragment}": ${output}`,
+			occurrences(shown, piece) <= occurrences(around, piece),
+			`${name} leaked "${piece}": ${output}`,
 		);
 	}
 }
@@ -231,9 +263,9 @@ function assertMasked(output: string, name: string, secret: string) {
 test("masks AWS keys, JWTs of any length and every listed credential shape", () => {
 	for (const [name, { line, secret }] of Object.entries(CREDENTIALS)) {
 		const output = extractExitOutput(`${line(secret)}\n__SUBAGENT_DONE_1__`)!;
-		assertMasked(output, name, secret);
+		assertMasked(output, name, secret, line(secret));
 		assert.match(output, /\[redacted\]/, name);
-		assertMasked(redactSecrets(line(secret)), name, secret);
+		assertMasked(redactSecrets(line(secret)), name, secret, line(secret));
 	}
 	for (const prefix of [
 		"AKIA",
@@ -251,7 +283,8 @@ test("masks AWS keys, JWTs of any length and every listed credential shape", () 
 		"A3T7",
 	]) {
 		const key = `${prefix}QWERTY23UIOPASDF`;
-		assertMasked(redactSecrets(`key ${key} denied`), prefix, key);
+		const printed = `key ${key} denied`;
+		assertMasked(redactSecrets(printed), prefix, key, printed);
 	}
 });
 
@@ -284,10 +317,148 @@ test("masks a credential an 80-column terminal wrap splits across lines", () => 
 				`${name} cut ${cut}`,
 			);
 			const output = extractExitOutput(screen)!;
-			assertMasked(output, `${name} cut ${cut}`, secret);
+			assertMasked(output, `${name} cut ${cut}`, secret, screen);
 			assert.ok(output.endsWith("Hint: retry"), output);
 			assert.ok(output.startsWith("Error: provider failed\n"), output);
 		}
+	}
+});
+
+// Credentials whose first or last characters look like an ordinary word. A
+// relay that shows a word-like piece at a row join, as nublai/maestro#4 did,
+// leaks that piece; these keep such edges under test.
+const WORD_EDGES = {
+	opaqueWordHead: {
+		line: (s) => `session ${s} closed`,
+		secret: "abcdef0123456789abcdef0123456789abcdef01234",
+	},
+	opaqueLongWordHead: {
+		line: (s) => `session ${s} closed`,
+		secret: "abcdef0123456789abcdef0123456789abcdef01234567",
+	},
+	opaquePasswordHead: {
+		line: (s) => `session ${s} closed`,
+		secret: "passwordcorrect0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b",
+	},
+	opaqueHexTail: {
+		line: (s) => `session ${s} closed`,
+		secret: `${"0123456789".repeat(4)}abcdefab`,
+	},
+	opaqueWordBothEnds: {
+		line: (s) => `session ${s} closed`,
+		secret: `object${"0123456789AbCdEf".repeat(5)}Retry`,
+	},
+	openaiWordTail: {
+		line: (s) => `Error: 401 invalid api key ${s}`,
+		secret: ["sk", "proj", "AbCdEf0123456789AbCdEf0123456789object"].join("-"),
+	},
+	skUpperTail: {
+		line: (s) => `provider rejected key ${s}`,
+		secret: ["sk", "AbCdEf0123456789AbCdREADME"].join("-"),
+	},
+	jwtWordTail: {
+		line: (s) => `session rejected: ${s} expired`,
+		secret: ["eyJhbGciOiJIUzI1NiJ9", "eyJzdWIiOiIxIn0", "object"].join("."),
+	},
+	envWordTail: {
+		line: (s) => `OPENAI_API_KEY=${s} was rejected`,
+		secret: "zzobject",
+	},
+	githubWordHead: {
+		line: (s) => `git: token ${s} lacks scope`,
+		secret: ["ghp", "AbCdEf0123456789AbCdEf0123456789AbCdEf01"].join("_"),
+	},
+	bearerCapitalTail: {
+		line: (s) => `curl -H "Authorization: Bearer ${s}" failed`,
+		secret: "AbCdEf0123456789Retry",
+	},
+	queryWordTail: {
+		line: (s) => `GET https://api.example.com/v1?alt=json&key=${s}&x=1`,
+		secret: "Zm9vYmFyYmF6cXV4object,",
+	},
+} satisfies Record<string, Credential>;
+
+/** A wrapped screen as a terminal read returns it: LF, CRLF, or CRLF with SGR. */
+const READS = {
+	lf: (rows: string[]) => rows.join("\n"),
+	crlf: (rows: string[]) => rows.join("\r\n"),
+	ansi: (rows: string[]) =>
+		rows
+			.map((row) => (row ? `\u001b[2m${row}\u001b[0m\u001b]0;pi\u0007` : row))
+			.join("\r\n"),
+} satisfies Record<string, (rows: string[]) => string>;
+
+test("masks every credential shape at every wrap offset in 40 to 200 columns, read as LF, CRLF or ANSI", () => {
+	const credentials = { ...CREDENTIALS, ...WORD_EDGES };
+	for (const columns of [40, 80, 100, 120, 200])
+		for (const [name, { line, secret }] of Object.entries(credentials)) {
+			const text = line(secret);
+			const start = text.indexOf(secret);
+			for (let cut = 0; cut < secret.length; cut++) {
+				const pad = (((columns - start - cut) % columns) + columns) % columns;
+				const rows = wrap(
+					`Error: provider failed\n${"~".repeat(pad)}${text}\nHint: retry\n__SUBAGENT_DONE_1__`,
+					columns,
+				).split("\n");
+				const at = `${name} at ${columns} columns, cut ${cut}`;
+				assert.ok(
+					rows.some(
+						(r, row) =>
+							r.length === columns &&
+							r.endsWith(secret.slice(Math.max(0, cut - columns), cut)) &&
+							rows[row + 1].startsWith(secret.slice(cut, cut + columns)),
+					),
+					at,
+				);
+				for (const [form, read] of Object.entries(READS)) {
+					const output = extractExitOutput(read(rows))!;
+					assertMasked(output, `${at} (${form})`, secret, rows.join("\n"));
+					assert.ok(output.startsWith("Error: provider failed\n"), output);
+					// Documented limit: when the credential's last row is full width,
+					// the next line is joined to it, and a word glued to the end of the
+					// credential-shaped run ("Hint", or "Hint:" when the rule takes the
+					// colon) is masked with it.
+					const last = output.split("\n").at(-1)!;
+					const glued =
+						rows[rows.indexOf("Hint: retry") - 1].length === columns;
+					assert.ok(
+						last === "Hint: retry" ||
+							(glued && /^\[redacted\]:? retry$/.test(last)),
+						`${at}: ${output}`,
+					);
+				}
+			}
+		}
+});
+
+// pi-herdr-agents#150: the widest row is a whole error line that did not wrap,
+// and the next line holds a credential. The relay cannot tell that row from a
+// wrapped one, so it joins them. Documented limit: the error's last word,
+// glued to the credential-shaped run, is masked with it ("status must be an
+// [redacted]"). The secret stays masked and the rest of the error survives.
+const OPENAI_ENV = (secret: string) => `OPENAI_API_KEY=${secret}`;
+const OPENAI_SECRET = ["sk", "proj", "AbCdEf0123456789AbCdEf0123456789"].join(
+	"-",
+);
+const ERROR_PREFIX = "Invalid subagent status config in";
+
+test("masks a credential on the line after a long unwrapped error and keeps the error's prefix", () => {
+	const screen = `$ bash '${SCRIPT}'\n${LOAD_ERROR}\n${OPENAI_ENV(OPENAI_SECRET)}\n__SUBAGENT_DONE_1__\n`;
+	const kept = LOAD_ERROR.slice(0, LOAD_ERROR.lastIndexOf(" ") + 1);
+	assert.ok(kept.includes(ERROR_PREFIX));
+	for (const [form, read] of Object.entries(READS)) {
+		const output = extractExitOutput(read(screen.split("\n")), SCRIPT)!;
+		const [error, credential, ...rest] = output.split("\n");
+		assert.ok(error.startsWith(kept), `${form}: ${output}`);
+		assert.ok(error.includes(ERROR_PREFIX), `${form}: ${output}`);
+		assert.deepEqual(rest, [], form);
+		assert.match(credential, /\[redacted\]/, form);
+		assertMasked(
+			output,
+			`next-line credential (${form})`,
+			OPENAI_SECRET,
+			screen,
+		);
 	}
 });
 
@@ -461,6 +632,19 @@ async function withRunSession(
 	}
 }
 
+/**
+ * A run surface without the run's directory, timestamps, ids and hashes. They
+ * are not from the screen; cutting them out keeps a three-character piece of a
+ * credential from matching one by chance.
+ */
+function plain(surface: string, dir: string): string {
+	return surface
+		.replaceAll(dir, "\0")
+		.replace(/\d{4}-\d\d-\d\dT\d\d[:-]\d\d[:-]\d\d[.-]\d{3}Z/g, "\0")
+		.replace(/\b[0-9a-f]{64}\b/g, "\0")
+		.replace(/\b[0-9a-f]{8}-[0-9a-f]{8}-[0-9a-f]{4}\b/g, "\0");
+}
+
 function delivered(result: PiCompletedMetadata): string {
 	return renderParentMessage(
 		resolveResultPresentation(
@@ -517,6 +701,7 @@ test("a wrapped early-exit tail reaches the parent masked, and the ledger and lo
 			console[method] = (...args: unknown[]) => {
 				logged.push(args.map(String).join(" "));
 			};
+		let screen = "";
 		try {
 			const handle = await f.session.spawnPi(f.input);
 			const record = f.latest();
@@ -526,12 +711,10 @@ test("a wrapped early-exit tail reaches the parent masked, and the ledger and lo
 				const text = line(secret);
 				return `${"~".repeat(80 - text.indexOf(secret) - 5)}${text}`;
 			});
-			f.provider.appendScreen(
-				record.surface,
-				wrap(
-					`$ bash '${record.launchScriptFile}'\n${printed.join("\n")}\n__SUBAGENT_DONE_1__\n`,
-				),
+			screen = wrap(
+				`$ bash '${record.launchScriptFile}'\n${printed.join("\n")}\n__SUBAGENT_DONE_1__\n`,
 			);
+			f.provider.appendScreen(record.surface, screen);
 			await wait;
 		} finally {
 			Object.assign(console, original);
@@ -551,13 +734,46 @@ test("a wrapped early-exit tail reaches the parent masked, and the ledger and lo
 			.map((entry) => readFileSync(join(entry.parentPath, entry.name), "utf8"));
 		assert.ok(files.length > 0);
 		for (const [name, { secret }] of relayed) {
-			assertMasked(result.summary, name, secret);
-			assertMasked(text, name, secret);
-			assertMasked(ledger, `${name} in the ledger`, secret);
-			assertMasked(logged.join("\n"), `${name} in logs`, secret);
+			assertMasked(result.summary, name, secret, screen);
+			assertMasked(plain(text, f.dir), name, secret, screen);
+			assertMasked(
+				plain(ledger, f.dir),
+				`${name} in the ledger`,
+				secret,
+				screen,
+			);
+			assertMasked(logged.join("\n"), `${name} in logs`, secret, screen);
 			for (const file of files)
-				assertMasked(file, `${name} in a run file`, secret);
+				assertMasked(
+					plain(file, f.dir),
+					`${name} in a run file`,
+					secret,
+					screen,
+				);
 		}
+	}));
+
+test("an unwrapped error followed by a credential line reaches the parent masked, with the error's prefix", () =>
+	withRunSession(async (f) => {
+		const handle = await f.session.spawnPi(f.input);
+		const record = f.latest();
+		const wait = f.session.supervise(handle, f.input.task);
+		const screen = `$ bash '${record.launchScriptFile}'\n${LOAD_ERROR}\n${OPENAI_ENV(OPENAI_SECRET)}\n__SUBAGENT_DONE_1__\n`;
+		f.provider.appendScreen(record.surface, screen);
+		await wait;
+		assert.equal(f.settled.length, 1);
+		const result = f.settled[0];
+		const kept = LOAD_ERROR.slice(0, LOAD_ERROR.lastIndexOf(" ") + 1);
+		assert.ok(
+			result.summary.startsWith(
+				`Sub-agent exited with code 1 before its session started. Last output:\n${kept}`,
+			),
+			result.summary,
+		);
+		const text = delivered(result);
+		assert.ok(text.includes(ERROR_PREFIX), text);
+		assertMasked(result.summary, "summary", OPENAI_SECRET, screen);
+		assertMasked(plain(text, f.dir), "parent message", OPENAI_SECRET, screen);
 	}));
 
 test(

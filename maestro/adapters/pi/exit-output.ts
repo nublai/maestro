@@ -3,6 +3,17 @@
  * (#149). Pi writes a startup failure, such as an extension that fails to
  * load, to stderr, which is the child's terminal; the host reads that terminal
  * once and relays a bounded, redacted tail so a failure carries its reason.
+ *
+ * Known limit: masking errs toward safety over readability. The read has no
+ * terminal width, so a row as wide as the widest row is taken to wrap and is
+ * joined to the next row before masking, and a credential match that crosses
+ * that join is masked whole on every row it reaches. An ordinary word glued to
+ * a credential-shaped run across the join is masked with it: a long error line
+ * that did not wrap, followed by `OPENAI_API_KEY=<key>`, is relayed as "...
+ * status must be an [redacted]", and a "Hint:" after a credential that fills
+ * its last row can become "[redacted] retry". The rest of the line survives.
+ * Showing such a word instead would also show a word-like edge of a real
+ * credential (nublai/maestro#4), so the whole match stays masked.
  */
 
 /** Terminal lines read once after an early exit. */
