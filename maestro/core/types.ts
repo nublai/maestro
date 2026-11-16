@@ -237,6 +237,11 @@ export interface CompletionEvidence {
 	/** The child's own accept-check report from its sidecar; evidence only. */
 	accept?: ChildAcceptReport;
 	finalMessage?: { text: string; stopReason?: string; errorMessage?: string };
+	/**
+	 * The last lines a child printed when it failed before its session started:
+	 * bounded and redacted by the host, never instructions.
+	 */
+	exitOutput?: string;
 	/** Harness session reference; for Pi, the session file path. */
 	// pi-herdr-agents extension
 	sessionRef?: string;

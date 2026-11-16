@@ -55,6 +55,7 @@ import type { WorktreeOperations } from "../../core/worktree.ts";
 import { shellExitFileFor, waitForCompletion } from "./completion.ts";
 import { acceptLaunchRefusal } from "../../core/accept.ts";
 import { notifyLaunchRefusal } from "../../core/specialist-notice.ts";
+import { EXIT_OUTPUT_SCREEN_LINES, extractExitOutput } from "./exit-output.ts";
 import {
 	appendPersistentDeliveryLedger,
 	findObservedSessionRuntime,
@@ -587,7 +588,7 @@ export class PiHarnessAdapter implements HarnessAdapter {
 						},
 					});
 				})()
-					.then((result) => {
+					.then(async (result) => {
 						if (child.launchFailure)
 							result = {
 								...result,
@@ -596,15 +597,22 @@ export class PiHarnessAdapter implements HarnessAdapter {
 								errorMessage: child.launchFailure,
 								errorSource: "host",
 							};
-						const final = existsSync(child.sessionFile)
-							? inspectFinalAssistantMessage(
-									getNewEntries(child.sessionFile, 0),
-								)
+						const entries = existsSync(child.sessionFile)
+							? getNewEntries(child.sessionFile, 0)
+							: undefined;
+						const final = entries
+							? inspectFinalAssistantMessage(entries)
 							: undefined;
 						const evidence: CompletionEvidence = {
 							...result,
 							sessionRef: child.sessionFile,
 						};
+						const exitOutput = await this.readExitOutput(
+							child,
+							result,
+							entries,
+						);
+						if (exitOutput) evidence.exitOutput = exitOutput;
 						if (final && (final.text != null || final.stopReason)) {
 							evidence.finalMessage = {
 								text: final.text ?? "",
@@ -632,6 +640,35 @@ export class PiHarnessAdapter implements HarnessAdapter {
 			wait = next;
 		}
 		return this.joinWait(wait, signal);
+	}
+	/**
+	 * A child that failed before its session started has no transcript to
+	 * explain it; relay the terminal's last lines instead (#149).
+	 */
+	private async readExitOutput(
+		child: PiRunningChild,
+		result: { exitCode: number; errorMessage?: string },
+		entries: { type?: string }[] | undefined,
+	): Promise<string | undefined> {
+		if (
+			result.exitCode === 0 ||
+			result.errorMessage ||
+			entries?.some((entry) => entry.type === "message")
+		)
+			return undefined;
+		try {
+			return extractExitOutput(
+				await this.options.surface.readScreen(
+					child.surface,
+					EXIT_OUTPUT_SCREEN_LINES,
+				),
+				child.launchScriptFile,
+			);
+		} catch {
+			// The output only explains the failure; an unreadable terminal leaves
+			// the exit code as the result.
+			return undefined;
+		}
 	}
 	private joinWait(
 		wait: CompletionWait,

@@ -187,11 +187,20 @@
 			"archive": "provenance/upstream/maestro/adapters/pi/model-registry.ts"
 		},
 		{
+			"kind": "new",
+			"destination": "maestro/adapters/pi/exit-output.ts",
+			"reason": "#149 (post-H2, Maestro-owned): extracts, redacts and bounds the terminal tail a child printed when it failed before its session started."
+		},
+		{
 			"kind": "copy",
 			"source": "maestro/adapters/pi/pi-harness-adapter.ts",
 			"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
 			"blob": "b329ef6e037d3f9874d1999a616b451fbb210633",
-			"archive": "provenance/upstream/maestro/adapters/pi/pi-harness-adapter.ts"
+			"archive": "provenance/upstream/maestro/adapters/pi/pi-harness-adapter.ts",
+			"owned_change": {
+				"reason": "#149: a non-zero exit with no errorMessage and no session messages reads the terminal tail into exitOutput.",
+				"blob": "fb032b439026270302484916771aa041f009ef3b"
+			}
 		},
 		{
 			"kind": "copy",
@@ -268,7 +277,11 @@
 			"source": "maestro/core/config/model-config.ts",
 			"destination": "maestro/core/config/model-config.ts",
 			"blob": "29af385bddd374e823b7f30f2faf265adcf855a4",
-			"archive": "provenance/upstream/maestro/core/config/model-config.ts"
+			"archive": "provenance/upstream/maestro/core/config/model-config.ts",
+			"owned_change": {
+				"reason": "#149: the task-model writer publishes config.json with mode 0600 (it inherited the umask and dropped an owner-only mode).",
+				"blob": "67e3eac9d40cf24b644149977a7427eb13343b87"
+			}
 		},
 		{
 			"kind": "copy",
@@ -450,7 +463,11 @@
 			"source": "maestro/core/status.ts",
 			"destination": "maestro/core/status.ts",
 			"blob": "fe2c2be59d63aef55a4db4a34bbef977d6818a9b",
-			"archive": "provenance/upstream/maestro/core/status.ts"
+			"archive": "provenance/upstream/maestro/core/status.ts",
+			"owned_change": {
+				"reason": "#149: an omitted status section or status.enabled key keeps the shipped default (enabled); a present but malformed section still fails.",
+				"blob": "f383bc25eb9a2fa91477687d81d314453b81c42c"
+			}
 		},
 		{
 			"kind": "copy",
@@ -471,7 +488,11 @@
 			"source": "maestro/core/types.ts",
 			"destination": "maestro/core/types.ts",
 			"blob": "8cd2d264f055d6e831ed6262c4b4e391375ea361",
-			"archive": "provenance/upstream/maestro/core/types.ts"
+			"archive": "provenance/upstream/maestro/core/types.ts",
+			"owned_change": {
+				"reason": "#149: CompletionEvidence.exitOutput carries a child's last terminal lines when it fails before its session starts.",
+				"blob": "c67009368ca94e3fd1ae894cc6cc699b23f13809"
+			}
 		},
 		{
 			"kind": "copy",
@@ -550,7 +571,11 @@
 			"destination": "maestro/runtime/pi-run-session.ts",
 			"blob": "e66e81935c71e08e5f50edd80d49e9ff8e910691",
 			"archive": "provenance/upstream/maestro/runtime/pi-run-session.ts",
-			"classification": "split"
+			"classification": "split",
+			"owned_change": {
+				"reason": "#149: the host summary of such an exit appends the relayed exitOutput.",
+				"blob": "6e3d394ac5cd21c0dae901e5850d2446c1689ddb"
+			}
 		},
 		{
 			"kind": "copy",

@@ -696,7 +696,7 @@ export function createDefaultRunSession(
 									? cursor === undefined
 										? "Sub-agent exited without output"
 										: "Resumed session exited without new output"
-									: `${cursor === undefined ? "Sub-agent" : "Resumed session"} exited with code ${exitCode}`,
+									: `${cursor === undefined ? "Sub-agent" : "Resumed session"} exited with code ${exitCode}${evidence.exitOutput ? ` before its session started. Last output:\n${evidence.exitOutput}` : ""}`,
 							// Only a child-written sidecar error is child provenance.
 							summarySource: evidence.errorMessage
 								? errorProvenance(evidence.errorSource)
