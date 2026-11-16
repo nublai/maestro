@@ -198,8 +198,8 @@
 			"blob": "b329ef6e037d3f9874d1999a616b451fbb210633",
 			"archive": "provenance/upstream/maestro/adapters/pi/pi-harness-adapter.ts",
 			"owned_change": {
-				"reason": "#149: a non-zero exit with no errorMessage and no session messages reads the terminal tail into exitOutput.",
-				"blob": "fb032b439026270302484916771aa041f009ef3b"
+				"reason": "#149: a non-zero exit with no errorMessage and no session messages reads the terminal tail into exitOutput, the read bounded by EXIT_OUTPUT_READ_TIMEOUT_MS.",
+				"blob": "638e2f0ffca2249195299faa73b9cdb8647a7f6c"
 			}
 		},
 		{
