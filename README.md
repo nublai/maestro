@@ -2,16 +2,16 @@
 
 Harness-neutral subagent engine: delegation, checked outcomes and a pluggable execution seam. It will serve both pi-worker and pi-herdr-agents.
 
-**Status:** M4 Pi tools, schemas and the `createPiExtension` factory extracted on top of the M3 adapters, runtime and host ports. The root API remains the `0.0.1` placeholder until M6. Nothing here authorizes a release.
+**Status:** `0.1.0` release candidate (M6): the generic run owner, the Pi adapters/runtime with explicit host ports, and the Pi tool surface behind `createPiExtension`, extracted from pi-herdr-agents without behavior changes. Not yet published; see [release readiness](docs/release-readiness.md).
 
 ## Development
 
 Use Node **>=26.12.1** and `npm ci`. `npm run build` emits JavaScript,
 declarations and source maps into `dist/`; `npm run test:package` installs a
 fresh tarball and tests the emitted package without Pi peers or TypeScript loaders.
-The placeholder root API remains `version: string` until M6.
 
-`@nubl/maestro/engine` exposes `createRunSession`, `defaultRetainSurface` and
+The package root (`@nubl/maestro`) and `@nubl/maestro/engine` are the same
+engine entry. `@nubl/maestro/engine` exposes `createRunSession`, `defaultRetainSurface` and
 existing core/run-session types without Pi peers, config discovery or provider
 initialization. `@nubl/maestro/testing` exposes the two fakes and reusable
 conformance runners. These entries execute emitted JavaScript.
@@ -21,9 +21,10 @@ and its option types). A terminal host composes it with an explicit
 `HostSurfaceBinding` (`@nubl/maestro/runtime/host-surface-binding`): binding
 resolution, the owning provider, a per-launch provider and the optional marker
 transport. Without that binding or the closed injected-infrastructure test
-composition, session creation fails. `@nubl/maestro/pi/child` is the
-protocol-only child extension each launch loads by default (its emitted
-`entry.js`); a host may pass its own wrapper as `childEntryPath`. Entries that
+composition, session creation fails. `@nubl/maestro/pi/child` exports the
+protocol-only child extension (default; the same instance the emitted launch
+entry `DEFAULT_CHILD_ENTRY_PATH` loads) and `createChildExtension(renderWidget)`
+for a host's child wrapper; a host may pass that wrapper as `childEntryPath`. Entries that
 import Pi or TypeBox require the optional peers; the root, `./engine` and
 `./testing` stay Pi-free.
 
@@ -34,9 +35,13 @@ factory for the public tools (`subagent`, `subagent_cancel`, `subagent_send`,
 calls it once per Pi load with its `HostSurfaceBinding`, `PiPresentationHooks`
 (widgets, message and tool renderers) and optional child entry/config asset
 paths; the package registers nothing by itself and ships no Pi auto-discovery.
+`@nubl/maestro/pi/extension` is the same factory as a callable default export,
+for a host wrapper; it is not a zero-config extension path.
 
 The finite `./core/*`, `./runtime/*`, `./adapters/pi/*` and `./pi/subagents/*`
-compatibility families (including nested config/roles modules) are
+compatibility families (including nested config/roles modules, the child
+protocol modules and `./pi/subagents/index`, whose default delegates to the
+factory) are
 **internal-compat, no stability promise**. The stars describe a family, not
 wildcard exports. No Herdr provider, terminal widget or renderer, terminal
 entry or experimental worker entry ships here.

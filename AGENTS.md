@@ -2,16 +2,18 @@
 
 ## Current stage
 
-This repository is a public `0.0.1` placeholder. Before extraction work, read
+Stable extraction (M1–M4, M6) is done; `0.1.0` is a release candidate, not
+yet published (npm has the `0.0.1` placeholder). Before extraction work, read
 [`docs/plan/extraction.md`](docs/plan/extraction.md): it pins the source revisions,
-file ownership, integration hooks, verification gates, and PR order. Planned
-paths and commands in that document are not implemented yet.
+file ownership, integration hooks, verification gates, and PR order. M5
+(experimental worker) and the upstream H2/H3 switch are still ahead;
+[`docs/release-readiness.md`](docs/release-readiness.md) covers the release.
 
-Current layout: `index.js` and `index.d.ts` are the placeholder API; `test/`
-contains its tests; `.github/workflows/` owns CI and publishing; `docs/plan/`
-contains the extraction plan. Extraction will retain `maestro/` for core,
-runtime and adapters, `pi-extension/` for Pi integration, and emit JS and
-TypeScript declarations into `dist/`.
+Layout: `maestro/` holds core, runtime, adapters and the facades
+(`engine.ts` is also the package root); `pi-extension/` holds the Pi tool
+surface; `test/` the migrated and supplemental tests; `provenance/` pins,
+manifests and evidence indexes; `.github/workflows/` CI and publishing.
+The build emits JS and declarations into `dist/`.
 
 ## Contract and scope
 
@@ -46,10 +48,9 @@ TypeScript declarations into `dist/`.
 
 ## Checks
 
-Use Node **>=26.12.1**. Today run `npm test` and `npm pack --dry-run`.
-After the tooling PR lands, use the scripts in `package.json` for formatting,
+Use Node **>=26.12.1**. Use the scripts in `package.json` for formatting,
 lint, strict typechecking, schema/docs checks, unit tests, coverage, build and
-packed-consumer tests. Run the checks required by the current extraction PR,
+packed-consumer tests, plus `npm pack --dry-run`. Run the checks required by the current extraction PR,
 including upstream composition tests when the package boundary changes.
 Report skipped or unavailable checks rather than claiming them green.
 
