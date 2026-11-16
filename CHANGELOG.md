@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+
+Docs and tests only; no behaviour change.
+
+- Documented a limit of the early-exit relay's masking. The relay cannot learn
+  the terminal width, so it joins a row as wide as the widest row to the next
+  row before masking. An ordinary word glued to a credential-shaped run across
+  that join is masked with it: a long error that did not wrap, followed by
+  `OPENAI_API_KEY=<key>`, is relayed as "status must be an [redacted]" (seen in
+  giuseppecrj/pi-herdr-agents#150). The rest of the error and the masking of
+  the key are unaffected. Showing the word instead (nublai/maestro#4) would also
+  show a word-like edge of a real wrapped credential, so 0.1.2's behaviour
+  stays.
+- The masking tests now flag a leaked piece of a credential three or more
+  characters long, letters included; they used to skip all-letter pieces.
+  They cover every credential shape, plus credentials with word-like edges,
+  at every wrap offset at 40, 80, 100, 120 and 200 columns, read as LF, CRLF
+  or with ANSI escapes, and the pi-herdr-agents#150 screen.
+
 ## 0.1.2 (2026-11-16)
 
 Fixes for giuseppecrj/pi-herdr-agents#149, where every child failed with a bare
