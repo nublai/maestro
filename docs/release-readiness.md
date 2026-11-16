@@ -1,5 +1,17 @@
 # @nubl/maestro 0.1.0 release readiness
 
+## 0.1.2 fix candidate
+
+`0.1.2` carries the giuseppecrj/pi-herdr-agents#149 fixes merged in #1: optional
+config sections keep their defaults, the task-model writer publishes mode `0600`,
+and a child that exits before its session starts reports its last terminal lines
+with credential shapes masked (see [`CHANGELOG.md`](../CHANGELOG.md)). Reviewed by
+Grok twice (second pass: merge); minor leftovers are #3.
+
+- file: `nubl-maestro-0.1.2.tgz`, packed on Node 26.13.1 from the release branch
+- Release it the same way as below, with tag `v0.1.2`, and pin consumers to
+  `"@nubl/maestro": "0.1.2"`.
+
 ## 0.1.1 corrective candidate
 
 `0.1.1` only widens `engines.node` to `>=22.19.0` (pi's floor); no code
