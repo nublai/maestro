@@ -43,7 +43,7 @@ interface Identity {
 }
 
 test("the package has emitted-only exports and optional host peers, no SDK runtime dependencies", () => {
-	assert.equal(pkg.version, "0.1.1");
+	assert.equal(pkg.version, "0.1.2");
 	// Consumers install on pi's own Node floor; development stays on Node 26.
 	assert.equal(pkg.engines.node, ">=22.19.0");
 	// M6 removed the placeholder: the root is the documented engine entry.
