@@ -99,35 +99,130 @@ function secretRanges(text: string): [number, number][] {
 }
 
 /**
+ * Text a join may have glued onto a credential from a separate line: an
+ * ordinary word of three or more letters in one case, or capitalised, maybe
+ * followed by punctuation. Shorter pieces stay masked.
+ */
+const GLUED_WORD = /^(?=[A-Za-z]{3})(?:[A-Z]?[a-z]+|[A-Z]+)[.,:;!?)\]}"']*$/;
+function mayBeGlued(text: string): boolean {
+	return GLUED_WORD.test(text);
+}
+
+/** Rows `first`..`last` read as one wrapped line. */
+class JoinedRows {
+	readonly text: string;
+	readonly last: number;
+	private readonly lines: readonly string[];
+	private readonly first: number;
+	/** Where each row starts in `text`. */
+	private readonly starts: number[] = [];
+	constructor(
+		lines: readonly string[],
+		first: number,
+		last: number,
+		width: number,
+	) {
+		this.lines = lines;
+		this.first = first;
+		this.last = last;
+		let text = "";
+		for (let row = first; row <= last; row++) {
+			if (row > first) text += lines[row - 1].length === width ? "" : " ";
+			this.starts.push(text.length);
+			text += lines[row];
+		}
+		this.text = text;
+	}
+	start(row: number): number {
+		return this.starts[row - this.first];
+	}
+	end(row: number): number {
+		return this.start(row) + this.lines[row].length;
+	}
+	/** The row holding `at`, a position in `text`. */
+	row(at: number): number {
+		let row = this.first;
+		while (row < this.last && this.start(row + 1) <= at) row++;
+		return row;
+	}
+	/** Calls `visit` with each row's part of [start, end) of `text`. */
+	parts(
+		start: number,
+		end: number,
+		visit: (row: number, from: number, to: number) => void,
+	): void {
+		for (let row = this.row(start); row <= this.last; row++) {
+			const from = Math.max(start - this.start(row), 0);
+			const to = Math.min(end - this.start(row), this.lines[row].length);
+			if (from < to) visit(row, from, to);
+		}
+	}
+}
+
+/**
+ * [start, end) of `joined.text` without a word at either end that a join may
+ * have glued on, when the rows left hold that rest as a credential without the
+ * word; otherwise the whole range.
+ */
+function withoutGluedWords(
+	joined: JoinedRows,
+	own: readonly Uint8Array[],
+	[start, end]: [number, number],
+): [number, number] {
+	const head = joined.row(start);
+	const tail = joined.row(end - 1);
+	if (head === tail) return [start, end];
+	const top =
+		head + Number(mayBeGlued(joined.text.slice(start, joined.end(head))));
+	const bottom =
+		tail - Number(mayBeGlued(joined.text.slice(joined.start(tail), end)));
+	if (top > bottom || (top === head && bottom === tail)) return [start, end];
+	const from = Math.max(start, joined.start(top));
+	const to = Math.min(end, joined.end(bottom));
+	if (from >= to) return [start, end];
+	// Is the rest a credential in the rows left, joined without the word?
+	const base = joined.start(top);
+	const rest = new Uint8Array(to - base);
+	for (const [s, e] of secretRanges(
+		joined.text.slice(base, joined.end(bottom)),
+	))
+		rest.fill(1, s, e);
+	let held = true;
+	joined.parts(from, to, (row, a, b) => {
+		for (let at = a; at < b; at++)
+			if (!own[row][at] && !rest[joined.start(row) + at - base]) held = false;
+	});
+	return held ? [from, to] : [start, end];
+}
+
+/**
  * Mask credential-shaped text in terminal rows. Best effort: it errs toward
- * masking. Each row is masked on its own; then rows a terminal wrapped are
- * rejoined and masked again, so a credential split across rows is masked on
- * every row it reaches. A row as wide as the widest row is taken to wrap into
- * the next; a row one character narrower, to wrap on a space the read trimmed.
+ * masking. Each row is masked on its own; then rows a terminal may have
+ * wrapped are rejoined and masked again, so a credential split across rows is
+ * masked on every row it reaches. The read carries no terminal width, so a row
+ * as wide as the widest row is taken to wrap into the next, and a row one
+ * character narrower to wrap on a space the read trimmed.
+ *
+ * That guess also joins a long line that did not wrap to the line after it.
+ * So a joined match that crosses rows leaves a word on its first or last row
+ * (see {@link mayBeGlued}) visible when the other rows hold the rest of the
+ * match as a credential without it: the join only glued that word on.
  */
 function redactLines(lines: readonly string[]): string[] {
-	const masks = lines.map((line) => new Uint8Array(line.length));
+	const own = lines.map((line) => new Uint8Array(line.length));
 	lines.forEach((line, row) => {
-		for (const [start, end] of secretRanges(line))
-			masks[row].fill(1, start, end);
+		for (const [start, end] of secretRanges(line)) own[row].fill(1, start, end);
 	});
+	const masks = own.map((mask) => mask.slice());
 	const width = Math.max(0, ...lines.map((line) => line.length));
 	for (let first = 0, last = 0; first < lines.length; first = ++last) {
-		let joined = lines[first];
-		const offsets = [0];
-		while (last + 1 < lines.length && lines[last].length >= width - 1) {
-			joined += lines[last].length === width ? "" : " ";
-			offsets.push(joined.length);
-			joined += lines[++last];
-		}
+		while (last + 1 < lines.length && lines[last].length >= width - 1) last++;
 		if (last === first) continue;
-		for (const [start, end] of secretRanges(joined))
-			for (let row = first; row <= last; row++) {
-				const offset = offsets[row - first];
-				const from = Math.max(start - offset, 0);
-				const to = Math.min(end - offset, lines[row].length);
-				if (from < to) masks[row].fill(1, from, to);
-			}
+		const joined = new JoinedRows(lines, first, last, width);
+		for (const range of secretRanges(joined.text)) {
+			const [start, end] = withoutGluedWords(joined, own, range);
+			joined.parts(start, end, (row, from, to) => masks[row].fill(1, from, to));
+		}
 	}
 	return lines.map((line, row) => {
 		let masked = "";

@@ -291,6 +291,93 @@ test("masks a credential an 80-column terminal wrap splits across lines", () => 
 	}
 });
 
+/** A wrapped screen as a terminal read returns it: LF, CRLF, or CRLF with SGR. */
+const READS = {
+	lf: (rows: string[]) => rows.join("\n"),
+	crlf: (rows: string[]) => rows.join("\r\n"),
+	ansi: (rows: string[]) =>
+		rows
+			.map((row) => (row ? `\u001b[2m${row}\u001b[0m\u001b]0;pi\u0007` : row))
+			.join("\r\n"),
+} satisfies Record<string, (rows: string[]) => string>;
+
+test("masks every credential shape at every wrap offset in 40 to 200 columns, read as LF, CRLF or ANSI", () => {
+	for (const columns of [40, 80, 100, 120, 200])
+		for (const [name, { line, secret }] of Object.entries(CREDENTIALS)) {
+			const text = line(secret);
+			const start = text.indexOf(secret);
+			for (let cut = 0; cut < secret.length; cut++) {
+				const pad = (((columns - start - cut) % columns) + columns) % columns;
+				const rows = wrap(
+					`Error: provider failed\n${"~".repeat(pad)}${text}\nHint: retry\n__SUBAGENT_DONE_1__`,
+					columns,
+				).split("\n");
+				const at = `${name} at ${columns} columns, cut ${cut}`;
+				assert.ok(
+					rows.some(
+						(r, row) =>
+							r.length === columns &&
+							r.endsWith(secret.slice(Math.max(0, cut - columns), cut)) &&
+							rows[row + 1].startsWith(secret.slice(cut, cut + columns)),
+					),
+					at,
+				);
+				for (const [form, read] of Object.entries(READS)) {
+					const output = extractExitOutput(read(rows))!;
+					assertMasked(output, `${at} (${form})`, secret);
+					assert.ok(output.startsWith("Error: provider failed\n"), output);
+					assert.ok(output.endsWith("\nHint: retry"), output);
+				}
+			}
+		}
+});
+
+// pi-herdr-agents#150: the widest row is a whole line that did not wrap, and
+// the next line holds a credential. Joining them must not mask the end of the
+// error.
+const OPENAI_ENV = (secret: string) => `OPENAI_API_KEY=${secret}`;
+const OPENAI_SECRET = ["sk", "proj", "AbCdEf0123456789AbCdEf0123456789"].join(
+	"-",
+);
+
+test("keeps a long unwrapped line whole when the next line holds a credential", () => {
+	const screen = `$ bash '${SCRIPT}'\n${LOAD_ERROR}\n${OPENAI_ENV(OPENAI_SECRET)}\n__SUBAGENT_DONE_1__\n`;
+	for (const read of Object.values(READS)) {
+		const output = extractExitOutput(read(screen.split("\n")), SCRIPT)!;
+		const [error, credential, ...rest] = output.split("\n");
+		assert.equal(error, LOAD_ERROR);
+		assert.deepEqual(rest, []);
+		assert.match(credential, /\[redacted\]/);
+		assertMasked(output, "next-line credential", OPENAI_SECRET);
+	}
+	// The credential line is the widest, with an ordinary line after it.
+	const after = extractExitOutput(
+		`starting\n${OPENAI_ENV(OPENAI_SECRET)}\nHint: retry\nsee docs.\n`,
+	)!;
+	assert.ok(after.startsWith("starting\n"), after);
+	assert.ok(after.endsWith("\nHint: retry\nsee docs."), after);
+	assertMasked(after, "widest-line credential", OPENAI_SECRET);
+	// The widest line ends in a capitalised or upper-case word.
+	for (const word of ["Retry", "README"]) {
+		const ending = `${"~".repeat(60)} see ${word}`;
+		const output = extractExitOutput(
+			`${ending}\n${OPENAI_ENV(OPENAI_SECRET)}\n`,
+		)!;
+		assert.ok(output.startsWith(`${ending}\n`), output);
+		assertMasked(output, `after ${word}`, OPENAI_SECRET);
+	}
+	// A wrapped credential whose rows are not each masked on their own is
+	// masked whole, even where a row's part looks like a word.
+	const head = "abcdef";
+	const opaque = `${head}0123456789abcdef0123456789abcdef01234`;
+	const split = extractExitOutput(
+		wrap(`${"~".repeat(73)} ${opaque}\nHint: retry\n`, 80),
+	)!;
+	assert.ok(!split.includes(head), split);
+	assertMasked(split, "wrapped run", opaque);
+	assert.ok(split.endsWith("\nHint: retry"), split);
+});
+
 test("keeps ordinary paths and diagnostics while masking", () => {
 	for (const ordinary of [
 		LOAD_ERROR,
@@ -558,6 +645,30 @@ test("a wrapped early-exit tail reaches the parent masked, and the ledger and lo
 			for (const file of files)
 				assertMasked(file, `${name} in a run file`, secret);
 		}
+	}));
+
+test("an unwrapped error followed by a credential line reaches the parent whole and masked", () =>
+	withRunSession(async (f) => {
+		const handle = await f.session.spawnPi(f.input);
+		const record = f.latest();
+		const wait = f.session.supervise(handle, f.input.task);
+		f.provider.appendScreen(
+			record.surface,
+			`$ bash '${record.launchScriptFile}'\n${LOAD_ERROR}\n${OPENAI_ENV(OPENAI_SECRET)}\n__SUBAGENT_DONE_1__\n`,
+		);
+		await wait;
+		assert.equal(f.settled.length, 1);
+		const result = f.settled[0];
+		assert.ok(
+			result.summary.startsWith(
+				`Sub-agent exited with code 1 before its session started. Last output:\n${LOAD_ERROR}\n`,
+			),
+			result.summary,
+		);
+		const text = delivered(result);
+		assert.ok(text.includes("status must be an object"), text);
+		assertMasked(result.summary, "summary", OPENAI_SECRET);
+		assertMasked(text, "parent message", OPENAI_SECRET);
 	}));
 
 test(

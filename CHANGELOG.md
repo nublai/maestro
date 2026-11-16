@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- The early-exit relay no longer masks ordinary text when a long line that
+  did not wrap is followed by a line holding a credential. 0.1.2 took the
+  widest row as wrapped and joined it to the next row before masking, so the
+  opaque-run rule swallowed the error's last word ("status must be an
+  object" was relayed as "status must be an [redacted]"). A joined match
+  that crosses rows now leaves an ordinary word at either end visible when
+  the other rows already hold the rest as a credential; every credential
+  shape is still masked at every wrap offset in 40 to 200 columns, read as
+  LF, CRLF or with ANSI escapes. (pi-herdr-agents#150)
+
 ## 0.1.2 (2026-11-16)
 
 Fixes for giuseppecrj/pi-herdr-agents#149, where every child failed with a bare
