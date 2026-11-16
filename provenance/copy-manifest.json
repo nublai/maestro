@@ -6,7 +6,7 @@
 		{
 			"kind": "new",
 			"destination": "maestro/engine.ts",
-			"reason": "Pi-free facade for the M2 generic owner; placeholder root remains until M6."
+			"reason": "Pi-free facade for the M2 generic owner; since M6 also the package root ('.')."
 		},
 		{
 			"kind": "new",
@@ -17,6 +17,21 @@
 			"kind": "new",
 			"destination": "maestro/testing/index.ts",
 			"reason": "Testing facade for copied fakes and conformance runners."
+		},
+		{
+			"kind": "new",
+			"destination": "maestro/pi/child.ts",
+			"reason": "Child protocol facade (@nubl/maestro/pi/child, M6): the protocol-only default child extension plus the named createChildExtension factory a terminal host's child wrapper needs (plan §3). Re-exports copies only."
+		},
+		{
+			"kind": "new",
+			"destination": "maestro/pi/extension.ts",
+			"reason": "Callable Pi composition entry (@nubl/maestro/pi/extension, M6): createPiExtension as both named and default export, with host option types (plan §3). Re-exports copies only."
+		},
+		{
+			"kind": "new",
+			"destination": "maestro/pi/subagents-index.ts",
+			"reason": "Internal-compat counterpart of the upstream terminal entry (@nubl/maestro/pi/subagents/index, M6): its named helpers plus a default that delegates to createPiExtension; no instance, widgets or renderers (plan §3). Not at the upstream index.ts path, which stays upstream. Re-exports copies only."
 		},
 		{
 			"kind": "copy",

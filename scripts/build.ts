@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
-import { copyFileSync, rmSync } from "node:fs";
+import { copyFileSync, rmSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
+import { readManifest } from "./check-copy-fidelity.ts";
 
 function report(diagnostics: readonly ts.Diagnostic[]): void {
 	if (!diagnostics.length) return;
@@ -36,6 +37,21 @@ export function build(root: string): void {
 	copyFileSync(
 		resolve(root, "config.json.example"),
 		resolve(root, "dist/config.json.example"),
+	);
+	// The extraction pin travels with the candidate: a consumer (H2) refuses a
+	// tarball whose base or copy revision differs from its own (plan §1.4).
+	const manifest = readManifest(resolve(root, "provenance/copy-manifest.json"));
+	writeFileSync(
+		resolve(root, "dist/provenance.json"),
+		JSON.stringify(
+			{
+				source_repository: "giuseppecrj/pi-herdr-agents",
+				base_main_sha: manifest.base_main_sha,
+				copy_sha: manifest.copy_sha,
+			},
+			null,
+			"\t",
+		) + "\n",
 	);
 }
 

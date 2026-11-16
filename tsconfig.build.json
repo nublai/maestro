@@ -11,6 +11,6 @@
 		"rewriteRelativeImportExtensions": true,
 		"removeComments": false
 	},
-	"include": ["index.js", "maestro/**/*.ts", "pi-extension/**/*.ts"],
+	"include": ["maestro/**/*.ts", "pi-extension/**/*.ts"],
 	"exclude": ["node_modules", "dist", "test", "scripts", "tools"]
 }

@@ -1,16 +1,16 @@
 {
 	"name": "@nubl/maestro",
-	"version": "0.0.1",
-	"description": "Harness-neutral subagent engine. M4 Pi tools, schemas and createPiExtension factory extracted from pi-herdr-agents; root placeholder retained until M6.",
+	"version": "0.1.0",
+	"description": "Harness-neutral subagent engine extracted from pi-herdr-agents: the generic run owner, Pi adapters/runtime with explicit host ports, and the Pi tool surface behind createPiExtension.",
 	"license": "MIT",
 	"type": "module",
-	"main": "./dist/index.js",
-	"types": "./dist/index.d.ts",
+	"main": "./dist/maestro/engine.js",
+	"types": "./dist/maestro/engine.d.ts",
 	"exports": {
 		".": {
-			"types": "./dist/index.d.ts",
-			"import": "./dist/index.js",
-			"default": "./dist/index.js"
+			"types": "./dist/maestro/engine.d.ts",
+			"import": "./dist/maestro/engine.js",
+			"default": "./dist/maestro/engine.js"
 		},
 		"./package.json": "./package.json",
 		"./engine": {
@@ -348,10 +348,40 @@
 			"import": "./dist/maestro/adapters/pi/task-model-init.js",
 			"default": "./dist/maestro/adapters/pi/task-model-init.js"
 		},
+		"./adapters/pi/child/accept-check": {
+			"types": "./dist/maestro/adapters/pi/child/accept-check.d.ts",
+			"import": "./dist/maestro/adapters/pi/child/accept-check.js",
+			"default": "./dist/maestro/adapters/pi/child/accept-check.js"
+		},
+		"./adapters/pi/child/declared-skills": {
+			"types": "./dist/maestro/adapters/pi/child/declared-skills.d.ts",
+			"import": "./dist/maestro/adapters/pi/child/declared-skills.js",
+			"default": "./dist/maestro/adapters/pi/child/declared-skills.js"
+		},
+		"./adapters/pi/child/done-nudge": {
+			"types": "./dist/maestro/adapters/pi/child/done-nudge.d.ts",
+			"import": "./dist/maestro/adapters/pi/child/done-nudge.js",
+			"default": "./dist/maestro/adapters/pi/child/done-nudge.js"
+		},
+		"./adapters/pi/child/protocol": {
+			"types": "./dist/maestro/adapters/pi/child/protocol.d.ts",
+			"import": "./dist/maestro/adapters/pi/child/protocol.js",
+			"default": "./dist/maestro/adapters/pi/child/protocol.js"
+		},
 		"./pi/child": {
-			"types": "./dist/maestro/adapters/pi/child/entry.d.ts",
-			"import": "./dist/maestro/adapters/pi/child/entry.js",
-			"default": "./dist/maestro/adapters/pi/child/entry.js"
+			"types": "./dist/maestro/pi/child.d.ts",
+			"import": "./dist/maestro/pi/child.js",
+			"default": "./dist/maestro/pi/child.js"
+		},
+		"./pi/extension": {
+			"types": "./dist/maestro/pi/extension.d.ts",
+			"import": "./dist/maestro/pi/extension.js",
+			"default": "./dist/maestro/pi/extension.js"
+		},
+		"./pi/subagents/index": {
+			"types": "./dist/maestro/pi/subagents-index.d.ts",
+			"import": "./dist/maestro/pi/subagents-index.js",
+			"default": "./dist/maestro/pi/subagents-index.js"
 		},
 		"./pi": {
 			"types": "./dist/maestro/pi.d.ts",
@@ -464,9 +494,9 @@
 		"access": "public"
 	},
 	"scripts": {
-		"format": "biome format --write index.js maestro pi-extension test scripts biome.json tsconfig.json tsconfig.build.json package.json provenance",
-		"format:check": "biome format index.js maestro pi-extension test scripts biome.json tsconfig.json tsconfig.build.json package.json provenance",
-		"lint": "oxlint index.js maestro pi-extension test scripts oxlint.config.ts",
+		"format": "biome format --write maestro pi-extension test scripts biome.json tsconfig.json tsconfig.build.json package.json provenance",
+		"format:check": "biome format maestro pi-extension test scripts biome.json tsconfig.json tsconfig.build.json package.json provenance",
+		"lint": "oxlint maestro pi-extension test scripts oxlint.config.ts",
 		"typecheck": "tsc -p tsconfig.json",
 		"test": "node --experimental-strip-types scripts/test-unit.ts",
 		"test:fidelity": "node --experimental-strip-types --test test/copy-fidelity.test.ts test/test-migration.test.ts",

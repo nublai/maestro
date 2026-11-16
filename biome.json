@@ -9,7 +9,6 @@
 			"provenance/**",
 			"!provenance/upstream/**",
 			"!provenance/baseline/upstream/**",
-			"index.js",
 			"index.d.ts",
 			"package.json",
 			"biome.json",

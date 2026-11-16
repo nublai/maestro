@@ -127,21 +127,18 @@ if (
 	resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
 	assert(
-		existsSync("dist/index.js"),
+		existsSync("dist/maestro/engine.js"),
 		"Build before checking emitted boundaries",
 	);
-	for (const path of ["index.js", "maestro", "pi-extension", "dist"])
-		scan(path);
-	for (const path of [
-		"index.js",
-		"maestro/engine.ts",
-		"dist/index.js",
-		"dist/maestro/engine.js",
-	])
+	for (const path of ["maestro", "pi-extension", "dist"]) scan(path);
+	// The package root (".") is the engine entry.
+	for (const path of ["maestro/engine.ts", "dist/maestro/engine.js"])
 		checkEngineClosure(path);
 	for (const path of [
 		"maestro/adapters/pi/child/entry.ts",
 		"dist/maestro/adapters/pi/child/entry.js",
+		"maestro/pi/child.ts",
+		"dist/maestro/pi/child.js",
 	])
 		checkChildClosure(path);
 	console.log(

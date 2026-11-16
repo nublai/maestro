@@ -42,13 +42,25 @@ interface Identity {
 	skip: boolean | string;
 }
 
-test("placeholder package has emitted-only exports and optional host peers, no SDK runtime dependencies", () => {
-	assert.equal(pkg.version, "0.0.1");
+test("the package has emitted-only exports and optional host peers, no SDK runtime dependencies", () => {
+	assert.equal(pkg.version, "0.1.0");
 	assert.equal(pkg.engines.node, ">=26.12.1");
-	assert.equal(pkg.main, "./dist/index.js");
-	assert.equal(pkg.types, "./dist/index.d.ts");
+	// M6 removed the placeholder: the root is the documented engine entry.
+	assert.equal(pkg.main, "./dist/maestro/engine.js");
+	assert.equal(pkg.types, "./dist/maestro/engine.d.ts");
+	assert.deepEqual(pkg.exports["."], pkg.exports["./engine"]);
+	assert(!existsSync(new URL("index.js", root)));
 	assert(pkg.exports["./engine"]);
 	assert(pkg.exports["./testing"]);
+	for (const name of [
+		"./pi",
+		"./pi/child",
+		"./pi/extension",
+		"./pi/subagents/index",
+	])
+		assert(pkg.exports[name], name);
+	for (const name of Object.keys(pkg.exports))
+		assert(!name.startsWith("./experimental"), `${name} waits for M5`);
 	assert(!Object.keys(pkg.exports).some((name) => name.includes("*")));
 	assert.equal(pkg.exports["."].import, pkg.main);
 	assert.equal(pkg.exports["."].default, pkg.main);

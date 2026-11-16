@@ -14,7 +14,6 @@
 		"types": ["node"]
 	},
 	"include": [
-		"index.js",
 		"maestro/**/*.ts",
 		"pi-extension/**/*.ts",
 		"scripts/**/*.ts",

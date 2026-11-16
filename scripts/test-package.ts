@@ -131,7 +131,7 @@ function piConsumer(
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import piExports from "./pi-exports.json" with { type: "json" };
 assert(!process.execArgv.some(arg => /loader|strip-types|import/.test(arg)));
 for (const name of piExports) {
@@ -140,11 +140,26 @@ for (const name of piExports) {
  await import(specifier);
 }
 const { DEFAULT_CHILD_ENTRY_PATH } = await import("@nubl/maestro/adapters/pi/launch-command");
-const entry = fileURLToPath(import.meta.resolve("@nubl/maestro/pi/child"));
-assert.equal(DEFAULT_CHILD_ENTRY_PATH, entry);
+const entry = DEFAULT_CHILD_ENTRY_PATH;
 assert.equal(entry, ${JSON.stringify(installedEntry)});
 assert(existsSync(entry) && entry.includes(" "));
-assert.equal(typeof (await import("@nubl/maestro/pi/child")).default, "function");
+// ./pi/child: the launch entry's default child extension plus the named factory.
+const child = await import("@nubl/maestro/pi/child");
+assert.equal(typeof child.default, "function");
+assert.equal(child.default, (await import(pathToFileURL(entry).href)).default);
+assert.equal(child.createChildExtension, (await import("@nubl/maestro/adapters/pi/child/protocol")).createChildExtension);
+assert.equal(typeof child.createChildExtension(() => undefined), "function");
+// ./pi/extension and ./pi/subagents/index delegate to the one factory.
+const { createPiExtension } = await import("@nubl/maestro/pi");
+const callable = await import("@nubl/maestro/pi/extension");
+assert.equal(callable.default, createPiExtension);
+assert.equal(callable.createPiExtension, createPiExtension);
+const compat = await import("@nubl/maestro/pi/subagents/index");
+const helpers = await import("@nubl/maestro/pi/subagents/extension");
+assert.equal(compat.default, createPiExtension);
+assert.deepEqual(Object.keys(compat).sort(), ["cleanupSubagentsForShutdown", "createPiExtension", "default", "hasWorkingSubagents", "selectCompletionApi", "shouldAdvanceToFallback", "shouldDeliverSubagentCompletion", "shouldPreserveSubagentsOnShutdown"]);
+for (const name of Object.keys(compat)) if (name !== "default") assert.equal(compat[name], helpers[name], name);
+assert.equal("__test__" in compat, false);
 const { createDefaultRunSession } = await import("@nubl/maestro/runtime");
 const { FakeSurfaceProvider } = await import("@nubl/maestro/testing");
 const dir = join(process.cwd(), "run dir");
@@ -450,16 +465,34 @@ try {
 	]);
 	assert(existsSync(join(installed, "dist/maestro/engine.js")));
 	assert(!existsSync(join(installed, "test")));
+	// The root is the engine entry (M6 removed the placeholder API).
 	const sourceMap = JSON.parse(
-		readFileSync(join(installed, "dist/index.js.map"), "utf8"),
+		readFileSync(join(installed, "dist/maestro/engine.js.map"), "utf8"),
 	);
-	assert.deepEqual(sourceMap.sources, ["../index.js"]);
+	assert.deepEqual(sourceMap.sources, ["../../maestro/engine.ts"]);
 	assert.deepEqual(sourceMap.sourcesContent, [
-		readFileSync(join(root, "index.js"), "utf8"),
+		readFileSync(join(root, "maestro/engine.ts"), "utf8"),
 	]);
+	assert(!existsSync(join(installed, "dist/index.js")));
 	assert.match(
-		readFileSync(join(installed, "dist/index.d.ts"), "utf8"),
-		/export (?:declare )?const version: string;/,
+		readFileSync(join(installed, "dist/maestro/engine.d.ts"), "utf8"),
+		/export \{ defaultRetainSurface \}/,
+	);
+	// The candidate records its extraction pin for the consumer's H2 gate.
+	const manifest = parseJson(
+		readFileSync(join(root, "provenance/copy-manifest.json"), "utf8"),
+		"the copy manifest",
+	);
+	assert.deepEqual(
+		parseJson(
+			readFileSync(join(installed, "dist/provenance.json"), "utf8"),
+			"the packed provenance",
+		),
+		{
+			source_repository: "giuseppecrj/pi-herdr-agents",
+			base_main_sha: manifest.base_main_sha,
+			copy_sha: manifest.copy_sha,
+		},
 	);
 	// Exports whose emitted closure imports a host-provided Pi/TypeBox peer.
 	const installedPkg = JSON.parse(
@@ -493,9 +526,12 @@ try {
 		`
 import assert from "node:assert/strict";
 import piExports from "./pi-exports.json" with { type: "json" };
-import { version } from "@nubl/maestro";
+import * as root from "@nubl/maestro";
+import * as engine from "@nubl/maestro/engine";
 import pkg from "@nubl/maestro/package.json" with { type: "json" };
-assert.equal(version, pkg.version);
+assert.deepEqual(Object.keys(root).sort(), Object.keys(engine).sort());
+assert.equal(root.createRunSession, engine.createRunSession);
+assert.equal("version" in root, false);
 assert(pkg.exports["./engine"]);
 assert(pkg.exports["./testing"]);
 assert(!Object.keys(pkg.exports).some(name => name.includes("*")));
