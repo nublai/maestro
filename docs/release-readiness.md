@@ -1,5 +1,24 @@
 # @nubl/maestro 0.1.0 release readiness
 
+## 0.1.1 corrective candidate
+
+`0.1.1` only widens `engines.node` to `>=22.19.0` (pi's floor); no code
+changes (see [`CHANGELOG.md`](../CHANGELOG.md)). With npm `engine-strict`,
+0.1.0's `>=26.12.1` refused Node 22 installs (`EBADENGINE`, reproduced on
+22.19.0).
+
+- file: `nubl-maestro-0.1.1.tgz`, packed on Node 26.12.1
+- sha256: `d7dc32d5b55992a300b26916755a0bfbb3fbc93cf22b3669df6380fa2087f26f`
+- `test:package` against this tarball passed on Node 22.19.0, 22.23.5 and
+  26.12.1; `npm install --engine-strict` of it succeeds on 22.19.0.
+- The source suite (`npm test`) stays Node 26: on Node 22 five tests in
+  `test/pi-adapter-paths.test.ts` are cancelled because Node 22's test runner
+  exits while a test awaits only unref'd timers (the capture loop unrefs them
+  on purpose). With the event loop held open they pass on 22.19.0.
+
+Release it the same way as below, with tag `v0.1.1`, and pin consumers to
+`"@nubl/maestro": "0.1.1"`. The rest of this document describes 0.1.0.
+
 **Status:** ready, waiting for the founder's go. `package.json` says `0.1.0`;
 npm still has only the `0.0.1` placeholder. Nothing has been tagged or
 published.
