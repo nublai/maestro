@@ -20,6 +20,15 @@ import { anchorEntry, readTestMap, TEST_MAPS } from "./check-test-migration.ts";
 export function refreshCopies(root: string, upstream: string): void {
 	const manifestPath = resolve(root, "provenance/copy-manifest.json");
 	const manifest = readManifest(manifestPath);
+	// A recopy would silently revert an owned fix; refuse before writing anything.
+	const owned = manifest.entries.filter(
+		(entry) => entry.kind === "copy" && entry.owned_change,
+	);
+	assert.deepEqual(
+		owned.map((entry) => entry.destination),
+		[],
+		"Refusing to recopy over recorded owned changes; carry them forward explicitly",
+	);
 	const show = (path: string): Buffer =>
 		execFileSync("git", [
 			"-C",

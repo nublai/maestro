@@ -15,6 +15,20 @@ const CopyEntry = Type.Object(
 		blob: Type.String({ pattern: "^[a-f0-9]{40}$" }),
 		archive: Type.Optional(Type.String()),
 		classification: Type.Optional(Type.Literal("split")),
+		/**
+		 * After H2 Maestro owns the source: an authorized fix to a copy records
+		 * the destination's exact Git blob and why. The pinned original is still
+		 * verified, so provenance is retained and any unrecorded edit still fails.
+		 */
+		owned_change: Type.Optional(
+			Type.Object(
+				{
+					reason: Type.String({ minLength: 1 }),
+					blob: Type.String({ pattern: "^[a-f0-9]{40}$" }),
+				},
+				{ additionalProperties: false },
+			),
+		),
 	},
 	{ additionalProperties: false },
 );
@@ -300,7 +314,12 @@ export function checkCopyFidelity(
 			: original;
 		// Parse the destination too, but never normalize an undeclared destination rewrite away.
 		normalizeImports(destination.toString("utf8"), entry.destination, []);
-		if (!expected.equals(destination))
+		if (entry.owned_change) {
+			if (expected.equals(destination))
+				throw new Error(`Stale owned change: ${entry.destination}`);
+			if (gitBlob(destination) !== entry.owned_change.blob)
+				throw new Error(`Unrecorded change: ${entry.destination}`);
+		} else if (!expected.equals(destination))
 			throw new Error(`Copy differs: ${entry.destination}`);
 		copies++;
 	}
@@ -318,7 +337,10 @@ if (
 	const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 	const manifest = readManifest(resolve(root, "provenance/copy-manifest.json"));
 	const copies = checkCopyFidelity(manifest, root, process.argv[2]);
+	const owned = manifest.entries.filter(
+		(entry) => entry.kind === "copy" && entry.owned_change,
+	).length;
 	console.log(
-		`Copy fidelity: ${copies} copied files verified (${manifest.entries.length - copies} new files).`,
+		`Copy fidelity: ${copies} copied files verified, ${owned} with a recorded owned change (${manifest.entries.length - copies} new files).`,
 	);
 }

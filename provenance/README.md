@@ -48,6 +48,13 @@ static imports, re-exports, import types and literal dynamic imports (including
 non-interpolated templates). It preserves quote delimiters, whitespace, comments
 and other literals. Computed imports are not normalized. Non-code assets are compared byte-for-byte.
 
+After H2 Maestro owns the moved source. An authorized fix to a copy adds
+`owned_change: { "reason", "blob" }` to its entry: the checker still verifies
+the pinned original, then requires the destination to have exactly that Git
+blob, so any unrecorded edit fails. A record on an unchanged copy is stale and
+fails too. `refresh-copies.ts` refuses to recopy over owned changes, and
+`map-coverage-lines.ts <upstream> owned` re-maps their coverage lines.
+
 Use `npm run check:copy-fidelity -- /path/to/upstream` locally to read pinned
 blobs with `git show` and verify any archived copies too. CI omits that argument
 and requires the committed archives. Blob IDs are checked in both modes. Missing
