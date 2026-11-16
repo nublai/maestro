@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.2 (2026-11-16)
 
 Fixes for giuseppecrj/pi-herdr-agents#149, where every child failed with a bare
 "exit code 1" because `config.json` held only `models`.
