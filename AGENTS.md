@@ -48,7 +48,9 @@ The build emits JS and declarations into `dist/`.
 
 ## Checks
 
-Use Node **>=26.12.1**. Use the scripts in `package.json` for formatting,
+Develop on Node **>=26.12.1** (the source suite needs it). The published
+package supports consumers on Node **>=22.19.0**, pi's own floor (`engines`);
+CI's `node22-runtime` lane tests the packed tarball there. Use the scripts in `package.json` for formatting,
 lint, strict typechecking, schema/docs checks, unit tests, coverage, build and
 packed-consumer tests, plus `npm pack --dry-run`. Run the checks required by the current extraction PR,
 including upstream composition tests when the package boundary changes.

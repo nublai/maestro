@@ -43,8 +43,9 @@ interface Identity {
 }
 
 test("the package has emitted-only exports and optional host peers, no SDK runtime dependencies", () => {
-	assert.equal(pkg.version, "0.1.0");
-	assert.equal(pkg.engines.node, ">=26.12.1");
+	assert.equal(pkg.version, "0.1.1");
+	// Consumers install on pi's own Node floor; development stays on Node 26.
+	assert.equal(pkg.engines.node, ">=22.19.0");
 	// M6 removed the placeholder: the root is the documented engine entry.
 	assert.equal(pkg.main, "./dist/maestro/engine.js");
 	assert.equal(pkg.types, "./dist/maestro/engine.d.ts");
@@ -418,6 +419,14 @@ test("CI and publishing retain OIDC/version guards and execute M1 gates on minim
 		])
 			assert(workflow.includes(`- run: ${command}`));
 	}
+	const node22 = read(".github/workflows/ci.yml").split(
+		"  node22-runtime:\n",
+	)[1];
+	assert(node22?.includes("node-version: 22.19.0"));
+	assert(
+		node22.includes('npm run test:package -- "$PWD"/candidate/*.tgz'),
+		"the Node 22 lane tests the packed tarball",
+	);
 	const publish = read(".github/workflows/publish.yml");
 	const [buildJob, publishJob] = publish.split("  publish:\n");
 	assert(!buildJob.includes("id-token: write"));

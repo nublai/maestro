@@ -6,7 +6,8 @@ Harness-neutral subagent engine: delegation, checked outcomes and a pluggable ex
 
 ## Development
 
-Use Node **>=26.12.1** and `npm ci`. `npm run build` emits JavaScript,
+Develop on Node **>=26.12.1** with `npm ci`. Installed consumers need only
+Node **>=22.19.0**, pi's own floor. `npm run build` emits JavaScript,
 declarations and source maps into `dist/`; `npm run test:package` installs a
 fresh tarball and tests the emitted package without Pi peers or TypeScript loaders.
 

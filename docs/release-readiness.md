@@ -54,7 +54,10 @@ Not included:
 
 Requirements:
 
-- Node `>=26.12.1`.
+- Node `>=22.19.0` for consumers (pi's own floor, so the extraction does not
+  narrow who can install pi-herdr-agents). Development and the source suite
+  stay on Node `>=26.12.1`; CI's `node22-runtime` lane installs the packed
+  tarball and runs `test:package` on Node 22.19.0.
 - Optional `"*"` peers, which the Pi entries require: `@earendil-works/pi-ai`,
   `@earendil-works/pi-coding-agent`, `@earendil-works/pi-tui` and
   `@sinclair/typebox`.

@@ -10,8 +10,10 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      # actions/checkout v4.3.0
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955
+      # actions/setup-node v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 26.12.1
           cache: npm
@@ -28,3 +30,29 @@ jobs:
       - run: npm run test:coverage
       - run: npm run test:package
       - run: npm pack --dry-run
+  # Consumers (pi-herdr-agents) install on pi's Node floor. Development stays on
+  # Node 26 (the source suite relies on Node 26 test-runner and type-stripping
+  # behavior); this lane proves the published JS from the packed tarball on 22.
+  node22-runtime:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      # actions/checkout v4.3.0
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955
+      # actions/setup-node v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 26.12.1
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Pack the candidate on Node 26
+        run: |
+          mkdir candidate
+          npm pack --pack-destination candidate
+      # actions/setup-node v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.19.0
+      - run: node --version
+      - name: Packed-tarball package tests on Node 22
+        run: npm run test:package -- "$PWD"/candidate/*.tgz
