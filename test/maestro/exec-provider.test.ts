@@ -388,6 +388,11 @@ interface StopMutant {
 	rejectSecondExecutionStop?: boolean;
 	/** An unobserved stop's execution never confirms a stop again. */
 	neverConfirmUnobserved?: boolean;
+	/**
+	 * The stop after an unobserved one is unconfirmed and was never sent
+	 * (`not-sent`): not a report an owner repeats (maestro#11).
+	 */
+	notSentAfterUnobserved?: boolean;
 	/** Not a mutant: the second execution's first stop goes unobserved. */
 	unobserveSecondExecutionStop?: boolean;
 	/**
@@ -436,6 +441,16 @@ function unobservedStopFixture(mutant: StopMutant = {}) {
 			rejected = true;
 			throw new Error("mutant: stop rejected");
 		}
+		if (
+			mutant.notSentAfterUnobserved &&
+			unobserved.has(handle.ref) &&
+			stops.get(handle.ref) === 2
+		)
+			return {
+				request: "not-sent",
+				termination: "unconfirmed",
+				error: new Error("mutant: second stop not sent"),
+			};
 		if (mutant.neverConfirmUnobserved && unobserved.has(handle.ref))
 			return {
 				request: "unknown",
@@ -584,6 +599,24 @@ describe("ExecProvider conformance rejects stop mutants of a fixture whose stops
 			),
 		);
 		assert.deepEqual([...(stops?.values() ?? [])], [1, 2]);
+	});
+
+	it("maestro#11: in the unobserved-stop case, a second stop that was never sent is not repeated: the case fails after two stops", async () => {
+		let stops: Map<string, number> | undefined;
+		const run = capturedConformance(async () => {
+			const made = unobservedStopFixture({ notSentAfterUnobserved: true });
+			stops = made.stops;
+			return made.fixture;
+		});
+		await assert.rejects(
+			run(
+				"a stop the host did not observe is an unconfirmed report; a later stop confirms",
+			),
+			(error: Error) =>
+				error instanceof assert.AssertionError &&
+				/whose request was not-sent is not repeated/.test(error.message),
+		);
+		assert.deepEqual([...(stops?.values() ?? [])], [2]);
 	});
 
 	it("an unobserved stop that never confirms fails the suite after three stops in all", async () => {

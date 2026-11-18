@@ -56,12 +56,16 @@ export interface B2Started {
 	parentWorkerId: string;
 	slots: WorkerSlot[];
 	channelMethods: string[];
+	/** The sandboxed parent's channel socket, when the fixture started with `channel`. */
+	channelSocket?: string;
 }
 
 /** The worker row as the owner sees it, for assertions only. */
 export interface OwnerRow {
 	worker_id: string;
 	status: string;
+	worker_epoch: string;
+	cwd: string;
 	fence: { command_id: string } | null;
 	child_reports?: { command_id: string; kind: string; message: string }[];
 }
@@ -124,7 +128,7 @@ export class B2Fixture {
 	/** Starts the supervisor process and its topology. */
 	static async start(
 		slots = 4,
-		options: { evictable?: boolean } = {},
+		options: { evictable?: boolean; channel?: boolean } = {},
 	): Promise<B2Fixture> {
 		const child = spawn(process.execPath, [SUPERVISOR], {
 			stdio: ["pipe", "pipe", "pipe"],
@@ -167,6 +171,7 @@ export class B2Fixture {
 			profile: MAESTRO_WORKER_PARENT_METHODS,
 			slots,
 			evictable: options.evictable,
+			channel: options.channel,
 		});
 		return fixture;
 	}
@@ -219,18 +224,24 @@ export function composeProvider(
 	);
 }
 
-/** The provider over a started fixture, its stores under `dir` (kept across processes). */
+/**
+ * The provider over a started fixture, its stores under `dir` (kept across
+ * processes). In channel mode it calls B2 through the sandboxed parent's
+ * channel, which needs no grant file (the channel is its own grant).
+ */
 export function composeProviderAt(
 	started: B2Started,
 	dir: string,
 	overrides: Partial<WorkerExecutionProviderOptions> = {},
 ) {
 	const state = join(dir, ".piw-maestro");
-	const client = new Client({
-		socketPath: started.socketPath,
-		grantFile: started.grantFile,
-		timeoutMs: 10_000,
-	});
+	const client = started.channelSocket
+		? new Client({ socketPath: started.channelSocket, timeoutMs: 10_000 })
+		: new Client({
+				socketPath: started.socketPath,
+				grantFile: started.grantFile,
+				timeoutMs: 10_000,
+			});
 	const launches = new WorkerLaunchStore(join(state, "launches"));
 	const slots = new WorkerSlotPool({
 		root: started.root,

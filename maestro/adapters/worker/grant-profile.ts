@@ -12,13 +12,18 @@
  * reports through its FD 3 (`fd-report.ts`), never through B2.
  */
 
-/** Reads the provider makes: negotiation, binding, receipts (also the Observer's), events and history. */
+/**
+ * Reads the provider makes: negotiation, binding, receipts (also the
+ * Observer's), events, history, and owner-Git facts about a child's checkout
+ * for its bound check (`artifacts.inspect`, P3-10).
+ */
 export const MAESTRO_WORKER_READ_METHODS = [
 	"hello",
 	"workers.get",
 	"receipts.get",
 	"events.subscribe",
 	"history.page",
+	"artifacts.inspect",
 ] as const;
 
 /** Mutations the provider sends, each under a persisted UUIDv7 command ID. */

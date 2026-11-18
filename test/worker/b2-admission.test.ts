@@ -7,7 +7,7 @@
 import "../clean-host-env.ts";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
@@ -21,7 +21,13 @@ import {
 	workerParentIdentity,
 } from "../../maestro/adapters/worker/parent-admission.ts";
 import {
+	isFiniteNumber,
+	isRecord,
+} from "../../maestro/core/config/type-guards.ts";
+import {
 	isOutcomeStoreError,
+	type OutcomeJson,
+	type OutcomeJsonObject,
 	type OutcomeRecovery,
 } from "../../maestro/core/outcome-store.ts";
 import { AdmissionOutbox } from "../../maestro/runtime/admission-outbox.ts";
@@ -132,6 +138,7 @@ function maestro(
 	dir: string,
 	mode: "run" | "recover",
 	cut?: MaestroCut,
+	extra: { checks?: boolean; accept?: string; cancel?: boolean } = {},
 ) {
 	const child = spawn(
 		process.execPath,
@@ -139,7 +146,7 @@ function maestro(
 			"--experimental-strip-types",
 			"--no-warnings",
 			MAESTRO,
-			JSON.stringify({ started: fixture.started, dir, mode, cut }),
+			JSON.stringify({ started: fixture.started, dir, mode, cut, ...extra }),
 		],
 		{
 			stdio: ["ignore", "pipe", "pipe"],
@@ -1146,5 +1153,123 @@ describe("parent admission over real B2: help is not completion", () => {
 			} finally {
 				await second.dispose();
 			}
+		}));
+});
+
+describe("P3-10 interrupted-run hand-off over real B2 (Maestro SIGKILLed, then restarted)", () => {
+	/** A JSON object field, asserted to be one. */
+	const object = (value: OutcomeJson | undefined): OutcomeJsonObject => {
+		assert.ok(isRecord(value), "a JSON object");
+		return value;
+	};
+
+	it("a check interrupted after its subject was recorded is handed off against that subject, once; never re-run", () =>
+		withFixture(async (fixture, dir) => {
+			const marks = mkdtempSync(join(tmpdir(), "maestro-handoff-marks-"));
+			try {
+				const mark = join(marks, "ran");
+				const run = maestro(fixture, dir, "run", "during-check", {
+					checks: true,
+					accept: `: > '${mark}'`,
+				});
+				const { workerId } = await run.next("launched");
+				const sha = await fixture.op<string>("commit", {
+					workerId,
+					file: "feature.txt",
+					text: "feature\n",
+				});
+				await fixture.op("report", {
+					workerId,
+					kind: "result",
+					message: encodeResultClaim({ type: "done", commit: sha }),
+				});
+				await run.next("cut");
+				assert.equal(await run.exited, "SIGKILL", run.stderr());
+				const recover = maestro(fixture, dir, "recover", undefined, {
+					checks: true,
+				});
+				const recovered = await recover.next("recovered");
+				assert.equal(await recover.exited, 0, recover.stderr());
+				assert.deepEqual(
+					recovered.recovery.interrupted,
+					[],
+					"the run is closed",
+				);
+				assert.equal(recovered.handed?.length, 1);
+				const handed = recovered.handed![0]!.outcome;
+				assert.equal(handed.outcome, "interrupted");
+				assert.equal(handed.textSource, "host");
+				assert.equal(handed.reportId, "interrupted-run");
+				const verdict = object(handed.verdict);
+				assert.equal(verdict.verdict, "error");
+				assert.equal(verdict.reason, "check interrupted");
+				assert.match(String(verdict.checkHash), /^sha256:/);
+				// The saved subject, never a fresh read: the commit the check began on.
+				assert.equal(object(object(handed.subject).before).commit, sha);
+				const facts = object(object(handed.facts).handoff);
+				assert.ok(
+					Array.isArray(facts.commands) &&
+						facts.commands.some(
+							(c) =>
+								object(c).purpose === "stop" &&
+								object(c).outcome === "observed",
+						),
+					"the bound check's stop evidence is kept",
+				);
+				assert.equal(object(facts.child).status, "stopped");
+				assert.equal(object(object(facts.parent).state).fenced, false);
+				assert.equal(existsSync(mark), false, "the check never re-ran");
+				// A second restart commits nothing again.
+				const again = maestro(fixture, dir, "recover", undefined, {
+					checks: true,
+				});
+				const second = await again.next("recovered");
+				assert.equal(await again.exited, 0, again.stderr());
+				assert.deepEqual(second.handed, []);
+				assert.equal(
+					second.recovery.outcomes.filter((o) => o.outcome.taskId === "o1")
+						.length,
+					1,
+				);
+				assert.equal(await fixture.op<number>("acquisitions"), 1);
+			} finally {
+				rmSync(marks, { recursive: true, force: true });
+			}
+		}));
+
+	it("a cancel interrupted before its stop was sent is handed off with its durable intent and the pending stop; nothing is re-sent", () =>
+		withFixture(async (fixture, dir) => {
+			const run = maestro(fixture, dir, "run", "before-stop", {
+				checks: true,
+				cancel: true,
+			});
+			const { workerId } = await run.next("launched");
+			await run.next("cut");
+			assert.equal(await run.exited, "SIGKILL", run.stderr());
+			const recover = maestro(fixture, dir, "recover", undefined, {
+				checks: true,
+			});
+			const recovered = await recover.next("recovered");
+			assert.equal(await recover.exited, 0, recover.stderr());
+			assert.equal(recovered.handed?.length, 1);
+			const handed = recovered.handed![0]!.outcome;
+			assert.equal(handed.outcome, "interrupted");
+			assert.equal(handed.verdict, undefined, "no check began");
+			const cancellation = object(handed.cancellation);
+			assert.ok(isFiniteNumber(cancellation.requestedAt), "its durable intent");
+			// The child was never stopped: a cancel intent is not termination.
+			assert.equal(cancellation.termination, "unconfirmed");
+			const facts = object(object(handed.facts).handoff);
+			const stops = (
+				Array.isArray(facts.commands) ? facts.commands : []
+			).filter((c) => object(c).purpose === "stop");
+			assert.deepEqual(
+				stops.map((c) => object(c).outcome),
+				["pending"],
+				"the stop recorded before its transport, never sent again",
+			);
+			assert.equal(object(facts.child).status, "ready");
+			assert.equal((await fixture.row(workerId)).status, "ready");
+			assert.equal(await fixture.op<number>("acquisitions"), 1);
 		}));
 });

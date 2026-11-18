@@ -46,6 +46,7 @@ try {
 			"test/worker/b2-conformance.test.ts",
 			"test/worker/b2-provider.test.ts",
 			"test/worker/b2-admission.test.ts",
+			"test/worker/b2-bound-check.test.ts",
 		],
 		{
 			cwd: root,

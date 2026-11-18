@@ -8,7 +8,13 @@
  * - `run`: launches one child task and supervises it to delivery. With `cut`,
  *   the process SIGKILLs itself at that point (after printing `{event:"cut"}`).
  * - `recover`: reopens the same store (a new owner), starts the outbox
- *   (receipt reads first, then delivery) and prints what it recovered.
+ *   (receipt reads first, then delivery) and prints what it recovered. With
+ *   `checks` it first hands off every run the killed owner left open (P3-10).
+ *
+ * P3-10: `checks` composes `WorkerRunChecks`; `accept` is the task's check
+ * command; `cancel` cancels the run once launched. Cuts `during-check` (the
+ * check's subject is durable, its command not started) and `before-stop` (the
+ * cancel's stop command is durable, not sent).
  *
  * Events: one JSON object per stdout line. Synthetic environment only.
  */
@@ -17,6 +23,7 @@ import type { Receipt } from "@nublai/pi-worker-client";
 import type {
 	OutcomeRecovery,
 	OutcomeStore,
+	StoredOutcome,
 } from "../../../maestro/core/outcome-store.ts";
 import type { AdmissionAttention } from "../../../maestro/runtime/admission-outbox.ts";
 import type { FileOutcomeStore } from "../../../maestro/runtime/file-outcome-store.ts";
@@ -35,13 +42,18 @@ export type MaestroCut =
 	| "after-admission"
 	| "after-ack"
 	| "compaction-before-rename"
-	| "compaction-after-rename";
+	| "compaction-after-rename"
+	| "during-check"
+	| "before-stop";
 
 interface Args {
 	started: B2Started;
 	dir: string;
 	mode: "run" | "recover";
 	cut?: MaestroCut;
+	checks?: boolean;
+	accept?: string;
+	cancel?: boolean;
 }
 
 // SAFETY: the test passes this JSON (Args) itself.
@@ -61,6 +73,7 @@ export type MaestroEvent =
 			event: "recovered";
 			recovery: OutcomeRecovery;
 			attention: AdmissionAttention[];
+			handed?: StoredOutcome[];
 	  }
 	| { event: "error"; message: string };
 
@@ -87,7 +100,10 @@ function cutting(real: FileOutcomeStore, at: MaestroCut | undefined) {
 		parent: real.parent,
 		owner: real.owner,
 		recordAttempt: (attempt) => real.recordAttempt(attempt),
-		recordCheck: (check) => real.recordCheck(check),
+		async recordCheck(check) {
+			await real.recordCheck(check);
+			if (at === "during-check") cut(at);
+		},
 		async commit(draft) {
 			if (at === "before-commit") cut(at);
 			state.committing = true;
@@ -152,7 +168,18 @@ async function main(): Promise<void> {
 				},
 			},
 		};
+	if (args.checks) options.checks = {};
 	const parent = await composeWorkerParent(started, dir, options);
+	if (at === "before-stop") {
+		const { client } = parent.composed;
+		const call = client.call.bind(client);
+		// SAFETY: a pass-through wrapper with the client's own signature.
+		client.call = (async (op: string, opts: never) => {
+			if (op === "workers.stop") cut("before-stop");
+			// SAFETY: forwards the caller's own operation and options unchanged.
+			return call(op as never, opts);
+		}) as typeof client.call;
+	}
 	if (at === "after-admission") {
 		const { client } = parent.composed;
 		const call = client.call.bind(client);
@@ -175,6 +202,9 @@ async function main(): Promise<void> {
 	}
 	if (mode === "recover") {
 		await parent.outbox.start();
+		const handed = parent.checks
+			? await parent.checks.handOffInterrupted(parent.store, parent.outbox)
+			: undefined;
 		// Let any delivery the recovery made settle before reporting.
 		const deadline = Date.now() + 3_000;
 		while (
@@ -184,18 +214,25 @@ async function main(): Promise<void> {
 				.some((item) => item.needs !== "owner" && item.needs !== "busy")
 		)
 			await new Promise((resolve) => setTimeout(resolve, 20));
-		emit({
+		const recovered: MaestroEvent = {
 			event: "recovered",
 			recovery: parent.store.recovery(),
 			attention: parent.outbox.attention(),
-		});
+		};
+		if (handed) recovered.handed = handed;
+		emit(recovered);
 		await parent.dispose();
 		return;
 	}
 	await parent.outbox.start();
-	const task = workerTask("o1", parent.session.root);
+	const task = workerTask(
+		"o1",
+		parent.session.root,
+		args.accept === undefined ? undefined : { run: args.accept },
+	);
 	const handle = await parent.runs.spawn(task);
 	emit({ event: "launched", workerId: parent.workerOf(handle) });
+	if (args.cancel) void parent.runs.cancel(task.id);
 	const result = await parent.runs.supervise(handle, task);
 	emit({
 		event: "settled",

@@ -11,15 +11,29 @@
  * Topology (root decision Q3/P2-8 B): an owner repository, the parent root a
  * linked worktree of it, and owner-prepared slots: locked linked worktrees of
  * the same repository at `PARENT/.piw-slots/<name>`, each on its own
- * `refs/heads/maestro/<name>` at the exact base. The parent is a typed root
+ * `refs/heads/maestro-<name>/<name>` (a private namespace, as P2-5 requires
+ * of a sandboxed checkout's branch) at the exact base. The parent is a typed root
  * worker with a running execution; the provider's grant is Maestro's method
- * profile scoped to that parent and its root.
+ * profile scoped to that parent and its root. The repository and its
+ * worktrees live outside the supervisor's state directory, as a sandboxed
+ * root must (every typed child declares the bwrap profile of its slot, so the
+ * worker saves its launch's Git pin for `artifacts.inspect`; the fixture's
+ * hosts still run unsandboxed). With `channel`, the parent is itself a
+ * sandboxed root worker and Maestro calls B2 through its parent channel
+ * (P2-8), as inside a real sandboxed parent.
  *
  * Control: one JSON request per stdin line `{id, op, args}`, one reply per
  * stdout line `{id, ok, result | error}`. Synthetic environment only.
  */
 import { execFileSync } from "node:child_process";
-import { mkdirSync, realpathSync, writeFileSync } from "node:fs";
+import {
+	mkdirSync,
+	mkdtempSync,
+	realpathSync,
+	rmSync,
+	writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -34,6 +48,7 @@ const { createB2Server, listenPrivate } = await dist("src/b2/server.js");
 const { GrantStore, writeBearerFile } = await dist("src/grants/store.js");
 const { LineHost, childEnv } = await dist("src/host/host.js");
 const { CHANNEL_METHODS } = await dist("src/supervisor/channel.js");
+const { parentChannels } = await dist("src/b2/channel.js");
 
 const childHost = new URL("./child-host.mjs", import.meta.url).pathname;
 /** What a typed child inherits: synthetic, never this process's environment. */
@@ -54,6 +69,10 @@ let uncertainNext = false;
 let parentHost;
 let parentId;
 let serial = 0;
+/** The owner's repository, its parent root and slots: outside the state. */
+let topology;
+let repoDir;
+let ownerGit;
 
 function gitIn(home) {
 	const env = {
@@ -103,13 +122,21 @@ function launch(l) {
 	return host;
 }
 
-async function start({ profile, slots = 4, evictable = false }) {
+async function start({
+	profile,
+	slots = 4,
+	evictable = false,
+	channel = false,
+}) {
 	// `evictable`: no minimum receipt age, so `evictReceipts` can evict at once.
 	f = fixture(evictable ? { launch, retention: { minAgeMs: 0 } } : { launch });
-	const base = realpathSync(f.dir);
+	topology = realpathSync(mkdtempSync(join(tmpdir(), "maestro-b2-topology-")));
+	const base = topology;
 	const repo = join(base, "repo");
 	const root = join(base, "parent");
 	const git = gitIn(base);
+	repoDir = repo;
+	ownerGit = git;
 	mkdirSync(repo);
 	git(repo, "init", "-q", "-b", "main");
 	git(repo, "config", "user.name", "Fixture owner");
@@ -128,13 +155,29 @@ async function start({ profile, slots = 4, evictable = false }) {
 	for (let i = 0; i < slots; i++) {
 		const name = `s${i}`;
 		const path = join(root, ".piw-slots", name);
-		const branch = `refs/heads/maestro/${name}`;
-		git(repo, "worktree", "add", "-qb", `maestro/${name}`, path, baseSha);
+		const branch = `refs/heads/maestro-${name}/${name}`;
+		git(
+			repo,
+			"worktree",
+			"add",
+			"-qb",
+			`maestro-${name}/${name}`,
+			path,
+			baseSha,
+		);
 		git(repo, "worktree", "lock", "--reason", "owner slot", path);
 		slotList.push({ name, branch, baseSha });
 	}
+	grants = new GrantStore(f.dir);
+	// A sandboxed parent needs its channel served before its create (P2-8).
+	if (channel)
+		f.supervisor.serveParentChannels(
+			parentChannels({ supervisor: f.supervisor, grants }),
+		);
+	const environment = { id: "parent", revision: 1, allowed_methods: profile };
+	if (channel) Object.assign(environment, { filesystem: "bwrap", root });
 	const spec = {
-		environment: { id: "parent", revision: 1, allowed_methods: profile },
+		environment,
 		role: "parent",
 		tools: ["read", "bash", "edit", "write"],
 		denied_tools: [],
@@ -164,7 +207,6 @@ async function start({ profile, slots = 4, evictable = false }) {
 		message: "orchestrate",
 	});
 	if (prompted.state !== "delivered") throw new Error("parent prompt failed");
-	grants = new GrantStore(f.dir);
 	const { token } = grants.register({
 		caller: "maestro-parent",
 		scope: { worker_ids: [p.worker_id], cwd_roots: [root] },
@@ -184,6 +226,9 @@ async function start({ profile, slots = 4, evictable = false }) {
 		parentWorkerId: p.worker_id,
 		slots: slotList,
 		channelMethods: [...CHANNEL_METHODS],
+		channelSocket: channel
+			? join(f.supervisor.state.require(p.worker_id).channel.dir, "sock")
+			: undefined,
 	};
 }
 
@@ -404,6 +449,30 @@ const ops = {
 		return file;
 	},
 	workers: async () => f.supervisor.list().length,
+	// ---- P3-10: the child's checkout, as a sandboxed child (or a sibling) could change it ----
+	/** The child commits one file in its own slot, as the child would; returns the commit. */
+	commit: async ({ workerId, file, text }) => {
+		const cwd = f.supervisor.get(workerId).cwd;
+		writeFileSync(join(cwd, file), text);
+		ownerGit(cwd, "add", "--", file);
+		ownerGit(cwd, "commit", "-qm", `child ${file}`);
+		return ownerGit(cwd, "rev-parse", "HEAD");
+	},
+	/** A file appears in the child's slot (untracked unless it is tracked already). */
+	write: async ({ workerId, file, text }) => {
+		writeFileSync(join(f.supervisor.get(workerId).cwd, file), text);
+	},
+	/** The shared object store loses a loose object (a sandbox can remove one). */
+	removeObject: async ({ sha }) => {
+		rmSync(join(repoDir, ".git", "objects", sha.slice(0, 2), sha.slice(2)));
+	},
+	/** A slot's HEAD in its admin directory names `ref` (metadata a sandbox can write). */
+	setSlotHead: async ({ slot, ref }) => {
+		writeFileSync(
+			join(repoDir, ".git", "worktrees", slot, "HEAD"),
+			`ref: ${ref}\n`,
+		);
+	},
 	shutdown: async () => {
 		await unserve();
 		for (const { host } of children.values()) {
@@ -413,6 +482,7 @@ const ops = {
 			await f.supervisor.shutdown();
 			f.cleanup();
 		}
+		if (topology) rmSync(topology, { recursive: true, force: true });
 		return true;
 	},
 };

@@ -48,8 +48,11 @@ it, the host's `onSettled` delivers as before.
 The worker execution (`WorkerExecutionProvider`, `maestro/adapters/worker/`)
 runs children as typed pi-worker children over B2 in owner-prepared slots.
 Each child reports through its FD 3 reporter. A host opts in by composing the
-provider explicitly. It is not a package export yet (P3-11); see
-[docs/worker-provider.md](docs/worker-provider.md).
+provider explicitly. A worker parent's run owner checks a child's result with
+the V1 bound check (`WorkerRunChecks`, P3-10): the accept command's verdict is
+bound to the commit and tree owner Git reads through `artifacts.inspect`
+before and after the check, never to the child's own report. It is not a
+package export yet (P3-11); see [docs/worker-provider.md](docs/worker-provider.md).
 
 `@nubl/maestro/runtime` is the Pi-aware runtime barrel (`createDefaultRunSession`
 and its option types). A terminal host composes it with an explicit

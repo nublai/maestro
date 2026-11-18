@@ -218,7 +218,7 @@ describe("worker provider over real B2: prepared-slot acquisition", () => {
 			const manifest = provider.manifest(launch.handle);
 			assert.ok(manifest);
 			assert.equal(manifest.slot.name, "s2");
-			assert.equal(manifest.slot.branch, "refs/heads/maestro/s2");
+			assert.equal(manifest.slot.branch, "refs/heads/maestro-s2/s2");
 			assert.equal(manifest.requested_branch, "s2");
 			assert.equal(manifest.state, "acquired");
 			assert.equal(slots.holder("s2"), manifest.launch_id);
@@ -305,6 +305,38 @@ describe("worker provider over real B2: the role identity", () => {
 				/^You are the reviewer\.\n\n---\n\nTask:\n/,
 			);
 		}));
+});
+
+describe("worker provider over real B2: unsupported tool modes (P3-10)", () => {
+	for (const [mode, behavior, refusal] of [
+		["an interactive child", { interactive: true }, /interactive children/],
+		["a child that spawns subagents", { selfSpawn: true }, /spawn subagents/],
+	] as const)
+		it(`${mode} is refused explicitly before acquisition: no read, claim, manifest or create`, () =>
+			withFixture(async ({ fixture, composed, session }) => {
+				const { provider, launches, slots, client } = composed;
+				const calls: string[] = [];
+				const call = client.call.bind(client);
+				// SAFETY: a pass-through wrapper with the client's own signature.
+				client.call = (async (op: string, options: never) => {
+					calls.push(op);
+					// SAFETY: forwards the caller's own operation and options unchanged.
+					return call(op as never, options);
+				}) as typeof client.call;
+				const request = freshRequest(session);
+				request.behavior = { ...request.behavior, ...behavior };
+				await assert.rejects(
+					provider.launch(request),
+					(error: Error) =>
+						error instanceof WorkerLaunchRefusal &&
+						refusal.test(error.message) &&
+						/refused before acquisition/.test(error.message),
+				);
+				assert.deepEqual(calls, [], "nothing reached B2");
+				assert.equal(await fixture.op<number>("acquisitions"), 0);
+				assert.equal(launches.list().length, 0);
+				assert.equal(slots.holder("s0"), undefined);
+			}));
 });
 
 describe("worker provider over real B2: commands and uncertainty", () => {
@@ -1147,19 +1179,17 @@ describe("worker provider over real B2: Maestro's grant profile", () => {
 			assert.equal(seen.includes(foreign.workerId), false);
 		}));
 
-	// FLIP when pi-worker adds executions.interrupt to its parent channel (root
-	// decision 2026-11-18, P3-7 open items (1); a separate pi-worker PR): the
-	// expected gap becomes ["children.report"] and the provider's interrupt path,
-	// kept as is, then works through a sandboxed parent's channel.
-	it("records the P2-8 channel gap: its whitelist lacks executions.interrupt", () =>
+	// Flipped (P3-10): pi-worker b6e5a3c serves executions.interrupt (#43) and
+	// artifacts.inspect (#42) on the parent channel (root decision 2026-11-18,
+	// P3-7 open items (1)). The interrupt path, kept as it was, now runs
+	// through a sandboxed parent's channel ("over a sandboxed parent's channel").
+	it("the P2-8 channel serves every method Maestro calls; only the child's report ceiling is not a channel method", () =>
 		withFixture(async ({ fixture }) => {
-			// A sandboxed parent's channel serves only its whitelist; Maestro's profile
-			// asks for exactly one method more (children.report is the child's ceiling).
 			assert.deepEqual(
 				MAESTRO_WORKER_PARENT_METHODS.filter(
 					(method) => !fixture.started.channelMethods.includes(method),
 				),
-				["executions.interrupt", "children.report"],
+				["children.report"],
 			);
 		}));
 });

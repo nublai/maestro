@@ -238,6 +238,16 @@
 		},
 		{
 			"kind": "new",
+			"destination": "maestro/adapters/worker/bound-check.ts",
+			"reason": "P3-10 (post-H2, Maestro-owned): the V1 bound check: confirmed termination of the generation that ran, then artifacts.inspect at the saved launch pin before and after Maestro's parent-side accept runner; base ancestry, issued branch, HEAD, claimed commit and a clean checkout (the worker's runtime directories accounted for by name) bind the subject; any failure to bind, or a changed subject, gives no accepted verdict; a cancelled check is its own outcome."
+		},
+		{
+			"kind": "new",
+			"destination": "maestro/adapters/worker/run-checks.ts",
+			"reason": "P3-10 (post-H2, Maestro-owned): WorkerRunChecks, the worker parent's run-owner composition: operations launching through the shared Pi adapter and finalizing with the V1 bound check, describeOutcome (verdict, both subjects, hand-off facts), the durable cancel intent, and the interrupted-run hand-off after a restart (saved check subject, commands, cancellation and termination facts, the parent's fence; nothing re-run)."
+		},
+		{
+			"kind": "new",
 			"destination": "maestro/adapters/worker/worker-exec-provider.ts",
 			"reason": "P3-7 (post-H2, Maestro-owned): WorkerExecutionProvider, the ExecProvider over pi-worker B2 through the exact @nublai/pi-worker-client tarball: typed workers.create {parent, launch_spec} into a claimed owner-prepared slot, the initial prompt as its own command, Observer wake-ups, workers.get/history.page readback, interrupt and stop by receipt; every mutation's UUIDv7 command ID persisted before transport, uncertainty kept and never retried; the leaf's FD 3 result claim transcribed into the run's parent-local completion record."
 		},

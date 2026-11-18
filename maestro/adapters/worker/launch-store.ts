@@ -121,6 +121,11 @@ export interface WorkerAcquisitionManifest {
 	};
 	/** Set while the launch is uncertain or failed; never a payload. */
 	uncertainty?: string;
+	/**
+	 * When the run's owner recorded its cancel intent (P3-10), durable before
+	 * the stop it leads to is sent; the cancellation hand-off reads it back.
+	 */
+	cancel_requested_at?: number;
 	commands: WorkerCommandRecord[];
 	created_at: number;
 	updated_at: number;
