@@ -192,14 +192,34 @@
 			"reason": "#149 (post-H2, Maestro-owned): extracts, redacts and bounds the terminal tail a child printed when it failed before its session started."
 		},
 		{
+			"kind": "new",
+			"destination": "maestro/core/exec-provider.ts",
+			"reason": "P3-4 (post-H2, Maestro-owned): the ExecProvider seam (launch, inspect/observe, read, prompt, interrupt, stop, reconcile and explicit capabilities including parent admission), the shared capability refusal and the AgentHandle projection."
+		},
+		{
+			"kind": "new",
+			"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+			"reason": "P3-4 (post-H2, Maestro-owned): the existing Herdr/Core terminal execution as the first ExecProvider; its stop logic moved unchanged from pi-harness-adapter.ts."
+		},
+		{
+			"kind": "new",
+			"destination": "maestro/adapters/fake/fake-exec-provider.ts",
+			"reason": "P3-4 (post-H2, Maestro-owned): in-memory ExecProvider for tests and the testing entry."
+		},
+		{
+			"kind": "new",
+			"destination": "maestro/testing/exec-provider.conformance.ts",
+			"reason": "P3-4 (post-H2, Maestro-owned): reusable ExecProvider conformance runner, run against the fake and both terminal variants."
+		},
+		{
 			"kind": "copy",
 			"source": "maestro/adapters/pi/pi-harness-adapter.ts",
 			"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
 			"blob": "b329ef6e037d3f9874d1999a616b451fbb210633",
 			"archive": "provenance/upstream/maestro/adapters/pi/pi-harness-adapter.ts",
 			"owned_change": {
-				"reason": "#149: a non-zero exit with no errorMessage and no session messages reads the terminal tail into exitOutput, the read bounded by EXIT_OUTPUT_READ_TIMEOUT_MS.",
-				"blob": "638e2f0ffca2249195299faa73b9cdb8647a7f6c"
+				"reason": "#149: a non-zero exit with no errorMessage and no session messages reads the terminal tail into exitOutput, the read bounded by EXIT_OUTPUT_READ_TIMEOUT_MS. P3-4: every execution effect (launch, inspect, read, prompt, interrupt, stop, reconcile) goes through one ExecProvider; the terminal mechanics (pane close/absence, retained-worktree process stop, Core native terminate) moved unchanged into TerminalExecProvider, the default when no provider is supplied. Capability refusals precede acquisition; the handle is projected from the provider's handle.",
+				"blob": "06397f83c08d2c3d37729e9b0428a3b17f5e9381"
 			}
 		},
 		{
@@ -393,7 +413,11 @@
 			"source": "maestro/core/index.ts",
 			"destination": "maestro/core/index.ts",
 			"blob": "caa51685cabb70116dde62907994996282eb6a07",
-			"archive": "provenance/upstream/maestro/core/index.ts"
+			"archive": "provenance/upstream/maestro/core/index.ts",
+			"owned_change": {
+				"reason": "P3-4: the type-only core barrel also re-exports the ExecProvider seam's types.",
+				"blob": "c8d4d94fd791d0248f9b258e23cd187ccaef69b6"
+			}
 		},
 		{
 			"kind": "copy",

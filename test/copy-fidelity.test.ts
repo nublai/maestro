@@ -17,6 +17,10 @@ import {
 	readManifest,
 	type CopyManifest,
 } from "../scripts/check-copy-fidelity.ts";
+import {
+	commonLineRanges,
+	movedLineRanges,
+} from "../scripts/map-coverage-lines.ts";
 
 test("rejects redirected mapping into unlisted changed logic", (t) => {
 	const root = mkdtempSync(join(tmpdir(), "maestro-redirect-"));
@@ -413,5 +417,52 @@ test("an owned change after H2 must match its recorded blob and keep its pin", (
 	assert.throws(
 		() => checkCopyFidelity(f.manifest, f.root),
 		/Stale owned change/,
+	);
+});
+
+test("lines an owned change moved into a new file keep their original line numbers", () => {
+	const original = ["a", "b", "moved-1", "moved-2", "c", "moved-3"];
+	const copy = ["a", "b", "new", "c"];
+	const kept = commonLineRanges(original, copy, "copy.ts");
+	assert.deepEqual(kept, [
+		{
+			source_start: 1,
+			source_end: 2,
+			destination: "copy.ts",
+			destination_start: 1,
+		},
+		{
+			source_start: 5,
+			source_end: 5,
+			destination: "copy.ts",
+			destination_start: 4,
+		},
+	]);
+	// Already-placed lines are never mapped twice, even when repeated in the new file.
+	assert.deepEqual(
+		movedLineRanges(
+			original,
+			kept,
+			["header", "a", "moved-1", "moved-2", "moved-3"],
+			"moved.ts",
+		),
+		[
+			{
+				source_start: 3,
+				source_end: 4,
+				destination: "moved.ts",
+				destination_start: 3,
+			},
+			{
+				source_start: 6,
+				source_end: 6,
+				destination: "moved.ts",
+				destination_start: 5,
+			},
+		],
+	);
+	assert.deepEqual(
+		movedLineRanges(original, kept, ["unrelated"], "moved.ts"),
+		[],
 	);
 });

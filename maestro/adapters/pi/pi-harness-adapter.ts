@@ -12,6 +12,12 @@ import type {
 	CompletionEvidence,
 } from "../../core/types.ts";
 import type { SurfaceProvider } from "../../core/surface-provider.ts";
+import {
+	execRefusal,
+	projectAgentHandle,
+	type ExecHandle,
+	type ExecRequirement,
+} from "../../core/exec-provider.ts";
 import { readSubagentActivityFile } from "./activity-file.ts";
 import {
 	markCompletionDetected,
@@ -33,24 +39,18 @@ import type { SupervisionCoordinator } from "../../core/supervision.ts";
 import {
 	judgeProcessIdentity,
 	linuxProcessProbe,
-	terminateProcessIdentity,
-	type PiProcessIdentity,
 	type ProcessIdentityProbe,
-	type ProcessIdentityState,
 } from "./process-identity.ts";
-import {
-	launchOperationsFromSurface,
-	settleBefore,
-	type PiLaunchOperations,
-} from "./launch-operations.ts";
-import {
-	launchPiSubagent,
-	AcquiredPiLaunchError,
-	type PiLaunchRequest,
-	startProcessIdentityCapture,
-	type FreshPiLaunchRequest,
-	type PiRunningChild,
+import type { PiLaunchOperations } from "./launch-operations.ts";
+import type {
+	PiLaunchRequest,
+	FreshPiLaunchRequest,
+	PiRunningChild,
 } from "./launch.ts";
+import {
+	TerminalExecProvider,
+	type PiExecProvider,
+} from "./terminal-exec-provider.ts";
 import type { WorktreeOperations } from "../../core/worktree.ts";
 import { shellExitFileFor, waitForCompletion } from "./completion.ts";
 import { acceptLaunchRefusal } from "../../core/accept.ts";
@@ -67,7 +67,6 @@ import {
 	getNewEntries,
 	inspectFinalAssistantMessage,
 	readPersistentTaskEvents,
-	writePersistentTaskInbox,
 } from "./session.ts";
 
 export interface PiSpawnOptions extends SpawnOptions {
@@ -92,8 +91,15 @@ export interface PiSpawnOptions extends SpawnOptions {
 }
 export interface PiHarnessAdapterOptions {
 	childEntryPath?: string;
-	surface: SurfaceProvider;
-	paneConfig: PaneConfig;
+	/**
+	 * The one execution provider for this adapter's runs. Default: the terminal
+	 * implementation over `surface`, `paneConfig` and `operations`.
+	 */
+	exec?: PiExecProvider;
+	/** Terminal composition; required unless `exec` is supplied. */
+	surface?: SurfaceProvider;
+	/** Terminal pane placement; required unless `exec` or `operations` is supplied. */
+	paneConfig?: PaneConfig;
 	modelRegistry: ModelRegistryAdapter;
 	parent: FreshPiLaunchRequest["parent"];
 	/** Compatibility only; supervision owns its wake registry and registrations. */
@@ -130,22 +136,26 @@ interface CompletionWait {
 export class PiHarnessAdapter implements HarnessAdapter {
 	readonly name = "pi";
 	private readonly options: PiHarnessAdapterOptions;
-	private readonly operations: PiLaunchOperations;
+	private readonly exec: PiExecProvider;
 	private readonly children = new Map<string, PiRunningChild>();
+	private readonly execHandles = new WeakMap<PiRunningChild, ExecHandle>();
 	private readonly evidence = new Map<string, CompletionEvidence>();
 	private readonly waits = new Map<string, CompletionWait>();
 	constructor(options: PiHarnessAdapterOptions) {
 		this.options = options;
-		this.operations =
-			options.operations ??
-			launchOperationsFromSurface(
-				options.surface,
-				options.paneConfig,
-				options.worktreeOperations,
-			);
-		if (this.operations.nativeExecution !== options.surface.nativeExecution)
+		if (options.exec) this.exec = options.exec;
+		else if (options.surface)
+			this.exec = new TerminalExecProvider({
+				surface: options.surface,
+				paneConfig: options.paneConfig,
+				operations: options.operations,
+				worktreeOperations: options.worktreeOperations,
+				processProbe: options.processProbe,
+				killTimeoutMs: options.killTimeoutMs,
+			});
+		else
 			throw new Error(
-				"Pi owning provider and launch operations must use the same native execution binding",
+				"Pi harness adapter requires an execution provider or a terminal surface",
 			);
 	}
 	isAvailable(): boolean {
@@ -213,7 +223,7 @@ export class PiHarnessAdapter implements HarnessAdapter {
 		const roleCwd = resolved ? resolved.roleCwd : defaults?.cwd;
 		const id = opts.launchIdentity?.id ?? randomUUID();
 		const taskId = opts.launchIdentity?.taskId ?? randomUUID();
-		const child = await this.acquireChild({
+		const launch = await this.acquireChild({
 			kind: "fresh",
 			childEntryPath: this.options.childEntryPath,
 			acquisitionSignal: opts.acquisitionSignal,
@@ -268,7 +278,7 @@ export class PiHarnessAdapter implements HarnessAdapter {
 		});
 		// Launch returns a fully initialized owner; no fallible I/O may separate
 		// command dispatch from tracking (a rejection could start a fallback).
-		return this.track(child);
+		return this.track(launch.launched, launch.handle);
 	}
 	async resume(opts: ResumeOptions): Promise<AgentHandle> {
 		this.rejectEnvironment(opts.env);
@@ -278,7 +288,7 @@ export class PiHarnessAdapter implements HarnessAdapter {
 			throw new Error(
 				"Pi resume restores saved tools; tool overrides are not supported",
 			);
-		const child = await this.acquireChild({
+		const launch = await this.acquireChild({
 			kind: "resume",
 			childEntryPath: this.options.childEntryPath,
 			acquisitionSignal: opts.acquisitionSignal,
@@ -289,18 +299,23 @@ export class PiHarnessAdapter implements HarnessAdapter {
 			modelScope: this.options.modelRegistry.scope,
 			behavior: { autoExit: opts.autoExit },
 		});
-		return this.track(child);
+		return this.track(launch.launched, launch.handle);
 	}
-	private async acquireChild(
-		request: PiLaunchRequest,
-	): Promise<PiRunningChild> {
-		try {
-			return await launchPiSubagent(request, this.operations);
-		} catch (error) {
-			// The transaction transfers its fully initialized owner, not a made-up handle.
-			if (error instanceof AcquiredPiLaunchError) return error.child;
-			throw error;
-		}
+	/**
+	 * The one execution path: refuse what the provider cannot run before any
+	 * acquisition, then launch. The provider transfers an acquired owner even
+	 * when its dispatch is uncertain (`launchFailure`), never a made-up handle.
+	 */
+	private async acquireChild(request: PiLaunchRequest) {
+		const refusal = execRefusal(this.exec, piLaunchRequirements(request));
+		if (refusal) throw new Error(refusal);
+		return this.exec.launch(request);
+	}
+	/** The provider's handle for a child this adapter tracks. */
+	private execHandle(child: PiRunningChild): ExecHandle {
+		const handle = this.execHandles.get(child);
+		if (!handle) throw new Error(`Unknown Pi child ${child.id}`);
+		return handle;
 	}
 	/** Temporary Pi-specific bridge for runtime migration; never infer task delivery from coarse state. */
 	getRunningChild(handle: AgentHandle): PiRunningChild {
@@ -327,7 +342,7 @@ export class PiHarnessAdapter implements HarnessAdapter {
 			const read = readSubagentActivityFile(child.activityFile, child.id);
 			let pane;
 			try {
-				pane = await this.options.surface.inspectSurface(child.surface);
+				pane = await this.exec.inspect(this.execHandle(child));
 			} catch {
 				pane = { kind: "unavailable" as const };
 			}
@@ -355,128 +370,19 @@ export class PiHarnessAdapter implements HarnessAdapter {
 	}
 	async interrupt(handle: AgentHandle): Promise<void> {
 		const child = this.getRunningChild(handle);
-		await this.options.surface.sendKeys(child.surface, "Escape");
+		await this.exec.interrupt(this.execHandle(child));
 		child.lifecycle = markInterruptRequested(child.lifecycle, Date.now());
 		this.options.onObservation?.(child, "interrupt");
 	}
 	/** Resolves only with termination evidence; otherwise rejects (unconfirmed). */
 	async kill(handle: AgentHandle): Promise<void> {
 		const child = this.getRunningChild(handle);
-		if (this.options.surface.nativeExecution)
-			return this.options.surface.nativeExecution.terminate(child.surface);
-		// A worktree root pane is the retained review workspace (Herdr refuses to
-		// close it): stop only the owned Pi process and keep pane and checkout.
-		if (child.worktree || !child.ownsSurface) return this.stopRetainedPi(child);
-		let closeError: unknown;
-		try {
-			await this.options.surface.closeSurface(child.surface);
-		} catch (error) {
-			// Absence is still checked: a pane that is already gone is terminated.
-			closeError = error;
-		}
-		try {
-			await this.options.surface.waitForSurfaceAbsence(child.surface);
-		} catch (error) {
-			if (closeError === undefined) throw error;
-			throw new Error(`${errorText(closeError)}; ${errorText(error)}`);
-		}
-	}
-	/**
-	 * Exit evidence is only the launch-verified identity (PID + start time, on
-	 * this boot and PID namespace) no longer existing, or a gone pane while that
-	 * identity is not known alive. SIGTERM goes only to that identity,
-	 * re-verified first; without it nothing is signalled and the cancel stays
-	 * unconfirmed. A failed SIGTERM to a live identity stays unconfirmed unless
-	 * that identity then exits. Herdr's foreground list and argv text are never
-	 * evidence.
-	 * Every provider await is bounded by the deadline, and a late answer is
-	 * dropped, so an unconfirmed outcome is reported on time and never flipped.
-	 */
-	private async stopRetainedPi(child: PiRunningChild): Promise<void> {
-		const probe = this.options.processProbe ?? linuxProcessProbe;
-		const retainedDescription = child.worktree
-			? "retained worktree pane"
-			: "caller-provided pane";
-		const timeoutMs = this.options.killTimeoutMs ?? 5_000;
-		const deadline = Date.now() + timeoutMs;
-		const paneGone = async () =>
-			(
-				await settleBefore(
-					// Providers may throw synchronously or reject; both mean "unknown".
-					Promise.resolve()
-						.then(() => this.options.surface.inspectSurface(child.surface))
-						.catch(() => undefined),
-					deadline,
-				)
-			)?.kind === "missing";
-		let identity = child.processIdentity;
-		if (!identity) {
-			// An expired capture gets one fresh attempt within this cancel's budget.
-			if (child.processIdentityError !== undefined)
-				startProcessIdentityCapture(child, this.operations, {
-					timeoutMs: Math.max(0, deadline - Date.now()),
-				});
-			// Inspect alongside the capture wait so absence evidence is not
-			// starved by it; the identity is re-read after the inspection.
-			const absence = paneGone();
-			const captured = await settleBefore(
-				child.processIdentityCapture,
-				deadline,
-			);
-			const gone = (child.processIdentity ?? captured) ? false : await absence;
-			identity = child.processIdentity ?? captured;
-			if (!identity) {
-				if (gone) return;
-				throw new Error(
-					`Owned Pi process identity was not captured for ${retainedDescription} ${child.surface}; nothing was signalled: ${child.processIdentityError ?? (child.processIdentityCapture ? "identity capture is still pending" : "no identity was recorded at launch")}`,
-				);
-			}
-		}
-		let signalled = false;
-		const verified = identity;
-		const signal = (): ProcessIdentityState => {
-			const before = judgeProcessIdentity(verified, probe);
-			if (before.kind !== "alive") return before;
-			const after = terminateProcessIdentity(verified, probe);
-			if (after.kind === "alive") signalled = true;
-			if (after.kind !== "unknown") return after;
-			// The identity was just known alive and the signal failed: only its
-			// own exit confirms; pane absence never does.
-			if (judgeProcessIdentity(verified, probe).kind === "exited")
-				return { kind: "exited" };
-			throw new Error(
-				`Owned Pi process exit unconfirmed in ${retainedDescription} ${child.surface}: ${after.reason}; process ${verified.pid} was alive when signalled`,
-			);
-		};
-		let state = signal();
-		let paneSeenGone = false;
-		for (;;) {
-			if (state.kind === "exited") return;
-			// Unknown is never signalled and waiting cannot make it evidence.
-			if (state.kind === "unknown") {
-				if (!paneSeenGone && !(await paneGone())) break;
-				paneSeenGone = true;
-				// The inspection awaited: confirm only while still not known alive.
-				state = judgeProcessIdentity(identity, probe);
-				if (state.kind === "alive" && !signalled) state = signal();
-				if (state.kind !== "alive") return;
-			}
-			const remaining = deadline - Date.now();
-			if (remaining <= 0) break;
-			await new Promise((resolve) =>
-				setTimeout(resolve, Math.min(50, remaining)),
-			);
-			state = judgeProcessIdentity(identity, probe);
-		}
-		throw new Error(
-			`Owned Pi process exit unconfirmed in ${retainedDescription} ${child.surface}: ${describeIdentityState(identity, state, signalled, timeoutMs)}`,
-		);
+		const report = await this.exec.stop(this.execHandle(child));
+		if (report.termination === "unconfirmed") throw report.error;
 	}
 	async readOutput(handle: AgentHandle, lines?: number): Promise<string> {
-		return this.options.surface.readScreen(
-			this.getRunningChild(handle).surface,
-			lines,
-		);
+		const child = this.getRunningChild(handle);
+		return this.exec.read(this.execHandle(child), lines);
 	}
 	exitCode(handle: AgentHandle): number | undefined {
 		return this.evidence.get(this.runKey(handle))?.exitCode;
@@ -507,13 +413,20 @@ export class PiHarnessAdapter implements HarnessAdapter {
 				`Persistent specialist "${child.name}" is busy or stopped; task ${task} was rejected-busy. Resend after the pending result.`,
 			);
 		}
-		writePersistentTaskInbox(
-			child.sessionFile,
-			(child.inboxSequence = (child.inboxSequence ?? 0) + 1),
-			{ task, message: text },
-		);
+		// Claim the task before the provider await, so a concurrent send sees it
+		// busy; a delivery that failed leaves the specialist as it was.
+		const previousTask = child.taskId;
 		child.taskId = task;
-		(child.issuedTaskIds ??= []).push(task);
+		const issued = (child.issuedTaskIds ??= []);
+		issued.push(task);
+		try {
+			await this.exec.prompt(this.execHandle(child), { id: task, text });
+		} catch (error) {
+			if (child.taskId === task) child.taskId = previousTask;
+			const index = issued.lastIndexOf(task);
+			if (index !== -1) issued.splice(index, 1);
+			throw error;
+		}
 		appendPersistentDeliveryLedger(child.sessionFile, {
 			...facts,
 			outcome: "dispatched",
@@ -529,6 +442,7 @@ export class PiHarnessAdapter implements HarnessAdapter {
 		const recorded = this.evidence.get(key);
 		if (recorded) return recorded;
 		const child = this.getRunningChild(handle);
+		const execHandle = this.execHandle(child);
 		let wait = this.waits.get(key);
 		if (!wait || wait.controller.signal.aborted) {
 			const controller = new AbortController();
@@ -540,7 +454,7 @@ export class PiHarnessAdapter implements HarnessAdapter {
 				controller,
 				waiters: 0,
 				promise: (async () => {
-					if (child.launchFailure && !this.options.surface.nativeExecution) {
+					if (child.launchFailure && !execHandle.capabilities.executionExit) {
 						try {
 							await this.kill(handle);
 							return {
@@ -555,9 +469,8 @@ export class PiHarnessAdapter implements HarnessAdapter {
 					}
 					return waitForCompletion(controller.signal, {
 						intervalMs: 1000,
-						inspectExecution: this.options.surface.nativeExecution
-							? () =>
-									this.options.surface.nativeExecution!.inspect(child.surface)
+						inspectExecution: execHandle.capabilities.executionExit
+							? () => this.exec.reconcile(execHandle)
 							: undefined,
 						sessionFile: child.sessionFile,
 						requireProcessExit: child.persistent || !!child.launchFailure,
@@ -576,7 +489,7 @@ export class PiHarnessAdapter implements HarnessAdapter {
 							// A caller-provided terminal can contain an earlier run's marker.
 							child.launchFailure && !child.ownsSurface && !child.worktree
 								? ""
-								: this.options.surface.readScreen(child.surface, 5),
+								: this.exec.read(execHandle, 5),
 						inspectPane: registration.inspectPane,
 						onLocalEvidence: () =>
 							this.options.onObservation?.(child, "local-evidence"),
@@ -664,11 +577,7 @@ export class PiHarnessAdapter implements HarnessAdapter {
 		// The output only explains the failure; a terminal that cannot be read
 		// in time leaves the exit code as the result.
 		const screen = await readWithin(
-			() =>
-				this.options.surface.readScreen(
-					child.surface,
-					EXIT_OUTPUT_SCREEN_LINES,
-				),
+			() => this.exec.read(this.execHandle(child), EXIT_OUTPUT_SCREEN_LINES),
 			EXIT_OUTPUT_READ_TIMEOUT_MS,
 		);
 		return screen === undefined
@@ -698,9 +607,10 @@ export class PiHarnessAdapter implements HarnessAdapter {
 		// Legacy fallback retries reuse the opaque child ID, but create a new Pi session.
 		return JSON.stringify([handle.id, handle.sessionId]);
 	}
-	private track(child: PiRunningChild): AgentHandle {
+	private track(child: PiRunningChild, exec: ExecHandle): AgentHandle {
 		this.children.set(child.id, child);
-		const handle: AgentHandle = {
+		this.execHandles.set(child, exec);
+		return projectAgentHandle(exec, {
 			id: child.id,
 			name: child.name,
 			role: child.agent ?? "",
@@ -708,22 +618,21 @@ export class PiHarnessAdapter implements HarnessAdapter {
 			cwd: child.cwd!,
 			startedAt: child.startTime,
 			sessionId: child.sessionFile,
-			surfaceId: child.surface,
-		};
-		if (child.launchFailure) handle.launchFailure = child.launchFailure;
-		if (child.worktree)
-			handle.worktree = {
-				id: child.id,
-				owner: "maestro",
-				branch: child.worktree.branch,
-				baseRef: child.worktree.baseRef,
-				baseSha: child.worktree.baseSha,
-				createdAt: child.startTime,
-				path: child.worktree.path,
-				state: child.launchFailure ? "failed" : "running",
-				manifestFile: child.worktree.manifestFile,
-			};
-		return handle;
+			launchFailure: child.launchFailure || undefined,
+			worktree: child.worktree
+				? {
+						id: child.id,
+						owner: "maestro",
+						branch: child.worktree.branch,
+						baseRef: child.worktree.baseRef,
+						baseSha: child.worktree.baseSha,
+						createdAt: child.startTime,
+						path: child.worktree.path,
+						state: child.launchFailure ? "failed" : "running",
+						manifestFile: child.worktree.manifestFile,
+					}
+				: undefined,
+		});
 	}
 	private parentRuntime(opts: SpawnOptions): ParentRuntime {
 		if (this.options.parentRuntime) return this.options.parentRuntime;
@@ -760,17 +669,14 @@ export class PiHarnessAdapter implements HarnessAdapter {
 	}
 }
 
-function errorText(cause: unknown): string {
-	return cause instanceof Error ? cause.message : String(cause);
-}
-
-function describeIdentityState(
-	identity: PiProcessIdentity,
-	state: ProcessIdentityState,
-	signalled: boolean,
-	timeoutMs: number,
-): string {
-	if (state.kind === "unknown")
-		return `${state.reason}${signalled ? " after SIGTERM" : "; not signalled"}`;
-	return `process ${identity.pid} (start time ${identity.startTime}) is still ${state.kind} ${timeoutMs}ms after SIGTERM`;
+/** What a Pi launch request needs from its execution provider. */
+function piLaunchRequirements(request: PiLaunchRequest): ExecRequirement[] {
+	if (request.kind === "resume") return ["resume"];
+	const requirements: ExecRequirement[] = [
+		request.worktree ? "worktree" : "sharedCheckout",
+	];
+	if (request.surface !== undefined) requirements.push("callerSurface");
+	if (request.behavior.sessionMode === "fork") requirements.push("fork");
+	if (request.behavior.persistent) requirements.push("persistent");
+	return requirements;
 }
