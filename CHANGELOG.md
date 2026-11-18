@@ -2,6 +2,48 @@
 
 ## Unreleased
 
+### Worker execution provider (P3-7)
+
+This is opt-in by explicit host composition, with no flags. Terminal hosts,
+package exports and the public tools are unchanged. See
+[docs/worker-provider.md](docs/worker-provider.md).
+
+- `WorkerExecutionProvider` (`maestro/adapters/worker/`) implements
+  `ExecProvider` over pi-worker B2 through the exact
+  `@nublai/pi-worker-client` tarball, vendored from pi-worker `ce10eec` as a
+  development dependency until P3-11.
+  - Launch: unsupported requests are refused before acquisition. The provider
+    then reads the parent's binding and running execution, durably claims an
+    owner-prepared slot and writes one acquisition manifest per launch, then
+    sends `workers.create {parent, launch_spec}`. The initial
+    `sessions.prompt` is a separate command.
+  - Observe and read: the Observer supplies wake-ups, `workers.get` supplies
+    presence, and `history.page` supplies output.
+  - Interrupt and stop go through their receipts. Only the named epoch's
+    observed termination confirms a stop.
+  - Every mutation's UUIDv7 command ID and request hash are persisted before
+    transport. A lost reply gets one receipt read. Uncertainty is kept and
+    never retried; an uncertain create keeps its manifest and slot.
+- Owner-prepared slots (`WorkerSlotPool`, root decision Q3): locked linked
+  worktrees of the parent's repository at `PARENT/.piw-slots/<name>`, checked
+  with plain reads, so the parent makes no Git administrative writes.
+  Exhausted or mismatched slots are refused before any B2 call.
+- FD reporter (`fd-report.ts`): the leaf writes its report to FD 3, never to
+  B2. Its import closure is `node:fs` only, and `check:boundaries` enforces
+  that for the source and the emitted file. The provider transcribes the first
+  result claim into the run's completion record; a claim is never proof.
+- Grant profile (`grant-profile.ts`): the provider's exact methods plus
+  `children.report`. It contains no `*`, no owner reconciliation, and no
+  steering or follow-up.
+- Tests:
+  - Unit lane: the reporter and its authority boundary, slots, manifests and
+    the grant closure.
+  - `npm run test:worker-b2`: the ExecProvider conformance suite (with its
+    adapter-boundary cases) and provider tests, against pi-worker's real
+    supervisor and B2 server from a pinned, built checkout
+    (`MAESTRO_PI_WORKER_CHECKOUT`).
+- Provenance: five new files.
+
 ### Checked-outcome outbox (P3-8)
 
 Opt-in. Without an outcome store nothing changes for current hosts: same

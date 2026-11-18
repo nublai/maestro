@@ -2,3 +2,4 @@ node_modules/
 dist/
 evidence/
 *.tgz
+!vendor/pi-worker-client/*.tgz
