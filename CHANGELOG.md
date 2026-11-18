@@ -65,9 +65,16 @@ unchanged. See [docs/worker-provider.md](docs/worker-provider.md#parent-admissio
   under load a zombie leader with a thread still exiting is not, and the
   stop is `outcome_unknown`) declares it; the suite checks that such a stop
   is an unconfirmed report and that a later stop confirms, and repeats its
-  other stops (at most three) instead of assuming the first confirms.
-  Fixtures without it are checked as before. The worker B2 tests accept the
-  same `outcome_unknown` stop the same way.
+  other stops instead of assuming the first confirms. A case sends one
+  execution at most three stops in all, and repeats a stop only after the
+  provider returned an unconfirmed report for a sent (or maybe sent) stop;
+  through the adapter, only when that call's one `provider.stop` returned
+  such a report and the adapter threw its error. A stop rejection or any
+  other adapter error fails the case at once. Fixtures without the hook are
+  checked as before. Unit cases run the suite over a hooked fake and check
+  that it rejects the mutants (a rejected stop, an adapter error instead of
+  or after a stop, a stop that never confirms). The worker B2 tests repeat
+  only a stop whose B2 receipt is `outcome_unknown`.
 
 ### Worker execution provider (P3-7)
 

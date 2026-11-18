@@ -737,7 +737,7 @@ describe("worker provider over real B2: a store failure after dispatch", () => {
 
 	it("after workers.stop: an unconfirmed stop report, never a rejection; the next stop confirms without a new command", async () => {
 		// The case needs a stop B2 observed. One it did not observe (its
-		// `outcome_unknown` under load, see stopConfirmed) proves nothing here,
+		// `outcome_unknown` receipt under load, see stopConfirmed) proves nothing here,
 		// and its stop fenced the parent (invariant 4a): the case runs again
 		// over a fresh supervisor, at most three times.
 		for (let attempt = 1; ; attempt++) {
@@ -756,7 +756,12 @@ describe("worker provider over real B2: a store failure after dispatch", () => {
 				} finally {
 					fault.restore();
 				}
-				if (report.request === "unknown" && attempt < 3) {
+				// Only B2's own `outcome_unknown` receipt for this stop reruns the case.
+				if (
+					report.request === "unknown" &&
+					fault.state.reply?.state === "outcome_unknown" &&
+					attempt < 3
+				) {
 					observed = false;
 					return;
 				}

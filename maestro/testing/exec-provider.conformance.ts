@@ -8,6 +8,7 @@ import {
 	type ExecPromptInput,
 	type ExecProvider,
 	type ExecRequirement,
+	type ExecStopReport,
 	type ExecStopRequest,
 } from "../core/exec-provider.ts";
 import type { HarnessAdapter } from "../core/harness-adapter.ts";
@@ -39,7 +40,10 @@ export interface ExecProviderFixture<Launch, Launched> {
 	 * that, as a real host may under load (pi-worker's B2 then reports the
 	 * stop `outcome_unknown`). Present when this provider's stops can go
 	 * unobserved: the suite's other stops are then repeated, as an owner may
-	 * repeat one, until a later stop confirms (at most three stops).
+	 * repeat one, until a later stop confirms. A case sends one execution at
+	 * most three stops in all, and repeats a stop only after the provider
+	 * returned an unconfirmed report for a sent (or maybe sent) stop; a
+	 * rejected stop or any other error still fails the case.
 	 */
 	unobserveNextStop?(launch: ExecLaunch<Launched>): Promise<void>;
 	/** Read back the inputs `prompt` delivered to this execution. */
@@ -79,48 +83,145 @@ const BOOLEAN_CAPABILITIES = [
 	unknown
 >["provider"]["capabilities"])[];
 
-/** Stops a test sends to one execution whose stops can go unobserved. */
+/** Stops one case may send to one execution whose stops can go unobserved. */
 const STOP_ATTEMPTS = 3;
+
+/**
+ * The stops one case may still send to one execution: {@link STOP_ATTEMPTS}
+ * when the fixture's stops can go unobserved (`unobserveNextStop`), else one.
+ * Every stop of that execution in the case spends from the same budget.
+ */
+interface StopBudget {
+	readonly total: number;
+	sent: number;
+}
+
+function stopBudget<Launch, Launched>(
+	fixture: ExecProviderFixture<Launch, Launched>,
+): StopBudget {
+	return { total: fixture.unobserveNextStop ? STOP_ATTEMPTS : 1, sent: 0 };
+}
+
+function spend(budget: StopBudget): void {
+	assert.ok(
+		budget.sent < budget.total,
+		`more than ${budget.total} stops for one execution`,
+	);
+	budget.sent++;
+}
+
+/** One stop of `handle`, paid from `budget`. */
+async function budgetedStop<Launch, Launched>(
+	fixture: ExecProviderFixture<Launch, Launched>,
+	handle: ExecHandle,
+	budget: StopBudget,
+): Promise<ExecStopReport> {
+	spend(budget);
+	return fixture.provider.stop(handle);
+}
+
+/**
+ * A report an owner may answer with another stop: unconfirmed, for a stop
+ * that was sent or may have been. A stop never sent is not repeated.
+ */
+function repeatable(
+	report: ExecStopReport,
+): report is Extract<ExecStopReport, { termination: "unconfirmed" }> {
+	return (
+		report.termination === "unconfirmed" &&
+		(report.request === "sent" || report.request === "unknown")
+	);
+}
 
 /**
  * Stops and asserts the termination confirmed. A provider whose stops are
  * always observed confirms the first stop it sends. One whose stops can go
- * unobserved (`unobserveNextStop`) may report a stop it sent (or may have
- * sent) unconfirmed; the stop is then repeated, as an owner may, up to
- * {@link STOP_ATTEMPTS} stops, and the last confirms: by its own request, or
- * because the host has meanwhile observed the end (`not-sent`). A stop never
- * sent is not repeated.
+ * unobserved (`unobserveNextStop`) may report a stop unconfirmed; the stop is
+ * then repeated, as an owner may, while `budget` lasts, and the last confirms:
+ * by its own request, or because the host has meanwhile observed the end
+ * (`not-sent`).
  */
 async function stopConfirmed<Launch, Launched>(
 	fixture: ExecProviderFixture<Launch, Launched>,
 	handle: ExecHandle,
+	budget = stopBudget(fixture),
 ): Promise<void> {
-	const attempts = fixture.unobserveNextStop ? STOP_ATTEMPTS : 1;
-	let report = await fixture.provider.stop(handle);
-	let stops = 1;
-	const repeat = () =>
-		report.termination !== "confirmed" && report.request !== "not-sent";
-	for (; stops < attempts && repeat(); stops++)
-		report = await fixture.provider.stop(handle);
-	if (stops === 1)
+	const first = budget.sent === 0;
+	let report = await budgetedStop(fixture, handle, budget);
+	while (repeatable(report) && budget.sent < budget.total)
+		report = await budgetedStop(fixture, handle, budget);
+	if (first && budget.sent === 1)
 		assert.deepEqual(report, { request: "sent", termination: "confirmed" });
 	else assert.equal(report.termination, "confirmed");
 }
 
-/** The adapter's kill, repeated like {@link stopConfirmed}. */
+/** What the provider's `stop` did during one adapter call. */
+type StopOutcome = { report: ExecStopReport } | { rejected: unknown };
+
+/**
+ * Records every `provider.stop` call until `restore`: what it returned, or
+ * that it rejected. The adapter calls the same provider object.
+ */
+function observeStops<Launch, Launched>(
+	provider: ExecProvider<Launch, Launched>,
+) {
+	const outcomes: StopOutcome[] = [];
+	const own = Object.getOwnPropertyDescriptor(provider, "stop");
+	const stop = provider.stop;
+	provider.stop = async (handle) => {
+		try {
+			const report = await stop.call(provider, handle);
+			outcomes.push({ report });
+			return report;
+		} catch (error) {
+			outcomes.push({ rejected: error });
+			throw error;
+		}
+	};
+	return {
+		outcomes,
+		restore() {
+			if (own) Object.defineProperty(provider, "stop", own);
+			else Reflect.deleteProperty(provider, "stop");
+		},
+	};
+}
+
+/**
+ * The adapter's kill, repeated like {@link stopConfirmed}, and only when this
+ * very call's one `provider.stop` returned a repeatable unconfirmed report
+ * whose error is the one the adapter threw. A stop rejection (the contract
+ * allows none) or any other adapter error propagates at once.
+ */
 async function killConfirmed<Launch, Launched>(
 	fixture: ExecProviderFixture<Launch, Launched>,
 	adapter: HarnessAdapter,
 	handle: AgentHandle,
+	budget = stopBudget(fixture),
 ): Promise<void> {
-	const attempts = fixture.unobserveNextStop ? STOP_ATTEMPTS : 1;
-	for (let n = 1; ; n++)
+	for (;;) {
+		spend(budget);
+		const observed = observeStops(fixture.provider);
 		try {
 			await adapter.kill(handle);
 			return;
 		} catch (error) {
-			if (n >= attempts) throw error;
+			const [only] = observed.outcomes;
+			const report =
+				observed.outcomes.length === 1 && only && "report" in only
+					? only.report
+					: undefined;
+			if (
+				!report ||
+				!repeatable(report) ||
+				report.error !== error ||
+				budget.sent >= budget.total
+			)
+				throw error;
+		} finally {
+			observed.restore();
 		}
+	}
 }
 
 /** The ExecProvider contract every implementation (fake, terminal, worker) meets. */
@@ -328,14 +429,16 @@ export function registerExecProviderConformance<Launch, Launched>(
 						return t.skip("this provider's stops are always observed");
 					const launch = await fixture.provider.launch(fixture.request());
 					await fixture.unobserveNextStop(launch);
-					const first = await fixture.provider.stop(launch.handle);
+					// One budget for every stop of this execution in the case.
+					const budget = stopBudget(fixture);
+					const first = await budgetedStop(fixture, launch.handle, budget);
 					assert.equal(first.termination, "unconfirmed");
-					assert.ok(first.termination === "unconfirmed" && first.error);
+					assert.ok(repeatable(first) && first.error);
 					// Owned until confirmed: the host may observe the end itself
 					// meanwhile, so the next stop confirms with or without a request.
-					const later = await fixture.provider.stop(launch.handle);
+					const later = await budgetedStop(fixture, launch.handle, budget);
 					if (later.termination !== "confirmed")
-						await stopConfirmed(fixture, launch.handle);
+						await stopConfirmed(fixture, launch.handle, budget);
 					assert.notEqual(
 						(await fixture.provider.reconcile(launch.handle)).kind,
 						"live",

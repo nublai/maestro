@@ -382,6 +382,227 @@ paneLessConformance(
 	"not-sent",
 );
 
+/** How a hooked pane-less fixture's provider misbehaves (a conformance mutant). */
+interface StopMutant {
+	/** The first stop of the second acquired execution rejects (illegal). */
+	rejectSecondExecutionStop?: boolean;
+	/** An unobserved stop's execution never confirms a stop again. */
+	neverConfirmUnobserved?: boolean;
+	/** Not a mutant: the second execution's first stop goes unobserved. */
+	unobserveSecondExecutionStop?: boolean;
+	/**
+	 * The adapter's first kill of the second execution throws its own error:
+	 * `instead` of stopping, or `after` a stop that returned unconfirmed.
+	 */
+	adapterError?: "instead" | "after";
+}
+
+/**
+ * A pane-less Pi provider whose stops can go unobserved (`unobserveNextStop`:
+ * the next stop reports `unknown`, unconfirmed). Counts the stops each
+ * execution received; `dispose` fails a case that sent one execution more
+ * than three.
+ */
+function unobservedStopFixture(mutant: StopMutant = {}) {
+	const parent = parentFixture();
+	const runs = join(parent.root, "runs");
+	mkdirSync(runs);
+	const provider = new FakeExecProvider<PiLaunchRequest, PiExecution>({
+		name: "pane-less",
+		capabilities: { executionExit: false },
+		launched: paneLessExecution(runs),
+	});
+	const stops = new Map<string, number>();
+	const unobserved = new Set<string>();
+	let rejected = false;
+	const stop = provider.stop.bind(provider);
+	provider.stop = async (handle) => {
+		stops.set(handle.ref, (stops.get(handle.ref) ?? 0) + 1);
+		if (
+			mutant.unobserveSecondExecutionStop &&
+			handle.ref === provider.executions[1]?.ref &&
+			stops.get(handle.ref) === 1
+		)
+			return {
+				request: "unknown",
+				termination: "unconfirmed",
+				error: new Error("stop not observed"),
+			};
+		if (
+			mutant.rejectSecondExecutionStop &&
+			!rejected &&
+			handle.ref === provider.executions[1]?.ref
+		) {
+			rejected = true;
+			throw new Error("mutant: stop rejected");
+		}
+		if (mutant.neverConfirmUnobserved && unobserved.has(handle.ref))
+			return {
+				request: "unknown",
+				termination: "unconfirmed",
+				error: new Error("mutant: stop never observed"),
+			};
+		return stop(handle);
+	};
+	const boundary = piBoundary(provider, parent, (reason) =>
+		provider.uncertainNextLaunch(reason),
+	);
+	if (mutant.adapterError) {
+		const kill = boundary.adapter.kill.bind(boundary.adapter);
+		let thrown = false;
+		boundary.adapter.kill = async (handle) => {
+			if (
+				thrown ||
+				boundary.launchOf(handle).handle.ref !== provider.executions[1]?.ref
+			)
+				return kill(handle);
+			thrown = true;
+			if (mutant.adapterError === "after") await kill(handle).catch(() => {});
+			throw new Error("mutant: adapter error");
+		};
+	}
+	return {
+		stops,
+		fixture: {
+			provider,
+			request: () => freshRequest(parent),
+			acquisitions: () => provider.executions.length,
+			exit: async ({ handle }: ExecLaunch<PiExecution>) =>
+				provider.exit(handle),
+			print: async ({ handle }: ExecLaunch<PiExecution>, text: string) =>
+				provider.print(handle, text),
+			blockStop: async ({ handle }: ExecLaunch<PiExecution>) => {
+				provider.blockStop(handle, new Error("stop refused"), "sent");
+				return "sent" as const;
+			},
+			unobserveNextStop: async ({ handle }: ExecLaunch<PiExecution>) => {
+				unobserved.add(handle.ref);
+				provider.blockStop(handle, new Error("stop not observed"), "unknown");
+			},
+			prompted: async ({ handle }: ExecLaunch<PiExecution>) =>
+				provider.execution(handle).prompts,
+			adapter: {
+				...boundary,
+				finish: async (handle: AgentHandle) => {
+					recordDone(boundary.adapter.getRunningChild(handle));
+					provider.exit(boundary.launchOf(handle).handle);
+				},
+			},
+			dispose: async () => {
+				parent.dispose();
+				for (const [ref, count] of stops)
+					assert.ok(count <= 3, `${count} stops for ${ref}`);
+			},
+		},
+	};
+}
+registerExecProviderConformance(
+	{ describe, it },
+	"Pane-less Pi (fake, stops may go unobserved)",
+	async () => unobservedStopFixture().fixture,
+);
+
+type ConformanceRunner = Parameters<typeof registerExecProviderConformance>[0];
+
+/** One conformance suite's cases, captured by title instead of run. */
+function capturedConformance(
+	factory: () => Promise<ReturnType<typeof unobservedStopFixture>["fixture"]>,
+) {
+	const cases = new Map<string, () => Promise<void>>();
+	const skip = () => {
+		throw new Error("a captured case skipped");
+	};
+	const runner = {
+		describe: (_name: string, body: () => void) => body(),
+		it: (title: string, body: (t: { skip: () => void }) => Promise<void>) => {
+			cases.set(title, () => body({ skip }));
+		},
+	};
+	// SAFETY: the suite calls only describe(name, body) and it(title, body), and its bodies read only `t.skip`.
+	registerExecProviderConformance(
+		runner as ConformanceRunner,
+		"mutant",
+		factory,
+	);
+	return (title: string) => {
+		const run = cases.get(title);
+		assert.ok(run, `no conformance case ${title}`);
+		return run();
+	};
+}
+
+describe("ExecProvider conformance rejects stop mutants of a fixture whose stops can go unobserved", () => {
+	it("a stop that rejects on the adapter boundary's second execution fails the suite: only an unconfirmed report is repeated", async () => {
+		const run = capturedConformance(
+			async () =>
+				unobservedStopFixture({ rejectSecondExecutionStop: true }).fixture,
+		);
+		await assert.rejects(
+			run(
+				"adapter boundary: read and stop go through the provider; an unconfirmed stop keeps the run live",
+			),
+			/mutant: stop rejected/,
+		);
+	});
+
+	for (const when of ["instead", "after"] as const)
+		it(`an adapter error ${when === "instead" ? "instead of a stop" : "after an unconfirmed stop"} fails the suite at once`, async () => {
+			let stops: Map<string, number> | undefined;
+			const run = capturedConformance(async () => {
+				const made = unobservedStopFixture({
+					unobserveSecondExecutionStop: true,
+					adapterError: when,
+				});
+				stops = made.stops;
+				return made.fixture;
+			});
+			await assert.rejects(
+				run(
+					"adapter boundary: read and stop go through the provider; an unconfirmed stop keeps the run live",
+				),
+				/mutant: adapter error/,
+			);
+			// The blocked first execution's stop, and at most one of the second's.
+			assert.deepEqual(
+				[...(stops?.values() ?? [])],
+				when === "instead" ? [1] : [1, 1],
+			);
+		});
+
+	it("control: an unobserved stop on the adapter boundary's second execution is repeated and confirms", async () => {
+		let stops: Map<string, number> | undefined;
+		const run = capturedConformance(async () => {
+			const made = unobservedStopFixture({
+				unobserveSecondExecutionStop: true,
+			});
+			stops = made.stops;
+			return made.fixture;
+		});
+		await assert.doesNotReject(
+			run(
+				"adapter boundary: read and stop go through the provider; an unconfirmed stop keeps the run live",
+			),
+		);
+		assert.deepEqual([...(stops?.values() ?? [])], [1, 2]);
+	});
+
+	it("an unobserved stop that never confirms fails the suite after three stops in all", async () => {
+		let stops: Map<string, number> | undefined;
+		const run = capturedConformance(async () => {
+			const made = unobservedStopFixture({ neverConfirmUnobserved: true });
+			stops = made.stops;
+			return made.fixture;
+		});
+		await assert.rejects(
+			run(
+				"a stop the host did not observe is an unconfirmed report; a later stop confirms",
+			),
+			assert.AssertionError,
+		);
+		assert.deepEqual([...(stops?.values() ?? [])], [3]);
+	});
+});
+
 /** Pi's own `done` record, as the child writes it before it exits. */
 function recordDone(child: PiExecution) {
 	writeFileSync(`${child.sessionFile}.exit`, JSON.stringify({ type: "done" }));
