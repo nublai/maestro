@@ -94,10 +94,13 @@ component of its path is checked with `lstat` (and made one level at a time)
 at construction and before each claim, read and release, so no symbolic link
 can put a claim inside a slot, where its child could delete it. A claim file
 is read without following a link. Node has no `openat`; swapping a component
-between the check and the use needs a writer outside every slot. A requested branch selects the slot whose leaf
-matches it, otherwise the first free slot. A requested base other than `HEAD`
-must equal the slot's base. An exhausted pool or a mismatched slot is refused
-before any B2 call. A mismatched slot is refused, never skipped.
+between the check and the use needs a writer outside every slot.
+
+A requested branch selects the slot whose leaf matches it, otherwise the
+first free slot. A requested base other than `HEAD` must equal the slot's
+base. An exhausted pool or a mismatched slot is refused before
+`workers.create`: only the `hello` and the parent's `workers.get` (reads) come
+first. A mismatched slot is refused, never skipped.
 
 ## Reports: FD 3 only
 

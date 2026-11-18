@@ -35,7 +35,8 @@ package exports and the public tools are unchanged. See
 - Owner-prepared slots (`WorkerSlotPool`, root decision Q3): locked linked
   worktrees of the parent's repository at `PARENT/.piw-slots/<name>`, checked
   with plain reads, so the parent makes no Git administrative writes.
-  Exhausted or mismatched slots are refused before any B2 call. Claims live
+  Exhausted or mismatched slots are refused before `workers.create` (only
+  the `hello` and parent `workers.get` reads come first). Claims live
   outside every slot, reached through real directories only (no symbolic link
   in the claims path).
 - FD reporter (`fd-report.ts`): the leaf writes its report to FD 3, never to
