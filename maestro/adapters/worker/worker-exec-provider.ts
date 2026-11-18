@@ -131,7 +131,10 @@ export interface WorkerExecutionProviderOptions {
 	/** Parent-private run records (completion record, mirrored history), outside every slot. */
 	runsDir: string;
 	childSpec?: WorkerChildSpecOptions;
-	/** The initial prompt text. Default: {@link workerInitialPrompt}. */
+	/**
+	 * The initial prompt text. Default: {@link workerInitialPrompt}. Called
+	 * before acquisition: a throw is an ordinary refusal with nothing claimed.
+	 */
 	initialPrompt?(request: FreshPiLaunchRequest): string;
 	/** Stable provider name on every handle. Default `pi-worker`. */
 	name?: string;
@@ -277,6 +280,8 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 		if (this.#closed)
 			throw new WorkerLaunchRefusal("Worker provider is closed");
 		const fresh = this.#admit(request);
+		// Fallible caller code runs before acquisition, never after the create.
+		const message = (this.#options.initialPrompt ?? workerInitialPrompt)(fresh);
 		await this.#hello();
 		const parent = await this.#parentBinding();
 		signal?.throwIfAborted();
@@ -288,8 +293,10 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 		const slot = this.#options.slots.claim(launchId, fresh.worktree ?? {});
 		const { launches } = this.#options;
 		let spec: LaunchSpec;
+		let child: PiExecution;
 		try {
 			spec = this.#childSpec(fresh, slot);
+			child = this.#record(fresh, slot, runId, taskId, generationId);
 			const created: Parameters<WorkerLaunchStore["create"]>[0] = {
 				launch_id: launchId,
 				run_id: runId,
@@ -388,8 +395,6 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 				{ kind: "execution-start" },
 			);
 		}
-		this.#startObserver();
-		const child = this.#record(fresh, slot, runId, taskId, generationId);
 		const execution: WorkerExecution = {
 			ref: launchId,
 			workerId,
@@ -406,6 +411,51 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 			capabilities: this.capabilities,
 		});
 		// The worker is owned from here: every failure is this handle's launchFailure.
+		try {
+			this.#startObserver();
+			return await this.#launchAcquired(
+				launchId,
+				handle,
+				child,
+				workerId,
+				created,
+				acquired,
+				createUnrecorded,
+				message,
+			);
+		} catch (error) {
+			const why = `Worker ${workerId} acquired, but its launch failed after acquisition (${errorText(error)}); retained and owned, nothing re-sent.`;
+			const kept = this.#tryWrite(() =>
+				launches.update(launchId, (manifest) => {
+					manifest.uncertainty = why;
+				}),
+			);
+			return {
+				handle,
+				launched: child,
+				launchFailure:
+					kept === undefined
+						? why
+						: `${why} Its outcome could not be recorded (${kept}).`,
+			};
+		}
+	}
+
+	/** After an acquired create: record it and send the initial prompt once. */
+	async #launchAcquired(
+		launchId: string,
+		handle: ExecHandle,
+		child: PiExecution,
+		workerId: string,
+		created: Settled,
+		acquired: Exclude<
+			ReturnType<typeof acquisition>,
+			{ worker: "not_acquired" }
+		>,
+		createUnrecorded: string | undefined,
+		message: string,
+	): Promise<ExecLaunch<PiExecution>> {
+		const { launches } = this.#options;
 		const unrecorded = (failure: string) =>
 			`Worker ${workerId} acquired, but its outcome could not be recorded (${failure}); not prompted, retained and owned.`;
 		if (createUnrecorded !== undefined)
@@ -460,7 +510,7 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 			worker_epoch: binding.worker_epoch,
 			session_id: binding.session_id,
 			binding_revision: binding.binding_revision,
-			message: (this.#options.initialPrompt ?? workerInitialPrompt)(fresh),
+			message,
 			if_busy: "reject" as const,
 		};
 		let sentPrompt: Sent;

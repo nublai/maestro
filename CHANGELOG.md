@@ -29,6 +29,9 @@ package exports and the public tools are unchanged. See
     with `AcquisitionUncertainError` when no worker is named), a later prompt
     or interrupt rejects with `WorkerCommandUncertain`, and a stop reports
     unconfirmed. Nothing more is sent; the command, manifest and slot stay.
+  - The initial prompt (`initialPrompt`) is prepared before acquisition, so
+    a throwing callback acquires nothing; any other failure after
+    `workers.create` returns the acquired worker with `launchFailure`.
   - The role identity is the initial prompt's preamble, accepted as interim
     append semantics; a request to replace the system prompt is refused
     before acquisition.
@@ -79,8 +82,10 @@ compares the parent messages, ledger and surfaces with and without a store).
   per directory. The lock is a Unix-domain socket listening at
   `writer.lock`: the OS stops it listening when its process dies, so a live
   holder refuses an open from any process (another PID namespace included)
-  and a dead one is taken over; a writer whose lock was removed or replaced
-  stops writing and compacting. The store directory must be on local storage
+  and a dead one is taken over (moved aside only while the name is still the
+  refused socket, by inode, so a lock another opener just recovered is never
+  moved); a writer whose lock was removed or replaced stops writing and
+  compacting. The store directory must be on local storage
   (Linux refuses known network, cluster and FUSE filesystems, local FUSE
   included; Windows is refused). A versioned and checksummed journal fsynced
   per record; a new store directory is fsynced into its parent before its

@@ -1,7 +1,7 @@
 import "../clean-host-env.ts";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import {
+import fs, {
 	existsSync,
 	linkSync,
 	lstatSync,
@@ -17,7 +17,7 @@ import { syncBuiltinESMExports } from "node:module";
 import net, { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, it } from "node:test";
+import { describe, it, type TestContext } from "node:test";
 import {
 	OUTCOME_ENVELOPE_LIMIT,
 	OUTCOME_TEXT_LIMIT,
@@ -706,6 +706,99 @@ describe("FileOutcomeStore on disk", () => {
 				.sort(),
 			[OUTCOME_LOCK_FILE],
 		);
+	});
+
+	/**
+	 * Three openers on one stale lock (the CI reproduction). A second opener
+	 * recovers the stale lock and publishes a live one, either while this opener
+	 * probes the stale lock or just before this opener moves it aside. A third
+	 * publishes its own as soon as this opener probes anything it moved aside.
+	 * The second opener must keep the lock.
+	 */
+	async function threeOpeners(t: TestContext, republish: "probe" | "move") {
+		const dir = mkdtempSync(join(tmpdir(), "maestro-outcome-lock-"));
+		const live = createServer((socket) => socket.destroy());
+		const third = createServer((socket) => socket.destroy());
+		t.after(async () => {
+			await new Promise((resolve) => live.close(resolve));
+			await new Promise((resolve) => third.close(resolve));
+			rmSync(dir, { recursive: true, force: true });
+		});
+		for (const [server, name] of [
+			[live, "live.sock"],
+			[third, "third.sock"],
+		] as const)
+			await new Promise<void>((resolve) =>
+				server.listen(join(dir, name), resolve),
+			);
+		await staleSocket(dir);
+		const lock = join(dir, OUTCOME_LOCK_FILE);
+		const publish = (name: string) => {
+			try {
+				linkSync(join(dir, name), lock);
+			} catch {
+				/* the name is taken */
+			}
+		};
+		let republished = false;
+		const recover = () => {
+			if (republished) return;
+			republished = true;
+			unlinkSync(lock);
+			publish("live.sock");
+		};
+		let moves = 0;
+		const { connect } = net;
+		const { renameSync } = fs;
+		// SAFETY: the wrapper forwards every argument to the original connect.
+		net.connect = ((...args: Parameters<typeof net.connect>) => {
+			const socket = connect(...args);
+			if (republish === "probe" && args[0] === lock) recover();
+			if (String(args[0]).includes(`${OUTCOME_LOCK_FILE}.x-`))
+				publish("third.sock");
+			return socket;
+		}) as typeof net.connect;
+		// SAFETY: the wrapper forwards every argument to the original renameSync.
+		fs.renameSync = ((...args: Parameters<typeof fs.renameSync>) => {
+			if (args[0] === lock) {
+				moves++;
+				if (republish === "move") recover();
+			}
+			renameSync(...args);
+		}) as typeof fs.renameSync;
+		syncBuiltinESMExports();
+		try {
+			await rejectsWith(
+				FileOutcomeStore.open({ dir, parent: "p" }),
+				"locked",
+				/one writer per store/,
+			);
+		} finally {
+			net.connect = connect;
+			fs.renameSync = renameSync;
+			syncBuiltinESMExports();
+		}
+		assert.equal(republished, true);
+		assert.equal(
+			lstatSync(lock).ino,
+			lstatSync(join(dir, "live.sock")).ino,
+			"the recovered holder keeps its lock; the third opener never takes it",
+		);
+		assert.deepEqual(
+			readdirSync(dir)
+				.filter((name) => name.startsWith(OUTCOME_LOCK_FILE))
+				.sort(),
+			[OUTCOME_LOCK_FILE],
+		);
+		return moves;
+	}
+
+	it("a lock republished while the stale one is probed is never moved aside", async (t) => {
+		assert.equal(await threeOpeners(t, "probe"), 0);
+	});
+
+	it("a lock republished just before the move is put back before anything else runs", async (t) => {
+		assert.equal(await threeOpeners(t, "move"), 1);
 	});
 
 	it("a writer whose lock socket was removed or replaced stops, compaction included", async (t) => {

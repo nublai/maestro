@@ -6,7 +6,16 @@
 import "../clean-host-env.ts";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { chmodSync, existsSync, readFileSync } from "node:fs";
+import {
+	chmodSync,
+	existsSync,
+	mkdtempSync,
+	readFileSync,
+	rmSync,
+	writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 import { ClientFailure, type Receipt } from "@nublai/pi-worker-client";
 import { isAcquisitionUncertainError } from "../../maestro/core/surface-provider.ts";
@@ -90,9 +99,10 @@ async function withFixture(
 		session: ReturnType<typeof parentSession>;
 	}) => Promise<void>,
 	slots = 4,
+	overrides: Parameters<typeof composeProvider>[1] = {},
 ) {
 	const fixture = await B2Fixture.start(slots);
-	const composed = composeProvider(fixture);
+	const composed = composeProvider(fixture, overrides);
 	const session = parentSession();
 	try {
 		await run({ fixture, composed, session });
@@ -471,6 +481,137 @@ describe("worker provider over real B2: a store failure after dispatch", () => {
 			);
 			assert.equal(launches.list().length, 1, "no second manifest");
 		}));
+
+	// The review reproduction: a missing template threw after workers.create, the
+	// shared owner saw a plain rejection, and its retry acquired a second child.
+	it("an initial prompt that cannot be prepared acquires nothing; the shared owner's retry acquires one child", async () => {
+		const templates = mkdtempSync(join(tmpdir(), "maestro-template-"));
+		const template = join(templates, "task.md");
+		const task = {
+			id: "templated",
+			name: "templated",
+			role: role.name,
+			prompt: "bounded task",
+			cwd: "",
+			worktree: { branch: "w" },
+			runtime: { model: "fake/test", thinking: "off" as const },
+		};
+		try {
+			await withFixture(
+				async ({ fixture, composed, session }) => {
+					const { provider, launches, slots } = composed;
+					const { adapter } = adapterOver(provider, session);
+					const runs = createRunSession({
+						adapter,
+						roles: [role],
+						cwd: session.root,
+					});
+					task.cwd = session.root;
+					await assert.rejects(
+						runs.spawn(task),
+						(error: Error) =>
+							/ENOENT/.test(error.message) &&
+							!isAcquisitionUncertainError(error),
+					);
+					assert.equal(
+						await fixture.op<number>("acquisitions"),
+						0,
+						"a plain rejection acquired nothing",
+					);
+					assert.equal(runs.getHandle("templated"), undefined);
+					assert.equal(launches.list().length, 0, "no manifest");
+					assert.equal(slots.holder("s0"), undefined, "no slot claim");
+					writeFileSync(template, "From the template.");
+					const handle = await runs.spawn(task);
+					assert.equal(handle.launchFailure, undefined);
+					assert.equal(runs.getHandle("templated"), handle);
+					assert.equal(await fixture.op<number>("acquisitions"), 1);
+					const [manifest] = launches.list();
+					assert.equal(launches.list().length, 1);
+					const prompts = await fixture.op<{ message: string }[]>("prompts", {
+						workerId: manifest?.worker_id,
+					});
+					assert.deepEqual(
+						prompts.map((p) => p.message),
+						["From the template.\n\nbounded task"],
+					);
+				},
+				4,
+				{
+					initialPrompt: (request) =>
+						`${readFileSync(template, "utf8")}\n\n${request.task}`,
+				},
+			);
+		} finally {
+			rmSync(templates, { recursive: true, force: true });
+		}
+	});
+
+	it("any other failure after workers.create: the shared owner registers the acquired owner; nothing more is sent", async () => {
+		// The provider's clock fails once, at the first reading after the create's reply.
+		const clock = { armed: false };
+		await withFixture(
+			async ({ fixture, composed, session }) => {
+				const { provider, launches, client } = composed;
+				const call = client.call.bind(client);
+				// SAFETY: a pass-through wrapper with the client's own signature.
+				client.call = (async (
+					op: string,
+					options: { path?: { worker_id?: string } },
+				) => {
+					// SAFETY: forwards the caller's own operation and options unchanged.
+					const reply = await call(op as never, options as never);
+					if (op === "workers.create") clock.armed = true;
+					return reply;
+				}) as typeof client.call;
+				const { adapter } = adapterOver(provider, session);
+				const runs = createRunSession({
+					adapter,
+					roles: [role],
+					cwd: session.root,
+				});
+				const handle = await runs.spawn({
+					id: "clock",
+					name: "clock",
+					role: role.name,
+					prompt: "bounded task",
+					cwd: session.root,
+					worktree: { branch: "w" },
+					runtime: { model: "fake/test", thinking: "off" },
+				});
+				assert.match(
+					handle.launchFailure ?? "",
+					/acquired, but its launch failed after acquisition \(clock failed\); retained and owned/,
+				);
+				assert.equal(runs.getHandle("clock"), handle);
+				assert.equal(await fixture.op<number>("acquisitions"), 1);
+				const [manifest] = launches.list();
+				assert.equal(launches.list().length, 1, "no second manifest");
+				assert.match(manifest?.uncertainty ?? "", /clock failed/);
+				assert.deepEqual(
+					manifest?.commands.map((c) => [c.purpose, c.outcome]),
+					[["create", "observed"]],
+					"no initial prompt was recorded or sent",
+				);
+				assert.equal(
+					(
+						await fixture.op<unknown[]>("prompts", {
+							workerId: manifest?.worker_id,
+						})
+					).length,
+					0,
+				);
+			},
+			4,
+			{
+				now: () => {
+					if (!clock.armed) return Date.now();
+					clock.armed = false;
+					throw new Error("clock failed");
+				},
+			},
+		);
+	});
 
 	it("after the initial sessions.prompt: the prompted worker stays owned, its prompt never re-sent", () =>
 		withFixture(async ({ fixture, composed, session }) => {

@@ -633,12 +633,15 @@ async function withRunSession(
 }
 
 /**
- * A run surface without the run's directory, timestamps, ids and hashes. They
- * are not from the screen; cutting them out keeps a three-character piece of a
- * credential from matching one by chance.
+ * A run surface without the run's directory (as a path and as Pi's session
+ * directory name), timestamps, ids and hashes. They are not from the screen;
+ * cutting them out keeps a three-character piece of a credential from
+ * matching one by chance, whatever the temporary directory is called.
  */
 function plain(surface: string, dir: string): string {
+	const sessionDir = `--${dir.replace(/^[/\\]/, "").replace(/[/\\:]/g, "-")}--`;
 	return surface
+		.replaceAll(sessionDir, "\0")
 		.replaceAll(dir, "\0")
 		.replace(/\d{4}-\d\d-\d\dT\d\d[:-]\d\d[:-]\d\d[.-]\d{3}Z/g, "\0")
 		.replace(/\b[0-9a-f]{64}\b/g, "\0")

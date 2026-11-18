@@ -34,6 +34,11 @@ outcome that stays unknown is recorded and never sent again. Outcomes:
   prompt was refused, the launch returns that worker with `launchFailure`. It
   stays owned and is never retried.
 
+The initial prompt text (`initialPrompt`, caller code that may fail) is
+prepared before the slot claim: if it throws, the launch rejects with nothing
+claimed or sent. Any other failure after `workers.create` returns the acquired
+worker with `launchFailure`, never a plain rejection, and sends nothing more.
+
 A store that fails once a command was sent never becomes a plain rejection,
 which the shared owner would read as "nothing acquired" and could retry. The
 provider writes nothing more to the failing store, sends nothing more, and
