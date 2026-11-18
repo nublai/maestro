@@ -9,9 +9,10 @@
  *   sandbox, a container) sharing the directory is still seen as alive.
  * - A new holder binds a private socket and links it into place, so the
  *   public name only ever names a socket that is already listening. A refused
- *   holder is moved aside and refused again before it is removed: two openers
- *   recovering the same stale lock cannot both win, and a live socket moved by
- *   mistake is put back.
+ *   holder is moved aside only while the name is still that socket (by inode,
+ *   on both sides of the move) and refused again before it is removed: two
+ *   openers recovering the same stale lock cannot both win, and a live socket
+ *   moved by mistake is put back before a third opener can take the name.
  * - The holder checks before every write that the public name is still its own
  *   socket (`held`); a writer whose lock was removed or replaced stops.
  *
@@ -280,13 +281,23 @@ export const socketOutcomeStoreLock: OutcomeStoreLocker = async (dir) => {
 			if (state === "gone") continue;
 			// Refused: its holder is gone. Move it aside, then make sure it is
 			// still the refused socket and not one another opener just published.
+			// Its inode is checked on both sides of the move without yielding:
+			// while a live lock is aside, a third opener could publish its own.
+			const probed = (path: string) => {
+				const now = nodeFs.lstatSync(path);
+				return now.ino === stat.ino && now.dev === stat.dev;
+			};
 			try {
+				if (!probed(lock)) continue;
 				nodeFs.renameSync(lock, join(dir, aside));
 			} catch (error) {
 				if (errorCode(error) === "ENOENT") continue;
 				throw error;
 			}
-			if ((await probe(join(base, aside))) !== "refused") {
+			if (
+				!probed(join(dir, aside)) ||
+				(await probe(join(base, aside))) !== "refused"
+			) {
 				try {
 					nodeFs.linkSync(join(dir, aside), lock);
 				} catch {

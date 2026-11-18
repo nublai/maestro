@@ -38,6 +38,12 @@ retired; a failed commit keeps the run owned and undelivered. Without one,
 delivery is unchanged. It is opt-in and separate from the `outcomes.jsonl`
 audit ledger.
 
+The worker execution (`WorkerExecutionProvider`, `maestro/adapters/worker/`)
+runs children as typed pi-worker children over B2 in owner-prepared slots.
+Each child reports through its FD 3 reporter. A host opts in by composing the
+provider explicitly. It is not a package export yet (P3-11); see
+[docs/worker-provider.md](docs/worker-provider.md).
+
 `@nubl/maestro/runtime` is the Pi-aware runtime barrel (`createDefaultRunSession`
 and its option types). A terminal host composes it with an explicit
 `HostSurfaceBinding` (`@nubl/maestro/runtime/host-surface-binding`): binding
@@ -71,7 +77,9 @@ entry or experimental worker entry ships here.
 Run `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm test`,
 `npm run test:fidelity`, `npm run check:copy-fidelity`, `npm run build`,
 `npm run check:boundaries`, `npm run test:coverage`, `npm run docs:tools:check`,
-`npm run test:package` and `npm pack --dry-run` before submission. Unit/coverage runs use an isolated HOME,
+`npm run test:package` and `npm pack --dry-run` before submission, plus
+`npm run test:worker-b2` (a built pi-worker checkout in
+`MAESTRO_PI_WORKER_CHECKOUT`) when the worker provider changes. Unit/coverage runs use an isolated HOME,
 agent directory and credential-free environment; reports remain under ignored
 `evidence/`. Coverage gates every measured copied original file against its
 unchanged M1 floor (lines changed upstream after the baseline are mapped and held

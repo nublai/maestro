@@ -238,8 +238,11 @@ test("a scoped resume pins the stored in-scope model and refuses an unrecorded o
 	}
 });
 
-test("process identity capture keeps retrying a failing pane query until its deadline", async () => {
+test("process identity capture keeps retrying a failing pane query until its deadline", async (t) => {
 	const { root } = scratch();
+	// A mocked clock: on a loaded runner the real one could pass the deadline
+	// between the loop's check and the query, reporting a timeout instead.
+	t.mock.timers.enable({ apis: ["Date", "setTimeout"], now: 0 });
 	try {
 		const file = join(root, "child.process.json");
 		writeProcessIdentityRecord(file, {
@@ -252,21 +255,35 @@ test("process identity capture keeps retrying a failing pane query until its dea
 			pidNamespace: "pid:[1]",
 		});
 		let queries = 0;
-		await assert.rejects(
-			captureSurfacePiProcessIdentity(
-				{
-					getProcessInfo: () => {
-						queries++;
-						throw new Error("pane query failed");
+		let settled = false;
+		const capture = assert
+			.rejects(
+				captureSurfacePiProcessIdentity(
+					{
+						getProcessInfo: () => {
+							queries++;
+							throw new Error("pane query failed");
+						},
 					},
-				},
-				"pane-1",
-				{ file, id: "child", sessionFile: join(root, "child.jsonl") },
-				{ timeoutMs: 60, intervalMs: 5 },
-			),
-			/pane query failed/,
+					"pane-1",
+					{ file, id: "child", sessionFile: join(root, "child.jsonl") },
+					{ timeoutMs: 60, intervalMs: 5 },
+				),
+				/pane query failed/,
+			)
+			.finally(() => {
+				settled = true;
+			});
+		for (let ms = 0; !settled && ms <= 1_000; ms += 5) {
+			await new Promise((resolve) => setImmediate(resolve));
+			t.mock.timers.tick(5);
+		}
+		await capture;
+		assert.equal(
+			queries,
+			12,
+			"a failed query is retried every 5 ms, never accepted",
 		);
-		assert(queries > 1, "a failed query is retried, never accepted");
 	} finally {
 		rmSync(root, { recursive: true, force: true });
 	}

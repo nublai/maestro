@@ -1,0 +1,10 @@
+{
+	"package": "@nublai/pi-worker-client",
+	"version": "0.0.0",
+	"tarball": "nublai-pi-worker-client-0.0.0.tgz",
+	"sha256": "7bf9332e5a2441e543eb0fd51359ddccf7ca73070517287f251be95f378d719f",
+	"source_repository": "nublai/pi-worker",
+	"source_commit": "ce10eece834ee83897ec22f81f47f517e3d2a9f2",
+	"made_with": "npm run build && npm pack in packages/client-ts at source_commit (Node v26.13.1, npm 11.20.0)",
+	"policy": "Root decision Q5: an exact local tarball, never a registry install. Development dependency only until P3-11 settles the worker exports and installed-consumer closure."
+}

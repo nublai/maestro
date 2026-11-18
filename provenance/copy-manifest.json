@@ -223,6 +223,31 @@
 		},
 		{
 			"kind": "new",
+			"destination": "maestro/adapters/worker/worker-exec-provider.ts",
+			"reason": "P3-7 (post-H2, Maestro-owned): WorkerExecutionProvider, the ExecProvider over pi-worker B2 through the exact @nublai/pi-worker-client tarball: typed workers.create {parent, launch_spec} into a claimed owner-prepared slot, the initial prompt as its own command, Observer wake-ups, workers.get/history.page readback, interrupt and stop by receipt; every mutation's UUIDv7 command ID persisted before transport, uncertainty kept and never retried; the leaf's FD 3 result claim transcribed into the run's parent-local completion record."
+		},
+		{
+			"kind": "new",
+			"destination": "maestro/adapters/worker/fd-report.ts",
+			"reason": "P3-7 (post-H2, Maestro-owned): the typed worker child's FD 3 reporter and its result-claim codec; imports node:fs only (no client, grant, engine or runtime)."
+		},
+		{
+			"kind": "new",
+			"destination": "maestro/adapters/worker/slots.ts",
+			"reason": "P3-7 (post-H2, Maestro-owned): owner-prepared worktree slots (root decision Q3, P2-8 topology B): manifest parsing, plain-read slot checks, durable claims, exhausted/mismatched refusals before acquisition; no Git administrative writes."
+		},
+		{
+			"kind": "new",
+			"destination": "maestro/adapters/worker/launch-store.ts",
+			"reason": "P3-7 (post-H2, Maestro-owned): one durable acquisition manifest per worker launch with its UUIDv7 commands and their proven outcomes (temporary + fsync + rename + directory fsync), kept on uncertainty."
+		},
+		{
+			"kind": "new",
+			"destination": "maestro/adapters/worker/grant-profile.ts",
+			"reason": "P3-7 (post-H2, Maestro-owned): Maestro's B2 method profiles (parent orchestration, child report), never * or the bridge profile."
+		},
+		{
+			"kind": "new",
 			"destination": "maestro/runtime/outcome-store-lock.ts",
 			"reason": "P3-8 (post-H2, Maestro-owned): the file OutcomeStore's single-writer lock, a Unix-domain socket the OS releases on process death (works across PID namespaces; refuses known network, cluster and FUSE filesystems, and Windows)."
 		},

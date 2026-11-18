@@ -1151,7 +1151,11 @@
 		"test/maestro/outcome-store.test.ts",
 		"test/maestro/outcome-store-crash.test.ts",
 		"test/maestro/outcome-run-session.test.ts",
-		"test/maestro/outcome-terminal-delivery.test.ts"
+		"test/maestro/outcome-terminal-delivery.test.ts",
+		"test/maestro/worker-b2-source.test.ts",
+		"test/maestro/worker-fd-report.test.ts",
+		"test/maestro/worker-grant-profile.test.ts",
+		"test/maestro/worker-slots.test.ts"
 	],
 	"identity_ledger": "baseline/test-identities.json.gz",
 	"identity_capture": "evidence/baseline-final/baseline.jsonl",

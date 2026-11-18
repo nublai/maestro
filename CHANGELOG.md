@@ -2,6 +2,64 @@
 
 ## Unreleased
 
+### Worker execution provider (P3-7)
+
+This is opt-in by explicit host composition, with no flags. Terminal hosts,
+package exports and the public tools are unchanged. See
+[docs/worker-provider.md](docs/worker-provider.md).
+
+- `WorkerExecutionProvider` (`maestro/adapters/worker/`) implements
+  `ExecProvider` over pi-worker B2 through the exact
+  `@nublai/pi-worker-client` tarball, vendored from pi-worker `ce10eec` as a
+  development dependency until P3-11.
+  - Launch: unsupported requests are refused before acquisition. The provider
+    then reads the parent's binding and running execution, durably claims an
+    owner-prepared slot and writes one acquisition manifest per launch, then
+    sends `workers.create {parent, launch_spec}`. The initial
+    `sessions.prompt` is a separate command.
+  - Observe and read: the Observer supplies wake-ups, `workers.get` supplies
+    presence, and `history.page` supplies output.
+  - Interrupt and stop go through their receipts. Only the named epoch's
+    observed termination confirms a stop.
+  - Every mutation's UUIDv7 command ID and request hash are persisted before
+    transport. A lost reply gets one receipt read. Uncertainty is kept and
+    never retried; an uncertain create keeps its manifest and slot.
+  - A store that fails after a command was sent is never a plain rejection:
+    the launch returns the acquired worker with `launchFailure` (or rejects
+    with `AcquisitionUncertainError` when no worker is named), a later prompt
+    or interrupt rejects with `WorkerCommandUncertain`, and a stop reports
+    unconfirmed. Nothing more is sent; the command, manifest and slot stay.
+  - The initial prompt (`initialPrompt`) is prepared before acquisition, so
+    a throwing callback acquires nothing; any other failure after
+    `workers.create` returns the acquired worker with `launchFailure`.
+  - The role identity is the initial prompt's preamble, accepted as interim
+    append semantics; a request to replace the system prompt is refused
+    before acquisition.
+- Owner-prepared slots (`WorkerSlotPool`, root decision Q3): locked linked
+  worktrees of the parent's repository at `PARENT/.piw-slots/<name>`, checked
+  with plain reads, so the parent makes no Git administrative writes.
+  Exhausted or mismatched slots are refused before `workers.create` (only
+  the `hello` and parent `workers.get` reads come first). Claims live
+  outside every slot, reached through real directories only (no symbolic link
+  in the claims path).
+- FD reporter (`fd-report.ts`): the leaf writes its report to FD 3, never to
+  B2. Its import closure is `node:fs` only, and `check:boundaries` enforces
+  that for the source and the emitted file. The provider transcribes the first
+  result claim into the run's completion record; a claim is never proof. A
+  summary that cannot fit, not even empty, is left out rather than looping.
+- Grant profile (`grant-profile.ts`): the provider's exact methods plus
+  `children.report`. It contains no `*`, no owner reconciliation, and no
+  steering or follow-up.
+- Tests:
+  - Unit lane: the reporter and its authority boundary, slots, manifests and
+    the grant closure.
+  - `npm run test:worker-b2`: the ExecProvider conformance suite (with its
+    adapter-boundary cases) and provider tests, against pi-worker's real
+    supervisor and B2 server from a pinned, built checkout
+    (`MAESTRO_PI_WORKER_CHECKOUT`). It refuses a checkout at another commit,
+    with local changes, or whose build is not what that commit compiles to.
+- Provenance: five new files.
+
 ### Checked-outcome outbox (P3-8)
 
 Opt-in. Without an outcome store nothing changes for current hosts: same
@@ -24,8 +82,10 @@ compares the parent messages, ledger and surfaces with and without a store).
   per directory. The lock is a Unix-domain socket listening at
   `writer.lock`: the OS stops it listening when its process dies, so a live
   holder refuses an open from any process (another PID namespace included)
-  and a dead one is taken over; a writer whose lock was removed or replaced
-  stops writing and compacting. The store directory must be on local storage
+  and a dead one is taken over (moved aside only while the name is still the
+  refused socket, by inode, so a lock another opener just recovered is never
+  moved); a writer whose lock was removed or replaced stops writing and
+  compacting. The store directory must be on local storage
   (Linux refuses known network, cluster and FUSE filesystems, local FUSE
   included; Windows is refused). A versioned and checksummed journal fsynced
   per record; a new store directory is fsynced into its parent before its

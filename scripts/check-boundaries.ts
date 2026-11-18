@@ -75,7 +75,7 @@ export function checkEngineClosure(
 	for (const entry of ts.preProcessFile(text, true, true).importedFiles) {
 		const specifier = entry.fileName;
 		assert(
-			!/^@earendil-works\/pi-|^@sinclair\/typebox|pi-extension|adapters\/pi|runtime\/pi-/.test(
+			!/^@earendil-works\/pi-|^@sinclair\/typebox|^@nublai\/pi-worker-client|pi-extension|adapters\/pi|adapters\/worker|runtime\/pi-/.test(
 				specifier,
 			),
 			`Pi dependency in engine closure: ${path} -> ${specifier}`,
@@ -100,7 +100,7 @@ export function checkChildClosure(
 	for (const entry of ts.preProcessFile(text, true, true).importedFiles) {
 		const specifier = entry.fileName;
 		assert(
-			!/pi-extension|\/runtime\/|^\.\.?\/runtime\/|pi-harness-adapter|\/launch|^\.\/launch|surfaces\/|@earendil-works\/pi-tui/.test(
+			!/pi-extension|\/runtime\/|^\.\.?\/runtime\/|pi-harness-adapter|\/launch|^\.\/launch|surfaces\/|@earendil-works\/pi-tui|@nublai\/pi-worker-client|worker-exec-provider/.test(
 				specifier,
 			),
 			`Parent/provider dependency in child closure: ${path} -> ${specifier}`,
@@ -108,6 +108,19 @@ export function checkChildClosure(
 		if (specifier.startsWith("."))
 			checkChildClosure(resolve(dirname(absolute), specifier), seen);
 	}
+}
+
+/**
+ * The worker child's FD reporter (P3-7) imports Node built-ins only: no B2
+ * client, grant, engine, runtime or Pi package, and no other Maestro module.
+ */
+export function checkReporterClosure(path: string): void {
+	const text = readFileSync(resolve(path), "utf8");
+	for (const entry of ts.preProcessFile(text, true, true).importedFiles)
+		assert(
+			entry.fileName.startsWith("node:"),
+			`Reporter imports beyond Node built-ins: ${path} -> ${entry.fileName}`,
+		);
 }
 
 export function scan(path: string): void {
@@ -141,7 +154,12 @@ if (
 		"dist/maestro/pi/child.js",
 	])
 		checkChildClosure(path);
+	for (const path of [
+		"maestro/adapters/worker/fd-report.ts",
+		"dist/maestro/adapters/worker/fd-report.js",
+	])
+		checkReporterClosure(path);
 	console.log(
-		"Source/emitted package boundaries, transitive Pi-free root/engine closures and the protocol-only child closure: passed.",
+		"Source/emitted package boundaries, transitive Pi-free and worker-client-free root/engine closures, the protocol-only child closure and the built-ins-only worker reporter closure: passed.",
 	);
 }
