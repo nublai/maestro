@@ -437,8 +437,15 @@ export function registerExecProviderConformance<Launch, Launched>(
 					// Owned until confirmed: the host may observe the end itself
 					// meanwhile, so the next stop confirms with or without a request.
 					const later = await budgetedStop(fixture, launch.handle, budget);
-					if (later.termination !== "confirmed")
+					// Another stop follows only the same report as every repeat does: an
+					// unconfirmed one for a stop that was sent or may have been.
+					if (later.termination !== "confirmed") {
+						assert.ok(
+							repeatable(later),
+							`an unconfirmed stop whose request was ${later.request} is not repeated`,
+						);
 						await stopConfirmed(fixture, launch.handle, budget);
+					}
 					assert.notEqual(
 						(await fixture.provider.reconcile(launch.handle)).kind,
 						"live",

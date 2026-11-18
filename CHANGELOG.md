@@ -2,6 +2,42 @@
 
 ## Unreleased
 
+### Bound checks and failure and cancel hand-offs (P3-10)
+
+Opt-in by explicit composition (`WorkerRunChecks` as a worker parent's run
+owner operations and hooks); terminal hosts and the public tools are
+unchanged. See [docs/worker-provider.md](docs/worker-provider.md#bound-checks-and-hand-offs-p3-10).
+
+- The vendored `@nublai/pi-worker-client` is now built from pi-worker
+  `b6e5a3c` (`executions.interrupt` on the parent channel, `artifacts.inspect`,
+  owner Git that never trusts a child's index); the real-B2 lane verifies that
+  checkout.
+- The V1 bound check (`maestro/adapters/worker/bound-check.ts`): the child's
+  termination is confirmed for the generation that ran, then
+  `artifacts.inspect` at the worker's saved launch pin must show the issued
+  base as an ancestor, HEAD on the issued branch at its commit, the child's
+  claimed commit (when it names one) as that commit, and a clean checkout
+  (the worker's `.piw-agent/` and `.piw-worker/` are listed by name). The
+  subject (commit, tree, base, branch, root, pin identity) is durable before
+  the approved command runs with Maestro's parent-side accept runner in the
+  slot, and must read the same after it. Otherwise there is no accepted
+  verdict: `error` with the reason, and the command does not run when nothing
+  was bound. A cancelled check is `skipped (cancelled)`, its own outcome.
+- The outcome store keeps the verdict (command hash, exit or result,
+  environment, termination), both subjects and the run's hand-off facts
+  (commands and their outcomes, reports, the child's and the parent's state,
+  the durable cancel intent, the parent's fence and `owner-reconciliation`).
+  A run interrupted by a restart is handed off once, against its saved check
+  subject, by `handOffInterrupted`; nothing is re-run.
+- Worker children declare the bwrap profile of their slot (`filesystem`
+  option, default `bwrap`), so the worker saves the launch's Git pin; the
+  create is the body a parent channel records. A result claim may name its
+  commit. Interactive and self-spawning children are refused before
+  acquisition. `artifacts.inspect` joins the parent grant profile.
+- The ExecProvider conformance kit's unobserved-stop case repeats a second
+  stop only after an unconfirmed report for a sent or maybe-sent stop
+  (maestro#11).
+
 ### Receipt-backed parent admission and recovery (P3-9)
 
 Opt-in by explicit composition; without `parentAdmission`, delivery, the

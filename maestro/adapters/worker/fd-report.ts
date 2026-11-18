@@ -128,8 +128,8 @@ function defaultReportId(): string {
 /**
  * What a `result` report claims about the child's run: its completion
  * (`done`, or `error` with the child's message) and, optionally, its bounded
- * final summary and the child's own accept-check report. A claim, checked by
- * the parent, never trusted as its verdict.
+ * final summary, the child's own accept-check report and the commit it
+ * produced. A claim, checked by the parent, never trusted as its verdict.
  */
 export interface ResultClaim {
 	type: "done" | "error";
@@ -137,7 +137,16 @@ export interface ResultClaim {
 	errorMessage?: string;
 	/** The child's accept-check report, as its completion sidecar carries it. */
 	accept?: ReportJson;
+	/**
+	 * The full object ID of the commit the child claims as its result (P3-10).
+	 * The parent's bound check compares it with what owner Git reads; it is
+	 * never the subject itself.
+	 */
+	commit?: string;
 }
+
+/** A full Git object ID (SHA-1 or SHA-256), lower case: the only claimed commit kept. */
+export const CLAIMED_COMMIT = /^([0-9a-f]{40}|[0-9a-f]{64})$/;
 
 /** A JSON value a report message carries. */
 export type ReportJson =
@@ -150,7 +159,7 @@ export type ReportJson =
 
 /** The decoded claim of a `result` message, or `invalid` for anything this reporter did not write. */
 export type DecodedResultClaim =
-	| { type: "done"; summary?: string; accept?: ReportJson }
+	| { type: "done"; summary?: string; accept?: ReportJson; commit?: string }
 	| { type: "error"; errorMessage?: string; summary?: string }
 	| { type: "invalid" };
 
@@ -162,11 +171,14 @@ const RESULT_VERSION = 1;
  * when not even an empty summary fits, the claim goes without one.
  */
 export function encodeResultClaim(claim: ResultClaim): string {
+	if (claim.commit !== undefined && !CLAIMED_COMMIT.test(claim.commit))
+		throw new Error("A claimed commit is a full lower-case object ID");
 	const base = {
 		v: RESULT_VERSION,
 		type: claim.type,
 		errorMessage: claim.errorMessage,
 		accept: claim.accept,
+		commit: claim.commit,
 	} satisfies { [key: string]: ReportJson | undefined };
 	const fixed = JSON.stringify(base);
 	if (Buffer.byteLength(fixed) > FD_REPORT_LIMITS.messageBytes)
@@ -208,6 +220,15 @@ export function decodeResultClaim(message: string): DecodedResultClaim {
 		if (value.accept !== undefined) {
 			// SAFETY: a value JSON.parse produced is a ReportJson.
 			done.accept = value.accept as ReportJson;
+		}
+		if (value.commit !== undefined) {
+			// A malformed commit is not a claim this reporter wrote.
+			if (
+				typeof value.commit !== "string" ||
+				!CLAIMED_COMMIT.test(value.commit)
+			)
+				return { type: "invalid" };
+			done.commit = value.commit;
 		}
 		return done;
 	}

@@ -1,4 +1,4 @@
-# Worker execution provider (P3-7, P3-9)
+# Worker execution provider (P3-7, P3-9, P3-10)
 
 `WorkerExecutionProvider` (`maestro/adapters/worker/worker-exec-provider.ts`)
 is the `ExecProvider` that runs Pi children as typed pi-worker children over
@@ -7,7 +7,9 @@ B2. It is opt-in: a host composes it explicitly as the shared Pi adapter's
 package export yet; P3-11 adds the worker exports and the installed-consumer
 closure. Until then `@nublai/pi-worker-client` is a development dependency,
 installed from the exact tarball in `vendor/pi-worker-client/` (source commit
-and SHA-256 in `SOURCE.json`; root decision Q5).
+and SHA-256 in `SOURCE.json`; root decision Q5). P3-10 rebuilt it from
+pi-worker `b6e5a3c`, which serves `executions.interrupt` and
+`artifacts.inspect` on the parent channel.
 
 ## Call path
 
@@ -21,6 +23,7 @@ and SHA-256 in `SOURCE.json`; root decision Q5).
 | interrupt | `executions.interrupt` |
 | stop | `workers.stop`. The stop is confirmed only by `observed_stopped` or `superseded_generation_stopped` for the epoch it named. Anything else is reported unconfirmed and keeps the run owned. |
 | parent admission (P3-9) | `workers.get` of the parent, then `sessions.prompt {if_busy: reject}` to it; a lost reply gets one `receipts.get`. See [Parent admission](#parent-admission-p3-9). |
+| artifact facts (P3-10) | `artifacts.inspect {worker_epoch, commit, base}` of an owned child: owner-Git facts at the worker's saved launch pin, a read (no command). A refusal is typed; a lost reply is unavailable and never retried. See [Bound checks](#bound-checks-and-hand-offs-p3-10). |
 
 Every mutation's UUIDv7 command ID and `requestHash` are written to the
 launch's acquisition manifest (`<state>/launches/<launch>.json`, 0600) before
@@ -60,11 +63,22 @@ manifest and the slot claim as they were:
 The provider supports managed worktrees (owner-prepared slots) only. Resume
 (B2 refuses sandboxed-child resume), fork, persistent specialists, the
 caller's checkout and caller surfaces are refused before acquisition.
+Interactive children (a worker child has no terminal for a person) and
+children that spawn subagents (a child's grant is `children.report` only) are
+refused too, before any B2 call (P3-10).
 `executionExit` is false because B2 reports status, not exit codes.
 `parentAdmission` is `receipt` (P3-9): checked outcomes reach the parent
 through `WorkerParentAdmission`, proven by B2 receipts.
 A request that names skills is refused unless the host supplies a resource
 mapping (`childSpec.resources`).
+
+A child declares the bwrap profile of its slot (`childSpec.filesystem`,
+default `bwrap`; `environment.root` is the slot). B2 then saves the launch's
+Git pin, which `artifacts.inspect` needs, and the create is exactly the body
+a sandboxed parent's channel would normalize it to, so its request hash is
+the one B2 records. With `none` no pin is saved and every bound check fails
+closed. (The real-B2 fixture's hosts run unsandboxed; only the declaration
+and the pin are real there.)
 
 The role identity is weaker than a system prompt here. B2's `LaunchSpec` has
 no system-prompt field, so the identity is the initial prompt's preamble
@@ -116,7 +130,9 @@ writing one JSON line `{report_id, kind, message}` to the descriptor named by
 `PI_WORKER_REPORT_FD` (pi-worker sets 3). The reporter imports `node:fs` only:
 no client, grant, engine or runtime. `check:boundaries` enforces this for the
 source and the emitted file. A `result` message is a versioned claim
-(`encodeResultClaim`). The provider reads the claim back from the child's row
+(`encodeResultClaim`); it may name the full object ID of the commit the child
+claims as its result (`commit`), which the bound check compares with what
+owner Git reads. The provider reads the claim back from the child's row
 and transcribes the first `result` claim into the run's parent-local
 completion record, the `.exit` sidecar the shared adapter reads, after
 mirroring the child's history there. An undecodable claim completes as an
@@ -178,6 +194,80 @@ delivered twice. The parent answers through
 the child's own `sessions.prompt` (B2 refuses resume); wiring that answer to
 the public tools is host composition (P3-11).
 
+## Bound checks and hand-offs (P3-10)
+
+A worker parent composes `WorkerRunChecks`
+(`maestro/adapters/worker/run-checks.ts`) as its run owner's `operations` and
+`hooks`, with its `OutcomeStore` and `AdmissionOutbox`. Each run launches
+through the shared Pi adapter (the run's task ID is the child's B2 task, so a
+restarted owner finds its launch), and a requested accept check is the V1
+bound check (`runWorkerBoundCheck`, `bound-check.ts`), never the terminal
+re-check:
+
+1. Only a completed run with a `done` result claim is checked; a failed or
+   missing report is `skipped`, a completion without a result claim `error`.
+2. The child's termination is confirmed first, for the generation that ran: a
+   stop confirms only for the epoch it named (or a row already stopped). A
+   stop B2 did not observe (unconfirmed, sent or maybe sent) is repeated, at
+   most three stops in all; a stop never sent is not. Unconfirmed: `error
+   (child termination not confirmed)`, nothing read, the report and the
+   worker kept.
+3. `artifacts.inspect` at that epoch for the slot's branch and issued base.
+   The subject binds only when the facts name this worker and generation, the
+   base is the issued one and an ancestor, HEAD and the pin's HEAD are the
+   issued branch, HEAD is the branch's commit, a claimed commit is that
+   commit, and the checkout is clean but for the worker's own runtime
+   directories (`.piw-agent/`, `.piw-worker/`, untracked, listed by name in
+   the subject). A conflicted, dirty or truncated status, a pin mismatch, a
+   missing object, a refused or unanswered inspection: `error` with the
+   reason, and the command does not run.
+4. The subject (commit, tree, base, branch, root, pin identity, Git version,
+   replace objects disabled, runtime directories) is recorded
+   (`recordCheck`) before the approved command runs with Maestro's
+   parent-side accept runner (`sh -c` in the slot, in the parent's process
+   and sandbox, never a worker or daemon shell), cancellable.
+5. After it the same inspection must read the same subject and checkout
+   status; anything else is `error (subject changed ...)`, the command's exit
+   kept as evidence. Otherwise the exit decides: `accepted` or `rejected`,
+   both bound.
+
+A cancel that wins during the check is `skipped (cancelled)` (`check:
+cancelled`), its own outcome; the run then delivers the cancelled result.
+
+The committed outcome keeps, in the OutcomeStore:
+
+- `verdict`: verdict, `bound`, command hash (never the command), exit or
+  result kind, timeout, environment (runner, shell, cwd; variable names
+  only), termination (request, confirmation, stops, epoch), the claimed
+  commit and the report ID;
+- `subject`: `before` and `after`, as read;
+- `facts.handoff`: the worker, slot, branch and base; the result and help
+  report IDs; every command the launch sent and what it proved; the child's
+  row; the parent's row (`fenced`, its fence's command ID) apart from it,
+  with `may_take_input` and, when fenced, `needs: owner-reconciliation`; the
+  durable cancel intent.
+
+Hand-offs, not new child results:
+
+- A cancel records its intent in the launch manifest (`onCancelState`,
+  synchronously) before the stop is sent; the outcome carries the
+  cancellation facts and the stop evidence.
+- Invariant 4a is kept: a child stopped or gone without a result report
+  fences its parent. The hand-off names the fence and asks for owner
+  reconciliation; the outbox holds the outcome (`attention()`). Nothing here
+  clears a fence or relaunches.
+- An unconfirmed stop keeps the child's report (its text and report ID) and
+  the worker owned.
+- One run's failure is its own outcome: a sibling's check, subject and
+  verdict are its own.
+- A run a previous owner left open (a restart) is handed off by
+  `handOffInterrupted(store, outbox)`: one host-authored `interrupted`
+  outcome with the saved check subject (`error (check interrupted)`; the
+  check is never re-run), the launch's commands, the cancel intent and
+  whether the child is now stopped, and the parent's state; then that run is
+  closed. A hand-off committed before a lost close is not committed again.
+  The current owner's own live runs are never handed off.
+
 ## Grant profile
 
 `MAESTRO_WORKER_PARENT_METHODS` lists the methods the provider calls, plus
@@ -188,6 +278,7 @@ the public tools is host composition (P3-11).
 - `receipts.get`
 - `events.subscribe`
 - `history.page`
+- `artifacts.inspect`
 - `workers.create`
 - `sessions.prompt`
 - `executions.interrupt`
@@ -200,14 +291,22 @@ child's spec grants `children.report` only.
 ## Tests
 
 - `npm test` runs the unit cases: the reporter and its import and authority
-  boundary, slots, manifests, the grant closure and the real-B2 lane's
-  source check.
+  boundary, slots, manifests, the grant closure, the real-B2 lane's source
+  check and the V1 bound check over a fake port
+  (`worker-bound-check.test.ts`).
 - `npm run test:worker-b2` runs the `ExecProvider` conformance suite, including
   the adapter-boundary cases, plus the provider's and the parent admission's
   B2 tests (`b2-admission.test.ts`: the O1 crash cuts with the Maestro process
   SIGKILLed and restarted, B2 restarts, lost replies, fences, wrong, rebound
-  and stopped parents, expired and denied receipts, help requests), against
-  pi-worker's real supervisor and B2 server.
+  and stopped parents, expired and denied receipts, help requests; and the
+  interrupted-run hand-offs after a SIGKILL during a check and before a
+  cancel's stop) and the bound checks (`b2-bound-check.test.ts`: V1 against
+  an actual child commit compared with the owner's own Git, over the owner
+  socket and over a sandboxed parent's channel; a tree changed by the check,
+  a pin mismatch, a missing object, a lost inspect reply, a dirty checkout, a
+  wrong claimed commit; failed and missing reports, a cancelled check, a
+  cancel before any report, sibling isolation with an unconfirmed stop),
+  against pi-worker's real supervisor and B2 server.
   - B2 confirms a stop only once the child's leader process is proven gone.
     Under load a leader can be a zombie whose last thread is still exiting;
     that stop is `outcome_unknown` (the worker stays owned) and the provider
@@ -232,11 +331,10 @@ child's spec grants `children.report` only.
 
 Root decided the three open items on 2026-11-18:
 
-1. Parent-channel interrupt. The P2-8 whitelist (`CHANNEL_METHODS`) has no
-   `executions.interrupt` yet, so a sandboxed parent's interrupt is refused,
-   never a silent success. pi-worker adds it, scoped like the other channel
-   methods, in a separate pi-worker PR. The interrupt path stays as is; the
-   B2 test that records the gap is marked to flip when that lands.
+1. Parent-channel interrupt. Landed in pi-worker `b6e5a3c` (#43), scoped
+   like the other channel methods. The interrupt path is unchanged; the B2
+   test that recorded the gap is flipped and the provider interrupts a child
+   through a sandboxed parent's channel.
 2. Role identity. The first-prompt preamble is interim, for append semantics
    only; replace is refused (see Capabilities). A typed `LaunchSpec` field
    comes before P3-12.
@@ -247,13 +345,16 @@ Root decided the three open items on 2026-11-18:
    stop evidence and the checked outcomes; expose the parent fence and
    require owner reconciliation; never make up a child result. A confirmed
    child stop and a parent that may take more input are separate facts.
+   Implemented in P3-10 (see [Bound checks](#bound-checks-and-hand-offs-p3-10)).
 
 Still open:
 
-- The slot is not yet projected onto `AgentHandle.worktree`; the handoff and
-  bound checks run through `artifacts.inspect` (P3-6, P3-10).
+- The slot is not yet projected onto `AgentHandle.worktree`; the bound check
+  reads it from the launch manifest (`runBinding`) and the commit through
+  `artifacts.inspect`.
 - Pi composition (`createDefaultRunSession`) does not pass `parentAdmission`
   yet, and `subagent_send` cannot answer a non-persistent worker child; both
   belong to the worker parent's host composition (P3-11).
-- A run interrupted by a restart is reported (`recovery().interrupted`), not
-  re-attached to its still-running worker child.
+- A run interrupted by a restart is handed off (`handOffInterrupted`), not
+  re-attached to its still-running worker child; stopping that child is the
+  owner's.

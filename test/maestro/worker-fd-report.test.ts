@@ -184,6 +184,31 @@ describe("worker FD reporter", () => {
 				message,
 			);
 	});
+
+	it("a claimed commit (P3-10) round-trips only as a full lower-case object ID", () => {
+		for (const commit of ["a".repeat(40), "0".repeat(64)])
+			assert.deepEqual(
+				decodeResultClaim(encodeResultClaim({ type: "done", commit })),
+				{ type: "done", commit },
+			);
+		for (const commit of [
+			"a".repeat(39),
+			"A".repeat(40),
+			"HEAD",
+			"a".repeat(41),
+		])
+			assert.throws(
+				() => encodeResultClaim({ type: "done", commit }),
+				/full lower-case object ID/,
+			);
+		// A claim this reporter did not write: a malformed commit is no claim at all.
+		for (const commit of ['"HEAD"', "7", '"abc"', "null"])
+			assert.deepEqual(
+				decodeResultClaim(`{"v":1,"type":"done","commit":${commit}}`),
+				{ type: "invalid" },
+				commit,
+			);
+	});
 });
 
 describe("worker FD reporter: a summary that cannot fit", () => {

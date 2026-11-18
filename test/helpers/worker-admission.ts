@@ -15,7 +15,11 @@ import {
 	workerParentIdentity,
 	type WorkerParentBinding,
 } from "../../maestro/adapters/worker/parent-admission.ts";
+import type { AcceptRunner } from "../../maestro/adapters/pi/accept-runner.ts";
+import { WorkerRunChecks } from "../../maestro/adapters/worker/run-checks.ts";
 import type { WorkerExecutionProviderOptions } from "../../maestro/adapters/worker/worker-exec-provider.ts";
+import type { AcceptRequest } from "../../maestro/core/accept.ts";
+import { normalizeAcceptSpec } from "../../maestro/core/accept.ts";
 import type { OutcomeStore } from "../../maestro/core/outcome-store.ts";
 import type { Task } from "../../maestro/core/types.ts";
 import { AdmissionOutbox } from "../../maestro/runtime/admission-outbox.ts";
@@ -41,6 +45,11 @@ export interface WorkerParentOptions {
 	/** The parent identity the store is opened for; default the parent's current one. */
 	parent?: WorkerParentBinding;
 	pollMs?: number;
+	/**
+	 * P3-10: compose `WorkerRunChecks` (the V1 bound check and the hand-offs)
+	 * as the run owner's operations and hooks. Off: the P3-9 composition.
+	 */
+	checks?: { runner?: AcceptRunner };
 }
 
 /** The parent's state directory layout under `dir`. */
@@ -93,13 +102,27 @@ export async function composeWorkerParent(
 	});
 	const session = parentSession();
 	const { adapter, launchOf } = adapterOver(composed.provider, session);
-	const runs = createRunSession({
+	let checks: WorkerRunChecks | undefined;
+	if (options.checks) {
+		const checkOptions: ConstructorParameters<typeof WorkerRunChecks>[0] = {
+			provider: composed.provider,
+			adapter,
+		};
+		if (options.checks.runner) checkOptions.runner = options.checks.runner;
+		checks = new WorkerRunChecks(checkOptions);
+	}
+	const sessionOptions: Parameters<typeof createRunSession>[0] = {
 		adapter,
 		roles: [role],
 		cwd: session.root,
 		outcomeStore: store,
 		parentAdmission: outbox,
-	});
+	};
+	if (checks) {
+		sessionOptions.operations = checks.operations;
+		sessionOptions.hooks = checks.hooks;
+	}
+	const runs = createRunSession(sessionOptions);
 	return {
 		binding,
 		store,
@@ -109,6 +132,7 @@ export async function composeWorkerParent(
 		runs,
 		adapter,
 		session,
+		checks,
 		workerOf: (handle: Parameters<typeof launchOf>[0]) =>
 			workerOf(composed.provider, launchOf(handle)),
 		execOf: (handle: Parameters<typeof launchOf>[0]) => launchOf(handle).handle,
@@ -121,8 +145,12 @@ export async function composeWorkerParent(
 	};
 }
 
-export function workerTask(id: string, root: string): Task {
-	return {
+export function workerTask(
+	id: string,
+	root: string,
+	accept?: AcceptRequest,
+): Task {
+	const task: Task = {
 		id,
 		name: id,
 		role: role.name,
@@ -131,4 +159,6 @@ export function workerTask(id: string, root: string): Task {
 		worktree: { branch: "w" },
 		runtime: { model: "fake/test", thinking: "off" },
 	};
+	if (accept) task.accept = normalizeAcceptSpec(accept);
+	return task;
 }

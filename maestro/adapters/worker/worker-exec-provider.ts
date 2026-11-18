@@ -56,6 +56,7 @@ import type {
 	ExecReconciliation,
 	ExecStopReport,
 } from "../../core/exec-provider.ts";
+import { isString } from "../../core/config/type-guards.ts";
 import { createLifecycle } from "../../core/lifecycle.ts";
 import {
 	type AcquisitionControl,
@@ -64,7 +65,7 @@ import {
 import type { PaneInspection } from "../../core/types.ts";
 import type { FreshPiLaunchRequest, PiLaunchRequest } from "../pi/launch.ts";
 import type { PiExecProvider, PiExecution } from "../pi/pi-harness-adapter.ts";
-import { decodeResultClaim } from "./fd-report.ts";
+import { type DecodedResultClaim, decodeResultClaim } from "./fd-report.ts";
 import { MAESTRO_WORKER_CHILD_METHODS } from "./grant-profile.ts";
 import {
 	privateDirectory,
@@ -84,6 +85,7 @@ type Worker = components["schemas"]["Worker"];
 type LaunchSpec = components["schemas"]["LaunchSpec"];
 type Create = components["schemas"]["Create"];
 type ChildClaim = components["schemas"]["ChildClaim"];
+export type ArtifactFacts = components["schemas"]["ArtifactFacts"];
 type HistoryQuery = { limit: number; watermark?: string; after?: string };
 type HistoryEntry = components["schemas"]["HistoryPage"]["entries"][number];
 
@@ -122,8 +124,85 @@ export interface WorkerChildSpecOptions {
 	 * parent's profile). Without it a request naming skills is refused.
 	 */
 	resources?(request: FreshPiLaunchRequest): LaunchSpec["resources"];
-	/** Environment fields beyond the provider's (`filesystem`, `root`). */
-	environment?: Pick<LaunchSpec["environment"], "filesystem" | "root">;
+	/**
+	 * The child's filesystem. Default `bwrap`: the child runs in the bwrap
+	 * profile of its slot (`environment.root` is the slot, as B2 requires and
+	 * as a sandboxed parent's channel normalizes it), so the worker saves the
+	 * launch's Git pin and `artifacts.inspect` can bind a check to the child's
+	 * commit. With `none` no pin is saved and every bound check fails closed.
+	 */
+	filesystem?: "none" | "bwrap";
+}
+
+/**
+ * One `artifacts.inspect` read (P3-6): the worker's owner-Git facts, a typed
+ * refusal the worker proved (`no_effect`), or no answer (a lost reply, an
+ * unreadable one, B2 unreachable). Facts are never a verdict.
+ */
+export type WorkerArtifactRead =
+	| { kind: "facts"; facts: ArtifactFacts }
+	| { kind: "refused"; code: string; detail?: string }
+	| { kind: "unavailable"; error: string };
+
+/** A worker's row as a hand-off states it: its status and fence, or why it is unread. */
+export type WorkerRowState =
+	| {
+			kind: "row";
+			status: Worker["status"];
+			fenced: boolean;
+			fenceCommandId?: string;
+			foreground?: Worker["foreground"];
+			workerEpoch: string;
+			reports?: { kind: string; reportId: string }[];
+	  }
+	| { kind: "missing" }
+	| { kind: "unavailable"; error: string };
+
+/** One `workers.get`, as a hand-off fact. */
+export async function readWorkerState(
+	client: Client,
+	workerId: string,
+): Promise<WorkerRowState> {
+	let row: Worker;
+	try {
+		row = await client.call("workers.get", { path: { worker_id: workerId } });
+	} catch (error) {
+		if (
+			error instanceof ClientFailure &&
+			error.phase === "http" &&
+			error.message === "unknown_worker"
+		)
+			return { kind: "missing" };
+		return { kind: "unavailable", error: errorText(error) };
+	}
+	const state: WorkerRowState = {
+		kind: "row",
+		status: row.status,
+		fenced: Boolean(row.fence),
+		workerEpoch: row.worker_epoch,
+		reports: (row.child_reports ?? []).map((claim) => ({
+			kind: claim.kind,
+			reportId: claim.command_id,
+		})),
+	};
+	if (row.fence) state.fenceCommandId = row.fence.command_id;
+	if (row.foreground) state.foreground = row.foreground;
+	return state;
+}
+
+/** What a run's bound check reads about its child (P3-10): issued, claimed and terminated. */
+export interface WorkerRunBinding {
+	workerId: string;
+	/** The owner-issued slot: its root, branch and exact base. */
+	slot: { name: string; path: string; branch: string; baseSha: string };
+	/** The first result claim the child reported, once transcribed. */
+	claim?: { reportId: string; decoded: DecodedResultClaim };
+	/** Help claims seen so far, by report ID. */
+	help: string[];
+	/** The epoch whose termination a stop confirmed, once one did. */
+	terminatedEpoch?: string;
+	/** When the run's owner recorded its cancel intent, if it did. */
+	cancelRequestedAt?: number;
 }
 
 export interface WorkerExecutionProviderOptions {
@@ -201,6 +280,10 @@ interface WorkerExecution {
 	readonly child: PiExecution;
 	/** The first result claim, once transcribed into the completion record. */
 	transcribed?: string;
+	/** That claim, decoded. */
+	claim?: DecodedResultClaim;
+	/** The epoch whose termination a stop confirmed (only that generation's). */
+	terminatedEpoch?: string;
 	/** Help claims seen on the row, in order. */
 	help: ChildClaim[];
 	/** A stopped child's report channel had its chance to drain. */
@@ -276,6 +359,123 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 	/** Help claims the child reported so far (P3-9 delivers them). */
 	help(handle: ExecHandle): readonly ChildClaim[] {
 		return this.#execution(handle).help;
+	}
+
+	/** The handle of an execution this provider launched, by its harness record. */
+	handleOf(child: PiExecution): ExecHandle | undefined {
+		for (const execution of this.#executions.values())
+			if (execution.child === child)
+				return Object.freeze({
+					provider: this.name,
+					ref: execution.ref,
+					capabilities: this.capabilities,
+				});
+		return undefined;
+	}
+
+	/**
+	 * What a bound check of this run reads (P3-10): the issued slot, the
+	 * child's claims, the epoch a stop confirmed terminated, the recorded
+	 * cancel intent. Undefined when its manifest cannot be read.
+	 */
+	runBinding(handle: ExecHandle): WorkerRunBinding | undefined {
+		const execution = this.#execution(handle);
+		const manifest = this.#options.launches.read(execution.ref);
+		if (!manifest) return undefined;
+		const binding: WorkerRunBinding = {
+			workerId: execution.workerId,
+			slot: {
+				name: manifest.slot.name,
+				path: manifest.slot.path,
+				branch: manifest.slot.branch,
+				baseSha: manifest.slot.base_sha,
+			},
+			help: execution.help.map((claim) => claim.command_id),
+		};
+		if (execution.transcribed !== undefined && execution.claim)
+			binding.claim = {
+				reportId: execution.transcribed,
+				decoded: execution.claim,
+			};
+		if (execution.terminatedEpoch !== undefined)
+			binding.terminatedEpoch = execution.terminatedEpoch;
+		if (manifest.cancel_requested_at !== undefined)
+			binding.cancelRequestedAt = manifest.cancel_requested_at;
+		return binding;
+	}
+
+	/**
+	 * The parent's current state, for a hand-off (P3-10): whether it is fenced
+	 * (invariant 4a: a child stopped without a result report fences it until
+	 * the owner resolves the fence) and whether it may take input. A read only;
+	 * the provider never clears a fence.
+	 */
+	async parentState(): Promise<WorkerRowState> {
+		return readWorkerState(this.#client, this.#options.parentWorkerId);
+	}
+
+	/** One owned child's current state, by its worker ID (a read only). */
+	async workerState(workerId: string): Promise<WorkerRowState> {
+		return readWorkerState(this.#client, workerId);
+	}
+
+	/** Every acquisition manifest this provider's store keeps, oldest first. */
+	launchManifests() {
+		return this.#options.launches.list();
+	}
+
+	/**
+	 * Records the run owner's cancel intent in the launch's manifest, durably,
+	 * before the stop it leads to is sent. Returns the write's failure, if any:
+	 * the intent then lives in memory only.
+	 */
+	recordCancelIntent(handle: ExecHandle, at = this.#now()): string | undefined {
+		const execution = this.#execution(handle);
+		return this.#tryWrite(() =>
+			this.#options.launches.update(execution.ref, (manifest) => {
+				manifest.cancel_requested_at ??= at;
+			}),
+		);
+	}
+
+	/**
+	 * Owner-Git facts about the child's checkout (`artifacts.inspect`) at the
+	 * worker's saved launch pin, for `epoch` (B2 refuses any other as
+	 * `stale_binding`). `commit` and `base` are full object IDs or branches of
+	 * the child's own namespace, never paths. A read: no command is recorded,
+	 * and a lost reply is `unavailable`, never retried here.
+	 */
+	async inspectArtifact(
+		handle: ExecHandle,
+		request: { epoch: string; commit: string; base?: string },
+	): Promise<WorkerArtifactRead> {
+		const execution = this.#execution(handle);
+		const body: components["schemas"]["ArtifactInspect"] = {
+			worker_epoch: request.epoch,
+			commit: request.commit,
+		};
+		if (request.base !== undefined) body.base = request.base;
+		try {
+			return {
+				kind: "facts",
+				facts: await this.#client.call("artifacts.inspect", {
+					path: { worker_id: execution.workerId },
+					body,
+				}),
+			};
+		} catch (error) {
+			if (
+				error instanceof ClientFailure &&
+				error.phase === "http" &&
+				error.effect === "no_effect"
+			) {
+				const detail = error.details.detail;
+				return isString(detail) && /^[a-z0-9_]{1,128}$/.test(detail)
+					? { kind: "refused", code: error.message, detail }
+					: { kind: "refused", code: error.message };
+			}
+			return { kind: "unavailable", error: errorText(error) };
+		}
 	}
 
 	/** The Observer's latest state (persisted with the outbox by P3-9). */
@@ -752,8 +952,10 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 			};
 		const worker = read.worker;
 		// Only a stop the worker recorded as complete (cleanup confirmed) ends ownership.
-		if (worker.status === "stopped" || worker.status === "failed")
+		if (worker.status === "stopped" || worker.status === "failed") {
+			execution.terminatedEpoch = worker.worker_epoch;
 			return { request: "not-sent", termination: "confirmed" };
+		}
 		if (!worker.session_id)
 			return {
 				request: "not-sent",
@@ -816,8 +1018,10 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 			result.stopped_worker_epoch === epoch &&
 			(result.termination === "observed_stopped" ||
 				result.termination === "superseded_generation_stopped")
-		)
+		) {
+			execution.terminatedEpoch = epoch;
 			return { request: "sent", termination: "confirmed" };
+		}
 		return {
 			request: receipt ? "sent" : "unknown",
 			termination: "unconfirmed",
@@ -865,6 +1069,16 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 		if (request.handoff)
 			throw new WorkerLaunchRefusal(
 				`${this.name} execution does not support worktree handoffs; refused before acquisition.`,
+			);
+		// A worker child has no terminal for a person and no authority to spawn:
+		// its launch spec grants children.report only (P3-10).
+		if (request.behavior.interactive)
+			throw new WorkerLaunchRefusal(
+				`${this.name} execution does not support interactive children (a worker child has no terminal for a person; it ends by its FD 3 report); refused before acquisition.`,
+			);
+		if (request.behavior.selfSpawn)
+			throw new WorkerLaunchRefusal(
+				`${this.name} execution does not support children that spawn subagents (a worker child's grant is children.report only); refused before acquisition.`,
 			);
 		// Root decision (P3-7 open items): the identity travels as the first input's
 		// preamble, accepted as interim append semantics only; replacing the system
@@ -948,16 +1162,17 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 				named ?? options.defaultTools ?? ["read", "bash", "edit", "write"],
 			),
 		].filter((tool) => !denied.includes(tool));
+		const filesystem = options.filesystem ?? "bwrap";
 		const environment: LaunchSpec["environment"] = {
 			id: `maestro-${slot.name}`,
 			revision: 1,
 			allowed_methods: [...MAESTRO_WORKER_CHILD_METHODS],
 			base_sha: slot.baseSha,
+			filesystem,
 		};
-		if (options.environment?.filesystem !== undefined)
-			environment.filesystem = options.environment.filesystem;
-		if (options.environment?.root !== undefined)
-			environment.root = options.environment.root;
+		// B2 requires a sandbox's root to be its cwd; a parent's channel normalizes
+		// the create the same way, so the request hash is the one B2 records.
+		if (filesystem === "bwrap") environment.root = slot.path;
 		return {
 			environment,
 			role: request.agent ?? "subagent",
@@ -1162,6 +1377,7 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 		execution.transcribed = claim.command_id;
 		const { sessionFile } = execution.child;
 		const decoded = decodeResultClaim(claim.message);
+		execution.claim = decoded;
 		let entries: HistoryEntry[] = [];
 		try {
 			entries = await this.#history(execution.workerId);
