@@ -21,13 +21,23 @@ import type {
 	PiRunningChild,
 } from "../../maestro/adapters/pi/launch.ts";
 import { launchOperationsFromSurface } from "../../maestro/adapters/pi/launch-operations.ts";
-import { PiHarnessAdapter } from "../../maestro/adapters/pi/pi-harness-adapter.ts";
+import { readPersistentDeliveryLedger } from "../../maestro/adapters/pi/session.ts";
+import {
+	PiHarnessAdapter,
+	type PiExecProvider,
+	type PiExecution,
+	type PiSpawnOptions,
+} from "../../maestro/adapters/pi/pi-harness-adapter.ts";
 import { TerminalExecProvider } from "../../maestro/adapters/pi/terminal-exec-provider.ts";
 import {
 	execRefusal,
 	projectAgentHandle,
+	observeSupervision,
 	type ExecCapabilities,
 	type ExecHandle,
+	type ExecLaunch,
+	type ExecRequirement,
+	type ExecStopRequest,
 } from "../../maestro/core/exec-provider.ts";
 import type { SpawnOptions } from "../../maestro/core/harness-adapter.ts";
 import { createLifecycle } from "../../maestro/core/lifecycle.ts";
@@ -46,7 +56,10 @@ import type {
 import { FileWakeRegistry } from "../../maestro/core/wake.ts";
 import { createRunSession } from "../../maestro/runtime/run-session.ts";
 import { FakeSurfaceProvider } from "../../maestro/surfaces/fake/fake-surface-provider.ts";
-import { registerExecProviderConformance } from "../../maestro/testing/exec-provider.conformance.ts";
+import {
+	registerExecProviderConformance,
+	type ExecAdapterBoundary,
+} from "../../maestro/testing/exec-provider.conformance.ts";
 
 const paneConfig = {
 	mode: "grouped",
@@ -138,7 +151,8 @@ function terminalPrompts(child: PiRunningChild) {
 /** Herdr Core's native program execution, in memory, over the fake terminal. */
 class FakeCoreSurface extends FakeSurfaceProvider {
 	readonly states = new Map<string, NativeExecutionInspection>();
-	refuseTerminate = false;
+	/** Programs whose termination Core refuses. */
+	readonly refuseTerminate = new Set<string>();
 	starts = 0;
 	readonly nativeExecution: NativeExecution = {
 		start: async (input) => {
@@ -151,10 +165,143 @@ class FakeCoreSurface extends FakeSurfaceProvider {
 		},
 		inspect: async (id) => this.states.get(id) ?? { kind: "missing" },
 		terminate: async (id) => {
-			if (this.refuseTerminate) throw new Error("Core refused termination");
+			if (this.refuseTerminate.has(id))
+				throw new Error("Core refused termination");
 			this.states.set(id, { kind: "finished", exitCode: 143 });
 			this.removeSurface(id);
 		},
+	};
+}
+
+function spawnOptions(root: string, extra: Partial<PiSpawnOptions> = {}) {
+	return {
+		name: "worker",
+		task: "bounded task",
+		cwd: root,
+		sessionId: "logical",
+		role,
+		runtime: { model: "fake/test", thinking: "off" },
+		...extra,
+	} satisfies PiSpawnOptions;
+}
+
+/** Drive one requirement through the adapter's public spawn or resume. */
+function spawnRequiring(
+	adapter: PiHarnessAdapter<PiExecution>,
+	root: string,
+	requirement: ExecRequirement,
+): Promise<AgentHandle> {
+	switch (requirement) {
+		case "resume":
+			return adapter.resume({
+				name: "resumed",
+				sessionId: join(root, "saved.jsonl"),
+			});
+		case "worktree":
+			return adapter.spawn(
+				spawnOptions(root, { worktreeRequest: { branch: "w" } }),
+			);
+		case "persistent":
+			return adapter.spawn(
+				spawnOptions(root, {
+					behavior: { persistent: true, autoExit: false },
+				}),
+			);
+		case "fork":
+			return adapter.spawn(spawnOptions(root, { session: { mode: "fork" } }));
+		case "callerSurface":
+			return adapter.spawn(
+				spawnOptions(root, {
+					surface: {
+						id: "caller-pane",
+						runCommand: () => assert.fail("nothing may run"),
+						readScreen: () => assert.fail("nothing may be read"),
+					},
+				}),
+			);
+		case "sharedCheckout":
+			return adapter.spawn(spawnOptions(root));
+	}
+}
+
+/**
+ * The shared Pi adapter over `exec`, recording each launch so a run handle
+ * maps back to the provider's own launch result.
+ */
+function piBoundary<Child extends PiExecution>(
+	exec: PiExecProvider<Child>,
+	parent: ReturnType<typeof parentFixture>,
+	uncertainNextLaunch?: (reason: string) => void,
+): ExecAdapterBoundary<Child> & { adapter: PiHarnessAdapter<Child> } {
+	const launches = new Map<Child, ExecLaunch<Child>>();
+	const launch = exec.launch.bind(exec);
+	exec.launch = async (request, control) => {
+		const result = await launch(request, control);
+		launches.set(result.launched, result);
+		return result;
+	};
+	const adapter = new PiHarnessAdapter<Child>({
+		exec,
+		modelRegistry,
+		parent: parent.parent,
+		parentRuntime: { provider: "fake", modelId: "test", thinking: "off" },
+	});
+	const boundary: ExecAdapterBoundary<Child> & {
+		adapter: PiHarnessAdapter<Child>;
+	} = {
+		adapter,
+		spawn: (acquisitionSignal) =>
+			adapter.spawn(
+				spawnOptions(
+					parent.root,
+					acquisitionSignal ? { acquisitionSignal } : {},
+				),
+			),
+		spawnRequiring: (requirement) =>
+			spawnRequiring(adapter, parent.root, requirement),
+		launchOf: (handle) => {
+			const result = launches.get(adapter.getRunningChild(handle));
+			assert.ok(result, `no launch recorded for ${handle.id}`);
+			return result;
+		},
+	};
+	if (uncertainNextLaunch) boundary.uncertainNextLaunch = uncertainNextLaunch;
+	return boundary;
+}
+
+/**
+ * Pi's shared record for an execution with no terminal: no pane, no launch
+ * script. Paths derive from the run's own ID, never the provider reference.
+ */
+function paneLessExecution(runs: string) {
+	let next = 0;
+	return (request: PiLaunchRequest): PiExecution => {
+		const id = request.id ?? `run-${++next}`;
+		const startTime = Date.now();
+		const shared = {
+			id,
+			name: request.name,
+			startTime,
+			activityFile: join(runs, `${id}.activity.json`),
+			interactive: false,
+			lifecycle: createLifecycle(startTime),
+		};
+		return request.kind === "resume"
+			? {
+					...shared,
+					task: request.message ?? "",
+					sessionFile: request.sessionFile,
+					runtimePlan: undefined,
+				}
+			: {
+					...shared,
+					task: request.task,
+					agent: request.agent,
+					sessionFile: join(runs, `${id}.jsonl`),
+					runtimePlan: request.runtimePlan,
+					cwd: request.cwd,
+					persistent: request.behavior.persistent,
+				};
 	};
 }
 
@@ -169,12 +316,60 @@ registerExecProviderConformance({ describe, it }, "Fake", async () => {
 		acquisitions: () => provider.executions.length,
 		exit: async ({ handle }) => provider.exit(handle),
 		print: async ({ handle }, text) => provider.print(handle, text),
-		blockStop: async ({ handle }) =>
-			provider.blockStop(handle, new Error("stop refused")),
+		blockStop: async ({ handle }) => {
+			provider.blockStop(handle, new Error("stop refused"));
+			return "sent";
+		},
 		prompted: async ({ handle }) => provider.execution(handle).prompts,
 		dispose: async () => {},
 	};
 });
+
+/** A pane-less Pi provider behind the shared adapter, optionally limited. */
+function paneLessConformance(
+	name: string,
+	capabilities: Partial<ExecCapabilities>,
+	blockedRequest: ExecStopRequest,
+) {
+	registerExecProviderConformance({ describe, it }, name, async () => {
+		const parent = parentFixture();
+		const runs = join(parent.root, "runs");
+		mkdirSync(runs);
+		const provider = new FakeExecProvider<PiLaunchRequest, PiExecution>({
+			name: "pane-less",
+			capabilities: { ...capabilities, executionExit: false },
+			launched: paneLessExecution(runs),
+		});
+		return {
+			provider,
+			request: () => freshRequest(parent),
+			acquisitions: () => provider.executions.length,
+			exit: async ({ handle }) => provider.exit(handle),
+			print: async ({ handle }, text) => provider.print(handle, text),
+			blockStop: async ({ handle }) => {
+				provider.blockStop(handle, new Error("stop refused"), blockedRequest);
+				return blockedRequest;
+			},
+			prompted: async ({ handle }) => provider.execution(handle).prompts,
+			adapter: piBoundary(provider, parent, (reason) =>
+				provider.uncertainNextLaunch(reason),
+			),
+			dispose: async () => parent.dispose(),
+		};
+	});
+}
+paneLessConformance("Pane-less Pi (fake)", {}, "sent");
+paneLessConformance(
+	"Pane-less Pi (fake, limited capabilities)",
+	{
+		resume: false,
+		fork: false,
+		persistent: false,
+		worktree: false,
+		callerSurface: false,
+	},
+	"not-sent",
+);
 
 registerExecProviderConformance(
 	{ describe, it },
@@ -197,12 +392,17 @@ registerExecProviderConformance(
 			exit: async ({ launched }) => surface.removeSurface(launched.surface),
 			print: async ({ launched }, text) =>
 				surface.appendScreen(launched.surface, text),
-			blockStop: async () => {
-				surface.closeSurface = () => {
-					throw new Error("close refused");
+			blockStop: async ({ launched }) => {
+				const close = surface.closeSurface.bind(surface);
+				surface.closeSurface = (id) => {
+					if (id === launched.surface) throw new Error("close refused");
+					close(id);
 				};
+				// Close threw: whether the request reached the pane is unknown.
+				return "unknown";
 			},
 			prompted: async ({ launched }) => terminalPrompts(launched),
+			adapter: piBoundary(provider, parent),
 			dispose: async () => parent.dispose(),
 		};
 	},
@@ -228,10 +428,13 @@ registerExecProviderConformance(
 			},
 			print: async ({ launched }, text) =>
 				surface.appendScreen(launched.surface, text),
-			blockStop: async () => {
-				surface.refuseTerminate = true;
+			blockStop: async ({ launched }) => {
+				surface.refuseTerminate.add(launched.surface);
+				// Terminate threw: whether Core acted on it is unknown.
+				return "unknown";
 			},
 			prompted: async ({ launched }) => terminalPrompts(launched),
+			adapter: piBoundary(provider, parent),
 			dispose: async () => parent.dispose(),
 		};
 	},
@@ -397,43 +600,15 @@ function sharedAdapterFixture(capabilities: Partial<ExecCapabilities> = {}) {
 	const parent = parentFixture();
 	const runs = join(parent.root, "runs");
 	mkdirSync(runs);
-	const exec = new FakeExecProvider<PiLaunchRequest, PiRunningChild>({
+	// No terminal: the records carry no pane and no launch script.
+	const exec = new FakeExecProvider<PiLaunchRequest, PiExecution>({
 		name: "worker",
 		capabilities,
-		launched: (request, ref) => {
-			assert.equal(request.kind, "fresh");
-			const startTime = Date.now();
-			return {
-				id: request.id ?? ref,
-				name: request.name,
-				task: request.task,
-				agent: request.agent,
-				// Pi-internal supervision key; the shared handle never carries it.
-				surface: ref,
-				ownsSurface: false,
-				startTime,
-				sessionFile: join(runs, `${ref}.jsonl`),
-				launchScriptFile: join(runs, `${ref}.sh`),
-				activityFile: join(runs, `${ref}.activity.json`),
-				interactive: false,
-				runtimePlan: request.runtimePlan,
-				cwd: request.cwd,
-				lifecycle: createLifecycle(startTime),
-				persistent: request.behavior.persistent,
-			};
-		},
+		launched: paneLessExecution(runs),
 	});
-	const wake = new FileWakeRegistry();
-	const supervision = new SupervisionCoordinator(
-		async () => ({ complete: true, panes: [] }),
-		async () => ({ kind: "unavailable" as const }),
-		false,
-		wake,
-	);
 	const adapter = new PiHarnessAdapter({
 		exec,
 		modelRegistry,
-		supervision,
 		parent: parent.parent,
 		parentRuntime: { provider: "fake", modelId: "test", thinking: "off" },
 	});
@@ -452,15 +627,24 @@ function sharedAdapterFixture(capabilities: Partial<ExecCapabilities> = {}) {
 		runtime: { model: "fake/test", thinking: "off" },
 		...overrides,
 	});
+	/** The provider handle of the n-th execution. */
+	const execHandle = (index = 0): ExecHandle => {
+		const execution = exec.executions[index];
+		assert.ok(execution, `no execution ${index}`);
+		return {
+			provider: "worker",
+			ref: execution.ref,
+			capabilities: exec.capabilities,
+		};
+	};
 	return {
 		parent,
 		exec,
 		adapter,
 		session,
 		task,
+		execHandle,
 		dispose() {
-			supervision.close();
-			wake.close();
 			parent.dispose();
 		},
 	};
@@ -672,5 +856,364 @@ describe("one RunSession path over an ExecProvider", () => {
 			// A busy specialist refuses before the provider is asked.
 			await assert.rejects(f.session.send(task.id, "too soon"), /busy/);
 			assert.equal(execution?.prompts.length, 1);
+		}));
+});
+
+async function eventually(check: () => boolean, what: string) {
+	const deadline = Date.now() + 5_000;
+	while (!check()) {
+		if (Date.now() > deadline) assert.fail(`timed out waiting for ${what}`);
+		await new Promise((resolve) => setTimeout(resolve, 5));
+	}
+}
+
+// PR #7 review, finding 1: the provider's top-level launch uncertainty is the
+// signal; the adapter keeps it on the owned attempt and the completion path.
+describe("launch uncertainty from the provider's launch result", () => {
+	const UNKNOWN = "initial prompt outcome unknown";
+
+	it("spawn keeps a top-level launchFailure, and completion never reports done", async () =>
+		usingShared({}, async (f) => {
+			f.exec.uncertainNextLaunch(UNKNOWN);
+			const handle = await f.adapter.spawn(spawnOptions(f.parent.root));
+			assert.equal(handle.launchFailure, UNKNOWN);
+			const child = f.adapter.getRunningChild(handle);
+			assert.equal(child.launchFailure, UNKNOWN);
+			f.exec.exit(f.execHandle());
+			writeFileSync(
+				`${child.sessionFile}.exit`,
+				JSON.stringify({ type: "done" }),
+			);
+			const evidence = await f.adapter.awaitCompletion(
+				handle,
+				new AbortController().signal,
+			);
+			assert.equal(evidence.reason, "error");
+			assert.equal(evidence.exitCode, 1);
+			assert.equal(evidence.errorMessage, UNKNOWN);
+		}));
+
+	it("resume keeps a top-level launchFailure through completion", async () =>
+		usingShared({}, async (f) => {
+			f.exec.uncertainNextLaunch(UNKNOWN);
+			const handle = await f.adapter.resume({
+				name: "resumed",
+				sessionId: join(f.parent.root, "saved.jsonl"),
+			});
+			assert.equal(handle.launchFailure, UNKNOWN);
+			f.exec.exit(f.execHandle());
+			writeFileSync(
+				join(f.parent.root, "saved.jsonl.exit"),
+				JSON.stringify({ type: "done" }),
+			);
+			const evidence = await f.adapter.awaitCompletion(
+				handle,
+				new AbortController().signal,
+			);
+			assert.equal(evidence.reason, "error");
+			assert.equal(evidence.errorMessage, UNKNOWN);
+		}));
+
+	const withFallback = (f: ReturnType<typeof sharedAdapterFixture>) =>
+		f.task({
+			runtime: {
+				model: "fake/test",
+				thinking: "off",
+				fallbacks: [{ model: "fake/other", thinking: "off" }],
+			},
+		});
+	const owned = (
+		f: ReturnType<typeof sharedAdapterFixture>,
+		taskId: string,
+	): AgentHandle => {
+		const handle = f.session.getHandle(taskId);
+		assert.ok(handle, `no owned run for ${taskId}`);
+		return handle;
+	};
+	const failFirst = (f: ReturnType<typeof sharedAdapterFixture>) => {
+		const child = f.adapter.getRunningChild(owned(f, "task-1"));
+		f.exec.exit(f.execHandle(0), 1);
+		writeFileSync(
+			`${child.sessionFile}.exit`,
+			JSON.stringify({ type: "error", errorMessage: "model overloaded" }),
+		);
+	};
+
+	it("control: an ordinary error attempt falls back to the next model", async () =>
+		usingShared({}, async (f) => {
+			const task = withFallback(f);
+			const handle = await f.session.spawn(task);
+			const settled = f.session.supervise(handle, task);
+			failFirst(f);
+			await eventually(() => f.exec.executions.length === 2, "the fallback");
+			const next = owned(f, task.id);
+			f.exec.exit(f.execHandle(1));
+			writeFileSync(
+				`${f.adapter.getRunningChild(next).sessionFile}.exit`,
+				JSON.stringify({ type: "done" }),
+			);
+			assert.equal((await settled).outcome, "completed");
+		}));
+
+	it("an uncertain attempt that then errors is never retried with a fallback", async () =>
+		usingShared({}, async (f) => {
+			const task = withFallback(f);
+			f.exec.uncertainNextLaunch(UNKNOWN);
+			const handle = await f.session.spawn(task);
+			assert.equal(handle.launchFailure, UNKNOWN);
+			const settled = f.session.supervise(handle, task);
+			failFirst(f);
+			const result = await settled;
+			assert.equal(result.outcome, "failed");
+			assert.equal(result.evidence?.errorMessage, UNKNOWN);
+			assert.equal(f.exec.executions.length, 1);
+		}));
+});
+
+// Finding 2: the acquisition signal is the seam's control argument.
+describe("acquisition cancellation through the adapter", () => {
+	for (const kind of ["spawn", "resume"] as const)
+		it(`an aborted ${kind} acquires nothing`, async () =>
+			usingShared({}, async (f) => {
+				const acquisitionSignal = AbortSignal.abort();
+				await assert.rejects(
+					kind === "spawn"
+						? f.adapter.spawn(
+								spawnOptions(f.parent.root, { acquisitionSignal }),
+							)
+						: f.adapter.resume({
+								name: "resumed",
+								sessionId: join(f.parent.root, "saved.jsonl"),
+								acquisitionSignal,
+							}),
+				);
+				assert.deepEqual(f.exec.calls, ["launch"]);
+				assert.equal(f.exec.executions.length, 0);
+			}));
+});
+
+// Finding 3: completion presence and wake-ups come from the selected provider.
+describe("completion supervised by the provider", () => {
+	/** A pane supervisor that reports every pane gone: it must not be consulted. */
+	function paneLessWithHostileSupervisor() {
+		const f = sharedAdapterFixture({ executionExit: false });
+		const wake = new FileWakeRegistry();
+		const supervision = new SupervisionCoordinator(
+			async () => ({ complete: true, panes: [] }),
+			async () => ({ kind: "missing" as const }),
+			false,
+			wake,
+		);
+		const adapter = new PiHarnessAdapter({
+			exec: f.exec,
+			supervision,
+			modelRegistry,
+			parent: f.parent.parent,
+			parentRuntime: { provider: "fake", modelId: "test", thinking: "off" },
+		});
+		return {
+			...f,
+			adapter,
+			dispose() {
+				supervision.close();
+				wake.close();
+				f.dispose();
+			},
+		};
+	}
+
+	it("a live pane-less execution is never reported as a disappeared pane", async () => {
+		const f = paneLessWithHostileSupervisor();
+		try {
+			const handle = await f.adapter.spawn(spawnOptions(f.parent.root));
+			const controller = new AbortController();
+			const waiting = f.adapter.awaitCompletion(handle, controller.signal);
+			await eventually(
+				() => f.exec.calls.filter((call) => call === "observe").length > 0,
+				"provider observation",
+			);
+			await new Promise((resolve) => setTimeout(resolve, 100));
+			controller.abort();
+			await assert.rejects(waiting, /Aborted while waiting/);
+			assert.equal(f.exec.executions[0]?.state, "live");
+		} finally {
+			f.dispose();
+		}
+	});
+
+	it("its completion evidence and a later exit are still observed", async () => {
+		const f = paneLessWithHostileSupervisor();
+		try {
+			const done = await f.adapter.spawn(spawnOptions(f.parent.root));
+			const waiting = f.adapter.awaitCompletion(
+				done,
+				new AbortController().signal,
+			);
+			await new Promise((resolve) => setTimeout(resolve, 50));
+			writeFileSync(
+				`${f.adapter.getRunningChild(done).sessionFile}.exit`,
+				JSON.stringify({ type: "done" }),
+			);
+			assert.equal((await waiting).reason, "done");
+
+			const gone = await f.adapter.spawn(spawnOptions(f.parent.root));
+			const lost = f.adapter.awaitCompletion(
+				gone,
+				new AbortController().signal,
+			);
+			f.exec.exit(f.execHandle(1));
+			const evidence = await lost;
+			assert.equal(evidence.reason, "error");
+		} finally {
+			f.dispose();
+		}
+	});
+
+	it("the terminal provider supervises through its batched coordinator", async () => {
+		const parent = parentFixture();
+		const surface = new FakeSurfaceProvider();
+		const wake = new FileWakeRegistry();
+		const supervision = new SupervisionCoordinator(
+			async () => ({ complete: true, panes: [] }),
+			(id) => surface.inspectSurface(id),
+			false,
+			wake,
+		);
+		const registered: [string, string][] = [];
+		const register = supervision.register.bind(supervision);
+		supervision.register = (sessionFile, id) => {
+			registered.push([sessionFile, id]);
+			return register(sessionFile, id);
+		};
+		try {
+			const provider = new TerminalExecProvider({
+				surface,
+				paneConfig,
+				supervision,
+			});
+			const { handle, launched } = await provider.launch(freshRequest(parent));
+			const watched = provider.supervise(handle);
+			assert.deepEqual(registered, [[launched.sessionFile, launched.surface]]);
+			assert.equal((await watched.inspect()).kind, "present");
+			watched.close();
+			// Without a coordinator, completion polls the provider's own observe.
+			const plain = new TerminalExecProvider({ surface, paneConfig });
+			const own = await plain.launch(freshRequest(parent));
+			const polled = plain.supervise(own.handle);
+			assert.equal(
+				await polled.wait(new AbortController().signal),
+				"reconcile",
+			);
+			assert.equal((await polled.inspect()).kind, "present");
+			polled.close();
+			assert.equal(registered.length, 1);
+		} finally {
+			supervision.close();
+			wake.close();
+			parent.dispose();
+		}
+	});
+});
+
+describe("observeSupervision", () => {
+	function observed() {
+		const provider = new FakeExecProvider<string, string>({
+			launched: (request) => request,
+		});
+		return provider;
+	}
+
+	it("wakes on each observed snapshot and reports it as presence", async () => {
+		const provider = observed();
+		const { handle } = await provider.launch("task");
+		const supervision = observeSupervision(provider, handle, 5);
+		const signal = new AbortController().signal;
+		assert.equal(await supervision.wait(signal), "reconcile");
+		assert.equal((await supervision.inspect()).kind, "present");
+		assert.equal(provider.calls.includes("inspect"), false);
+		provider.exit(handle);
+		assert.equal(await supervision.wait(signal), "reconcile");
+		// The observation ends on missing; later waits keep a steady cadence.
+		assert.equal(await supervision.wait(signal), "reconcile");
+		assert.equal((await supervision.inspect()).kind, "missing");
+		assert.equal(await supervision.wait(signal), "reconcile");
+		supervision.close();
+		await assert.rejects(supervision.wait(signal), /unregistered/);
+	});
+
+	it("an aborted wait rejects, and close releases a parked wait", async () => {
+		const provider = observed();
+		const { handle } = await provider.launch("task");
+		const supervision = observeSupervision(provider, handle, 60_000);
+		await assert.rejects(
+			supervision.wait(AbortSignal.abort()),
+			/Aborted while waiting/,
+		);
+		const signal = new AbortController().signal;
+		assert.equal(await supervision.wait(signal), "reconcile");
+		const controller = new AbortController();
+		const parked = supervision.wait(controller.signal);
+		controller.abort();
+		await assert.rejects(parked, /Aborted while waiting/);
+		const released = supervision.wait(signal);
+		supervision.close();
+		await assert.rejects(released, /unregistered/);
+	});
+});
+
+// Grok follow-up: the restore half of the persistent-send claim.
+describe("persistent send claims", () => {
+	const POLICY = "a".repeat(64);
+	async function persistent(f: ReturnType<typeof sharedAdapterFixture>) {
+		const task = f.task({ behavior: { persistent: true } });
+		const handle = await f.session.spawn(task);
+		const child = f.adapter.getRunningChild(handle);
+		Object.assign(child, {
+			generationId: "g1",
+			logicalId: "l1",
+			policyHash: POLICY,
+			tasksCompleted: 0,
+		});
+		return { task, child };
+	}
+
+	it("a delivery the provider rejects restores the specialist and records no dispatch", async () =>
+		usingShared({}, async (f) => {
+			const { task, child } = await persistent(f);
+			f.exec.exit(f.execHandle());
+			await assert.rejects(f.session.send(task.id, "next task"), /not live/);
+			assert.equal(child.taskId, undefined);
+			assert.deepEqual(child.issuedTaskIds, []);
+			assert.deepEqual(
+				readPersistentDeliveryLedger(child.sessionFile).filter(
+					(entry) => entry.outcome === "dispatched",
+				),
+				[],
+			);
+		}));
+
+	it("two sends in the same turn deliver one task and refuse the other busy", async () =>
+		usingShared({}, async (f) => {
+			const { task, child } = await persistent(f);
+			const results = await Promise.allSettled([
+				f.session.send(task.id, "first"),
+				f.session.send(task.id, "second"),
+			]);
+			assert.deepEqual(
+				results.map((result) => result.status),
+				["fulfilled", "rejected"],
+			);
+			assert.deepEqual(
+				f.exec.executions[0]?.prompts.map((prompt) => prompt.text),
+				["first"],
+			);
+			assert.deepEqual(child.issuedTaskIds, [child.taskId]);
+			// The busy refusal is recorded at once; the dispatch after delivery.
+			assert.deepEqual(
+				readPersistentDeliveryLedger(child.sessionFile)
+					.map((entry) => entry.outcome)
+					.sort(),
+				["dispatched", "rejected-busy"],
+			);
 		}));
 });

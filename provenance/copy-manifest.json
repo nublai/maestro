@@ -199,7 +199,7 @@
 		{
 			"kind": "new",
 			"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
-			"reason": "P3-4 (post-H2, Maestro-owned): the existing Herdr/Core terminal execution as the first ExecProvider; its stop logic moved unchanged from pi-harness-adapter.ts."
+			"reason": "P3-4 (post-H2, Maestro-owned): the existing Herdr/Core terminal execution as the first ExecProvider; its stop logic moved unchanged from pi-harness-adapter.ts, and it owns the batched pane and session-file completion supervision."
 		},
 		{
 			"kind": "new",
@@ -218,8 +218,8 @@
 			"blob": "b329ef6e037d3f9874d1999a616b451fbb210633",
 			"archive": "provenance/upstream/maestro/adapters/pi/pi-harness-adapter.ts",
 			"owned_change": {
-				"reason": "#149: a non-zero exit with no errorMessage and no session messages reads the terminal tail into exitOutput, the read bounded by EXIT_OUTPUT_READ_TIMEOUT_MS. P3-4: every execution effect (launch, inspect, read, prompt, interrupt, stop, reconcile) goes through one ExecProvider; the terminal mechanics (pane close/absence, retained-worktree process stop, Core native terminate) moved unchanged into TerminalExecProvider, the default when no provider is supplied. Capability refusals precede acquisition; the handle is projected from the provider's handle.",
-				"blob": "06397f83c08d2c3d37729e9b0428a3b17f5e9381"
+				"reason": "#149: a non-zero exit with no errorMessage and no session messages reads the terminal tail into exitOutput, the read bounded by EXIT_OUTPUT_READ_TIMEOUT_MS. P3-4: every execution effect (launch, inspect, read, prompt, interrupt, stop, reconcile) goes through one ExecProvider; the terminal mechanics (pane close/absence, retained-worktree process stop, Core native terminate) moved unchanged into TerminalExecProvider, the default when no provider is supplied. Capability refusals precede acquisition; the handle is projected from the provider's handle. PR #7 review: the provider's top-level launchFailure is recorded on the owned record at tracking; the acquisition signal is passed as the launch control; completion waits on the provider's supervise (or observe) instead of the injected pane supervisor, which moved into TerminalExecProvider; the adapter is generic over PiExecution, whose terminal-only fields are optional.",
+				"blob": "24651ff424c6d698de2e4a07d9d3d1f8aa6b7ed9"
 			}
 		},
 		{

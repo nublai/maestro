@@ -21,8 +21,28 @@ error text, lifecycle, cancel and fallback.
   that needs a capability the provider lacks is refused before any
   acquisition. Herdr Core keeps its existing refusal text for managed
   worktrees and supplied panes. The run owner (`RunSession`) is unchanged.
+- The adapter keeps a provider's top-level `launchFailure` on the owned
+  attempt: an acquired launch with an uncertain dispatch stays owned, is never
+  retried with a fallback model and never completes as `done`. It passes the
+  acquisition signal to `launch` as the seam's control argument.
+- Completion presence and wake-ups come from the provider: the optional
+  `ExecProvider.supervise` (terminal: the existing batched pane and
+  session-file supervision, now passed to `TerminalExecProvider` as
+  `supervision`), else `observeSupervision` over `observe`. The adapter's
+  `supervision` option is terminal composition, now optional; an `exec`
+  provider supervises its own runs.
+- `PiExecution` is Pi's shared execution record: the terminal-only fields
+  (pane, pane ownership, launch script) are optional, so a provider without
+  panes invents none. `PiHarnessAdapter` is generic over it, defaulting to the
+  terminal's `PiRunningChild`.
 - `@nubl/maestro/testing` adds `FakeExecProvider` and
-  `registerExecProviderConformance`; the fake and both terminal variants pass it.
+  `registerExecProviderConformance`. The suite also drives the shared adapter
+  when a fixture composes one (`ExecAdapterBoundary`): refusal before
+  acquisition, aborted acquisition, the handle's surface and opaque
+  reference, read/stop and unconfirmed stops, uncertain launches. Fixture
+  `blockStop` now returns the request state the blocked stop must report.
+  The fake, a pane-less Pi fake (full and limited) and both terminal variants
+  pass it.
 - Terminal parent admission is declared `best-effort`: a host message without
   receipts or deduplication.
 

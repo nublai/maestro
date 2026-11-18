@@ -7,6 +7,7 @@ import type {
 	ExecProvider,
 	ExecReconciliation,
 	ExecStopReport,
+	ExecStopRequest,
 } from "../../core/exec-provider.ts";
 import type { AcquisitionControl } from "../../core/surface-provider.ts";
 import type { PaneInspection } from "../../core/types.ts";
@@ -43,6 +44,8 @@ export interface FakeExecution<Launch> {
 	interrupts: number;
 	/** Set by {@link FakeExecProvider.blockStop}: the next stop stays unconfirmed. */
 	stopError?: Error;
+	/** What the blocked stop reports about its request. */
+	stopRequest?: ExecStopRequest;
 }
 
 /**
@@ -60,6 +63,7 @@ export class FakeExecProvider<Launch, Launched>
 	readonly executions: FakeExecution<Launch>[] = [];
 	#next = 1;
 	#launchError?: Error;
+	#launchFailure?: string;
 	#build: (request: Launch, ref: string) => Launched;
 
 	constructor(options: FakeExecProviderOptions<Launch, Launched>) {
@@ -96,7 +100,7 @@ export class FakeExecProvider<Launch, Launched>
 			prompts: [],
 			interrupts: 0,
 		});
-		return {
+		const launch: ExecLaunch<Launched> = {
 			handle: Object.freeze({
 				provider: this.name,
 				ref,
@@ -104,6 +108,10 @@ export class FakeExecProvider<Launch, Launched>
 			}),
 			launched,
 		};
+		const launchFailure = this.#launchFailure;
+		this.#launchFailure = undefined;
+		if (launchFailure) launch.launchFailure = launchFailure;
+		return launch;
 	}
 
 	async inspect(handle: ExecHandle): Promise<PaneInspection> {
@@ -160,8 +168,10 @@ export class FakeExecProvider<Launch, Launched>
 		const execution = this.#execution(handle);
 		const error = execution.stopError;
 		if (error) {
+			const request = execution.stopRequest ?? "sent";
 			execution.stopError = undefined;
-			return { request: "sent", termination: "unconfirmed", error };
+			execution.stopRequest = undefined;
+			return { request, termination: "unconfirmed", error };
 		}
 		if (execution.state !== "live")
 			return { request: "not-sent", termination: "confirmed" };
@@ -184,6 +194,14 @@ export class FakeExecProvider<Launch, Launched>
 		this.#launchError = error;
 	}
 
+	/**
+	 * The next launch acquires an execution but reports its dispatch uncertain
+	 * through the top-level `launchFailure` only; the harness record is untouched.
+	 */
+	uncertainNextLaunch(reason: string): void {
+		this.#launchFailure = reason;
+	}
+
 	/** End the execution on its own, as a natural exit. */
 	exit(handle: ExecHandle, exitCode = 0): void {
 		const execution = this.#execution(handle);
@@ -196,9 +214,18 @@ export class FakeExecProvider<Launch, Launched>
 		this.#execution(handle).output.push(...text.split("\n"));
 	}
 
-	/** The next stop of this execution reports `error`, unconfirmed. */
-	blockStop(handle: ExecHandle, error: Error): void {
-		this.#execution(handle).stopError = error;
+	/**
+	 * The next stop of this execution reports `error`, unconfirmed, with
+	 * `request` as its request state (default `sent`). The execution stays live.
+	 */
+	blockStop(
+		handle: ExecHandle,
+		error: Error,
+		request: ExecStopRequest = "sent",
+	): void {
+		const execution = this.#execution(handle);
+		execution.stopError = error;
+		execution.stopRequest = request;
 	}
 
 	execution(handle: ExecHandle): FakeExecution<Launch> {

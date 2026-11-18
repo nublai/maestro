@@ -14,8 +14,11 @@ import type {
 import type { SurfaceProvider } from "../../core/surface-provider.ts";
 import {
 	execRefusal,
+	observeSupervision,
 	projectAgentHandle,
 	type ExecHandle,
+	type ExecLaunch,
+	type ExecProvider,
 	type ExecRequirement,
 } from "../../core/exec-provider.ts";
 import { readSubagentActivityFile } from "./activity-file.ts";
@@ -49,7 +52,7 @@ import type {
 } from "./launch.ts";
 import {
 	TerminalExecProvider,
-	type PiExecProvider,
+	type TerminalExecProviderOptions,
 } from "./terminal-exec-provider.ts";
 import type { WorktreeOperations } from "../../core/worktree.ts";
 import { shellExitFileFor, waitForCompletion } from "./completion.ts";
@@ -89,13 +92,32 @@ export interface PiSpawnOptions extends SpawnOptions {
 		taskId?: string;
 	};
 }
-export interface PiHarnessAdapterOptions {
+/** Fields only a terminal host has: its pane and the script it ran there. */
+type TerminalOnlyField = "surface" | "ownsSurface" | "launchScriptFile";
+
+/**
+ * Pi's shared identity and evidence for one execution, whatever hosts it:
+ * the session file (and its completion sidecar), activity, policy and task
+ * facts. Terminal-only fields are optional, so a provider without panes
+ * never invents a pane or launch-script identity.
+ */
+export type PiExecution = Omit<PiRunningChild, TerminalOnlyField> &
+	Partial<Pick<PiRunningChild, TerminalOnlyField>>;
+
+/** The execution seam as the shared Pi adapter uses it. */
+export type PiExecProvider<Child extends PiExecution = PiExecution> =
+	ExecProvider<PiLaunchRequest, Child>;
+
+export interface PiHarnessAdapterOptions<
+	Child extends PiExecution = PiRunningChild,
+> {
 	childEntryPath?: string;
 	/**
-	 * The one execution provider for this adapter's runs. Default: the terminal
-	 * implementation over `surface`, `paneConfig` and `operations`.
+	 * The one execution provider for this adapter's runs; it also supervises
+	 * their completion. Default: the terminal implementation over `surface`,
+	 * `paneConfig`, `operations` and `supervision`.
 	 */
-	exec?: PiExecProvider;
+	exec?: PiExecProvider<Child>;
 	/** Terminal composition; required unless `exec` is supplied. */
 	surface?: SurfaceProvider;
 	/** Terminal pane placement; required unless `exec` or `operations` is supplied. */
@@ -104,7 +126,11 @@ export interface PiHarnessAdapterOptions {
 	parent: FreshPiLaunchRequest["parent"];
 	/** Compatibility only; supervision owns its wake registry and registrations. */
 	wake?: FileWakeRegistry;
-	supervision: SupervisionCoordinator;
+	/**
+	 * Terminal composition: the default provider's batched pane presence and
+	 * session-file wake-ups. An `exec` provider supervises its own executions.
+	 */
+	supervision?: SupervisionCoordinator;
 	/** The active parent's registry runtime can precede persisted model-change entries. */
 	parentRuntime?: ParentRuntime;
 	/** Optional launch-operation injection, keeping the real Pi protocol in unit tests. */
@@ -116,7 +142,7 @@ export interface PiHarnessAdapterOptions {
 	killTimeoutMs?: number;
 	/** Explicit local evidence/lifecycle bridge. The host still owns delivery and deduplication. */
 	onObservation?(
-		child: PiRunningChild,
+		child: Child,
 		kind:
 			| "local-evidence"
 			| "pane"
@@ -133,25 +159,28 @@ interface CompletionWait {
 }
 
 /** Pi's existing launch and child-sidecar protocol behind the harness seam. */
-export class PiHarnessAdapter implements HarnessAdapter {
+export class PiHarnessAdapter<Child extends PiExecution = PiRunningChild>
+	implements HarnessAdapter
+{
 	readonly name = "pi";
-	private readonly options: PiHarnessAdapterOptions;
-	private readonly exec: PiExecProvider;
-	private readonly children = new Map<string, PiRunningChild>();
-	private readonly execHandles = new WeakMap<PiRunningChild, ExecHandle>();
+	private readonly options: PiHarnessAdapterOptions<Child>;
+	private readonly exec: PiExecProvider<Child>;
+	private readonly children = new Map<string, Child>();
+	private readonly execHandles = new WeakMap<Child, ExecHandle>();
 	private readonly evidence = new Map<string, CompletionEvidence>();
 	private readonly waits = new Map<string, CompletionWait>();
-	constructor(options: PiHarnessAdapterOptions) {
+	constructor(options: PiHarnessAdapterOptions<Child>) {
 		this.options = options;
 		if (options.exec) this.exec = options.exec;
 		else if (options.surface)
-			this.exec = new TerminalExecProvider({
+			this.exec = defaultTerminalProvider<Child>({
 				surface: options.surface,
 				paneConfig: options.paneConfig,
 				operations: options.operations,
 				worktreeOperations: options.worktreeOperations,
 				processProbe: options.processProbe,
 				killTimeoutMs: options.killTimeoutMs,
+				supervision: options.supervision,
 			});
 		else
 			throw new Error(
@@ -278,7 +307,7 @@ export class PiHarnessAdapter implements HarnessAdapter {
 		});
 		// Launch returns a fully initialized owner; no fallible I/O may separate
 		// command dispatch from tracking (a rejection could start a fallback).
-		return this.track(launch.launched, launch.handle);
+		return this.track(launch);
 	}
 	async resume(opts: ResumeOptions): Promise<AgentHandle> {
 		this.rejectEnvironment(opts.env);
@@ -299,26 +328,30 @@ export class PiHarnessAdapter implements HarnessAdapter {
 			modelScope: this.options.modelRegistry.scope,
 			behavior: { autoExit: opts.autoExit },
 		});
-		return this.track(launch.launched, launch.handle);
+		return this.track(launch);
 	}
 	/**
 	 * The one execution path: refuse what the provider cannot run before any
 	 * acquisition, then launch. The provider transfers an acquired owner even
 	 * when its dispatch is uncertain (`launchFailure`), never a made-up handle.
+	 * The acquisition signal is the seam's control argument (admission intent).
 	 */
 	private async acquireChild(request: PiLaunchRequest) {
 		const refusal = execRefusal(this.exec, piLaunchRequirements(request));
 		if (refusal) throw new Error(refusal);
-		return this.exec.launch(request);
+		const signal = request.acquisitionSignal;
+		return signal
+			? this.exec.launch(request, { signal })
+			: this.exec.launch(request);
 	}
 	/** The provider's handle for a child this adapter tracks. */
-	private execHandle(child: PiRunningChild): ExecHandle {
+	private execHandle(child: Child): ExecHandle {
 		const handle = this.execHandles.get(child);
 		if (!handle) throw new Error(`Unknown Pi child ${child.id}`);
 		return handle;
 	}
 	/** Temporary Pi-specific bridge for runtime migration; never infer task delivery from coarse state. */
-	getRunningChild(handle: AgentHandle): PiRunningChild {
+	getRunningChild(handle: AgentHandle): Child {
 		const child = this.children.get(handle.id);
 		if (
 			!child ||
@@ -446,10 +479,10 @@ export class PiHarnessAdapter implements HarnessAdapter {
 		let wait = this.waits.get(key);
 		if (!wait || wait.controller.signal.aborted) {
 			const controller = new AbortController();
-			const registration = this.options.supervision.register(
-				child.sessionFile,
-				child.surface,
-			);
+			// Presence and wake-ups come from the provider that runs the child.
+			const supervision =
+				this.exec.supervise?.(execHandle) ??
+				observeSupervision(this.exec, execHandle);
 			const next: CompletionWait = {
 				controller,
 				waiters: 0,
@@ -484,13 +517,15 @@ export class PiHarnessAdapter implements HarnessAdapter {
 										this.options.processProbe ?? linuxProcessProbe,
 									).kind
 								: "unknown",
-						waitForNextCheck: registration.wait,
+						waitForNextCheck: supervision.wait,
 						readTerminalTail: async () =>
 							// A caller-provided terminal can contain an earlier run's marker.
-							child.launchFailure && !child.ownsSurface && !child.worktree
+							child.launchFailure &&
+							child.ownsSurface === false &&
+							!child.worktree
 								? ""
 								: this.exec.read(execHandle, 5),
-						inspectPane: registration.inspectPane,
+						inspectPane: supervision.inspect,
 						onLocalEvidence: () =>
 							this.options.onObservation?.(child, "local-evidence"),
 						onPaneInspection: (pane, at) => {
@@ -550,7 +585,7 @@ export class PiHarnessAdapter implements HarnessAdapter {
 						return evidence;
 					})
 					.finally(() => {
-						registration.unregister();
+						supervision.close();
 						if (this.waits.get(key) === next) this.waits.delete(key);
 					}),
 			};
@@ -564,7 +599,7 @@ export class PiHarnessAdapter implements HarnessAdapter {
 	 * explain it; relay the terminal's last lines instead (#149).
 	 */
 	private async readExitOutput(
-		child: PiRunningChild,
+		child: Child,
 		result: { exitCode: number; errorMessage?: string },
 		entries: { type?: string }[] | undefined,
 	): Promise<string | undefined> {
@@ -607,7 +642,17 @@ export class PiHarnessAdapter implements HarnessAdapter {
 		// Legacy fallback retries reuse the opaque child ID, but create a new Pi session.
 		return JSON.stringify([handle.id, handle.sessionId]);
 	}
-	private track(child: PiRunningChild, exec: ExecHandle): AgentHandle {
+	/**
+	 * Consume the provider's launch result once: its top-level `launchFailure`
+	 * is the uncertainty signal, recorded on the owned record so the attempt,
+	 * persistent sends and completion all keep it (never retried, never `done`).
+	 */
+	private track({
+		launched: child,
+		handle: exec,
+		launchFailure,
+	}: ExecLaunch<Child>): AgentHandle {
+		if (launchFailure) child.launchFailure = launchFailure;
 		this.children.set(child.id, child);
 		this.execHandles.set(child, exec);
 		return projectAgentHandle(exec, {
@@ -667,6 +712,20 @@ export class PiHarnessAdapter implements HarnessAdapter {
 				"The existing Pi launch protocol does not support per-child environment overrides",
 			);
 	}
+}
+
+/**
+ * The terminal provider an adapter composes when no `exec` is supplied.
+ * SAFETY: with no `exec` there is nothing to infer the adapter's Child from,
+ * so it is its default, PiRunningChild, exactly what the terminal launches.
+ */
+function defaultTerminalProvider<Child extends PiExecution>(
+	options: TerminalExecProviderOptions,
+): PiExecProvider<Child>;
+function defaultTerminalProvider(
+	options: TerminalExecProviderOptions,
+): PiExecProvider {
+	return new TerminalExecProvider(options);
 }
 
 /** What a Pi launch request needs from its execution provider. */

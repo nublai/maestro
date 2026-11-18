@@ -139,6 +139,27 @@ export interface ExecObserveOptions {
 	intervalMs?: number;
 }
 
+/**
+ * Why a completion wait woke: `wake` when local evidence may have changed,
+ * `reconcile` when the execution's presence should be read again.
+ */
+export type ExecWake = "wake" | "reconcile";
+
+/**
+ * The provider-neutral evidence bridge between one execution and the shared
+ * completion owner: wake-ups and presence, both from the provider. Terminal
+ * hosts batch pane reads and watch files here; another provider can wake on
+ * pushed reports. One completion loop consumes a supervision at a time.
+ */
+export interface ExecSupervision {
+	/** Resolves with the next wake-up. Rejects when `signal` aborts or after close. */
+	wait(signal: AbortSignal): Promise<ExecWake>;
+	/** Presence of the execution's host, as of the latest wake-up or now. */
+	inspect(): Promise<PaneInspection>;
+	/** Release the wake-ups and any observation. Idempotent. */
+	close(): void;
+}
+
 export interface ExecProvider<Launch, Launched> {
 	/** Stable provider name, recorded on every handle it issues. */
 	readonly name: string;
@@ -171,13 +192,22 @@ export interface ExecProvider<Launch, Launched> {
 		handle: ExecHandle,
 		options: ExecObserveOptions,
 	): AsyncIterable<PaneInspection>;
+	/**
+	 * Completion supervision for one execution this provider issued. Optional:
+	 * without it the shared owner uses {@link observeSupervision} over
+	 * `observe` and `inspect`. Synchronous; never acquires anything.
+	 */
+	supervise?(handle: ExecHandle): ExecSupervision;
 	/** Recent output text, most recent `lines` lines. */
 	read(handle: ExecHandle, lines?: number): Promise<string>;
 	/** Deliver input to a live execution that accepts later tasks. */
 	prompt(handle: ExecHandle, input: ExecPromptInput): Promise<void>;
 	/** Ask the execution to stop its current turn; it keeps running. */
 	interrupt(handle: ExecHandle): Promise<void>;
-	/** Stop the execution. Never throws: an unconfirmed stop is a report. */
+	/**
+	 * Stop the execution. An unconfirmed stop is a report, never a rejection;
+	 * only a handle this provider did not issue is refused.
+	 */
 	stop(handle: ExecHandle): Promise<ExecStopReport>;
 	/** Re-read the execution's own state. Pure observation. */
 	reconcile(handle: ExecHandle): Promise<ExecReconciliation>;
@@ -202,6 +232,98 @@ export function execRefusal(
 		);
 	}
 	return undefined;
+}
+
+const SUPERVISION_ABORTED = "Aborted while waiting for subagent to finish";
+const SUPERVISION_CLOSED = "Supervision registration was unregistered";
+/** Cadence after `observe` has ended, so a late wait still re-reads presence. */
+const AFTER_OBSERVE_INTERVAL_MS = 1_000;
+
+/**
+ * The default {@link ExecSupervision}: every `observe` snapshot is a
+ * `reconcile` wake-up and the presence `inspect` reports. Observation starts
+ * on the first wait. Once `observe` ends or fails, waits fall back to a
+ * steady cadence and `inspect` asks the provider directly.
+ */
+export function observeSupervision(
+	provider: Pick<ExecProvider<unknown, unknown>, "observe" | "inspect">,
+	handle: ExecHandle,
+	intervalMs?: number,
+): ExecSupervision {
+	const controller = new AbortController();
+	let latest: PaneInspection | undefined;
+	let pending = false;
+	let ended = false;
+	let closed = false;
+	let started = false;
+	let parked: ((wake: ExecWake) => void) | undefined;
+	const deliver = () => {
+		const resolve = parked;
+		parked = undefined;
+		if (resolve) resolve("reconcile");
+		else pending = true;
+	};
+	const start = () => {
+		started = true;
+		void (async () => {
+			try {
+				const options: ExecObserveOptions = { signal: controller.signal };
+				if (intervalMs !== undefined) options.intervalMs = intervalMs;
+				for await (const snapshot of provider.observe(handle, options)) {
+					if (closed) return;
+					latest = snapshot;
+					deliver();
+				}
+			} catch {
+				/* an ended observation is re-read through inspect */
+			}
+			latest = undefined;
+			ended = true;
+			if (!closed) deliver();
+		})();
+	};
+	return {
+		wait(signal) {
+			if (signal.aborted) return Promise.reject(new Error(SUPERVISION_ABORTED));
+			if (closed) return Promise.reject(new Error(SUPERVISION_CLOSED));
+			if (!started) start();
+			if (pending) {
+				pending = false;
+				return Promise.resolve("reconcile");
+			}
+			return new Promise<ExecWake>((resolve, reject) => {
+				let timer: ReturnType<typeof setTimeout> | undefined;
+				const finish = () => {
+					signal.removeEventListener("abort", onAbort);
+					if (timer) clearTimeout(timer);
+					parked = undefined;
+				};
+				const onAbort = () => {
+					finish();
+					reject(new Error(SUPERVISION_ABORTED));
+				};
+				signal.addEventListener("abort", onAbort, { once: true });
+				parked = (wake) => {
+					finish();
+					if (closed) reject(new Error(SUPERVISION_CLOSED));
+					else resolve(wake);
+				};
+				if (ended)
+					timer = setTimeout(
+						() => parked?.("reconcile"),
+						intervalMs ?? AFTER_OBSERVE_INTERVAL_MS,
+					);
+			});
+		},
+		inspect: () =>
+			latest ? Promise.resolve(latest) : provider.inspect(handle),
+		close() {
+			if (closed) return;
+			closed = true;
+			controller.abort();
+			parked?.("reconcile");
+		},
+	};
 }
 
 /**

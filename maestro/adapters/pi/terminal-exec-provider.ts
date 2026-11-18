@@ -1,17 +1,20 @@
 import { randomUUID } from "node:crypto";
 import type { PaneConfig } from "../../core/config/pane-config.ts";
-import type {
-	ExecCapabilities,
-	ExecHandle,
-	ExecLaunch,
-	ExecObserveOptions,
-	ExecPromptInput,
-	ExecProvider,
-	ExecReconciliation,
-	ExecRequirement,
-	ExecStopReport,
-	ExecStopRequest,
+import {
+	observeSupervision,
+	type ExecCapabilities,
+	type ExecHandle,
+	type ExecLaunch,
+	type ExecObserveOptions,
+	type ExecPromptInput,
+	type ExecReconciliation,
+	type ExecRequirement,
+	type ExecStopReport,
+	type ExecStopRequest,
+	type ExecSupervision,
 } from "../../core/exec-provider.ts";
+import type { SupervisionCoordinator } from "../../core/supervision.ts";
+import type { PiExecProvider } from "./pi-harness-adapter.ts";
 import type {
 	AcquisitionControl,
 	SurfaceProvider,
@@ -45,8 +48,7 @@ interface StopProgress {
 	request: ExecStopRequest;
 }
 
-/** The execution seam as the shared Pi adapter uses it. */
-export type PiExecProvider = ExecProvider<PiLaunchRequest, PiRunningChild>;
+export type { PiExecProvider, PiExecution } from "./pi-harness-adapter.ts";
 
 /** Herdr Core's existing refusal; the capability gate keeps its text. */
 const CORE_REFUSAL =
@@ -64,6 +66,11 @@ export interface TerminalExecProviderOptions {
 	processProbe?: ProcessIdentityProbe;
 	/** Bound for confirming a retained worktree child's exit. Default: 5000ms. */
 	killTimeoutMs?: number;
+	/**
+	 * Batched pane presence and session-file wake-ups for completion. Without
+	 * it each execution's completion polls `observe`.
+	 */
+	supervision?: SupervisionCoordinator;
 }
 
 /**
@@ -71,7 +78,7 @@ export interface TerminalExecProviderOptions {
  * Launches run Pi's launch transaction in a pane (legacy Herdr) or as a
  * native program (Herdr Core); every later effect addresses that surface.
  */
-export class TerminalExecProvider implements PiExecProvider {
+export class TerminalExecProvider implements PiExecProvider<PiRunningChild> {
 	readonly name: string;
 	readonly capabilities: Readonly<ExecCapabilities>;
 	readonly operations: PiLaunchOperations;
@@ -178,6 +185,18 @@ export class TerminalExecProvider implements PiExecProvider {
 			if (snapshot.kind === "missing") return;
 			await abortableDelay(intervalMs, options.signal);
 		}
+	}
+
+	supervise(handle: ExecHandle): ExecSupervision {
+		const child = this.child(handle);
+		const coordinator = this.options.supervision;
+		if (!coordinator) return observeSupervision(this, handle);
+		const registration = coordinator.register(child.sessionFile, child.surface);
+		return {
+			wait: registration.wait,
+			inspect: registration.inspectPane,
+			close: registration.unregister,
+		};
 	}
 
 	async read(handle: ExecHandle, lines?: number): Promise<string> {

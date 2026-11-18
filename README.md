@@ -22,6 +22,8 @@ The shared Pi adapter runs every execution effect through one `ExecProvider`
 (`@nubl/maestro/core/exec-provider`): launch, inspect/observe, read, prompt,
 interrupt, stop and reconcile, with explicit capabilities. A request that
 needs a capability the provider lacks is refused before anything is acquired.
+The provider also supervises completion: presence and wake-ups come from its
+`supervise`, or from `observe` when it has none.
 The Herdr/Core terminal execution is the first implementation
 (`TerminalExecProvider`, `@nubl/maestro/adapters/pi/terminal-exec-provider`),
 and the default when a host supplies only a surface provider.

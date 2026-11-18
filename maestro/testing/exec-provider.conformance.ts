@@ -7,8 +7,11 @@ import {
 	type ExecLaunch,
 	type ExecPromptInput,
 	type ExecProvider,
+	type ExecRequirement,
+	type ExecStopRequest,
 } from "../core/exec-provider.ts";
-import type { PaneInspection } from "../core/types.ts";
+import type { HarnessAdapter } from "../core/harness-adapter.ts";
+import type { AgentHandle, PaneInspection } from "../core/types.ts";
 
 interface TestRunner {
 	describe: typeof nodeDescribe;
@@ -25,11 +28,33 @@ export interface ExecProviderFixture<Launch, Launched> {
 	exit(launch: ExecLaunch<Launched>): Promise<void>;
 	/** Make the execution print `text`, which `read` must return. */
 	print(launch: ExecLaunch<Launched>, text: string): Promise<void>;
-	/** Make the next stop of this execution unconfirmable. */
-	blockStop?(launch: ExecLaunch<Launched>): Promise<void>;
+	/**
+	 * Make the next stop of this execution unconfirmable, leaving it live.
+	 * Resolves with the request state that stop must report (`sent` only when
+	 * the request provably reached the execution).
+	 */
+	blockStop?(launch: ExecLaunch<Launched>): Promise<ExecStopRequest>;
 	/** Read back the inputs `prompt` delivered to this execution. */
 	prompted?(launch: ExecLaunch<Launched>): Promise<ExecPromptInput[]>;
+	/**
+	 * The shared harness adapter over this same provider. When present, the
+	 * suite also drives the adapter boundary, not only direct provider calls.
+	 */
+	adapter?: ExecAdapterBoundary<Launched>;
 	dispose(): Promise<void>;
+}
+
+/** The shared harness adapter composed over a fixture's provider. */
+export interface ExecAdapterBoundary<Launched> {
+	adapter: HarnessAdapter;
+	/** Spawn one ordinary run through the adapter. */
+	spawn(acquisitionSignal?: AbortSignal): Promise<AgentHandle>;
+	/** Launch (or resume) through the adapter a run that needs `requirement`. */
+	spawnRequiring(requirement: ExecRequirement): Promise<AgentHandle>;
+	/** The provider launch behind a handle the adapter returned. */
+	launchOf(handle: AgentHandle): ExecLaunch<Launched>;
+	/** The next launch acquires but reports its dispatch uncertain. */
+	uncertainNextLaunch?(reason: string): void;
 }
 
 const BOOLEAN_CAPABILITIES = [
@@ -96,6 +121,30 @@ export function registerExecProviderConformance<Launch, Launched>(
 					}
 					assert.notEqual(first.handle.ref, second.handle.ref);
 					assert.equal(await fixture.acquisitions(), before + 2);
+				});
+			},
+		);
+
+		runner.it(
+			"a reference is opaque: no path, PID or surface ID, and only its issuer resolves it",
+			async () => {
+				await usingFixture(factory, async (fixture) => {
+					const { provider } = fixture;
+					const { handle } = await provider.launch(fixture.request());
+					assert.doesNotMatch(handle.ref, /[\\/]/, "a path");
+					assert.doesNotMatch(handle.ref, /^\d+$/, "a PID");
+					if (handle.surfaceId !== undefined) {
+						assert.ok(handle.surfaceId.length > 0);
+						assert.notEqual(handle.ref, handle.surfaceId);
+						// The surface ID cannot stand in for the reference.
+						await assert.rejects(
+							provider.inspect({ ...handle, ref: handle.surfaceId }),
+						);
+					}
+					await assert.rejects(
+						provider.inspect({ ...handle, provider: `${provider.name}-other` }),
+					);
+					assert.equal((await provider.inspect(handle)).kind, "present");
 				});
 			},
 		);
@@ -223,11 +272,15 @@ export function registerExecProviderConformance<Launch, Launched>(
 				await usingFixture(factory, async (fixture) => {
 					if (!fixture.blockStop) return t.skip("fixture cannot block a stop");
 					const launch = await fixture.provider.launch(fixture.request());
-					await fixture.blockStop(launch);
+					const request = await fixture.blockStop(launch);
 					const report = await fixture.provider.stop(launch.handle);
 					assert.equal(report.termination, "unconfirmed");
 					assert.ok(report.termination === "unconfirmed" && report.error);
-					assert.ok(["sent", "not-sent", "unknown"].includes(report.request));
+					// Sent is not confirmed: the request state is reported as it is.
+					assert.equal(report.request, request);
+					assert.deepEqual(await fixture.provider.reconcile(launch.handle), {
+						kind: "live",
+					});
 				});
 			},
 		);
@@ -282,7 +335,121 @@ export function registerExecProviderConformance<Launch, Launched>(
 				await assert.rejects(provider.reconcile(foreign));
 			});
 		});
+
+		registerAdapterBoundary(runner, factory);
 	});
+}
+
+/** The same contract seen through the shared harness adapter. */
+function registerAdapterBoundary<Launch, Launched>(
+	runner: TestRunner,
+	factory: () => Promise<ExecProviderFixture<Launch, Launched>>,
+): void {
+	const adapterCase = (
+		title: string,
+		run: (
+			fixture: ExecProviderFixture<Launch, Launched>,
+			boundary: ExecAdapterBoundary<Launched>,
+			skip: (reason: string) => void,
+		) => Promise<void>,
+	) =>
+		runner.it(`adapter boundary: ${title}`, async (t) => {
+			await usingFixture(factory, async (fixture) => {
+				if (!fixture.adapter) return t.skip("fixture composes no adapter");
+				await run(fixture, fixture.adapter, (reason) => t.skip(reason));
+			});
+		});
+
+	adapterCase(
+		"every missing capability is refused before any acquisition",
+		async (fixture, boundary) => {
+			const { provider } = fixture;
+			const missing = EXEC_REQUIREMENTS.filter(
+				(requirement) => !provider.capabilities[requirement],
+			);
+			const refusals = missing.map((requirement) =>
+				execRefusal(provider, [requirement]),
+			);
+			const before = await fixture.acquisitions();
+			for (const requirement of missing)
+				await assert.rejects(
+					boundary.spawnRequiring(requirement),
+					(error: Error) => refusals.includes(error.message),
+					requirement,
+				);
+			assert.equal(await fixture.acquisitions(), before);
+		},
+	);
+
+	adapterCase(
+		"an aborted acquisition signal acquires nothing",
+		async (fixture, boundary) => {
+			const before = await fixture.acquisitions();
+			const controller = new AbortController();
+			controller.abort();
+			await assert.rejects(boundary.spawn(controller.signal));
+			assert.equal(await fixture.acquisitions(), before);
+		},
+	);
+
+	adapterCase(
+		"the run handle carries the provider's own surface, never its reference",
+		async (fixture, boundary) => {
+			const before = await fixture.acquisitions();
+			const handle = await boundary.spawn();
+			assert.equal(await fixture.acquisitions(), before + 1);
+			const { handle: exec, launchFailure } = boundary.launchOf(handle);
+			assert.equal(launchFailure, undefined);
+			assert.equal(handle.launchFailure, undefined);
+			assert.equal("surfaceId" in handle, exec.surfaceId !== undefined);
+			assert.equal(handle.surfaceId, exec.surfaceId);
+			assert.ok(!JSON.stringify(handle).includes(exec.ref));
+		},
+	);
+
+	adapterCase(
+		"read and stop go through the provider; an unconfirmed stop keeps the run live",
+		async (fixture, boundary) => {
+			const { adapter } = boundary;
+			const handle = await boundary.spawn();
+			const launch = boundary.launchOf(handle);
+			await fixture.print(launch, "exec-adapter-marker");
+			assert.match(await adapter.readOutput(handle), /exec-adapter-marker/);
+			if (fixture.blockStop) {
+				await fixture.blockStop(launch);
+				await assert.rejects(adapter.kill(handle));
+				assert.deepEqual(await fixture.provider.reconcile(launch.handle), {
+					kind: "live",
+				});
+				const other = await boundary.spawn();
+				await adapter.kill(other);
+				const stopped = boundary.launchOf(other).handle;
+				assert.notEqual(
+					(await fixture.provider.reconcile(stopped)).kind,
+					"live",
+				);
+			} else {
+				await adapter.kill(handle);
+				assert.notEqual(
+					(await fixture.provider.reconcile(launch.handle)).kind,
+					"live",
+				);
+			}
+		},
+	);
+
+	adapterCase(
+		"an acquired but uncertain launch stays owned and marked uncertain",
+		async (fixture, boundary, skip) => {
+			if (!boundary.uncertainNextLaunch)
+				return skip("fixture cannot make a launch uncertain");
+			const before = await fixture.acquisitions();
+			boundary.uncertainNextLaunch("dispatch outcome unknown");
+			const handle = await boundary.spawn();
+			assert.equal(await fixture.acquisitions(), before + 1);
+			assert.equal(handle.launchFailure, "dispatch outcome unknown");
+		},
+	);
 }
 
 async function usingFixture<Launch, Launched>(
