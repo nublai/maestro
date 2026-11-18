@@ -137,8 +137,8 @@ export interface FinalizeControl {
 	interruption(): "cancelled" | "suppressed" | undefined;
 	/**
 	 * Present only with an outcome store: durably records the immutable subject
-	 * a check starts against, before it runs. Never rejects; a failed record
-	 * leaves the later outcome commit to fail closed.
+	 * a check starts against. Await it before the check runs: it rejects when
+	 * the record could not be saved, and the check must then not run.
 	 */
 	recordCheck?(subject: OutcomeJsonObject): Promise<void>;
 }
@@ -258,6 +258,11 @@ interface RunEntry {
 	recorded?: StoredOutcome;
 	/** A finalized result whose commit failed: retried by the next supervise. */
 	unrecorded?: RunResult;
+	/**
+	 * The run's recorded attempts stay open at retirement, as recovery evidence:
+	 * a check started without a committed verdict, or finalization failed.
+	 */
+	interrupted?: boolean;
 }
 
 const ABORT_MESSAGE = "Aborted while waiting for subagent to finish";
@@ -376,9 +381,16 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 		entry.prepared = undefined;
 		entry.attempts.length = 0;
 		entry.producer = undefined;
-		if (store && entry.recordedAttempts && !entry.recorded) {
-			// A run that ends without an outcome closes its recorded attempts. A lost
-			// close only shows the run as interrupted after a restart: fail safe.
+		if (
+			store &&
+			entry.recordedAttempts &&
+			!entry.recorded &&
+			!entry.unrecorded &&
+			!entry.interrupted
+		) {
+			// Only a run abandoned before any result closes its recorded attempts.
+			// Interrupted verification and an unsaved result stay open for recovery.
+			// A lost close only shows the run as interrupted after a restart: fail safe.
 			const reason = entry.suppressed
 				? "suppressed"
 				: entry.cancel
@@ -475,6 +487,18 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 	function suppressedBeforeSupervision(entry: RunEntry) {
 		const owner = entry.active;
 		if (!owner) return; // Pending acquisition still owns the reservation.
+		const unsaved = entry.unrecorded;
+		if (store && unsaved) {
+			// A finalized result whose commit failed is saved, withdrawn, never
+			// dropped; its retirement keeps the run's evidence until that lands.
+			try {
+				release(entry, unsaved);
+			} finally {
+				retire(entry);
+			}
+			void withdraw(store, entry, unsaved).catch(() => {});
+			return;
+		}
 		try {
 			release(entry, rejectedResult(owner.handle, new Error(ABORT_MESSAGE)));
 		} finally {
@@ -643,15 +667,56 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 	 * retained (the next supervise retries the commit, never the check), and
 	 * `dispatching` is durable before the host sends anything.
 	 */
+	/**
+	 * A suppressed run's finalized result: committed (unless it already is),
+	 * then withdrawn, so nothing is sent and nothing is silently dropped. When
+	 * the commit fails the run's recorded attempts stay open for recovery.
+	 */
+	async function withdraw(
+		outcomes: OutcomeStore,
+		entry: RunEntry,
+		result: RunResult,
+	): Promise<void> {
+		if (!entry.recorded) {
+			entry.unrecorded = result;
+			entry.recorded = await outcomes.commit(outcomeDraft(entry, result));
+			entry.unrecorded = undefined;
+		}
+		await withdrawCommitted(outcomes, entry.recorded);
+	}
+
+	/** A lost settlement leaves `dispatching`, which recovers as uncertain. */
+	function withdrawCommitted(
+		outcomes: OutcomeStore,
+		stored: StoredOutcome,
+	): Promise<void> {
+		return outcomes
+			.settle(stored.outcome.deliveryId, {
+				state: "suppressed",
+				reason: "run suppressed before delivery",
+			})
+			.then(
+				() => {},
+				() => {},
+			);
+	}
+
+	/** Suppression aborted the wait: no result exists, only the abandonment. */
+	function abandoned(result: RunResult): boolean {
+		return !result.evidence && !result.cancellation;
+	}
+
 	async function deliverRecorded(
 		outcomes: OutcomeStore,
 		entry: RunEntry,
 		result: RunResult,
 	): Promise<RunResult> {
 		if (entry.suppressed) {
-			// Nothing is delivered for a suppressed run, as without a store.
-			entry.unrecorded = undefined;
+			// Nothing is delivered for a suppressed run, as without a store. A
+			// finalized result is still saved (withdrawn) before its run retires.
 			try {
+				if (entry.unrecorded || !abandoned(result))
+					await withdraw(outcomes, entry, result).catch(() => {});
 				release(entry, result);
 				return result;
 			} finally {
@@ -681,7 +746,7 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 			);
 		try {
 			if (entry.suppressed) {
-				await settle({ state: "suppressed", reason: "run suppressed" });
+				await withdrawCommitted(outcomes, entry.recorded);
 				release(entry, result);
 				return result;
 			}
@@ -692,6 +757,12 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 					`The subagent's outcome is recorded but could not be marked for delivery, so it was not sent; it stays pending in the outcome store: ${errorText(error)}`,
 					{ cause: error },
 				);
+			}
+			// Suppressed while the mark was written: withdraw it, never send it.
+			if (entry.suppressed) {
+				await withdrawCommitted(outcomes, entry.recorded);
+				release(entry, result);
+				return result;
 			}
 			let decision: void | DeliveryDecision;
 			try {
@@ -812,14 +883,20 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 			if (store) {
 				const attempt = Math.max(1, entry.recordedAttempts);
 				control.recordCheck = async (subject) => {
+					// Verification has begun: until a verdict commits, its run is evidence.
+					entry.interrupted = true;
 					try {
 						await store.recordCheck({
 							taskId: entry.task.id,
 							attempt,
 							subject,
 						});
-					} catch {
-						/* the outcome commit still fails closed if the store is broken */
+					} catch (error) {
+						// Fail closed: a check whose subject is not durable never runs.
+						throw new Error(
+							`${OUTCOME_NOT_RECORDED}: it could not record the check's subject, so the check did not run: ${errorText(error)}`,
+							{ cause: error },
+						);
 					}
 				};
 			}
@@ -827,6 +904,8 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 				if (owner.finalize)
 					result = await owner.finalize(result, entry.task, control);
 			} catch (error) {
+				// A failed finalization is not an abandoned run: keep its evidence.
+				if (store) entry.interrupted = true;
 				retire(entry);
 				throw error;
 			}

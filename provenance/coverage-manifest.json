@@ -2539,88 +2539,106 @@
 					"source_start": 217,
 					"source_end": 220,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 261
+					"destination_start": 266
 				},
 				{
 					"source_start": 221,
 					"source_end": 230,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 266
+					"destination_start": 271
 				},
 				{
 					"source_start": 231,
 					"source_end": 247,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 277
+					"destination_start": 282
 				},
 				{
 					"source_start": 248,
 					"source_end": 331,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 295
+					"destination_start": 300
 				},
 				{
 					"source_start": 332,
 					"source_end": 332,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 392
+					"destination_start": 404
 				},
 				{
 					"source_start": 333,
 					"source_end": 333,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 395
+					"destination_start": 407
 				},
 				{
 					"source_start": 334,
+					"source_end": 357,
+					"destination": "maestro/runtime/run-session.ts",
+					"destination_start": 466
+				},
+				{
+					"source_start": 358,
+					"source_end": 358,
+					"destination": "maestro/runtime/run-session.ts",
+					"destination_start": 494
+				},
+				{
+					"source_start": 359,
 					"source_end": 382,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 454
+					"destination_start": 503
 				},
 				{
 					"source_start": 383,
 					"source_end": 495,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 515
+					"destination_start": 539
 				},
 				{
 					"source_start": 496,
 					"source_end": 506,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 629
+					"destination_start": 653
 				},
 				{
 					"source_start": 507,
 					"source_end": 602,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 716
+					"destination_start": 787
 				},
 				{
 					"source_start": 603,
 					"source_end": 603,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 815
+					"destination_start": 888
 				},
 				{
 					"source_start": 604,
+					"source_end": 606,
+					"destination": "maestro/runtime/run-session.ts",
+					"destination_start": 904
+				},
+				{
+					"source_start": 607,
 					"source_end": 710,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 827
+					"destination_start": 909
 				},
 				{
 					"source_start": 711,
 					"source_end": 777,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 941
+					"destination_start": 1020
 				},
 				{
 					"source_start": 779,
 					"source_end": 927,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 1012
+					"destination_start": 1091
 				}
 			],
-			"mapping_status": "Copy from the H1 pin (maestro/runtime/run-session.ts) with a recorded owned change after H2; 926/927 original lines map by indentation-insensitive line diff, 1 changed or removed after the coverage baseline, 234 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
+			"mapping_status": "Copy from the H1 pin (maestro/runtime/run-session.ts) with a recorded owned change after H2; 926/927 original lines map by indentation-insensitive line diff, 1 changed or removed after the coverage baseline, 313 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
 			"covered_lines": 922,
 			"total_lines": 927,
 			"branch_function_variants": [

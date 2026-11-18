@@ -5,6 +5,7 @@
  *   outcome-store-child.ts <dir> trace            print every operation and ack
  *   outcome-store-child.ts <dir> cut <n> <phase>  SIGKILL around operation n
  *   outcome-store-child.ts <dir> hold             hold the writer lock until stdin ends
+ *   outcome-store-child.ts <dir> try              hold it like `hold`, or print `locked <code>`
  *
  * Output lines go straight to fd 1, so they are on the pipe before a kill.
  */
@@ -16,7 +17,7 @@ import {
 import { openScenarioStore, runScenario } from "./outcome-store-scenario.ts";
 
 const [dir, mode, at, phase] = process.argv.slice(2);
-if (!dir || !mode) throw new Error("usage: <dir> trace|cut|hold");
+if (!dir || !mode) throw new Error("usage: <dir> trace|cut|hold|try");
 
 function say(line: string): void {
 	writeSync(1, `${line}\n`);
@@ -55,8 +56,14 @@ const fs: OutcomeStoreFs = {
 	unlinkSync: around("unlink", base.unlinkSync),
 };
 
-if (mode === "hold") {
-	const store = await openScenarioStore(dir, undefined, "hold");
+if (mode === "hold" || mode === "try") {
+	const store = await openScenarioStore(dir, undefined, mode).catch(
+		(error: Error & { code?: string }) => {
+			if (mode === "hold") throw error;
+			say(`locked ${error.code}`);
+			process.exit(0);
+		},
+	);
 	say("ready");
 	process.stdin.resume();
 	process.stdin.on("end", () => {

@@ -43,7 +43,7 @@ function openStore(fs: DurableFs, prefix: string) {
 		dir: DIR,
 		parent: "parent",
 		fs,
-		isProcessAlive: () => false,
+		lock: fs.lock,
 		newId: sequence(prefix),
 		now: clock(),
 	});
@@ -130,6 +130,30 @@ async function run(f: Awaited<ReturnType<typeof fixture>>, t = task()) {
 }
 
 const tick = () => new Promise((resolve) => setImmediate(resolve));
+
+/** A store whose every call reaches `real`, except the overridden ones. */
+function delegate(
+	real: OutcomeStore,
+	overrides: Partial<OutcomeStore>,
+): OutcomeStore {
+	return {
+		parent: real.parent,
+		owner: real.owner,
+		recordAttempt: (attempt) => real.recordAttempt(attempt),
+		recordCheck: (check) => real.recordCheck(check),
+		commit: (draft) => real.commit(draft),
+		commitBatch: (batch) => real.commitBatch(batch),
+		dispatch: (id) => real.dispatch(id),
+		settle: (id, settlement) => real.settle(id, settlement),
+		closeRun: (taskId, reason, owner) => real.closeRun(taskId, reason, owner),
+		get: (id) => real.get(id),
+		observerState: (key) => real.observerState(key),
+		recovery: () => real.recovery(),
+		compact: () => real.compact(),
+		close: () => real.close(),
+		...overrides,
+	};
+}
 
 describe("RunSession with an outcome store", () => {
 	it("records the attempt before acquisition", async () => {
@@ -369,20 +393,195 @@ describe("RunSession with an outcome store", () => {
 		);
 	});
 
-	it("a check the store cannot record still runs; the outcome commit then fails closed", async () => {
+	it("a check-start the store cannot record stops the check, even when the store recovers at once", async () => {
 		let checked = false;
 		const f = await fixture({
 			finalize: async (_result, control) => {
+				let writes = 0;
+				// Only the check-start write fails; the store stays usable after it.
 				f.fs.fault = (op) =>
-					op.op === "write" ? new Error("ENOSPC") : undefined;
+					op.op === "write" && ++writes === 1 ? new Error("ENOSPC") : undefined;
 				await control.recordCheck!({ checkHash: "sha256:c" });
 				checked = true;
 			},
 		});
 		const { result } = await run(f);
-		await assert.rejects(result, /run stays owned/);
-		assert.equal(checked, true);
+		await assert.rejects(
+			result,
+			/could not record the check's subject, so the check did not run: .*ENOSPC/,
+		);
+		assert.equal(checked, false, "the check never ran");
+		assert.equal(f.settled.length, 0, "nothing delivered");
+		const recovery = await recovered(f.fs);
+		assert.deepEqual(recovery.outcomes, []);
+		assert.deepEqual(recovery.final, []);
+		assert.deepEqual(
+			recovery.interrupted.map((run) => [run.taskId, run.attempts.length]),
+			[["logical", 1]],
+			"the run stays visible as interrupted",
+		);
+	});
+
+	it("a finalizer that fails after its check started keeps the interrupted check for recovery", async () => {
+		const f = await fixture({
+			finalize: async (_result, control) => {
+				await control.recordCheck!({ checkHash: "sha256:c", headSha: "abc" });
+				throw new Error("finalizer broke");
+			},
+		});
+		const { result } = await run(f);
+		await assert.rejects(result, /finalizer broke/);
+		assert.equal(
+			f.session.getHandle("logical"),
+			undefined,
+			"retired as before",
+		);
+		await tick();
+		const recovery = await recovered(f.fs);
+		assert.deepEqual(recovery.outcomes, []);
+		assert.deepEqual(
+			recovery.interrupted.map((run) => run.checks.map((c) => c.subject)),
+			[[{ checkHash: "sha256:c", headSha: "abc" }]],
+			"verification is incomplete, not closed",
+		);
+	});
+
+	it("suppression after a failed commit still saves the finalized outcome, withdrawn", async () => {
+		const f = await fixture();
+		const t = task();
+		const handle = await f.session.spawn(t);
+		f.fs.fault = (op) => (op.op === "write" ? new Error("ENOSPC") : undefined);
+		const first = f.session.supervise(handle, t);
+		f.adapter.complete(handle.id, { reason: "done", exitCode: 0 });
+		await assert.rejects(first, /run stays owned/);
+		f.fs.fault = undefined;
+		// Pi shutdown suppresses every owned run.
+		f.session.suppress(t.id);
+		await tick();
+		assert.equal(f.settled.length, 0, "nothing delivered");
+		assert.equal(f.session.getHandle(t.id), undefined);
+		const recovery = await recovered(f.fs);
+		assert.deepEqual(recovery.interrupted, []);
+		assert.deepEqual(
+			recovery.final.map((entry) => entry.state),
+			["suppressed"],
+		);
+		const journal = f.fs.contents(`${DIR}/journal.jsonl`)!.toString("utf8");
+		assert.match(
+			journal,
+			/"outcome":"completed"/,
+			"the result itself is saved",
+		);
+		assert.match(journal, /run suppressed before delivery/);
+	});
+
+	it("suppression after a failed commit whose retry also fails keeps the run's recovery evidence", async () => {
+		const fs = new DurableFs();
+		const real = await openStore(fs, "k");
+		// Commits keep failing; every other write (a close included) succeeds.
+		const failing = delegate(real, {
+			commit: async () => {
+				throw new Error("ENOSPC");
+			},
+		});
+		const f = await fixture({ store: failing });
+		const t = task();
+		const handle = await f.session.spawn(t);
+		const first = f.session.supervise(handle, t);
+		f.adapter.complete(handle.id, { reason: "done", exitCode: 0 });
+		await assert.rejects(first, /run stays owned/);
+		f.session.suppress(t.id);
+		await tick();
+		const recovery = await recovered(fs);
+		assert.deepEqual(recovery.final, []);
+		assert.deepEqual(
+			recovery.interrupted.map((run) => [run.taskId, run.attempts.length]),
+			[["logical", 1]],
+			"the attempt is not closed",
+		);
+	});
+
+	it("a finalizer that fails before any check still keeps its run for recovery", async () => {
+		const f = await fixture({
+			finalize: async () => {
+				throw new Error("finalizer broke");
+			},
+		});
+		const { result } = await run(f);
+		await assert.rejects(result, /finalizer broke/);
+		await tick();
+		const recovery = await recovered(f.fs);
+		assert.deepEqual(
+			recovery.interrupted.map((run) => [run.taskId, run.attempts.length]),
+			[["logical", 1]],
+		);
+	});
+
+	it("a run suppressed while its finalized result waits to commit saves it withdrawn", async () => {
+		let release!: () => void;
+		const gate = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		let finalizing!: () => void;
+		const started = new Promise<void>((resolve) => {
+			finalizing = resolve;
+		});
+		const f = await fixture({
+			finalize: async () => {
+				finalizing();
+				await gate;
+			},
+		});
+		const { result } = await run(f);
+		await started;
+		f.session.suppress("logical");
+		release();
+		assert.equal((await result).outcome, "completed");
 		assert.equal(f.settled.length, 0);
+		await tick();
+		const recovery = await recovered(f.fs);
+		assert.deepEqual(recovery.interrupted, []);
+		assert.deepEqual(
+			recovery.final.map((entry) => entry.state),
+			["suppressed"],
+		);
+	});
+
+	it("a run suppressed while its dispatch mark is written is withdrawn, not sent", async () => {
+		const fs = new DurableFs();
+		const real = await openStore(fs, "k");
+		let marked!: () => void;
+		const marking = new Promise<void>((resolve) => {
+			marked = resolve;
+		});
+		let release!: () => void;
+		const gate = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		// Every call reaches the real store; only dispatch waits after its mark.
+		const gated = delegate(real, {
+			async dispatch(id) {
+				const delivery = await real.dispatch(id);
+				marked();
+				await gate;
+				return delivery;
+			},
+		});
+		const f = await fixture({ store: gated });
+		const { result } = await run(f);
+		await marking;
+		f.session.suppress("logical");
+		release();
+		await result;
+		assert.equal(f.settled.length, 0, "the send hook never ran");
+		const [entry] = real.recovery().final;
+		assert.equal(entry!.state, "suppressed");
+		const reopened = await openStore(fs.crashImage(), "r");
+		assert.deepEqual(
+			reopened.recovery().final.map((e) => e.state),
+			["suppressed"],
+			"withdrawn durably",
+		);
 	});
 
 	it("without a store there is no check recording and delivery is unchanged", async () => {
@@ -472,8 +671,8 @@ describe("RunSession outcome store crash cuts", () => {
 	it("a crash at any store operation recovers one committed outcome, and a sent one is never pending", async () => {
 		const total =
 			(await lifecycle()).f.fs.ops.length - (await lifecycle()).base;
-		// Lock check, write and fsync for the attempt, commit, dispatch and settle.
-		assert.equal(total, 12);
+		// A write and an fsync each for the attempt, commit, dispatch and settle.
+		assert.equal(total, 8);
 		const seen = new Set<Recovered>();
 		for (let index = 0; index < total; index++)
 			for (const phase of ["before", "after"] as const) {

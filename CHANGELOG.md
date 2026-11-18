@@ -15,14 +15,23 @@ compares the parent messages, ledger and surfaces with and without a store).
   delivery; delivery states `pending -> dispatching -> admitted`, or
   `uncertain`, `blocked`, `suppressed`. `uncertain` is never dispatched again.
   Deduplication by parent, task, generation, attempt, kind and source report;
-  a help request never takes the result's slot. A batch saves outcomes and an
+  only identical content deduplicates (verdict, subject, envelope, text,
+  cancellation and facts included); different content under the same key is a
+  `conflict`. A help request never takes the result's slot. A batch saves outcomes and an
   opaque observer state (the pi-worker client observer's persisted state) in
   one record.
 - `FileOutcomeStore` (`@nubl/maestro/runtime/file-outcome-store`): one writer
-  per directory (an atomically linked lock; a dead holder on the same host is
-  recovered, a live or foreign one refuses), a versioned and checksummed
-  journal fsynced per record, a torn tail cut on open (earlier damage, a
-  sequence gap or another version refuses), and atomic snapshot compaction.
+  per directory. The lock is a Unix-domain socket listening at
+  `writer.lock`: the OS stops it listening when its process dies, so a live
+  holder refuses an open from any process (another PID namespace included)
+  and a dead one is taken over; a writer whose lock was removed or replaced
+  stops writing and compacting. The store directory must be on local storage
+  (Linux refuses known network filesystems; Windows is refused). A versioned
+  and checksummed journal fsynced per record; a new store directory is fsynced
+  into its parent before its first record; a torn tail cut on open (earlier
+  damage, a sequence gap or another version refuses), and atomic snapshot
+  compaction (fsynced rename before the journal is truncated). Durability is
+  claimed for POSIX filesystems.
   Directory 0700, files 0600. A store belongs to one parent; another parent
   must adopt it explicitly. On open, a delivery left `dispatching` becomes
   `uncertain`, and runs with attempts but no outcome are reported interrupted.
@@ -36,7 +45,13 @@ compares the parent messages, ledger and surfaces with and without a store).
   `onSettled`, and the result then settles `admitted` (process-local
   evidence), `suppressed` or, if the send rejects, `uncertain`. A failed
   commit keeps the run owned, undelivered and its surfaces retained; the next
-  `supervise` retries the commit, never the check. New hook
+  `supervise` retries the commit, never the check. A check runs only after its
+  subject is durable: a failed check-start record stops it. Suppression
+  (shutdown) of a finalized result, during its commit or its dispatch mark
+  included, commits it withdrawn (`suppressed`) and sends nothing; only a run
+  abandoned before any result closes its attempts, while interrupted
+  verification, a failed finalization or a result that could not be saved
+  leave the run open as recovery evidence. New hook
   `describeOutcome`; Pi supplies the summary or help text, verdict, worktree
   subject and runtime facts. A reload must keep the live owner's store.
 - Not yet: worker parent admission, receipts and recovery delivery (P3-9).

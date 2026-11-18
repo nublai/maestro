@@ -4,6 +4,7 @@
  * durable, and `view` is what a restarted owner must recover after it.
  */
 import type { OutcomeDraft } from "../../maestro/core/outcome-store.ts";
+import { DurableFs } from "./durable-fs.ts";
 import {
 	FileOutcomeStore,
 	type FileOutcomeStoreOptions,
@@ -32,6 +33,8 @@ export function openScenarioStore(
 		dir,
 		parent: SCENARIO_PARENT,
 		fs,
+		// The simulated filesystem has no real directory to bind a socket in.
+		lock: fs instanceof DurableFs ? fs.lock : undefined,
 		newId: sequence(prefix),
 		now: clock(),
 		compactAfter: 1_000,

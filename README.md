@@ -31,7 +31,8 @@ and the default when a host supplies only a surface provider.
 A run owner can be given a checked-outcome outbox, the injected `OutcomeStore`
 (`@nubl/maestro/core/outcome-store`; file-backed implementation
 `FileOutcomeStore` in `@nubl/maestro/runtime/file-outcome-store`, one writer
-per directory). With one, each attempt is recorded before it is acquired and a
+per directory, held by a Unix-domain socket the OS releases when its process
+dies; keep the directory on local storage, not a network filesystem). With one, each attempt is recorded before it is acquired and a
 finalized outcome is committed durably before it is delivered or its run
 retired; a failed commit keeps the run owned and undelivered. Without one,
 delivery is unchanged. It is opt-in and separate from the `outcomes.jsonl`

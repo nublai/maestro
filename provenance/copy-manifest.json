@@ -219,7 +219,12 @@
 		{
 			"kind": "new",
 			"destination": "maestro/runtime/file-outcome-store.ts",
-			"reason": "P3-8 (post-H2, Maestro-owned): the file-backed OutcomeStore: single-writer lock, versioned checksummed journal fsynced per record, torn-tail recovery and atomic snapshot compaction."
+			"reason": "P3-8 (post-H2, Maestro-owned): the file-backed OutcomeStore: single-writer lock, versioned checksummed journal fsynced per record (store directory fsynced into its parent), torn-tail recovery, atomic snapshot compaction, and deduplication of identical content only."
+		},
+		{
+			"kind": "new",
+			"destination": "maestro/runtime/outcome-store-lock.ts",
+			"reason": "P3-8 (post-H2, Maestro-owned): the file OutcomeStore's single-writer lock, a Unix-domain socket the OS releases on process death (works across PID namespaces; refuses known network filesystems and Windows)."
 		},
 		{
 			"kind": "copy",
@@ -626,8 +631,8 @@
 			"blob": "2d0f444debb54698df366f1486cffff724db76bd",
 			"archive": "provenance/upstream/maestro/runtime/run-session.ts",
 			"owned_change": {
-				"reason": "P3-8: an optional injected OutcomeStore. With it, each attempt is recorded before its acquisition, FinalizeControl.recordCheck records a check's subject before it runs, and a finalized result is committed (one durable record) before delivery or retirement; dispatching is durable before onSettled, which then settles admitted (process-local), suppressed or uncertain. A failed commit keeps the run owned, undelivered and its surfaces retained; the next supervise retries only the commit. A run retired without an outcome closes its recorded attempts. Without a store the delivery path is the original code.",
-				"blob": "e433562cdc8560eeca20cafaf20255eb8386ecd9"
+				"reason": "P3-8: an optional injected OutcomeStore. With it, each attempt is recorded before its acquisition, FinalizeControl.recordCheck records a check's subject before it runs, and a finalized result is committed (one durable record) before delivery or retirement; dispatching is durable before onSettled, which then settles admitted (process-local), suppressed or uncertain. A failed commit keeps the run owned, undelivered and its surfaces retained; the next supervise retries only the commit. recordCheck rejects when the subject is not durable, so the check never runs. Suppression of a finalized result (before or during its commit, or after its dispatch mark) commits it and withdraws it as suppressed, never sending it. Only a run abandoned before any result closes its recorded attempts; interrupted verification, a failed finalization and a result that could not be saved keep them open as recovery evidence. Without a store the delivery path is the original code.",
+				"blob": "dd7121d4ca509a57de6cf017cd4b283302d6ed3e"
 			}
 		},
 		{

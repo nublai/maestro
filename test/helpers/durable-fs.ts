@@ -1,12 +1,18 @@
 /**
  * An in-memory OutcomeStoreFs that models what survives a crash: file bytes
  * are durable only after `fsync` of their file, and names (create, rename,
- * link, unlink) only after `fsync` of their directory. `crashImage()` is the
+ * link, unlink, and a new directory's own name) only after `fsync` of their
+ * directory. `crashImage()` is the
  * filesystem a restarted process would see. A hook can stop the "process"
  * before or after any operation; every later operation then fails too.
  */
 import { dirname } from "node:path";
-import type { OutcomeStoreFs } from "../../maestro/runtime/file-outcome-store.ts";
+import { OutcomeStoreError } from "../../maestro/core/outcome-store.ts";
+import type {
+	OutcomeStoreFs,
+	OutcomeStoreLock,
+	OutcomeStoreLocker,
+} from "../../maestro/runtime/file-outcome-store.ts";
 
 export class Crash extends Error {
 	constructor(op: string) {
@@ -40,7 +46,8 @@ function fsError(code: string, op: string, path: string): Error {
 }
 
 export class DurableFs implements OutcomeStoreFs {
-	private readonly dirs = new Set<string>();
+	private readonly dirs = new Set<string>(["/"]);
+	private readonly durableDirs = new Set<string>(["/"]);
 	private names = new Map<string, Inode>();
 	private durableNames = new Map<string, Inode>();
 	private readonly handles = new Map<number, Handle>();
@@ -50,8 +57,19 @@ export class DurableFs implements OutcomeStoreFs {
 	readonly ops: FsOp[] = [];
 	/** Throw (for example `Crash`) before or after an operation. */
 	hook?: (op: FsOp, phase: "before" | "after") => void;
-	/** Reversion probe: fsync does nothing, as if it were removed. */
-	fsyncIsNoop = false;
+	/**
+	 * Reversion probe: fsync does nothing, as if it were removed; a predicate
+	 * removes only the fsyncs of the paths it accepts.
+	 */
+	fsyncIsNoop: boolean | ((path: string) => boolean) = false;
+	/**
+	 * The writer lock of this "machine": held until released, or until the
+	 * process crashes (a crash image starts with no holder).
+	 */
+	readonly lock: OutcomeStoreLocker & {
+		/** Simulates another opener removing or replacing the holder's lock. */
+		steal(dir: string): void;
+	} = memoryLock();
 	/** Fault injection for one operation, before it changes anything. */
 	fault?: (op: FsOp) => Error | undefined;
 
@@ -79,9 +97,20 @@ export class DurableFs implements OutcomeStoreFs {
 	/** What a restarted process would read: only fsynced bytes and names. */
 	crashImage(): DurableFs {
 		const image = new DurableFs();
-		for (const dir of this.dirs) image.dirs.add(dir);
+		// A directory survives only if its name and every parent's are durable.
+		const survives = (dir: string): boolean =>
+			dir === "/" ||
+			(this.durableDirs.has(dir) &&
+				this.dirs.has(dir) &&
+				survives(dirname(dir)));
+		for (const dir of this.dirs)
+			if (survives(dir)) {
+				image.dirs.add(dir);
+				image.durableDirs.add(dir);
+			}
 		const copies = new Map<Inode, Inode>();
 		for (const [path, inode] of this.durableNames) {
+			if (!image.dirs.has(dirname(path))) continue;
 			let copy = copies.get(inode);
 			if (!copy) {
 				copy = {
@@ -111,15 +140,21 @@ export class DurableFs implements OutcomeStoreFs {
 		return [...this.names.keys()].filter((path) => dirname(path) === dir);
 	}
 
-	mkdirSync(path: string, options: { recursive: true; mode: number }): void {
-		this.run("mkdir", path, () => {
-			// Directories are modelled as durable once created.
+	mkdirSync(
+		path: string,
+		options: { recursive: true; mode: number },
+	): string | undefined {
+		return this.run("mkdir", path, () => {
+			// A new directory's name is durable once its parent is fsynced.
+			let first: string | undefined;
 			let current = path;
 			while (!this.dirs.has(current) && current !== dirname(current)) {
 				this.dirs.add(current);
+				first = current;
 				current = dirname(current);
 			}
 			void options;
+			return first;
 		});
 	}
 
@@ -174,7 +209,8 @@ export class DurableFs implements OutcomeStoreFs {
 	fsyncSync(fd: number): void {
 		const handle = this.handle(fd);
 		this.run(handle.dir ? "fsync:dir" : "fsync", handle.path, () => {
-			if (this.fsyncIsNoop) return;
+			const noop = this.fsyncIsNoop;
+			if (noop === true || (noop !== false && noop(handle.path))) return;
 			if (handle.inode) {
 				handle.inode.durable = Buffer.from(handle.inode.data);
 				return;
@@ -185,6 +221,9 @@ export class DurableFs implements OutcomeStoreFs {
 					this.durableNames.delete(path);
 			for (const [path, inode] of this.names)
 				if (dirname(path) === dir) this.durableNames.set(path, inode);
+			for (const child of this.dirs)
+				if (child !== dir && dirname(child) === dir)
+					this.durableDirs.add(child);
 		});
 	}
 
@@ -241,4 +280,29 @@ export class DurableFs implements OutcomeStoreFs {
 			if (!this.names.delete(path)) throw fsError("ENOENT", "unlink", path);
 		});
 	}
+}
+
+/** An in-memory OutcomeStoreLocker: one holder per directory. */
+function memoryLock(): DurableFs["lock"] {
+	const holders = new Map<string, symbol>();
+	const locker = async (dir: string): Promise<OutcomeStoreLock> => {
+		if (holders.has(dir))
+			throw new OutcomeStoreError(
+				"locked",
+				`The outcome store at ${dir} has another writer (its lock socket accepts connections); one writer per store.`,
+			);
+		const token = Symbol(dir);
+		holders.set(dir, token);
+		return {
+			held: () => holders.get(dir) === token,
+			async release() {
+				if (holders.get(dir) === token) holders.delete(dir);
+			},
+		};
+	};
+	return Object.assign(locker, {
+		steal(dir: string) {
+			holders.set(dir, Symbol("thief"));
+		},
+	});
 }

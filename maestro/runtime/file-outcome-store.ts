@@ -4,9 +4,10 @@
  * compaction. No database dependency.
  *
  * Layout (directory 0700, files 0600):
- * - `writer.lock`: the single writer's `{pid, host, token}`; linked into place
- *   atomically, so it is never torn. A lock whose process is gone on this host
- *   is recovered by the next opener; a live or foreign holder refuses the open.
+ * - `writer.lock`: the single writer's listening Unix-domain socket
+ *   (`outcome-store-lock.ts`). The OS stops it listening when its process
+ *   dies, however it dies; a live holder, in any PID namespace, refuses the
+ *   open, and a dead one is taken over. The directory must be on local storage.
  * - `snapshot.json`: the compacted state at a sequence number, replaced by an
  *   fsynced temporary file, rename and directory fsync.
  * - `journal.jsonl`: one record per line after the snapshot's sequence. Each
@@ -18,14 +19,18 @@
  * unknown version refuses the open: nothing is guessed. Records at or below
  * the snapshot's sequence (a crash during compaction) are skipped.
  *
+ * Durability (POSIX): a record's promise resolves after the journal's fsync;
+ * a created directory or file is fsynced into its parent directory before
+ * anything in it is acknowledged, and a compaction rename before the journal
+ * is truncated.
+ *
  * Placement: terminal hosts use `terminalOutcomeStoreDir`, a private directory
  * per parent under the existing `herdr-agents` config namespace. It survives
  * process restarts, not disk loss or a hostile same-UID writer.
  */
 import { createHash, randomUUID } from "node:crypto";
 import * as nodeFs from "node:fs";
-import { hostname } from "node:os";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import {
 	OUTCOME_JOURNAL_VERSION,
 	OUTCOME_RECORD_LIMIT,
@@ -53,15 +58,27 @@ import {
 	type OutcomeStore,
 	type StoredOutcome,
 } from "../core/outcome-store.ts";
+import { isRecord, isString } from "../core/config/type-guards.ts";
 import {
-	isFiniteNumber,
-	isRecord,
-	isString,
-} from "../core/config/type-guards.ts";
+	socketOutcomeStoreLock,
+	type OutcomeStoreLock,
+	type OutcomeStoreLocker,
+} from "./outcome-store-lock.ts";
+
+export {
+	OUTCOME_LOCK_FILE,
+	socketOutcomeStoreLock,
+	type OutcomeStoreLock,
+	type OutcomeStoreLocker,
+} from "./outcome-store-lock.ts";
 
 /** The synchronous file operations the store uses; tests inject faults and crashes. */
 export interface OutcomeStoreFs {
-	mkdirSync(path: string, options: { recursive: true; mode: number }): void;
+	/** Returns the first directory it created, like `node:fs`. */
+	mkdirSync(
+		path: string,
+		options: { recursive: true; mode: number },
+	): string | undefined;
 	openSync(path: string, flags: string, mode?: number): number;
 	writeSync(
 		fd: number,
@@ -80,9 +97,7 @@ export interface OutcomeStoreFs {
 
 /** The store's default operations over `node:fs`. */
 export const nodeOutcomeStoreFs: OutcomeStoreFs = {
-	mkdirSync: (path, options) => {
-		nodeFs.mkdirSync(path, options);
-	},
+	mkdirSync: (path, options) => nodeFs.mkdirSync(path, options),
 	openSync: (path, flags, mode) => nodeFs.openSync(path, flags, mode),
 	writeSync: (fd, buffer, offset, length) =>
 		nodeFs.writeSync(fd, buffer, offset, length),
@@ -110,15 +125,12 @@ export interface FileOutcomeStoreOptions {
 	/** Delivered (final) delivery identities kept for deduplication. Default 1024. */
 	retainFinal?: number;
 	fs?: OutcomeStoreFs;
-	/** Whether a process on this host is alive; tests inject one. */
-	isProcessAlive?: (pid: number) => boolean;
-	host?: string;
-	pid?: number;
+	/** The single-writer lock; default `socketOutcomeStoreLock`. */
+	lock?: OutcomeStoreLocker;
 	now?: () => number;
 	newId?: () => string;
 }
 
-const LOCK_FILE = "writer.lock";
 const SNAPSHOT_FILE = "snapshot.json";
 const JOURNAL_FILE = "journal.jsonl";
 const LINE =
@@ -133,15 +145,6 @@ export function terminalOutcomeStoreDir(
 ): string {
 	const id = createHash("sha256").update(parent).digest("hex").slice(0, 32);
 	return join(configDir, "herdr-agents", "outcome-store", id);
-}
-
-function defaultIsProcessAlive(pid: number): boolean {
-	try {
-		process.kill(pid, 0);
-		return true;
-	} catch (error) {
-		return errorCode(error) === "EPERM";
-	}
 }
 
 function errorCode(error: any): string | undefined {
@@ -420,7 +423,7 @@ export class FileOutcomeStore implements OutcomeStore {
 	private readonly newId: () => string;
 	private readonly compactAfter: number;
 	private readonly model: Model;
-	private readonly lockToken: string;
+	private readonly lock: OutcomeStoreLock;
 	private journalFd: number;
 	private journalSize: number;
 	private seq: number;
@@ -432,7 +435,7 @@ export class FileOutcomeStore implements OutcomeStore {
 		options: FileOutcomeStoreOptions;
 		fs: OutcomeStoreFs;
 		model: Model;
-		lockToken: string;
+		lock: OutcomeStoreLock;
 		journalFd: number;
 		journalSize: number;
 		seq: number;
@@ -448,7 +451,7 @@ export class FileOutcomeStore implements OutcomeStore {
 		this.newId = options.newId ?? randomUUID;
 		this.compactAfter = options.compactAfter ?? 512;
 		this.model = init.model;
-		this.lockToken = init.lockToken;
+		this.lock = init.lock;
 		this.journalFd = init.journalFd;
 		this.journalSize = init.journalSize;
 		this.seq = init.seq;
@@ -471,8 +474,9 @@ export class FileOutcomeStore implements OutcomeStore {
 		const fs = options.fs ?? nodeOutcomeStoreFs;
 		const now = options.now ?? Date.now;
 		const newId = options.newId ?? randomUUID;
+		let created: string | undefined;
 		try {
-			fs.mkdirSync(options.dir, { recursive: true, mode: 0o700 });
+			created = fs.mkdirSync(options.dir, { recursive: true, mode: 0o700 });
 		} catch (error) {
 			throw new OutcomeStoreError(
 				"io",
@@ -480,7 +484,7 @@ export class FileOutcomeStore implements OutcomeStore {
 				{ cause: error },
 			);
 		}
-		const lockToken = acquireLock(fs, options, newId());
+		const lock = await (options.lock ?? socketOutcomeStoreLock)(options.dir);
 		let journalFd: number | undefined;
 		try {
 			const model = new Model(options.retainFinal ?? 1024);
@@ -502,6 +506,9 @@ export class FileOutcomeStore implements OutcomeStore {
 			const existing = readOptional(fs, journalPath);
 			const journal = existing ?? Buffer.alloc(0);
 			const { size, records, lastSeq } = replay(journal, seq, model);
+			// A store without a journal has never acknowledged a record: make its
+			// directory's name (and any parent this open created) durable first.
+			if (existing === undefined) syncParents(fs, options.dir, created);
 			journalFd = fs.openSync(journalPath, "a", 0o600);
 			if (size < journal.length) {
 				// The cut tail never resolved its append; nothing durable is lost.
@@ -522,7 +529,7 @@ export class FileOutcomeStore implements OutcomeStore {
 				options,
 				fs,
 				model,
-				lockToken,
+				lock,
 				journalFd,
 				journalSize: size,
 				seq: lastSeq,
@@ -555,7 +562,7 @@ export class FileOutcomeStore implements OutcomeStore {
 			return store;
 		} catch (error) {
 			if (journalFd !== undefined) closeQuietly(fs, journalFd);
-			releaseLock(fs, options.dir, lockToken);
+			await lock.release();
 			throw error;
 		}
 	}
@@ -700,6 +707,8 @@ export class FileOutcomeStore implements OutcomeStore {
 	 */
 	async compact(): Promise<void> {
 		this.usable();
+		// A writer that lost its lock must not replace the other's snapshot.
+		this.assertLockHeld();
 		const raw = JSON.stringify(this.model.save());
 		const body = `{"v":${OUTCOME_JOURNAL_VERSION},"seq":${this.seq},"sum":"${checksum(this.seq, raw)}","state":${raw}}\n`;
 		const tmp = join(this.dir, `${SNAPSHOT_FILE}.${this.newId()}.tmp`);
@@ -744,7 +753,7 @@ export class FileOutcomeStore implements OutcomeStore {
 		if (this.closed) return;
 		this.closed = true;
 		closeQuietly(this.fs, this.journalFd);
-		releaseLock(this.fs, this.dir, this.lockToken);
+		await this.lock.release();
 	}
 
 	private checked(draft: OutcomeDraft, at: number): CheckedOutcome {
@@ -787,8 +796,9 @@ export class FileOutcomeStore implements OutcomeStore {
 	}
 
 	/**
-	 * The same logical outcome again (same dedupe key and content, and no other
-	 * delivery identity) returns the original. Anything else conflicts.
+	 * The same logical outcome again (same dedupe key, identical immutable
+	 * content and no other delivery identity) returns the original. Anything
+	 * else conflicts, a different verdict, subject or envelope included.
 	 */
 	private existing(
 		outcome: CheckedOutcome,
@@ -802,15 +812,13 @@ export class FileOutcomeStore implements OutcomeStore {
 				? undefined
 				: this.model.outcomes.get(byKey)?.outcome);
 		if (prior) {
-			if (
-				prior.textDigest === outcome.textDigest &&
-				prior.outcome === outcome.outcome &&
-				(explicitId === undefined || explicitId === prior.deliveryId)
-			)
-				return prior;
+			const differs = differingFields(prior, outcome);
+			if (explicitId !== undefined && explicitId !== prior.deliveryId)
+				differs.push("deliveryId");
+			if (!differs.length) return prior;
 			throw new OutcomeStoreError(
 				"conflict",
-				`A different outcome is already committed for this run attempt (${prior.deliveryId}).`,
+				`A different outcome is already committed for this run attempt (${prior.deliveryId}; ${differs.join(", ")} differ).`,
 			);
 		}
 		if (byKey !== undefined)
@@ -928,15 +936,7 @@ export class FileOutcomeStore implements OutcomeStore {
 	}
 
 	private assertLockHeld(): void {
-		let held = false;
-		try {
-			held =
-				parseLock(this.fs.readFileSync(join(this.dir, LOCK_FILE)))?.token ===
-				this.lockToken;
-		} catch {
-			held = false;
-		}
-		if (!held) {
+		if (!this.lock.held()) {
 			this.broken = "the writer lock is no longer held";
 			throw new OutcomeStoreError(
 				"locked",
@@ -996,6 +996,53 @@ function replay(journal: Buffer, snapshotSeq: number, model: Model): Replayed {
 	return { size: validEnd, records, lastSeq };
 }
 
+/** The immutable content of a checked outcome; the rest is per-commit bookkeeping. */
+const CONTENT_FIELDS = [
+	"parent",
+	"taskId",
+	"attempt",
+	"kind",
+	"generation",
+	"reportId",
+	"runId",
+	"outcome",
+	"exitCode",
+	"text",
+	"textDigest",
+	"textTruncated",
+	"textSource",
+	"verdict",
+	"subject",
+	"cancellation",
+	"facts",
+	"envelope",
+	"envelopeDigest",
+] as const satisfies readonly (keyof CheckedOutcome)[];
+
+/** JSON with sorted keys: equal for equal content, whatever the key order. */
+function canonical(value: OutcomeJson | undefined): string | undefined {
+	if (value === undefined) return undefined;
+	return JSON.stringify(value, (_key, item: OutcomeJson) =>
+		isRecord(item) && !Array.isArray(item)
+			? Object.fromEntries(
+					Object.keys(item)
+						.sort((x, y) => (x < y ? -1 : x > y ? 1 : 0))
+						.map((key) => [key, item[key]]),
+				)
+			: item,
+	);
+}
+
+/** The immutable fields two outcomes with one dedupe key disagree on. */
+function differingFields(
+	prior: CheckedOutcome,
+	next: CheckedOutcome,
+): string[] {
+	return CONTENT_FIELDS.filter(
+		(field) => canonical(prior[field]) !== canonical(next[field]),
+	);
+}
+
 function readOptional(fs: OutcomeStoreFs, path: string): Buffer | undefined {
 	try {
 		return fs.readFileSync(path);
@@ -1029,124 +1076,28 @@ function syncDir(fs: OutcomeStoreFs, dir: string): void {
 	}
 }
 
+/**
+ * fsyncs the parent of the store directory, and of each directory `mkdir`
+ * created above it (`created` is the first), so their names survive power loss.
+ */
+function syncParents(
+	fs: OutcomeStoreFs,
+	dir: string,
+	created: string | undefined,
+): void {
+	const top = created === undefined ? undefined : resolve(created);
+	for (let current = resolve(dir); ; current = dirname(current)) {
+		const parent = dirname(current);
+		if (parent === current) return;
+		syncDir(fs, parent);
+		if (current === top || top === undefined) return;
+	}
+}
+
 function closeQuietly(fs: OutcomeStoreFs, fd: number): void {
 	try {
 		fs.closeSync(fd);
 	} catch {
 		/* already closed */
-	}
-}
-
-interface LockHolder {
-	pid: number;
-	host: string;
-	token: string;
-}
-
-function parseLock(raw: Buffer): LockHolder | undefined {
-	let value: any;
-	try {
-		value = JSON.parse(raw.toString("utf8"));
-	} catch {
-		return undefined;
-	}
-	if (
-		!isRecord(value) ||
-		!isFiniteNumber(value.pid) ||
-		!isString(value.host) ||
-		!isString(value.token)
-	)
-		return undefined;
-	return { pid: value.pid, host: value.host, token: value.token };
-}
-
-/**
- * The lock is written to a private file and linked into place, so a holder's
- * content is always complete. A holder whose process is gone on this host is
- * moved aside and verified before it is discarded, so two recoverers cannot
- * both win; anything unreadable or foreign stays held (fail closed).
- */
-function acquireLock(
-	fs: OutcomeStoreFs,
-	options: FileOutcomeStoreOptions,
-	token: string,
-): string {
-	const lock = join(options.dir, LOCK_FILE);
-	const host = options.host ?? hostname();
-	const pid = options.pid ?? process.pid;
-	const alive = options.isProcessAlive ?? defaultIsProcessAlive;
-	const body = Buffer.from(
-		JSON.stringify({ pid, host, token, at: (options.now ?? Date.now)() }),
-		"utf8",
-	);
-	const mine = `${lock}.${token}`;
-	try {
-		const fd = fs.openSync(mine, "wx", 0o600);
-		try {
-			writeAll(fs, fd, body);
-			fs.fsyncSync(fd);
-		} finally {
-			fs.closeSync(fd);
-		}
-		for (let tries = 0; tries < 8; tries++) {
-			try {
-				fs.linkSync(mine, lock);
-				syncDir(fs, options.dir);
-				return token;
-			} catch (error) {
-				if (errorCode(error) !== "EEXIST") throw error;
-			}
-			const raw = readOptional(fs, lock);
-			if (raw === undefined) continue;
-			const holder = parseLock(raw);
-			if (!holder || holder.host !== host || alive(holder.pid))
-				throw new OutcomeStoreError(
-					"locked",
-					`The outcome store at ${options.dir} has another writer (${holder ? `process ${holder.pid} on ${holder.host}` : "unreadable lock"}); one writer per store.`,
-				);
-			const aside = `${lock}.stale-${token}`;
-			try {
-				fs.renameSync(lock, aside);
-			} catch (error) {
-				if (errorCode(error) === "ENOENT") continue;
-				throw error;
-			}
-			const moved = readOptional(fs, aside);
-			if (moved && !moved.equals(raw)) {
-				// Another opener replaced the stale lock first: put its lock back.
-				try {
-					fs.linkSync(aside, lock);
-				} catch {
-					/* a third opener holds it now; the moved holder sees its lock lost */
-				}
-			}
-			fs.unlinkSync(aside);
-		}
-		throw new OutcomeStoreError(
-			"locked",
-			`Could not take the outcome store lock at ${options.dir}.`,
-		);
-	} catch (error) {
-		if (error instanceof OutcomeStoreError) throw error;
-		throw new OutcomeStoreError(
-			"io",
-			`Cannot lock the outcome store: ${errorText(error)}`,
-			{ cause: error },
-		);
-	} finally {
-		try {
-			fs.unlinkSync(mine);
-		} catch {
-			/* never created */
-		}
-	}
-}
-
-function releaseLock(fs: OutcomeStoreFs, dir: string, token: string): void {
-	const lock = join(dir, LOCK_FILE);
-	try {
-		if (parseLock(fs.readFileSync(lock))?.token === token) fs.unlinkSync(lock);
-	} catch {
-		/* already gone */
 	}
 }

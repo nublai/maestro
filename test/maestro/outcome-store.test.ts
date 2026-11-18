@@ -2,13 +2,20 @@ import "../clean-host-env.ts";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import {
+	existsSync,
+	linkSync,
+	lstatSync,
 	mkdtempSync,
+	readdirSync,
 	readFileSync,
 	rmSync,
 	statSync,
+	unlinkSync,
 	writeFileSync,
 } from "node:fs";
-import { hostname, tmpdir } from "node:os";
+import { syncBuiltinESMExports } from "node:module";
+import net, { createServer } from "node:net";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 import {
@@ -19,9 +26,11 @@ import {
 } from "../../maestro/core/outcome-store.ts";
 import {
 	FileOutcomeStore,
+	OUTCOME_LOCK_FILE,
 	openFileOutcomeStore,
 	terminalOutcomeStoreDir,
 } from "../../maestro/runtime/file-outcome-store.ts";
+import { networkFilesystemName } from "../../maestro/runtime/outcome-store-lock.ts";
 import { runParentAcceptCheck } from "../../maestro/runtime/accept-recheck.ts";
 import type { JsonObject } from "../../maestro/core/config/type-guards.ts";
 import { Crash, DurableFs } from "../helpers/durable-fs.ts";
@@ -36,10 +45,12 @@ import {
 } from "../helpers/outcome-store-scenario.ts";
 
 const DIR = "/state/outcomes";
-const dead = { isProcessAlive: () => false, pid: 7, host: "test-host" };
-
-function open(fs: DurableFs, prefix = "a", extra = {}) {
-	return openScenarioStore(DIR, fs, prefix, { ...dead, ...extra });
+function open(
+	fs: DurableFs,
+	prefix = "a",
+	extra: Parameters<typeof openScenarioStore>[3] = {},
+) {
+	return openScenarioStore(DIR, fs, prefix, extra);
 }
 
 function journalLines(fs: DurableFs): string[] {
@@ -176,6 +187,49 @@ describe("FileOutcomeStore journal", () => {
 		);
 	});
 
+	it("deduplicates only identical content: a different verdict, subject or envelope conflicts", async () => {
+		const fs = new DurableFs();
+		const store = await open(fs);
+		const accepted = draft("t", "result", "same summary", {
+			// A generation keeps the dedupe key across owners (a reopen).
+			generation: "g-1",
+			verdict: { verdict: "accepted", checkHash: "sha256:c" },
+			subject: { headSha: "aaa", branch: "agents/t" },
+			envelope: '{"report":"A"}',
+			cancellation: { requestedAt: 5, error: undefined },
+		});
+		const first = await store.commit(accepted);
+		for (const [field, change] of [
+			["verdict", { verdict: { verdict: "rejected", checkHash: "sha256:c" } }],
+			["subject", { subject: { headSha: "bbb", branch: "agents/t" } }],
+			["envelope, envelopeDigest", { envelope: '{"report":"B"}' }],
+			["cancellation", { cancellation: { requestedAt: 6 } }],
+			["facts", { facts: { model: "m" } }],
+			["exitCode", { exitCode: 3 }],
+			["runId", { runId: "another-run" }],
+		] as const)
+			await rejectsWith(
+				store.commit({ ...accepted, ...change }),
+				"conflict",
+				new RegExp(`\\(${first.outcome.deliveryId}; ${field} differ\\)`),
+			);
+		const lines = journalLines(fs).length;
+		// The same content, keys in another order, is the same outcome.
+		const again = await store.commit({
+			...accepted,
+			verdict: { checkHash: "sha256:c", verdict: "accepted" },
+			subject: { branch: "agents/t", headSha: "aaa" },
+		});
+		assert.equal(again.outcome.deliveryId, first.outcome.deliveryId);
+		assert.equal(journalLines(fs).length, lines, "no second record");
+		// Read back from disk, the original still deduplicates identical content.
+		await store.close();
+		const reopened = await open(fs, "b");
+		const replayed = await reopened.commit(accepted);
+		assert.equal(replayed.outcome.deliveryId, first.outcome.deliveryId);
+		await reopened.close();
+	});
+
 	it("bounds outcome text and keeps the digest of the full text", async () => {
 		const store = await open(new DurableFs());
 		const text = "x".repeat(OUTCOME_TEXT_LIMIT + 10);
@@ -295,12 +349,11 @@ describe("FileOutcomeStore journal", () => {
 		await store.commit(draft("t", "result", "x"));
 		await store.close();
 		await rejectsWith(
-			openScenarioStore(DIR, fs, "b", { ...dead, parent: "someone-else" }),
+			openScenarioStore(DIR, fs, "b", { parent: "someone-else" }),
 			"parent",
 		);
 		// The refused open released its lock.
 		const adopted = await openScenarioStore(DIR, fs, "c", {
-			...dead,
 			parent: "someone-else",
 			adopt: true,
 		});
@@ -325,7 +378,9 @@ describe("FileOutcomeStore journal", () => {
 		assert.equal(torn.recovery().outcomes.length, 1);
 		await torn.commit(draft("u", "result", "after the cut"));
 		await torn.close();
-		assert.equal((await open(fs, "c")).recovery().outcomes.length, 2);
+		const both = await open(fs, "c");
+		assert.equal(both.recovery().outcomes.length, 2);
+		await both.close();
 
 		const lines = good.split("\n").filter(Boolean);
 		const damaged = [...lines];
@@ -397,95 +452,65 @@ describe("FileOutcomeStore journal", () => {
 		);
 	});
 
-	it("refuses a second writer and stops a writer whose lock was taken", async () => {
+	it("refuses a second writer and stops a writer whose lock was taken, compaction included", async () => {
 		const fs = new DurableFs();
-		const alive = { isProcessAlive: () => true, pid: 7, host: "test-host" };
-		const store = await openScenarioStore(DIR, fs, "a", alive);
-		await rejectsWith(
-			openScenarioStore(DIR, fs, "b", alive),
-			"locked",
-			/one writer per store/,
-		);
-		await rejectsWith(
-			openScenarioStore(DIR, fs, "c", { ...alive, host: "other-host" }),
-			"locked",
-		);
-		fs.unlinkSync(`${DIR}/writer.lock`);
-		await rejectsWith(store.commit(draft("t", "result", "x")), "locked");
-		await rejectsWith(store.commit(draft("t", "result", "x")), "broken");
-		const fresh = await openScenarioStore(DIR, fs, "d", alive);
+		const store = await open(fs, "a");
+		await rejectsWith(open(fs, "b"), "locked", /one writer per store/);
+		await store.commit(draft("t", "result", "x"));
+		fs.lock.steal(DIR);
+		const lines = journalLines(fs).length;
+		await rejectsWith(store.compact(), "locked");
+		await rejectsWith(store.commit(draft("u", "result", "x")), "broken");
+		await rejectsWith(store.compact(), "broken");
+		assert.equal(journalLines(fs).length, lines, "nothing written");
+		assert.equal(fs.contents(`${DIR}/snapshot.json`), undefined);
+		await store.close();
+		const fresh = await open(new DurableFs(), "d");
 		await fresh.close();
-		assert.equal(fs.contents(`${DIR}/writer.lock`), undefined);
 		await rejectsWith(fresh.commit(draft("t", "result", "x")), "closed");
-	});
-
-	it("a stale lock replaced by another opener mid-recovery is put back, not taken", async () => {
-		const fs = new DurableFs();
-		const stale = await open(fs, "dead");
-		void stale;
-		const lock = `${DIR}/writer.lock`;
-		const fresh = JSON.stringify({
-			pid: 99,
-			host: "test-host",
-			token: "fresh",
-		});
-		fs.hook = (op, phase) => {
-			if (
-				phase !== "before" ||
-				op.op !== "rename" ||
-				!op.path.startsWith(`${lock} ->`)
-			)
-				return;
-			fs.hook = undefined;
-			// Another opener recovered the stale lock first and now holds it.
-			fs.unlinkSync(lock);
-			const fd = fs.openSync(`${lock}.other`, "wx");
-			fs.writeSync(fd, Buffer.from(fresh), 0, Buffer.byteLength(fresh));
-			fs.closeSync(fd);
-			fs.linkSync(`${lock}.other`, lock);
-		};
-		await rejectsWith(
-			openScenarioStore(DIR, fs, "b", {
-				host: "test-host",
-				pid: 7,
-				isProcessAlive: (pid) => pid === 99,
-			}),
-			"locked",
-			/process 99/,
-		);
-		assert.equal(fs.contents(lock)!.toString("utf8"), fresh);
-	});
-
-	it("an unreadable lock stays held (fail closed)", async () => {
-		const fs = new DurableFs();
-		fs.mkdirSync(DIR, { recursive: true, mode: 0o700 });
-		const fd = fs.openSync(`${DIR}/writer.lock`, "wx");
-		fs.writeSync(fd, Buffer.from("{"), 0, 1);
-		fs.closeSync(fd);
-		await rejectsWith(open(fs), "locked", /unreadable lock/);
 	});
 });
 
 describe("FileOutcomeStore crash cuts", () => {
-	async function expectedViews(): Promise<ScenarioView[]> {
-		return runScenario(await open(new DurableFs()));
-	}
-
 	/** A view as a restarted owner sees it: dispatching is already uncertain. */
 	function recovered(views: ScenarioView[], index: number) {
 		return views[Math.min(Math.max(index, 0), views.length - 1)];
 	}
 
-	it("recovers exactly the acknowledged prefix (or the in-flight step) at every operation", async () => {
-		const views = await expectedViews();
+	interface Matrix {
+		cuts: number;
+		ops: number;
+		/** Cuts whose recovered view is neither the acknowledged prefix nor the in-flight step. */
+		lost: string[];
+		outcomes: {
+			interrupted: number;
+			inFlightDurable: number;
+			inFlightLost: number;
+		};
+	}
+
+	/**
+	 * Crashes the shared workload before and after every filesystem operation
+	 * and reopens the crash image (only fsynced bytes and names). This is the
+	 * fsync proof: `fsyncIsNoop` reverts the fsyncs it names, and the cuts must
+	 * then lose acknowledged records.
+	 */
+	async function cutMatrix(
+		fsyncIsNoop: DurableFs["fsyncIsNoop"] = false,
+	): Promise<Matrix> {
+		const views = await runScenario(await open(new DurableFs()));
 		const total = new DurableFs();
 		await runScenario(await open(total));
-		assert.ok(total.ops.length > 60, "the workload covers many operations");
-		let cuts = 0;
-		const outcomes = { interrupted: 0, inFlightDurable: 0, inFlightLost: 0 };
+		const matrix: Matrix = {
+			cuts: 0,
+			ops: total.ops.length,
+			lost: [],
+			outcomes: { interrupted: 0, inFlightDurable: 0, inFlightLost: 0 },
+		};
 		for (let index = 0; index < total.ops.length; index++)
 			for (const phase of ["before", "after"] as const) {
 				const fs = new DurableFs();
+				fs.fsyncIsNoop = fsyncIsNoop;
 				fs.hook = (op, at) => {
 					if (op.index === index && at === phase) throw new Crash(op.op);
 				};
@@ -500,33 +525,23 @@ describe("FileOutcomeStore crash cuts", () => {
 					if (!(error instanceof Crash) && !isOutcomeStoreError(error))
 						throw error;
 				}
-				cuts++;
+				matrix.cuts++;
 				const label = `${phase} ${total.ops[index]!.op} #${index} (acked ${acked})`;
 				const image = fs.crashImage();
 				const reopened = await open(image, "r").catch((error: Error) =>
 					assert.fail(`${label}: reopen failed: ${error.message}`),
 				);
-				const actual = view(reopened);
-				const options = [recovered(views, acked), recovered(views, acked + 1)];
-				if (acked < SCENARIO.length) {
-					outcomes.interrupted++;
-					const same =
-						JSON.stringify(options[0]) === JSON.stringify(options[1]);
-					if (!same && JSON.stringify(actual) === JSON.stringify(options[1]))
-						outcomes.inFlightDurable++;
-					else if (!same) outcomes.inFlightLost++;
-				}
-				assert.ok(
-					options.some((option) => {
-						try {
-							assert.deepEqual(actual, option);
-							return true;
-						} catch {
-							return false;
-						}
-					}),
-					`${label}: recovered ${JSON.stringify(actual)}`,
+				const actual = JSON.stringify(view(reopened));
+				const options = [acked, acked + 1].map((step) =>
+					JSON.stringify(recovered(views, step)),
 				);
+				if (acked < SCENARIO.length) {
+					matrix.outcomes.interrupted++;
+					if (options[0] !== options[1] && actual === options[1])
+						matrix.outcomes.inFlightDurable++;
+					else if (options[0] !== options[1]) matrix.outcomes.inFlightLost++;
+				}
+				if (!options.includes(actual)) matrix.lost.push(`${label}: ${actual}`);
 				// The recovered journal accepts new writes and replays them.
 				await reopened.commit(draft("after", "result", "post-crash"));
 				await reopened.close();
@@ -537,24 +552,39 @@ describe("FileOutcomeStore crash cuts", () => {
 					1,
 					label,
 				);
+				await again.close();
 			}
-		assert.equal(cuts, total.ops.length * 2);
+		return matrix;
+	}
+
+	it("recovers exactly the acknowledged prefix (or the in-flight step) at every operation", async () => {
+		const matrix = await cutMatrix();
+		assert.ok(matrix.ops > 50, "the workload covers many operations");
+		assert.deepEqual(matrix.lost, []);
+		assert.equal(matrix.cuts, matrix.ops * 2);
 		// Both sides of each fsync were cut: some in-flight writes survived, some not.
-		assert.ok(
-			outcomes.interrupted > total.ops.length,
-			JSON.stringify(outcomes),
-		);
-		assert.ok(outcomes.inFlightDurable > 0, JSON.stringify(outcomes));
-		assert.ok(outcomes.inFlightLost > 0, JSON.stringify(outcomes));
+		const outcomes = JSON.stringify(matrix.outcomes);
+		assert.ok(matrix.outcomes.interrupted > matrix.ops, outcomes);
+		assert.ok(matrix.outcomes.inFlightDurable > 0, outcomes);
+		assert.ok(matrix.outcomes.inFlightLost > 0, outcomes);
 	});
 
-	it("reversion: without fsync an acknowledged write is lost (the cuts above would fail)", async () => {
-		const views = await expectedViews();
-		const fs = new DurableFs();
-		fs.fsyncIsNoop = true;
-		await runScenario(await open(fs));
-		const reopened = await open(fs.crashImage(), "r");
-		assert.notDeepEqual(view(reopened), views.at(-1));
+	it("reversion: without fsync the same cuts lose acknowledged records", async () => {
+		const matrix = await cutMatrix(true);
+		assert.ok(
+			matrix.lost.length > matrix.cuts / 2,
+			`${matrix.lost.length} of ${matrix.cuts}`,
+		);
+	});
+
+	it("reversion: without the parent directory fsync a new store's directory is lost", async () => {
+		// Only the fsync of the store directory's parent is removed.
+		const matrix = await cutMatrix((path) => path === "/state");
+		assert.ok(matrix.lost.length > 0, "a cut loses the whole new directory");
+		assert.ok(
+			matrix.lost.every((cut) => cut.includes('"outcomes":[]')),
+			matrix.lost[0],
+		);
 	});
 
 	it("covers every scenario step", () => {
@@ -577,7 +607,7 @@ describe("FileOutcomeStore on disk", () => {
 		await store.compact();
 		if (process.platform !== "win32") {
 			assert.equal(statSync(dir).mode & 0o777, 0o700);
-			for (const name of ["journal.jsonl", "snapshot.json", "writer.lock"])
+			for (const name of ["journal.jsonl", "snapshot.json", OUTCOME_LOCK_FILE])
 				assert.equal(statSync(join(dir, name)).mode & 0o777, 0o600, name);
 		}
 		await assert.rejects(
@@ -588,31 +618,154 @@ describe("FileOutcomeStore on disk", () => {
 		const reopened = await FileOutcomeStore.open({ dir, parent: "p" });
 		assert.equal(reopened.recovery().outcomes.length, 1);
 		await reopened.close();
-		// A stale lock from a process that no longer exists here is recovered.
-		const stale = { pid: 2 ** 22 + 17, host: hostname(), token: "stale" };
-		writeFileSync(join(dir, "writer.lock"), JSON.stringify(stale));
-		const recovered = await FileOutcomeStore.open({
-			dir,
-			parent: "p",
-			isProcessAlive: (pid) => pid !== stale.pid,
-		});
-		assert.equal(recovered.recovery().outcomes.length, 1);
+	});
+
+	/** A lock socket whose holder is gone: linked into place, then closed. */
+	async function staleSocket(dir: string): Promise<void> {
+		const server = createServer();
+		const bound = join(dir, "bound.sock");
+		await new Promise<void>((resolve) => server.listen(bound, resolve));
+		linkSync(bound, join(dir, OUTCOME_LOCK_FILE));
+		await new Promise((resolve) => server.close(resolve));
+	}
+
+	it("takes over a lock socket that refuses connections, and leaves anything else alone", async (t) => {
+		const dir = mkdtempSync(join(tmpdir(), "maestro-outcome-lock-"));
+		t.after(() => rmSync(dir, { recursive: true, force: true }));
+		await staleSocket(dir);
+		const recovered = await FileOutcomeStore.open({ dir, parent: "p" });
+		assert.ok(lstatSync(join(dir, OUTCOME_LOCK_FILE)).isSocket());
+		await recovered.commit(draft("t", "result", "x"));
 		await recovered.close();
-		// A lock from another host is never judged stale here.
-		writeFileSync(
-			join(dir, "writer.lock"),
-			JSON.stringify({ ...stale, host: "another-host" }),
-		);
+		assert.equal(existsSync(join(dir, OUTCOME_LOCK_FILE)), false, "released");
+		// Only a socket can prove its holder gone: a file (an older lock) stays.
+		writeFileSync(join(dir, OUTCOME_LOCK_FILE), '{"pid":1}');
 		await assert.rejects(
-			FileOutcomeStore.open({ dir, parent: "p", isProcessAlive: () => false }),
-			/another writer/,
+			FileOutcomeStore.open({ dir, parent: "p" }),
+			(error: Error) =>
+				isOutcomeStoreError(error, "locked") &&
+				/not a lock socket/.test(error.message),
 		);
-		const lock = JSON.parse(readFileSync(join(dir, "writer.lock"), "utf8"));
 		assert.equal(
-			lock.host,
-			"another-host",
-			"a foreign-host lock is left alone",
+			readFileSync(join(dir, OUTCOME_LOCK_FILE), "utf8"),
+			'{"pid":1}',
 		);
+		assert.deepEqual(
+			readdirSync(dir).filter((name) => name.startsWith(OUTCOME_LOCK_FILE)),
+			[OUTCOME_LOCK_FILE],
+			"the refused open left no socket behind",
+		);
+	});
+
+	it("a live lock published while a stale one is being recovered is put back, not taken", async (t) => {
+		const dir = mkdtempSync(join(tmpdir(), "maestro-outcome-lock-"));
+		const live = createServer((socket) => socket.destroy());
+		t.after(async () => {
+			await new Promise((resolve) => live.close(resolve));
+			rmSync(dir, { recursive: true, force: true });
+		});
+		await new Promise<void>((resolve) =>
+			live.listen(join(dir, "live.sock"), resolve),
+		);
+		await staleSocket(dir);
+		const lock = join(dir, OUTCOME_LOCK_FILE);
+		const connect = net.connect;
+		let swapped = false;
+		// SAFETY: the wrapper forwards every argument to the original connect.
+		net.connect = ((...args: Parameters<typeof net.connect>) => {
+			const socket = connect(...args);
+			if (!swapped && args[0] === lock) {
+				// The stale lock was probed (refused); another opener now publishes
+				// its live lock before this one moves the stale one aside.
+				swapped = true;
+				unlinkSync(lock);
+				linkSync(join(dir, "live.sock"), lock);
+			}
+			return socket;
+		}) as typeof net.connect;
+		syncBuiltinESMExports();
+		try {
+			await rejectsWith(
+				FileOutcomeStore.open({ dir, parent: "p" }),
+				"locked",
+				/one writer per store/,
+			);
+		} finally {
+			net.connect = connect;
+			syncBuiltinESMExports();
+		}
+		assert.equal(swapped, true);
+		assert.equal(
+			lstatSync(lock).ino,
+			lstatSync(join(dir, "live.sock")).ino,
+			"the live holder keeps its lock",
+		);
+		assert.deepEqual(
+			readdirSync(dir)
+				.filter((name) => name.startsWith(OUTCOME_LOCK_FILE))
+				.sort(),
+			[OUTCOME_LOCK_FILE],
+		);
+	});
+
+	it("a writer whose lock socket was removed or replaced stops, compaction included", async (t) => {
+		const dir = mkdtempSync(join(tmpdir(), "maestro-outcome-lock-"));
+		t.after(() => rmSync(dir, { recursive: true, force: true }));
+		for (const loss of ["removed", "replaced"] as const) {
+			const store = await FileOutcomeStore.open({ dir, parent: "p" });
+			await store.commit(draft(loss, "result", "x"));
+			unlinkSync(join(dir, OUTCOME_LOCK_FILE));
+			if (loss === "replaced") await staleSocket(dir);
+			const journal = readFileSync(join(dir, "journal.jsonl"));
+			await rejectsWith(store.compact(), "locked");
+			await rejectsWith(store.commit(draft("u", "result", "x")), "broken");
+			assert.deepEqual(readFileSync(join(dir, "journal.jsonl")), journal);
+			await store.close();
+			// The stopped writer's release leaves another holder's name alone.
+			assert.equal(
+				existsSync(join(dir, OUTCOME_LOCK_FILE)),
+				loss === "replaced",
+				loss,
+			);
+		}
+	});
+
+	it("a store path too long for a socket locks through a private short alias", async (t) => {
+		const root = mkdtempSync(join(tmpdir(), "maestro-outcome-lock-"));
+		t.after(() => rmSync(root, { recursive: true, force: true }));
+		const dir = join(root, "d".repeat(60), "e".repeat(60));
+		const store = await FileOutcomeStore.open({ dir, parent: "p" });
+		assert.ok(lstatSync(join(dir, OUTCOME_LOCK_FILE)).isSocket());
+		await assert.rejects(
+			FileOutcomeStore.open({ dir, parent: "p" }),
+			/one writer per store/,
+		);
+		await store.close();
+		const again = await FileOutcomeStore.open({ dir, parent: "p" });
+		await again.close();
+		assert.deepEqual(
+			readdirSync(tmpdir()).filter((name) => name.startsWith("maestro-lock-")),
+			[],
+			"no alias is left behind",
+		);
+		// A temporary directory too long for an alias falls back to /tmp.
+		const previous = process.env.TMPDIR;
+		process.env.TMPDIR = dir;
+		try {
+			const viaTmp = await FileOutcomeStore.open({ dir, parent: "p" });
+			await viaTmp.close();
+		} finally {
+			if (previous === undefined) delete process.env.TMPDIR;
+			else process.env.TMPDIR = previous;
+		}
+	});
+
+	it("names the network filesystems a lock socket cannot vouch for", () => {
+		assert.equal(networkFilesystemName(0x6969), "NFS");
+		assert.equal(networkFilesystemName(0xff534d42), "CIFS");
+		assert.equal(networkFilesystemName(0xfe534d42), "SMB2");
+		assert.equal(networkFilesystemName(0xef53), undefined, "ext4 is local");
+		assert.equal(networkFilesystemName(0x58465342), undefined, "XFS is local");
 	});
 });
 

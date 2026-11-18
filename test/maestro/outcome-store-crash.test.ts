@@ -1,6 +1,6 @@
 import "../clean-host-env.ts";
 import assert from "node:assert/strict";
-import { spawn, type ChildProcess } from "node:child_process";
+import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -20,13 +20,19 @@ import {
 const CHILD = fileURLToPath(
 	new URL("../helpers/outcome-store-child.ts", import.meta.url),
 );
-/** Durability-relevant operations: every append, lock and compaction step. */
+/**
+ * Every append, directory and compaction step. These cuts kill the process,
+ * not the machine: the page cache survives a SIGKILL, so they prove a killed
+ * writer leaves a readable store and a lock the next opener takes over, never
+ * that an fsync happened (with fsync removed they still pass). The fsync proof
+ * is the simulated power-loss cuts in outcome-store.test.ts.
+ */
 const CUT_OPS = new Set([
+	"mkdir",
+	"open",
 	"write",
 	"fsync",
 	"rename",
-	"link",
-	"unlink",
 	"ftruncate",
 ]);
 
@@ -44,13 +50,37 @@ function child(
 		proc: ChildProcess,
 	) => void,
 ): Promise<ChildRun> {
+	return spawnChild([process.execPath], args, onLine);
+}
+
+/** The child under `prefix` (for example in another PID namespace). */
+function spawnChild(
+	prefix: string[],
+	args: string[],
+	onLine?: (
+		line: string,
+		stdin: NodeJS.WritableStream,
+		proc: ChildProcess,
+	) => void,
+): Promise<ChildRun> {
 	return new Promise((resolve, reject) => {
 		const proc = spawn(
-			process.execPath,
-			["--experimental-strip-types", "--no-warnings", CHILD, ...args],
+			prefix[0]!,
+			[
+				...prefix.slice(1),
+				...(prefix.length > 1 ? [process.execPath] : []),
+				"--experimental-strip-types",
+				"--no-warnings",
+				CHILD,
+				...args,
+			],
 			{
 				// Synthetic environment: nothing from the parent's shell.
-				env: { PATH: process.env.PATH, HOME: process.env.HOME },
+				env: {
+					PATH: process.env.PATH,
+					HOME: process.env.HOME,
+					TMPDIR: tmpdir(),
+				},
 				stdio: ["pipe", "pipe", "pipe"],
 			},
 		);
@@ -99,13 +129,11 @@ async function pool<T>(
 }
 
 describe("FileOutcomeStore under SIGKILL", () => {
-	it("recovers the acknowledged prefix after a kill before or after each append, lock and compaction step", async (t) => {
+	it("recovers the acknowledged prefix after a kill before or after each append, directory and compaction step", async (t) => {
 		const root = mkdtempSync(join(tmpdir(), "maestro-outcome-crash-"));
 		t.after(() => rmSync(root, { recursive: true, force: true }));
 		const views: ScenarioView[] = await runScenario(
-			await openScenarioStore("/state", new DurableFs(), "a", {
-				isProcessAlive: () => false,
-			}),
+			await openScenarioStore("/state", new DurableFs(), "a"),
 		);
 		const trace = await child([join(root, "trace"), "trace"]);
 		assert.equal(acked(trace.stdout), SCENARIO.length);
@@ -122,7 +150,7 @@ describe("FileOutcomeStore under SIGKILL", () => {
 				{ ...op, phase: "before" },
 				{ ...op, phase: "after" },
 			]);
-		assert.ok(cuts.length >= 60, `${cuts.length} cuts`);
+		assert.ok(cuts.length >= 50, `${cuts.length} cuts`);
 		assert.ok(
 			ops.some((op) => op.name === "rename"),
 			"compaction is cut too",
@@ -178,6 +206,123 @@ describe("FileOutcomeStore under SIGKILL", () => {
 			else assert.equal(run.signal, "SIGKILL");
 			const next = await openScenarioStore(dir, undefined, "c");
 			await next.close();
+		}
+	});
+
+	/** Runs `work` while a child (under `prefix`) holds `dir`, then releases it. */
+	async function whileHeld(
+		dir: string,
+		work: () => Promise<void>,
+		prefix: string[] = [process.execPath],
+	): Promise<void> {
+		let failure: Error | undefined;
+		await spawnChild(prefix, [dir, "hold"], (line, stdin) => {
+			if (line !== "ready") return;
+			void work()
+				.catch((error: Error) => {
+					failure = error;
+				})
+				.finally(() => stdin.end());
+		});
+		if (failure) throw failure;
+	}
+
+	it("a live holder whose PID this process cannot see (another PID namespace, simulated) is still refused", async (t) => {
+		const root = mkdtempSync(join(tmpdir(), "maestro-outcome-ns-"));
+		t.after(() => rmSync(root, { recursive: true, force: true }));
+		const kill = process.kill;
+		// From here every process looks gone, as from another PID namespace.
+		// SAFETY: the replacement takes kill's (pid, signal) and forwards every
+		// real signal to the original; only the existence probe (0) changes.
+		process.kill = ((pid: number, signal?: string | number) => {
+			if (signal === 0 || signal === undefined)
+				throw Object.assign(new Error("kill ESRCH"), { code: "ESRCH" });
+			return kill.call(process, pid, signal);
+		}) as typeof process.kill;
+		try {
+			await whileHeld(root, async () => {
+				await assert.rejects(
+					openScenarioStore(root, undefined, "thief"),
+					(error: Error) =>
+						isOutcomeStoreError(error, "locked") &&
+						/one writer per store/.test(error.message),
+				);
+			});
+		} finally {
+			process.kill = kill;
+		}
+		// The holder released on exit; the lock is free again.
+		await (await openScenarioStore(root, undefined, "next")).close();
+	});
+
+	// A new PID namespace whose child is not its PID 1: a few hundred PIDs are
+	// used up first, so the holder's PID names no process (or another one) here,
+	// as a PID-file lock would misread it.
+	const unshare = [
+		"unshare",
+		"--user",
+		"--pid",
+		"--fork",
+		"sh",
+		"-c",
+		'i=0; while [ $i -lt 300 ]; do /bin/true; i=$((i+1)); done; "$0" "$@"',
+	];
+	const namespaces =
+		process.platform === "linux" &&
+		spawnSync("unshare", ["--user", "--pid", "--fork", "true"]).status === 0;
+
+	it("one writer per store across real PID namespaces, in both directions", {
+		skip: namespaces ? false : "unprivileged PID namespaces unavailable",
+	}, async (t) => {
+		const root = mkdtempSync(join(tmpdir(), "maestro-outcome-ns-"));
+		t.after(() => rmSync(root, { recursive: true, force: true }));
+		// The holder runs in a new PID namespace; this process contends.
+		await whileHeld(
+			join(root, "inner"),
+			async () => {
+				await assert.rejects(
+					openScenarioStore(join(root, "inner"), undefined, "outer"),
+					/one writer per store/,
+				);
+			},
+			unshare,
+		);
+		// This process holds; a contender in a new PID namespace is refused.
+		const held = await openScenarioStore(join(root, "outer"), undefined, "h");
+		const run = await spawnChild(unshare, [join(root, "outer"), "try"]);
+		assert.match(run.stdout, /^locked locked$/m);
+		await held.close();
+	});
+
+	it("openers racing for a stale lock: exactly one wins", async (t) => {
+		const root = mkdtempSync(join(tmpdir(), "maestro-outcome-race-"));
+		t.after(() => rmSync(root, { recursive: true, force: true }));
+		for (let round = 0; round < 3; round++) {
+			const dir = join(root, String(round));
+			// A holder killed outright leaves a stale lock socket behind.
+			const killed = await child([dir, "hold"], (line, _stdin, proc) => {
+				if (line === "ready") proc.kill("SIGKILL");
+			});
+			assert.equal(killed.signal, "SIGKILL");
+			const contenders = 6;
+			let ready = 0;
+			const holders: NodeJS.WritableStream[] = [];
+			const runs = await new Promise<ChildRun[]>((resolve, reject) => {
+				const all = Array.from({ length: contenders }, () =>
+					child([dir, "try"], (line, stdin) => {
+						if (line === "ready") holders.push(stdin);
+						if (line === "ready" || line.startsWith("locked ")) ready++;
+						// Every contender has decided: let the winners go.
+						if (ready === contenders) for (const out of holders) out.end();
+					}),
+				);
+				Promise.all(all).then(resolve, reject);
+			});
+			const winners = runs.filter((run) => /^ready$/m.test(run.stdout));
+			assert.equal(winners.length, 1, runs.map((run) => run.stdout).join("|"));
+			for (const run of runs)
+				if (!/^ready$/m.test(run.stdout))
+					assert.match(run.stdout, /^locked locked$/m);
 		}
 	});
 });
