@@ -764,6 +764,11 @@ describe("FileOutcomeStore on disk", () => {
 		assert.equal(networkFilesystemName(0x6969), "NFS");
 		assert.equal(networkFilesystemName(0xff534d42), "CIFS");
 		assert.equal(networkFilesystemName(0xfe534d42), "SMB2");
+		// sshfs, rclone, GlusterFS and virtiofs all report FUSE.
+		assert.equal(networkFilesystemName(0x65735546), "FUSE");
+		assert.equal(networkFilesystemName(0x7461636f), "OCFS2");
+		assert.equal(networkFilesystemName(0x6b414653), "kAFS");
+		assert.equal(networkFilesystemName(0x564c), "NCP");
 		assert.equal(networkFilesystemName(0xef53), undefined, "ext4 is local");
 		assert.equal(networkFilesystemName(0x58465342), undefined, "XFS is local");
 	});

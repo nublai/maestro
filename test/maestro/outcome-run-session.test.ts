@@ -58,7 +58,11 @@ async function recovered(fs: DurableFs): Promise<OutcomeRecovery> {
 interface FixtureOptions {
 	store?: OutcomeStore;
 	onSettled?: (result: RunResult) => Promise<void | DeliveryDecision>;
-	finalize?: (result: RunResult, control: FinalizeControl) => Promise<void>;
+	/** Returns a replacement result, as Pi's finalizer may, or nothing. */
+	finalize?: (
+		result: RunResult,
+		control: FinalizeControl,
+	) => Promise<void | RunResult>;
 	beforeSpawn?: () => Promise<void>;
 }
 
@@ -90,8 +94,7 @@ async function fixture(options: FixtureOptions = {}) {
 				},
 				async finalize(result, _task, control) {
 					finalized++;
-					await options.finalize?.(result, control);
-					return result;
+					return (await options.finalize?.(result, control)) ?? result;
 				},
 			};
 		},
@@ -545,6 +548,131 @@ describe("RunSession with an outcome store", () => {
 			recovery.final.map((entry) => entry.state),
 			["suppressed"],
 		);
+	});
+
+	/** A finalizer that signals its start, then waits until released. */
+	function gatedFinalizer(replace?: (result: RunResult) => RunResult) {
+		let release!: () => void;
+		const gate = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		let finalizing!: () => void;
+		const started = new Promise<void>((resolve) => {
+			finalizing = resolve;
+		});
+		const finalize = async (result: RunResult) => {
+			finalizing();
+			await gate;
+			return replace?.(result);
+		};
+		return { finalize, started, release };
+	}
+
+	/** The completion watcher itself fails: a real failed result, no evidence. */
+	function failWatcher(adapter: FakeHarnessAdapter) {
+		adapter.awaitCompletion = () =>
+			Promise.reject(new Error("completion watcher I/O failure (EIO)"));
+	}
+
+	// Pi normalizes a transcript-read failure after real completion evidence.
+	const normalized = (result: RunResult): RunResult => ({
+		handle: result.handle,
+		outcome: "failed",
+		error: "transcript I/O failure",
+		durationMs: result.durationMs,
+	});
+
+	for (const [name, replace, watcherFails] of [
+		["a failed completion wait", undefined, true],
+		["a result normalized without evidence", normalized, false],
+	] as const) {
+		it(`suppression while finalizing ${name} saves it withdrawn, never erased`, async () => {
+			const gated = gatedFinalizer(replace);
+			const f = await fixture({ finalize: gated.finalize });
+			if (watcherFails) failWatcher(f.adapter);
+			const { result } = await run(f);
+			await gated.started;
+			f.session.suppress("logical");
+			gated.release();
+			assert.equal((await result).outcome, "failed");
+			assert.equal(f.settled.length, 0, "nothing delivered");
+			assert.equal(f.session.getHandle("logical"), undefined, "retired");
+			await tick();
+			const recovery = await recovered(f.fs);
+			assert.deepEqual(recovery.interrupted, []);
+			assert.deepEqual(
+				recovery.final.map((entry) => entry.state),
+				["suppressed"],
+				"the finalized failure is saved and withdrawn",
+			);
+			const journal = f.fs.contents(`${DIR}/journal.jsonl`)!.toString("utf8");
+			assert.match(journal, /"outcome":"failed"/);
+			assert.match(
+				journal,
+				watcherFails
+					? /completion watcher I\/O failure/
+					: /transcript I\/O failure/,
+			);
+			assert.doesNotMatch(journal, /"closed"|"reason":"suppressed"/);
+		});
+
+		it(`suppression while finalizing ${name} keeps its recovery evidence when the commit fails`, async () => {
+			const fs = new DurableFs();
+			const real = await openStore(fs, "k");
+			const failing = delegate(real, {
+				commit: async () => {
+					throw new Error("ENOSPC");
+				},
+			});
+			const gated = gatedFinalizer(replace);
+			const f = await fixture({ store: failing, finalize: gated.finalize });
+			if (watcherFails) failWatcher(f.adapter);
+			const { result } = await run(f);
+			await gated.started;
+			f.session.suppress("logical");
+			gated.release();
+			assert.equal((await result).outcome, "failed");
+			assert.equal(f.settled.length, 0, "nothing delivered");
+			await tick();
+			const recovery = await recovered(fs);
+			assert.deepEqual(recovery.final, []);
+			assert.deepEqual(
+				recovery.interrupted.map((run) => [run.taskId, run.attempts.length]),
+				[["logical", 1]],
+				"the attempt is not closed",
+			);
+		});
+	}
+
+	it("a cancelled run suppressed before its termination is confirmed saves the cancel withdrawn", async () => {
+		const f = await fixture();
+		let killed!: () => void;
+		const killing = new Promise<void>((resolve) => {
+			killed = resolve;
+		});
+		// The kill hangs, so the wait is still open when suppression arrives.
+		f.adapter.kill = () => killing;
+		const t = task();
+		const handle = await f.session.spawn(t);
+		const wait = f.session.supervise(handle, t);
+		const cancelled = f.session.cancel(t.id);
+		await tick();
+		f.session.suppress(t.id);
+		const result = await wait;
+		killed();
+		await cancelled;
+		assert.equal(result.outcome, "killed");
+		assert.ok(result.cancellation, "the operator's cancel is the result");
+		assert.equal(f.settled.length, 0, "nothing delivered");
+		await tick();
+		const recovery = await recovered(f.fs);
+		assert.deepEqual(recovery.interrupted, []);
+		assert.deepEqual(
+			recovery.final.map((entry) => entry.state),
+			["suppressed"],
+		);
+		const journal = f.fs.contents(`${DIR}/journal.jsonl`)!.toString("utf8");
+		assert.match(journal, /Cancelled by operator/);
 	});
 
 	it("a run suppressed while its dispatch mark is written is withdrawn, not sent", async () => {

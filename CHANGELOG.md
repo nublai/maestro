@@ -26,12 +26,14 @@ compares the parent messages, ledger and surfaces with and without a store).
   holder refuses an open from any process (another PID namespace included)
   and a dead one is taken over; a writer whose lock was removed or replaced
   stops writing and compacting. The store directory must be on local storage
-  (Linux refuses known network filesystems; Windows is refused). A versioned
-  and checksummed journal fsynced per record; a new store directory is fsynced
-  into its parent before its first record; a torn tail cut on open (earlier
-  damage, a sequence gap or another version refuses), and atomic snapshot
-  compaction (fsynced rename before the journal is truncated). Durability is
-  claimed for POSIX filesystems.
+  (Linux refuses known network, cluster and FUSE filesystems, local FUSE
+  included; Windows is refused). A versioned and checksummed journal fsynced
+  per record; a new store directory is fsynced into its parent before its
+  first record; a bad last line cut on open (a torn append, or damage to the
+  last acknowledged record, which is then lost; earlier damage, a sequence
+  gap or another version refuses), and atomic snapshot compaction (fsynced
+  rename before the journal is truncated). Durability is claimed for POSIX
+  filesystems.
   Directory 0700, files 0600. A store belongs to one parent; another parent
   must adopt it explicitly. On open, a delivery left `dispatching` becomes
   `uncertain`, and runs with attempts but no outcome are reported interrupted.
@@ -47,11 +49,18 @@ compares the parent messages, ledger and surfaces with and without a store).
   commit keeps the run owned, undelivered and its surfaces retained; the next
   `supervise` retries the commit, never the check. A check runs only after its
   subject is durable: a failed check-start record stops it. Suppression
-  (shutdown) of a finalized result, during its commit or its dispatch mark
-  included, commits it withdrawn (`suppressed`) and sends nothing; only a run
-  abandoned before any result closes its attempts, while interrupted
-  verification, a failed finalization or a result that could not be saved
-  leave the run open as recovery evidence. New hook
+  (shutdown) sends nothing. A finalized result, during its commit or its
+  dispatch mark included, is committed and then withdrawn (`suppressed`);
+  that includes a failure without completion evidence, such as a failed
+  completion wait or a result the finalizer normalized to a failure. The
+  withdrawal record is best effort: if it is lost, the committed outcome
+  recovers as pending, or `uncertain` after its dispatch mark. A run's
+  attempts are closed without an outcome only when it ends with no result:
+  suppression ended its completion wait before it observed one (a recorded
+  cancel is a result and is committed, withdrawn), it was suppressed before
+  supervision, or it never launched. Interrupted verification, a failed
+  finalization or a result that could not be saved leave the run open as
+  recovery evidence. New hook
   `describeOutcome`; Pi supplies the summary or help text, verdict, worktree
   subject and runtime facts. A reload must keep the live owner's store.
 - Not yet: worker parent admission, receipts and recovery delivery (P3-9).

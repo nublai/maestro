@@ -18,8 +18,9 @@
  * The store directory must be on local storage. A socket on a network
  * filesystem belongs to the kernel of the machine that bound it, so another
  * machine would see it refused and take it over. Linux opens on a known
- * network filesystem are refused; on other systems this is documented, not
- * detected. Windows has no filesystem-bound sockets here and is refused.
+ * network, cluster or FUSE filesystem are refused; on other systems, and for
+ * types the list does not name, this is documented, not detected. Windows has
+ * no filesystem-bound sockets here and is refused.
  */
 import { randomBytes } from "node:crypto";
 import * as nodeFs from "node:fs";
@@ -46,8 +47,12 @@ const PROBE_TIMEOUT_MS = 2_000;
 const RETRIES = 8;
 
 /**
- * `statfs` types of network and cluster filesystems (Linux `f_type`), where a
- * socket file cannot prove a holder on another machine is alive.
+ * `statfs` types of network, cluster and userspace filesystems (Linux
+ * `f_type`, from `linux/magic.h`), where a socket file cannot prove a holder
+ * on another machine is alive. FUSE is refused as a whole: sshfs, rclone,
+ * GlusterFS, s3fs and virtiofs all report it, and `statfs` cannot tell those
+ * from a local FUSE filesystem (gocryptfs, encfs), which is refused too.
+ * Out-of-tree types (BeeGFS, OrangeFS and the like) are not listed.
  */
 const NETWORK_FILESYSTEMS = new Map<number, string>([
 	[0x6969, "NFS"],
@@ -61,9 +66,13 @@ const NETWORK_FILESYSTEMS = new Map<number, string>([
 	[0x0bd00bd0, "Lustre"],
 	[0x01161970, "GFS2"],
 	[0x47504653, "GPFS"],
+	[0x65735546, "FUSE"],
+	[0x7461636f, "OCFS2"],
+	[0x6b414653, "kAFS"],
+	[0x564c, "NCP"],
 ]);
 
-/** The network filesystem a Linux `statfs` type names, if any. */
+/** The network, cluster or FUSE filesystem a Linux `statfs` type names. */
 export function networkFilesystemName(type: number): string | undefined {
 	return NETWORK_FILESYSTEMS.get(type);
 }
@@ -209,7 +218,7 @@ function refuseNetworkFilesystem(dir: string): void {
 	if (name)
 		unsafe(
 			dir,
-			`it is on a ${name} network filesystem; the store directory must be on local storage`,
+			`it is on a ${name} filesystem (network, cluster or FUSE); the store directory must be on local storage`,
 		);
 }
 

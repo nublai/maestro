@@ -14,8 +14,13 @@
  *   line is `{"v":1,"seq":N,"sum":"<sha256>","rec":{...}}`; the checksum covers
  *   the sequence and the exact record text.
  *
- * Recovery: an incomplete or invalid last line is a torn append that never
- * resolved, so it is cut off. Any other invalid line, a sequence gap or an
+ * Recovery: an incomplete last line, or an invalid last complete line, is cut
+ * off. Usually that is a torn append that never resolved (a crash inside the
+ * write, or a multi-sector write whose newline persisted before its earlier
+ * bytes and before `fsync` returned). The checksum cannot tell that from
+ * damage to the last acknowledged record (bit rot), which the cut loses. This
+ * is an availability choice: refusing every bad last line would also wedge a
+ * legitimate restart after a crash. Any other invalid line, a sequence gap or an
  * unknown version refuses the open: nothing is guessed. Records at or below
  * the snapshot's sequence (a crash during compaction) are skipped.
  *
@@ -511,7 +516,8 @@ export class FileOutcomeStore implements OutcomeStore {
 			if (existing === undefined) syncParents(fs, options.dir, created);
 			journalFd = fs.openSync(journalPath, "a", 0o600);
 			if (size < journal.length) {
-				// The cut tail never resolved its append; nothing durable is lost.
+				// Usually an append that never resolved; a damaged last acknowledged
+				// record is cut too (see Recovery above).
 				fs.ftruncateSync(journalFd, size);
 				fs.fsyncSync(journalFd);
 			}
@@ -976,7 +982,8 @@ function replay(journal: Buffer, snapshotSeq: number, model: Model): Replayed {
 		const seq = match ? Number(match[2]) : NaN;
 		const valid = !!match && checksum(seq, match[4]) === match[3];
 		if (!valid) {
-			// Only the final line can be a torn append; anything earlier is damage.
+			// Only the final line can be a torn append, so only it is cut (see
+			// Recovery above); anything earlier is damage and refuses the open.
 			if (index === complete.length - 1) break;
 			corrupt(`Outcome journal record ${index + 1} is damaged.`);
 		}

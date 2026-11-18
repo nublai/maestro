@@ -263,6 +263,12 @@ interface RunEntry {
 	 * a check started without a committed verdict, or finalization failed.
 	 */
 	interrupted?: boolean;
+	/**
+	 * Suppression ended the completion wait before it produced any result.
+	 * Set only there, never inferred from a result's shape: a finalized
+	 * failure without evidence is a real result and is saved, withdrawn.
+	 */
+	abandoned?: boolean;
 }
 
 const ABORT_MESSAGE = "Aborted while waiting for subagent to finish";
@@ -701,11 +707,6 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 			);
 	}
 
-	/** Suppression aborted the wait: no result exists, only the abandonment. */
-	function abandoned(result: RunResult): boolean {
-		return !result.evidence && !result.cancellation;
-	}
-
 	async function deliverRecorded(
 		outcomes: OutcomeStore,
 		entry: RunEntry,
@@ -713,9 +714,11 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 	): Promise<RunResult> {
 		if (entry.suppressed) {
 			// Nothing is delivered for a suppressed run, as without a store. A
-			// finalized result is still saved (withdrawn) before its run retires.
+			// finalized result, a failure without evidence included, is still saved
+			// (withdrawn) before its run retires; one whose save fails stays open.
+			// Only a wait suppression abandoned before any result closes its run.
 			try {
-				if (entry.unrecorded || !abandoned(result))
+				if (!entry.abandoned)
 					await withdraw(outcomes, entry, result).catch(() => {});
 				release(entry, result);
 				return result;
@@ -830,6 +833,8 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 				entry.uncertainRetryDelayMs = UNCERTAIN_RETRY_INITIAL_MS;
 				result = evidenceResult(owner.handle, evidence);
 			} catch (error) {
+				// The wait ended after suppression: no result exists, only the abandonment.
+				const abandoned = entry.suppressed;
 				if (
 					entry.cancel &&
 					entry.cancel.termination !== "confirmed" &&
@@ -851,6 +856,8 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 					}
 				}
 				result = rejectedResult(owner.handle, error);
+				// A recorded cancel still settles as the cancelled result below.
+				if (abandoned && !entry.cancel) entry.abandoned = true;
 			}
 			// Settle point: intent recorded before this synchronous check wins, and a
 			// natural result that cannot start a fallback makes later cancels too late.
