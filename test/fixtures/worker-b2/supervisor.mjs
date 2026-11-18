@@ -298,6 +298,20 @@ const ops = {
 	blockStop: async ({ workerId }) => {
 		child(workerId).host.stop = async () => false;
 	},
+	/**
+	 * The child's next stop ends it without the stop observing that, as when
+	 * its leader's last thread is still exiting at the supervisor's check: B2
+	 * reports that stop `outcome_unknown`. The stop after observes the end.
+	 */
+	unobserveNextStop: async ({ workerId }) => {
+		const host = child(workerId).host;
+		const stop = host.stop.bind(host);
+		host.stop = async () => {
+			host.stop = stop;
+			await stop();
+			return false;
+		};
+	},
 	uncertainNextLaunch: async () => {
 		uncertainNext = true;
 	},

@@ -18,6 +18,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 import { ClientFailure, type Receipt } from "@nublai/pi-worker-client";
+import type {
+	ExecHandle,
+	ExecStopReport,
+} from "../../maestro/core/exec-provider.ts";
 import { isAcquisitionUncertainError } from "../../maestro/core/surface-provider.ts";
 import { createRunSession } from "../../maestro/runtime/run-session.ts";
 import { encodeResultClaim } from "../../maestro/adapters/worker/fd-report.ts";
@@ -90,6 +94,43 @@ function failStoreAfter(
 		return reply;
 	}) as typeof client.call;
 	return { state, restore };
+}
+
+/** A stop whose child B2 did not observe ending: `outcome_unknown`, the worker owned. */
+function unobservedStop(report: ExecStopReport): boolean {
+	return (
+		report.termination === "unconfirmed" &&
+		report.request === "unknown" &&
+		report.error instanceof WorkerCommandUncertain &&
+		/ stop not confirmed \(outcome_unknown\)/.test(report.error.message)
+	);
+}
+
+/**
+ * Stops and asserts that B2 confirmed. B2 confirms a stop only once the
+ * child's leader is proven gone, and under load a leader that is a zombie with
+ * a thread still exiting is not: that stop is `outcome_unknown` and the worker
+ * stays owned. Only such a stop is followed by another, as an owner may send
+ * one, at most twice. The later stop confirms, either sending its own command
+ * or finding that B2 has meanwhile observed the child's exit (`not-sent`).
+ * `stops` is the outcome each stop command recorded, in order.
+ */
+async function stopConfirmed(
+	provider: ReturnType<typeof composeProvider>["provider"],
+	handle: ExecHandle,
+) {
+	let unobserved = 0;
+	let report = await provider.stop(handle);
+	while (unobserved < 2 && unobservedStop(report)) {
+		unobserved++;
+		report = await provider.stop(handle);
+	}
+	if (unobserved === 0)
+		assert.deepEqual(report, { request: "sent", termination: "confirmed" });
+	else assert.equal(report.termination, "confirmed");
+	const stops = Array.from({ length: unobserved }, () => "unknown");
+	if (report.request === "sent") stops.push("observed");
+	return { stops };
 }
 
 async function withFixture(
@@ -210,10 +251,7 @@ describe("worker provider over real B2: invariant 4a (kept; P3-10 owns the hando
 		withFixture(async ({ fixture, composed, session }) => {
 			const { provider } = composed;
 			const launch = await provider.launch(freshRequest(session));
-			assert.deepEqual(await provider.stop(launch.handle), {
-				request: "sent",
-				termination: "confirmed",
-			});
+			await stopConfirmed(provider, launch.handle);
 			const parent = await fixture.row(fixture.started.parentWorkerId);
 			assert.ok(parent.fence, "the worker fenced the parent");
 			await assert.rejects(
@@ -276,10 +314,7 @@ describe("worker provider over real B2: commands and uncertainty", () => {
 			const launch = await provider.launch(freshRequest(session));
 			await provider.prompt(launch.handle, { id: "input-1", text: "more" });
 			await provider.interrupt(launch.handle);
-			assert.deepEqual(await provider.stop(launch.handle), {
-				request: "sent",
-				termination: "confirmed",
-			});
+			const { stops } = await stopConfirmed(provider, launch.handle);
 			const manifest = provider.manifest(launch.handle);
 			assert.ok(manifest);
 			assert.deepEqual(
@@ -289,7 +324,7 @@ describe("worker provider over real B2: commands and uncertainty", () => {
 					["initial-prompt", "observed"],
 					["prompt", "observed"],
 					["interrupt", "observed"],
-					["stop", "observed"],
+					...stops.map((outcome) => ["stop", outcome]),
 				],
 			);
 			for (const command of manifest.commands) {
@@ -301,7 +336,10 @@ describe("worker provider over real B2: commands and uncertainty", () => {
 				assert.equal(receipt.request_hash, command.request_hash);
 				assert.ok(command.recorded_at <= (command.settled_at ?? 0));
 			}
-			assert.equal(new Set(manifest.commands.map((c) => c.command_id)).size, 5);
+			assert.equal(
+				new Set(manifest.commands.map((c) => c.command_id)).size,
+				4 + stops.length,
+			);
 		}));
 
 	it("each mutation's command is on disk before its bytes reach B2", () =>
@@ -435,10 +473,7 @@ describe("worker provider over real B2: a store failure after dispatch", () => {
 			);
 			assert.equal(slots.holder(manifest.slot.name), manifest.launch_id);
 			// It is owned: the provider stops exactly that worker.
-			assert.deepEqual(await provider.stop(launch.handle), {
-				request: "sent",
-				termination: "confirmed",
-			});
+			await stopConfirmed(provider, launch.handle);
 			assert.equal((await fixture.row(workerId)).status, "stopped");
 		}));
 
@@ -700,40 +735,53 @@ describe("worker provider over real B2: a store failure after dispatch", () => {
 			);
 		}));
 
-	it("after workers.stop: an unconfirmed stop report, never a rejection; the next stop confirms without a new command", () =>
-		withFixture(async ({ fixture, composed, session }) => {
-			const { provider } = composed;
-			const launch = await provider.launch(freshRequest(session));
-			const fault = failStoreAfter(
-				composed,
-				fixture.started.parentWorkerId,
-				"workers.stop",
-			);
-			let report;
-			try {
-				report = await provider.stop(launch.handle);
-			} finally {
-				fault.restore();
-			}
-			assert.equal(report.request, "sent");
-			assert.equal(report.termination, "unconfirmed");
-			assert.ok(
-				report.termination === "unconfirmed" &&
-					report.error instanceof WorkerCommandUncertain &&
-					/could not be recorded/.test(report.error.message),
-			);
-			assert.deepEqual(await provider.stop(launch.handle), {
-				request: "not-sent",
-				termination: "confirmed",
+	it("after workers.stop: an unconfirmed stop report, never a rejection; the next stop confirms without a new command", async () => {
+		// The case needs a stop B2 observed. One it did not observe (its
+		// `outcome_unknown` under load, see stopConfirmed) proves nothing here,
+		// and its stop fenced the parent (invariant 4a): the case runs again
+		// over a fresh supervisor, at most three times.
+		for (let attempt = 1; ; attempt++) {
+			let observed = true;
+			await withFixture(async ({ fixture, composed, session }) => {
+				const { provider } = composed;
+				const launch = await provider.launch(freshRequest(session));
+				const fault = failStoreAfter(
+					composed,
+					fixture.started.parentWorkerId,
+					"workers.stop",
+				);
+				let report;
+				try {
+					report = await provider.stop(launch.handle);
+				} finally {
+					fault.restore();
+				}
+				if (report.request === "unknown" && attempt < 3) {
+					observed = false;
+					return;
+				}
+				assert.equal(report.request, "sent");
+				assert.equal(report.termination, "unconfirmed");
+				assert.ok(
+					report.termination === "unconfirmed" &&
+						report.error instanceof WorkerCommandUncertain &&
+						/could not be recorded/.test(report.error.message),
+				);
+				assert.deepEqual(await provider.stop(launch.handle), {
+					request: "not-sent",
+					termination: "confirmed",
+				});
+				const stops = provider
+					.manifest(launch.handle)
+					?.commands.filter((c) => c.purpose === "stop");
+				assert.deepEqual(
+					stops?.map((c) => c.outcome),
+					["pending"],
+				);
 			});
-			const stops = provider
-				.manifest(launch.handle)
-				?.commands.filter((c) => c.purpose === "stop");
-			assert.deepEqual(
-				stops?.map((c) => c.outcome),
-				["pending"],
-			);
-		}));
+			if (observed) return;
+		}
+	});
 
 	it("a create whose outcome stays unknown is AcquisitionUncertainError even when its record cannot be written", () =>
 		withFixture(async ({ fixture, composed, session }) => {
@@ -818,14 +866,11 @@ describe("worker provider over real B2: one failed store write at each step", ()
 					commands,
 				);
 				assert.equal(await fixture.op<number>("acquisitions"), 1);
-				assert.deepEqual(await provider.stop(launch.handle), {
-					request: "sent",
-					termination: "confirmed",
-				});
+				const { stops } = await stopConfirmed(provider, launch.handle);
 				const stopped = provider.manifest(launch.handle);
 				assert.deepEqual(
 					stopped?.commands.map((c) => c.purpose),
-					["create", "stop"],
+					["create", ...stops.map(() => "stop")],
 					"no initial prompt was sent",
 				);
 			}));

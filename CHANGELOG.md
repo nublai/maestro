@@ -37,7 +37,9 @@ unchanged. See [docs/worker-provider.md](docs/worker-provider.md#parent-admissio
   command ID, not closing the run), committed in one store record together
   with the provider Observer's state (`workerObserverPersistence`), so a
   restart resumes the Observer from exactly what was saved
-  (`resumeObservation()`).
+  (`resumeObservation()`). A cold first snapshot retains the owned help
+  requests it counts as seen in the same record, so help reported before the
+  Observer's first snapshot (or with no saved state) is not lost.
 - `RunSession` option `parentAdmission` (needs `outcomeStore`): the committed
   outcome carries its envelope and a delivery ID stable across commit
   retries and is handed to the outbox; `onSettled` is then only a settled
@@ -55,7 +57,17 @@ unchanged. See [docs/worker-provider.md](docs/worker-provider.md#parent-admissio
   and restarted, busy and fenced parents, lost replies (worker and transport),
   B2 restarts, mismatched and non-admitting receipts, wrong, rebound, stopped
   and unreachable parents, expired and scope-denied receipts, and help
-  requests across a restart.
+  requests across a restart, before the Observer's first snapshot and with
+  no saved Observer state.
+- Conformance kit: an optional `ExecProviderFixture.unobserveNextStop`. A
+  provider whose host may end an execution without observing it at once
+  (B2 confirms a stop only once the child's leader process is proven gone;
+  under load a zombie leader with a thread still exiting is not, and the
+  stop is `outcome_unknown`) declares it; the suite checks that such a stop
+  is an unconfirmed report and that a later stop confirms, and repeats its
+  other stops (at most three) instead of assuming the first confirms.
+  Fixtures without it are checked as before. The worker B2 tests accept the
+  same `outcome_unknown` stop the same way.
 
 ### Worker execution provider (P3-7)
 

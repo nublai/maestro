@@ -48,7 +48,11 @@ import type {
 	ParentReadiness,
 } from "../../core/parent-admission.ts";
 import { isString } from "../../core/config/type-guards.ts";
-import { uuidv7, type WorkerLaunchStore } from "./launch-store.ts";
+import {
+	uuidv7,
+	type WorkerAcquisitionManifest,
+	type WorkerLaunchStore,
+} from "./launch-store.ts";
 
 type Worker = components["schemas"]["Worker"];
 type ChildClaim = components["schemas"]["ChildClaim"];
@@ -425,6 +429,8 @@ export interface WorkerObserverPersistenceOptions {
  * store: each batch's state is saved in one record together with the help
  * requests it surfaced (P3-8 `commitBatch`), so a restart diffs from exactly
  * what was saved and a help request is neither lost nor committed twice.
+ * A cold seed (no saved state) counts the reports already on its rows as
+ * surfaced without notices; its owned help requests are retained with it.
  * Result reports are not committed here: the run owner's checks commit them.
  */
 export interface WorkerObserverPersistence {
@@ -455,12 +461,17 @@ export function workerObserverPersistence(
 	const persistence: WorkerObserverPersistence = {
 		async persist(batch, row) {
 			const outcomes: OutcomeDraft[] = [];
+			const owned = (workerId: string) =>
+				options.launches.list().find((m) => m.worker_id === workerId);
+			const help: {
+				workerId: string;
+				manifest: WorkerAcquisitionManifest;
+				claim: ChildClaim;
+			}[] = [];
 			for (const notice of batch.notices) {
 				if (notice.kind !== "child_report" || notice.report_kind !== "help")
 					continue;
-				const manifest = options.launches
-					.list()
-					.find((m) => m.worker_id === notice.worker_id);
+				const manifest = owned(notice.worker_id);
 				// Not this parent's launch: nothing of ours to deliver.
 				if (!manifest) continue;
 				const claim = await helpClaim(
@@ -469,20 +480,40 @@ export function workerObserverPersistence(
 					notice.report_command_id,
 					row,
 				);
+				help.push({ workerId: notice.worker_id, manifest, claim });
+			}
+			// A cold seed counts every report on its rows as surfaced and names
+			// none: saving it alone would acknowledge an owned help request that
+			// has no outcome. Its owned help is retained in the same record.
+			if (batch.seeded)
+				for (const [workerId, seen] of Object.entries(batch.state.workers)) {
+					const manifest = owned(workerId);
+					if (!manifest) continue;
+					for (const reportId of seen.reports) {
+						const claim = await helpClaim(
+							options.client,
+							workerId,
+							reportId,
+							row,
+						);
+						if (claim.kind === "help") help.push({ workerId, manifest, claim });
+					}
+				}
+			for (const { workerId, manifest, claim } of help) {
 				const deliveryId = uuidv7(options.now?.() ?? Date.now());
 				const draft: OutcomeDraft & { deliveryId: string } = {
 					taskId: manifest.task_id,
 					attempt: 1,
 					kind: "help",
 					generation: manifest.generation_id,
-					reportId: notice.report_command_id,
+					reportId: claim.command_id,
 					runId: manifest.run_id,
 					outcome: "help",
 					text: claim.message,
 					textSource: "child",
 					facts: {
-						worker_id: notice.worker_id,
-						report_command_id: notice.report_command_id,
+						worker_id: workerId,
+						report_command_id: claim.command_id,
 						claim_not_verified: true,
 					},
 					closesRun: false,

@@ -81,6 +81,51 @@ function setTimeoutMs(client: Client, ms: number): void {
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+/**
+ * Holds the client's first event subscription (the Observer's first snapshot)
+ * until `release`, or until the subscription is aborted; other calls run.
+ */
+function gateFirstWatch(client: Client) {
+	let release!: () => void;
+	const gate = new Promise<void>((resolve) => {
+		release = resolve;
+	});
+	const watch = client.watch.bind(client);
+	let first = true;
+	client.watch = async (onFrame, options = {}) => {
+		if (first) {
+			first = false;
+			const signal = options.signal;
+			await new Promise<void>((resolve) => {
+				void gate.then(resolve);
+				signal?.addEventListener("abort", () => resolve(), { once: true });
+			});
+			if (signal?.aborted) return;
+		}
+		return watch(onFrame, options);
+	};
+	return release;
+}
+
+/** Waits until the supervisor holds a child's durable report of `kind`. */
+async function reported(fixture: B2Fixture, workerId: string, kind: string) {
+	await until(
+		async () =>
+			(
+				await fixture.op<{ child_reports?: { kind?: string }[] }>("row", {
+					workerId,
+				})
+			).child_reports?.some((report) => report.kind === kind) === true,
+	);
+}
+
+/** The retained help outcomes of a store, by their source report. */
+function helpOutcomes(recovery: OutcomeRecovery) {
+	return recovery.outcomes
+		.filter((stored) => stored.outcome.kind === "help")
+		.map((stored) => stored.outcome.reportId);
+}
+
 /** One Maestro process; resolves its events as they come and its exit. */
 function maestro(
 	fixture: B2Fixture,
@@ -1003,6 +1048,101 @@ describe("parent admission over real B2: help is not completion", () => {
 				assert.equal(sent.length, 2, "each help request delivered once");
 				assert.match(sent[0]!.message, /which file\?/);
 				assert.match(sent[1]!.message, /and which test\?/);
+			} finally {
+				await second.dispose();
+			}
+		}));
+
+	it("help reported before the Observer's first snapshot is retained with that snapshot's state, then delivered once after a restart", () =>
+		withFixture(async (fixture, dir) => {
+			const first = await composeWorkerParent(fixture.started, dir);
+			const release = gateFirstWatch(first.composed.client);
+			let workerId: string;
+			let reportId: string | undefined;
+			try {
+				await first.outbox.start();
+				// The child reports before the Observer has its first snapshot.
+				({ workerId } = await launched(first));
+				await fixture.op("report", {
+					workerId,
+					kind: "help",
+					message: "which file?",
+				});
+				await reported(fixture, workerId, "help");
+				assert.equal(
+					first.store.observerState("pi-worker/observer"),
+					undefined,
+				);
+				release();
+				await until(
+					() => first.store.observerState("pi-worker/observer") !== undefined,
+				);
+				// SAFETY: the provider Observer's saved state (client ObserverState).
+				const saved = first.store.observerState("pi-worker/observer") as {
+					workers: Record<string, { reports: string[] }>;
+				};
+				reportId = saved.workers[workerId]?.reports[0];
+				assert.ok(reportId, "the first snapshot counts the report as seen");
+				// The record that saved it as seen also retained its outcome.
+				assert.deepEqual(helpOutcomes(first.store.recovery()), [reportId]);
+			} finally {
+				release();
+				await first.dispose();
+			}
+			await fixture.op("parentIdle");
+			const second = await composeWorkerParent(fixture.started, dir);
+			try {
+				await second.outbox.start();
+				second.composed.provider.resumeObservation();
+				await until(async () => (await deliveries(fixture)).length >= 1);
+				await until(() => second.store.recovery().final.length === 1);
+				await delay(200);
+				const sent = await deliveries(fixture);
+				assert.equal(sent.length, 1, "the help request delivered once");
+				assert.match(sent[0]!.message, /^\[maestro-outcome\/v1 help\]/);
+				assert.match(sent[0]!.message, /which file\?/);
+				assert.deepEqual(finalStates(second.store.recovery()), [
+					["admitted", "receipt"],
+				]);
+				assert.deepEqual(helpOutcomes(second.store.recovery()), []);
+			} finally {
+				await second.dispose();
+			}
+		}));
+
+	it("a restart with an owned child but no saved Observer state retains its help from the cold snapshot: delivered once", () =>
+		withFixture(async (fixture, dir) => {
+			const first = await composeWorkerParent(fixture.started, dir);
+			// The first process never gets a snapshot, so it saves no baseline.
+			gateFirstWatch(first.composed.client);
+			let workerId: string;
+			try {
+				await first.outbox.start();
+				({ workerId } = await launched(first));
+				await fixture.op("report", {
+					workerId,
+					kind: "help",
+					message: "which file?",
+				});
+				await reported(fixture, workerId, "help");
+			} finally {
+				await first.dispose();
+			}
+			await fixture.op("parentIdle");
+			const second = await composeWorkerParent(fixture.started, dir);
+			try {
+				assert.equal(
+					second.store.observerState("pi-worker/observer"),
+					undefined,
+				);
+				await second.outbox.start();
+				second.composed.provider.resumeObservation();
+				await until(async () => (await deliveries(fixture)).length >= 1);
+				await until(() => second.store.recovery().final.length === 1);
+				await delay(200);
+				const sent = await deliveries(fixture);
+				assert.equal(sent.length, 1, "the help request delivered once");
+				assert.match(sent[0]!.message, /which file\?/);
 			} finally {
 				await second.dispose();
 			}
