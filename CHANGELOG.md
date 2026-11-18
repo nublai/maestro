@@ -2,6 +2,61 @@
 
 ## Unreleased
 
+### Receipt-backed parent admission and recovery (P3-9)
+
+Opt-in by explicit composition; without `parentAdmission`, delivery, the
+outcome store's behaviour for terminal hosts and the public tools are
+unchanged. See [docs/worker-provider.md](docs/worker-provider.md#parent-admission-p3-9).
+
+- `AdmissionOutbox` (`maestro/runtime/admission-outbox.ts`) owns delivery of
+  committed outcomes, oldest first, through a `ParentAdmission` port
+  (`maestro/core/parent-admission.ts`):
+  - each attempt's command ID and request identity are durable with
+    `dispatching` before its transport;
+  - only a matching receipt that says the input was admitted is `admitted`
+    (`receipt` evidence); a restart reads every uncertain attempt back by its
+    receipt before sending anything new, so an admission whose local ack was
+    lost is recorded, never resent;
+  - a busy, fenced, rebound, stopped or unreachable parent makes the outcome
+    wait in the outbox (busy and unreachable without a write; the others
+    durably `blocked`); a proven refusal retries under a new command ID only
+    when its cause can clear;
+  - an unknown outcome (lost reply, `outcome_unknown`, missing, expired or
+    scope-denied receipt, a receipt for another request) stays `uncertain`
+    and is surfaced through `attention()`; only the owner's `abandon` ends it.
+    No fence is cleared and no parent is relaunched or replaced.
+- `WorkerParentAdmission` (`maestro/adapters/worker/parent-admission.ts`)
+  delivers to the parent worker as one `sessions.prompt {if_busy: reject}` to
+  its exact worker, epoch and session (`workerParentIdentity`, the store's
+  parent identity; another generation or session needs explicit adoption).
+  The message is a versioned envelope (`maestro-outcome/v1`) persisted with
+  the outcome. `WorkerExecutionProvider.parentAdmission()` builds it over the
+  provider's own client; the worker capability is now `parentAdmission:
+  "receipt"`.
+- Help requests are their own outcomes (`kind: help`, keyed by the report's
+  command ID, not closing the run), committed in one store record together
+  with the provider Observer's state (`workerObserverPersistence`), so a
+  restart resumes the Observer from exactly what was saved
+  (`resumeObservation()`).
+- `RunSession` option `parentAdmission` (needs `outcomeStore`): the committed
+  outcome carries its envelope and a delivery ID stable across commit
+  retries and is handed to the outbox; `onSettled` is then only a settled
+  notification.
+- `OutcomeStore`: `dispatch(id, {commandId, request})` records the attempt's
+  identity; a settlement may carry its receipt identity; an `uncertain`
+  delivery may become `blocked` only with the refused receipt that proves it
+  began nothing, and a new attempt never reuses an earlier command ID.
+- Tests: outbox unit cases on the simulated-durability filesystem (attempt
+  durable before send, waits, refusals, unknowns, restart reads, ordering,
+  serialized submits); `npm run test:worker-b2` adds 23 real-supervisor cases:
+  the O1 crash cuts (before and after the commit, after the dispatch record,
+  after B2 admission before the local ack, after the ack, inside compaction
+  before and after the snapshot rename) with the Maestro process SIGKILLed
+  and restarted, busy and fenced parents, lost replies (worker and transport),
+  B2 restarts, mismatched and non-admitting receipts, wrong, rebound, stopped
+  and unreachable parents, expired and scope-denied receipts, and help
+  requests across a restart.
+
 ### Worker execution provider (P3-7)
 
 This is opt-in by explicit host composition, with no flags. Terminal hosts,

@@ -45,9 +45,15 @@ const CHILD_ENV = {
 
 let f;
 let server;
+let grants;
+let socketPath;
 const children = new Map();
 let launched = 0;
 let uncertainNext = false;
+/** The parent's in-process host (P3-9): counts the prompts it really received. */
+let parentHost;
+let parentId;
+let serial = 0;
 
 function gitIn(home) {
 	const env = {
@@ -97,8 +103,9 @@ function launch(l) {
 	return host;
 }
 
-async function start({ profile, slots = 4 }) {
-	f = fixture({ launch });
+async function start({ profile, slots = 4, evictable = false }) {
+	// `evictable`: no minimum receipt age, so `evictReceipts` can evict at once.
+	f = fixture(evictable ? { launch, retention: { minAgeMs: 0 } } : { launch });
 	const base = realpathSync(f.dir);
 	const repo = join(base, "repo");
 	const root = join(base, "parent");
@@ -145,6 +152,9 @@ async function start({ profile, slots = 4 }) {
 		launch_spec: spec,
 	});
 	if (made.state !== "delivered") throw new Error("parent create failed");
+	parentHost = f.hosts.at(-1);
+	parentId = made.worker_id;
+	installParentHooks(parentHost);
 	const p = f.supervisor.get(made.worker_id);
 	const prompted = await f.supervisor.prompt(p.worker_id, {
 		command_id: "parent-run",
@@ -154,7 +164,7 @@ async function start({ profile, slots = 4 }) {
 		message: "orchestrate",
 	});
 	if (prompted.state !== "delivered") throw new Error("parent prompt failed");
-	const grants = new GrantStore(f.dir);
+	grants = new GrantStore(f.dir);
 	const { token } = grants.register({
 		caller: "maestro-parent",
 		scope: { worker_ids: [p.worker_id], cwd_roots: [root] },
@@ -163,11 +173,8 @@ async function start({ profile, slots = 4 }) {
 	});
 	const grantFile = join(f.dir, "maestro.grant.json");
 	writeBearerFile(grantFile, token);
-	server = createB2Server(
-		createApp({ supervisor: f.supervisor, grants }).handle,
-	);
-	const socketPath = join(f.dir, "b2.sock");
-	await listenPrivate(server, socketPath);
+	socketPath = join(f.dir, "b2.sock");
+	await listenB2();
 	return {
 		socketPath,
 		grantFile,
@@ -178,6 +185,64 @@ async function start({ profile, slots = 4 }) {
 		slots: slotList,
 		channelMethods: [...CHANNEL_METHODS],
 	};
+}
+
+/** Serves B2 for the current supervisor on the fixture's socket. */
+async function listenB2() {
+	server = createB2Server(
+		createApp({ supervisor: f.supervisor, grants }).handle,
+	);
+	await listenPrivate(server, socketPath);
+}
+
+async function unserve() {
+	if (!server) return;
+	server.closeAllConnections();
+	await new Promise((resolve) => server.close(() => resolve()));
+	server = undefined;
+}
+
+/**
+ * The parent host's test controls (P3-9): the next prompt's reply is lost
+ * (pi-worker's own `failure`: the prompt starts, its reply never comes back),
+ * or the next prompt never replies at all (a hung pi, for a B2 restart
+ * between dispatch and reply).
+ */
+const parentControl = { lose: false, hang: false };
+function installParentHooks(host) {
+	const request = host.request.bind(host);
+	host.request = async (command) => {
+		if (command.type === "prompt") {
+			host.failure = parentControl.lose;
+			parentControl.lose = false;
+			if (parentControl.hang) {
+				parentControl.hang = false;
+				host.commands.push(command);
+				host.prompts++;
+				host.emit("event", { type: "agent_start" });
+				return new Promise(() => {});
+			}
+		}
+		return request(command);
+	};
+}
+
+function parentBinding() {
+	const row = f.supervisor.get(parentId);
+	return {
+		worker_epoch: row.worker_epoch,
+		session_id: row.session_id,
+		binding_revision: row.binding_revision,
+	};
+}
+
+async function waitFor(check, what) {
+	const deadline = Date.now() + 5000;
+	while (Date.now() < deadline) {
+		if (check()) return;
+		await new Promise((resolve) => setTimeout(resolve, 10));
+	}
+	throw new Error(`timed out waiting for ${what}`);
 }
 
 async function foreign() {
@@ -238,11 +303,95 @@ const ops = {
 	},
 	prompts: async ({ workerId }) => child(workerId).prompts,
 	row: async ({ workerId }) => f.supervisor.get(workerId),
+	// ---- P3-9: the parent as a delivery target ----
+	/** pi settles the parent's running turn: it is idle and takes input again. */
+	parentIdle: async () => {
+		parentHost.emit("event", { type: "agent_settled" });
+		await waitFor(
+			() => f.supervisor.get(parentId).foreground === "idle",
+			"an idle parent",
+		);
+	},
+	/** The prompts pi itself received on the parent, in order. */
+	parentPrompts: async () =>
+		parentHost.commands
+			.filter((c) => c.type === "prompt")
+			.map((c) => ({ command_id: c.command_id, message: c.message })),
+	parentLoseNextReply: async () => {
+		parentControl.lose = true;
+	},
+	parentHangNextPrompt: async () => {
+		parentControl.hang = true;
+	},
+	/** The owner resolves the parent's fence (owner authority, never Maestro's). */
+	parentResolve: async ({ disposition = "abandon" }) => {
+		const row = f.supervisor.get(parentId);
+		if (!row.fence) throw new Error("parent is not fenced");
+		const receipt = await f.supervisor.resolveUnknown(parentId, {
+			command_id: `owner-resolve-${++serial}`,
+			...parentBinding(),
+			uncertain_command_id: row.fence.command_id,
+			fence_generation: row.fence.fence_generation,
+			disposition,
+		});
+		if (receipt.state !== "delivered")
+			throw new Error(`resolve failed: ${receipt.error ?? receipt.state}`);
+		return f.supervisor.get(parentId).fence;
+	},
+	/** The owner starts a new session on the parent: a rebound parent. */
+	parentNewSession: async () => {
+		const receipt = await f.supervisor.newSession(parentId, {
+			command_id: `owner-new-${++serial}`,
+			...parentBinding(),
+		});
+		if (receipt.state !== "delivered")
+			throw new Error(`new session failed: ${receipt.error ?? receipt.state}`);
+		return f.supervisor.get(parentId).session_id;
+	},
+	/** The owner stops the parent. */
+	parentStop: async () => {
+		const receipt = await f.supervisor.stop(parentId, {
+			command_id: `owner-stop-${++serial}`,
+			...parentBinding(),
+		});
+		return f.supervisor.get(parentId).status ?? receipt.state;
+	},
+	/** B2 goes away (the socket stops answering) and comes back. */
+	unserve: async () => {
+		await unserve();
+	},
+	serve: async () => {
+		await listenB2();
+	},
+	/**
+	 * The supervisor restarts as after SIGKILL: a new instance recovers the
+	 * same journal (live workers' generations end), and B2 serves again.
+	 */
+	restart: async () => {
+		await unserve();
+		await f.restart();
+		await listenB2();
+		return f.supervisor.get(parentId).status;
+	},
+	/** Retention compacts now: every evictable receipt goes; returns the expired ids. */
+	evictReceipts: async () =>
+		f.supervisor.receipts.compact({ goal: { receipts: 0, bytes: 0 } }),
+	/** A grant of Maestro's profile scoped to another worker only. */
+	grantFor: async ({ workerId, profile }) => {
+		const id = `scoped-${++serial}`;
+		const { token } = grants.register({
+			caller: id,
+			scope: { worker_ids: [workerId], cwd_roots: [] },
+			methods: profile,
+			grant_id: id,
+		});
+		const file = join(f.dir, `${id}.grant.json`);
+		writeBearerFile(file, token);
+		return file;
+	},
+	workers: async () => f.supervisor.list().length,
 	shutdown: async () => {
-		if (server) {
-			server.closeAllConnections();
-			await new Promise((resolve) => server.close(() => resolve()));
-		}
+		await unserve();
 		for (const { host } of children.values()) {
 			host.stop = LineHost.prototype.stop;
 		}

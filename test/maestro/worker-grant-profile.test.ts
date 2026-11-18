@@ -25,18 +25,30 @@ const PROVIDER = readFileSync(
 	),
 	"utf8",
 );
+/** P3-9's parent admission: the same grant, the same client. */
+const ADMISSION = readFileSync(
+	new URL("../../maestro/adapters/worker/parent-admission.ts", import.meta.url),
+	"utf8",
+);
 
-/** The B2 operations the provider module reaches through the client. */
-function providerOperations(): string[] {
-	const calls = [...PROVIDER.matchAll(/\.call\(\s*"([a-z_.]+)"/g)].map(
+/** The B2 operations a module reaches through the client. */
+function operationsOf(source: string): string[] {
+	const calls = [...source.matchAll(/\.call\(\s*"([a-z_.]+)"/g)].map(
 		(m) => m[1]!,
 	);
-	if (/\.hello\(\)/.test(PROVIDER)) calls.push("hello");
+	if (/\.hello\(\)/.test(source)) calls.push("hello");
 	// The Observer subscribes to events and reconciles pending commands by receipt.
-	if (/new Observer\(/.test(PROVIDER))
+	if (/new Observer\(/.test(source))
 		calls.push("events.subscribe", "receipts.get");
-	if (/\breconcile\(this\.#client/.test(PROVIDER)) calls.push("receipts.get");
+	if (/\breconcile\(this\.#client/.test(source)) calls.push("receipts.get");
 	return [...new Set(calls)].sort();
+}
+
+/** The B2 operations the provider and its parent admission reach. */
+function providerOperations(): string[] {
+	return [
+		...new Set([...operationsOf(PROVIDER), ...operationsOf(ADMISSION)]),
+	].sort();
 }
 
 describe("Maestro worker grant profile", () => {
@@ -73,26 +85,31 @@ describe("Maestro worker grant profile", () => {
 			assert.ok(MAESTRO_WORKER_PARENT_METHODS.includes(method));
 	});
 
-	it("the provider never uses first_prompt, follow-up, steering or the untyped child route", () => {
-		// Code only: comments may name what the provider deliberately avoids.
-		const printer = ts.createPrinter({ removeComments: true });
-		const code = printer.printFile(
-			ts.createSourceFile("p.ts", PROVIDER, ts.ScriptTarget.Latest, true),
-		);
-		assert.doesNotMatch(code, /first_prompt/);
-		for (const forbidden of [
-			"sessions.follow_up",
-			"sessions.steer",
-			"children.launch",
-			"sessions.resolve_unknown",
-			"workers.relaunch",
-		])
-			assert.equal(code.includes(`"${forbidden}"`), false, forbidden);
-		assert.equal([...PROVIDER.matchAll(/if_busy: "reject"/g)].length, 2);
-	});
+	for (const [name, source, rejects] of [
+		["provider", PROVIDER, 2],
+		["parent admission", ADMISSION, 1],
+	] as const)
+		it(`the ${name} never uses first_prompt, follow-up, steering, owner reconciliation or the untyped child route`, () => {
+			// Code only: comments may name what the module deliberately avoids.
+			const printer = ts.createPrinter({ removeComments: true });
+			const code = printer.printFile(
+				ts.createSourceFile("p.ts", source, ts.ScriptTarget.Latest, true),
+			);
+			assert.doesNotMatch(code, /first_prompt/);
+			for (const forbidden of [
+				"sessions.follow_up",
+				"sessions.steer",
+				"children.launch",
+				"sessions.resolve_unknown",
+				"workers.relaunch",
+			])
+				assert.equal(code.includes(`"${forbidden}"`), false, forbidden);
+			assert.equal([...source.matchAll(/if_busy: "reject"/g)].length, rejects);
+			assert.doesNotMatch(code, /if_busy: "(steer|follow_up)"/);
+		});
 
-	it("never advertises receipt-backed parent admission before P3-9 proves it", () => {
-		assert.equal(WORKER_EXEC_CAPABILITIES.parentAdmission, "best-effort");
+	it("advertises receipt-backed parent admission (P3-9) and only isolated fan-out", () => {
+		assert.equal(WORKER_EXEC_CAPABILITIES.parentAdmission, "receipt");
 		assert.equal(WORKER_EXEC_CAPABILITIES.resume, false);
 		assert.equal(WORKER_EXEC_CAPABILITIES.sharedCheckout, false);
 		assert.equal(WORKER_EXEC_CAPABILITIES.worktree, true);

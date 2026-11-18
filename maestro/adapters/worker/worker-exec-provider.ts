@@ -74,6 +74,10 @@ import {
 	type WorkerMutation,
 	writeDurable,
 } from "./launch-store.ts";
+import {
+	WorkerParentAdmission,
+	type WorkerParentBinding,
+} from "./parent-admission.ts";
 import type { ClaimedSlot, WorkerSlotPool } from "./slots.ts";
 
 type Worker = components["schemas"]["Worker"];
@@ -88,9 +92,10 @@ type HistoryEntry = components["schemas"]["HistoryPage"]["entries"][number];
  * owner-prepared slots. Resume (B2 refuses sandboxed-child resume), fork,
  * persistent specialists, the caller's checkout and caller surfaces are
  * refused before acquisition. B2 reports a worker's status, not an exit code.
- * Parent admission stays the host's own delivery until receipt-backed
- * admission lands (P3-9); `receipt` is never advertised before it can be
- * proven.
+ * Parent admission is receipt-backed (P3-9): a checked outcome reaches the
+ * parent worker as its own `sessions.prompt`, proven by its receipt
+ * ({@link WorkerExecutionProvider.parentAdmission} with the outcome store's
+ * `AdmissionOutbox`).
  */
 export const WORKER_EXEC_CAPABILITIES: Readonly<ExecCapabilities> =
 	Object.freeze({
@@ -101,7 +106,7 @@ export const WORKER_EXEC_CAPABILITIES: Readonly<ExecCapabilities> =
 		worktree: true,
 		callerSurface: false,
 		executionExit: false,
-		parentAdmission: "best-effort",
+		parentAdmission: "receipt",
 	});
 
 /** How long a stopped child's FD 3 report may take to reach its row. pi-worker drains for 2 s. */
@@ -143,8 +148,15 @@ export interface WorkerExecutionProviderOptions {
 	observer?: {
 		/** The last persisted state: a diff after a restart, never a cold seed over pending outcomes. */
 		restored?: ObserverState;
-		/** Persist a batch's state (with the outbox, P3-9) before its notices count as surfaced. */
-		persist?(batch: ObserverBatch): void | Promise<void>;
+		/**
+		 * Persist a batch's state (with the outbox: `workerObserverPersistence`)
+		 * before its notices count as surfaced. `row` is the Observer's latest
+		 * row of a worker, for reading the claims a notice names.
+		 */
+		persist?(
+			batch: ObserverBatch,
+			row: (workerId: string) => Worker | undefined,
+		): void | Promise<void>;
 		backoff?: { initialMs?: number; maxMs?: number };
 	};
 	now?(): number;
@@ -269,6 +281,30 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 	/** The Observer's latest state (persisted with the outbox by P3-9). */
 	observerState(): ObserverState | undefined {
 		return this.#observerState;
+	}
+
+	/**
+	 * Starts the Observer without a launch: a restarted parent resumes from
+	 * its restored state, so reports made meanwhile surface (once). Idempotent.
+	 */
+	resumeObservation(): void {
+		this.#startObserver();
+	}
+
+	/**
+	 * The receipt-backed admission to this provider's parent generation, over
+	 * the provider's own client and grant. Its identity is the store's parent.
+	 */
+	parentAdmission(parent: WorkerParentBinding): WorkerParentAdmission {
+		if (parent.worker_id !== this.#options.parentWorkerId)
+			throw new Error(
+				"Parent admission must name this provider's own parent worker.",
+			);
+		return new WorkerParentAdmission({
+			client: this.#client,
+			parent,
+			now: this.#now,
+		});
 	}
 
 	async launch(
@@ -1199,7 +1235,7 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 			client: this.#client,
 			signal: abort.signal,
 			deliver: async (batch) => {
-				await options?.persist?.(batch);
+				await options?.persist?.(batch, (id) => this.#observer?.row(id));
 				this.#observerState = batch.state;
 				for (const notice of batch.notices)
 					if ("worker_id" in notice) {

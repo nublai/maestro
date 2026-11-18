@@ -1,8 +1,10 @@
+import { randomUUID } from "node:crypto";
 import type {
 	HarnessAdapter,
 	ResumeOptions,
 	SpawnOptions,
 } from "../core/harness-adapter.ts";
+import type { OutcomeAdmission } from "../core/parent-admission.ts";
 import {
 	isAcquisitionUncertainError,
 	type AcquisitionUncertainError,
@@ -184,6 +186,14 @@ export interface RunSessionOptions {
 	 * Without it, delivery and retirement are unchanged.
 	 */
 	outcomeStore?: OutcomeStore;
+	/**
+	 * Receipt-backed parent admission (P3-9), used only with `outcomeStore`.
+	 * A committed outcome carries its exact envelope and is handed to this
+	 * outbox, which owns its delivery from then on; `onSettled` is then only a
+	 * settled notification and must not send the result itself. Without it,
+	 * `onSettled` delivers as before.
+	 */
+	parentAdmission?: OutcomeAdmission;
 }
 /**
  * Operator cancel report. `requested` means the intent is recorded but an
@@ -256,6 +266,8 @@ interface RunEntry {
 	recordedAttempts: number;
 	/** The committed outcome; its run no longer needs a close record. */
 	recorded?: StoredOutcome;
+	/** The delivery identity its envelope names, stable across commit retries. */
+	deliveryId?: string;
 	/** A finalized result whose commit failed: retried by the next supervise. */
 	unrecorded?: RunResult;
 	/**
@@ -285,6 +297,8 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 	const sessionBase = options.sessionIdPrefix ?? Date.now().toString(36);
 	const retainSurface = options.retainSurface ?? defaultRetainSurface;
 	const store = options.outcomeStore;
+	if (options.parentAdmission && !store)
+		throw new Error("Parent admission needs an outcome store to deliver from.");
 
 	function reserve(task: Task): RunEntry {
 		if (entries.has(task.id) || consumed.has(task.id)) {
@@ -466,6 +480,13 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 			if (described?.[field] !== undefined) draft[field] = described[field];
 		for (const field of ["verdict", "subject", "facts"] as const)
 			if (described?.[field] !== undefined) draft[field] = described[field];
+		const admission = options.parentAdmission;
+		if (admission) {
+			// The envelope is persisted with the outcome: a restart never rebuilds it.
+			const deliveryId = (entry.deliveryId ??= randomUUID());
+			draft.deliveryId = deliveryId;
+			draft.envelope ??= admission.envelope({ ...draft, deliveryId });
+		}
 		return draft;
 	}
 
@@ -750,6 +771,24 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 		try {
 			if (entry.suppressed) {
 				await withdrawCommitted(outcomes, entry.recorded);
+				release(entry, result);
+				return result;
+			}
+			const admission = options.parentAdmission;
+			if (admission) {
+				// The outbox owns delivery from here: it records each attempt before
+				// sending, keeps the outcome while the parent cannot take it, and never
+				// resends an uncertain one. The committed outcome outlives this run.
+				try {
+					await admission.submit(id);
+				} catch (error) {
+					throw new Error(
+						`The subagent's outcome is recorded but its outbox could not take it; it stays in the outcome store: ${errorText(error)}`,
+						{ cause: error },
+					);
+				}
+				// A settled notification only: the outbox, not the host, delivers.
+				await options.hooks?.onSettled?.(result, entry.task);
 				release(entry, result);
 				return result;
 			}

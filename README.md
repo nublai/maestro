@@ -38,6 +38,13 @@ retired; a failed commit keeps the run owned and undelivered. Without one,
 delivery is unchanged. It is opt-in and separate from the `outcomes.jsonl`
 audit ledger.
 
+With the store, a run owner can also be given a receipt-backed parent
+admission (`parentAdmission`, P3-9): the `AdmissionOutbox`
+(`maestro/runtime/admission-outbox.ts`) then delivers each committed outcome
+itself, recording each attempt before sending it, admitting it only on a
+matching receipt and never resending one whose outcome is unknown. Without
+it, the host's `onSettled` delivers as before.
+
 The worker execution (`WorkerExecutionProvider`, `maestro/adapters/worker/`)
 runs children as typed pi-worker children over B2 in owner-prepared slots.
 Each child reports through its FD 3 reporter. A host opts in by composing the
