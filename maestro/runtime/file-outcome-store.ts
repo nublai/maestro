@@ -48,7 +48,9 @@ import {
 	outcomeDigest,
 	validateOutcomeAttempt,
 	validateOutcomeCheck,
+	validateOutcomeDispatch,
 	validateOutcomeDraft,
+	validateOutcomeSettlement,
 	type CheckedOutcome,
 	type FinalDelivery,
 	type InterruptedRun,
@@ -56,6 +58,7 @@ import {
 	type OutcomeBatch,
 	type OutcomeCheckStart,
 	type OutcomeDelivery,
+	type OutcomeDispatch,
 	type OutcomeDraft,
 	type OutcomeJson,
 	type OutcomeRecovery,
@@ -637,17 +640,30 @@ export class FileOutcomeStore implements OutcomeStore {
 		return order.map((id) => structuredClone(this.model.outcomes.get(id)!));
 	}
 
-	async dispatch(deliveryId: string): Promise<OutcomeDelivery> {
+	async dispatch(
+		deliveryId: string,
+		dispatch: OutcomeDispatch = {},
+	): Promise<OutcomeDelivery> {
 		const stored = this.stored(deliveryId);
 		this.transition(stored, "dispatching");
+		validateOutcomeDispatch(dispatch);
+		const commandId = dispatch.commandId ?? this.newId();
+		// A command ID names one attempt only: never reuse an earlier attempt's.
+		if (commandId === stored.delivery.commandId)
+			throw new OutcomeStoreError(
+				"invalid",
+				`Delivery ${deliveryId} already used command ${commandId}; a new attempt needs a new command ID.`,
+			);
 		const delivery: OutcomeDelivery = {
 			state: "dispatching",
 			attempts: stored.delivery.attempts + 1,
-			commandId: this.newId(),
+			commandId,
 			at: this.now(),
 		};
+		if (dispatch.request !== undefined)
+			delivery.request = structuredClone(dispatch.request);
 		this.append({ type: "delivery", deliveryId, delivery });
-		return delivery;
+		return structuredClone(delivery);
 	}
 
 	async settle(
@@ -661,6 +677,7 @@ export class FileOutcomeStore implements OutcomeStore {
 				"invalid",
 				"Admission needs its evidence kind.",
 			);
+		validateOutcomeSettlement(stored.delivery.state, settlement);
 		const delivery: OutcomeDelivery = {
 			state: settlement.state,
 			attempts: stored.delivery.attempts,
@@ -668,10 +685,14 @@ export class FileOutcomeStore implements OutcomeStore {
 		};
 		if (stored.delivery.commandId)
 			delivery.commandId = stored.delivery.commandId;
+		if (stored.delivery.request)
+			delivery.request = structuredClone(stored.delivery.request);
+		if (settlement.receipt)
+			delivery.receipt = structuredClone(settlement.receipt);
 		if (settlement.evidence) delivery.evidence = settlement.evidence;
 		if (settlement.reason !== undefined) delivery.reason = settlement.reason;
 		this.append({ type: "delivery", deliveryId, delivery });
-		return delivery;
+		return structuredClone(delivery);
 	}
 
 	async closeRun(

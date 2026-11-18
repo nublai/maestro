@@ -122,7 +122,10 @@ export class B2Fixture {
 	}
 
 	/** Starts the supervisor process and its topology. */
-	static async start(slots = 4): Promise<B2Fixture> {
+	static async start(
+		slots = 4,
+		options: { evictable?: boolean } = {},
+	): Promise<B2Fixture> {
 		const child = spawn(process.execPath, [SUPERVISOR], {
 			stdio: ["pipe", "pipe", "pipe"],
 			env: {
@@ -163,6 +166,7 @@ export class B2Fixture {
 		fixture.started = await fixture.op<B2Started>("start", {
 			profile: MAESTRO_WORKER_PARENT_METHODS,
 			slots,
+			evictable: options.evictable,
 		});
 		return fixture;
 	}
@@ -208,22 +212,34 @@ export function composeProvider(
 	fixture: B2Fixture,
 	overrides: Partial<WorkerExecutionProviderOptions> = {},
 ) {
-	const dir = mkdtempSync(join(tmpdir(), "maestro-worker-"));
+	return composeProviderAt(
+		fixture.started,
+		mkdtempSync(join(tmpdir(), "maestro-worker-")),
+		overrides,
+	);
+}
+
+/** The provider over a started fixture, its stores under `dir` (kept across processes). */
+export function composeProviderAt(
+	started: B2Started,
+	dir: string,
+	overrides: Partial<WorkerExecutionProviderOptions> = {},
+) {
 	const state = join(dir, ".piw-maestro");
 	const client = new Client({
-		socketPath: fixture.started.socketPath,
-		grantFile: fixture.started.grantFile,
+		socketPath: started.socketPath,
+		grantFile: started.grantFile,
 		timeoutMs: 10_000,
 	});
 	const launches = new WorkerLaunchStore(join(state, "launches"));
 	const slots = new WorkerSlotPool({
-		root: fixture.started.root,
-		slots: fixture.started.slots,
+		root: started.root,
+		slots: started.slots,
 		claimsDir: join(state, "slots"),
 	});
 	const provider = new WorkerExecutionProvider({
 		client,
-		parentWorkerId: fixture.started.parentWorkerId,
+		parentWorkerId: started.parentWorkerId,
 		slots,
 		launches,
 		runsDir: join(state, "runs"),
@@ -237,6 +253,7 @@ export function composeProvider(
 		launches,
 		slots,
 		dir,
+		state,
 		async dispose() {
 			await provider.close();
 			rmSync(dir, { recursive: true, force: true });

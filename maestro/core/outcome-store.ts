@@ -10,6 +10,9 @@
  *   so a crash after it can only ever recover as `uncertain`: never resent.
  * - Terminal admission (`process-local`) is weaker than a receipt: it proves
  *   the parent's own process took the message, nothing after a crash.
+ * - Receipt-backed admission (P3-9) records the dispatch's request identity
+ *   (operation, target binding, request hash) with `dispatching`, before any
+ *   transport, and the admission receipt's identity with `admitted`.
  * - The store keeps checked verdicts and delivery state, not raw child reports
  *   or receipts, and never a bearer or other credential.
  * - It is not the audit ledger (`outcomes.jsonl`), which stays separate.
@@ -140,6 +143,14 @@ export interface OutcomeDelivery {
 	/** Dispatch attempts so far; each gets a fresh command ID. */
 	attempts: number;
 	commandId?: string;
+	/**
+	 * The current attempt's request identity, durable with `dispatching`
+	 * (operation, target binding, request hash): what a later receipt read
+	 * needs. Identity only: never the message, a bearer or a socket path.
+	 */
+	request?: OutcomeJsonObject;
+	/** The receipt identity that settled the current attempt, when one did. */
+	receipt?: OutcomeJsonObject;
 	evidence?: OutcomeAdmissionEvidence;
 	reason?: string;
 	at: number;
@@ -192,6 +203,20 @@ export interface OutcomeSettlement {
 	state: Exclude<OutcomeDeliveryState, "pending" | "dispatching">;
 	evidence?: OutcomeAdmissionEvidence;
 	reason?: string;
+	/**
+	 * The receipt identity behind this settlement. Required to move an
+	 * `uncertain` delivery to `blocked`: only a matching refused receipt proves
+	 * that its command began nothing.
+	 */
+	receipt?: OutcomeJsonObject;
+}
+
+/** What a dispatch records with `dispatching`, before the caller sends. */
+export interface OutcomeDispatch {
+	/** The attempt's command ID; generated when absent. */
+	commandId?: string;
+	/** The attempt's request identity (see {@link OutcomeDelivery.request}). */
+	request?: OutcomeJsonObject;
 }
 
 /**
@@ -208,7 +233,10 @@ export interface OutcomeStore {
 	/** Outcomes and an observer state, all or nothing in one record. */
 	commitBatch(batch: OutcomeBatch): Promise<StoredOutcome[]>;
 	/** `pending`/`blocked` -> `dispatching`, durable before the caller sends. */
-	dispatch(deliveryId: string): Promise<OutcomeDelivery>;
+	dispatch(
+		deliveryId: string,
+		dispatch?: OutcomeDispatch,
+	): Promise<OutcomeDelivery>;
 	settle(
 		deliveryId: string,
 		settlement: OutcomeSettlement,
@@ -266,8 +294,10 @@ const TRANSITIONS = {
 	dispatching: ["admitted", "uncertain", "blocked", "suppressed"],
 	// A retry is a new dispatch attempt with a new command ID.
 	blocked: ["dispatching", "suppressed"],
-	// Never dispatched again: only proof of admission or the owner's abandonment.
-	uncertain: ["admitted", "suppressed"],
+	// Never dispatched again as it is: only proof of admission, a matching
+	// refused receipt (`blocked`, which then retries under a new command ID; the
+	// settlement must carry that receipt) or the owner's abandonment.
+	uncertain: ["admitted", "blocked", "suppressed"],
 	admitted: [],
 	suppressed: [],
 } satisfies Record<OutcomeDeliveryState, readonly OutcomeDeliveryState[]>;
@@ -392,6 +422,28 @@ export function validateOutcomeCheck(
 	if (!isRecord(check.subject))
 		invalid("Outcome check subject must be an object.");
 	assertOutcomeJson(check.subject, "check subject");
+}
+
+export function validateOutcomeDispatch(dispatch: OutcomeDispatch): void {
+	if (dispatch.commandId !== undefined)
+		nonEmpty(dispatch.commandId, "dispatch command ID");
+	optionalObject(dispatch.request, "dispatch request");
+}
+
+export function validateOutcomeSettlement(
+	from: OutcomeDeliveryState,
+	settlement: OutcomeSettlement,
+): void {
+	optionalString(settlement.reason, "settlement reason");
+	optionalObject(settlement.receipt, "settlement receipt");
+	if (
+		from === "uncertain" &&
+		settlement.state === "blocked" &&
+		settlement.receipt === undefined
+	)
+		invalid(
+			"An uncertain delivery becomes blocked only with the refused receipt that proves its command began nothing.",
+		);
 }
 
 export function validateOutcomeDraft(draft: OutcomeDraft): void {

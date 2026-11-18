@@ -1,4 +1,4 @@
-# Worker execution provider (P3-7)
+# Worker execution provider (P3-7, P3-9)
 
 `WorkerExecutionProvider` (`maestro/adapters/worker/worker-exec-provider.ts`)
 is the `ExecProvider` that runs Pi children as typed pi-worker children over
@@ -20,6 +20,7 @@ and SHA-256 in `SOURCE.json`; root decision Q5).
 | prompt | `sessions.prompt`, `if_busy: reject` |
 | interrupt | `executions.interrupt` |
 | stop | `workers.stop`. The stop is confirmed only by `observed_stopped` or `superseded_generation_stopped` for the epoch it named. Anything else is reported unconfirmed and keeps the run owned. |
+| parent admission (P3-9) | `workers.get` of the parent, then `sessions.prompt {if_busy: reject}` to it; a lost reply gets one `receipts.get`. See [Parent admission](#parent-admission-p3-9). |
 
 Every mutation's UUIDv7 command ID and `requestHash` are written to the
 launch's acquisition manifest (`<state>/launches/<launch>.json`, 0600) before
@@ -60,7 +61,8 @@ The provider supports managed worktrees (owner-prepared slots) only. Resume
 (B2 refuses sandboxed-child resume), fork, persistent specialists, the
 caller's checkout and caller surfaces are refused before acquisition.
 `executionExit` is false because B2 reports status, not exit codes.
-`parentAdmission` stays `best-effort` until P3-9 adds receipt-backed admission.
+`parentAdmission` is `receipt` (P3-9): checked outcomes reach the parent
+through `WorkerParentAdmission`, proven by B2 receipts.
 A request that names skills is refused unless the host supplies a resource
 mapping (`childSpec.resources`).
 
@@ -118,7 +120,58 @@ source and the emitted file. A `result` message is a versioned claim
 and transcribes the first `result` claim into the run's parent-local
 completion record, the `.exit` sidecar the shared adapter reads, after
 mirroring the child's history there. An undecodable claim completes as an
-error. `help` claims are kept for P3-9. A claim is never proof.
+error. A `help` claim becomes its own outcome (see below). A claim is never
+proof.
+
+## Parent admission (P3-9)
+
+A checked outcome reaches the parent as input to its own session, proven by
+its receipt. Three parts compose it:
+
+- The parent's `FileOutcomeStore` (owner-provisioned `.piw-maestro/`
+  directory) is opened with the parent identity
+  `workerParentIdentity({worker_id, worker_epoch, session_id})`. A relaunched
+  or rebound parent is a different parent: its store must be adopted
+  explicitly (`adopt: true`), never redirected because the cwd or name
+  matches.
+- `WorkerParentAdmission` (`provider.parentAdmission(binding)`, the provider's
+  own client and grant) reads the parent's row and prepares one
+  `sessions.prompt {if_busy: reject}` with a fresh UUIDv7 command ID and the
+  request hash, only to an idle, unfenced, `ready` parent of that identity.
+  The message is the outcome's persisted envelope (`maestro-outcome/v1`: kind,
+  delivery ID, task, attempt, outcome, verdict, then the bounded text).
+- `AdmissionOutbox` (`maestro/runtime/admission-outbox.ts`) owns delivery.
+  The run owner hands it each committed outcome (`RunSession` option
+  `parentAdmission`; `onSettled` is then only a notification). It records
+  `dispatching` with the command ID and request identity before sending, and
+  settles by what the reply or receipt proves:
+
+| Evidence | Outcome |
+| --- | --- |
+| The parent is busy or B2 is unreachable (before any send) | Waits in the outbox, nothing written. |
+| The parent is fenced, stopped (or ending), missing or rebound | `blocked` with the reason; retried when a later read shows it clear. A fence is never cleared here, and no parent is relaunched or replaced. |
+| A matching `delivered` receipt, `effect: observed`, `admission: accepted` | `admitted` with `receipt` evidence and the receipt's identity. Never resent. |
+| A refusal (`worker_busy`, `session_fenced`, `stale_binding`, ...) | `blocked`; the next attempt has a new command ID. A refusal whose cause cannot clear by itself waits for the owner. |
+| A lost reply, `outcome_unknown`, a missing, expired or scope-denied receipt, a receipt for another request, a receipt not saying `accepted` | `uncertain`. Never sent again. Unsettled receipts are read again; the others wait for the owner. |
+
+On start (`outbox.start()`), every recovered `uncertain` attempt, a
+`dispatching` left by a crash included, is read back by its receipt before
+anything new is sent: an admission whose local ack was lost becomes
+`admitted`, a proven refusal becomes `blocked`, anything else stays uncertain.
+`attention()` lists every outcome still held and what it needs; the owner
+ends an uncertain one only with `abandon(deliveryId, reason)`. This proves the
+parent's input admission, not that the parent read or acted on the outcome
+(root decision Q2).
+
+Help requests are not completions. Each FD 3 `help` claim the provider's
+Observer surfaces becomes its own outcome (`kind: help`, keyed by the
+report's command ID, never taking the run's result slot or closing it),
+committed in the same store record as the Observer's state
+(`workerObserverPersistence`). A restarted parent restores that state
+(`observer.restored`) and resumes observation (`resumeObservation()`), so a
+help request is neither lost nor delivered twice. The parent answers through
+the child's own `sessions.prompt` (B2 refuses resume); wiring that answer to
+the public tools is host composition (P3-11).
 
 ## Grant profile
 
@@ -145,8 +198,11 @@ child's spec grants `children.report` only.
   boundary, slots, manifests, the grant closure and the real-B2 lane's
   source check.
 - `npm run test:worker-b2` runs the `ExecProvider` conformance suite, including
-  the adapter-boundary cases, plus the provider's B2 tests, against pi-worker's
-  real supervisor and B2 server.
+  the adapter-boundary cases, plus the provider's and the parent admission's
+  B2 tests (`b2-admission.test.ts`: the O1 crash cuts with the Maestro process
+  SIGKILLed and restarted, B2 restarts, lost replies, fences, wrong, rebound
+  and stopped parents, expired and denied receipts, help requests), against
+  pi-worker's real supervisor and B2 server.
   - It runs from a built checkout named by `MAESTRO_PI_WORKER_CHECKOUT`, and
     refuses one that is not at the commit in `SOURCE.json`, has tracked or
     untracked changes, or whose `dist` is not byte for byte what that tree
@@ -182,3 +238,8 @@ Still open:
 
 - The slot is not yet projected onto `AgentHandle.worktree`; the handoff and
   bound checks run through `artifacts.inspect` (P3-6, P3-10).
+- Pi composition (`createDefaultRunSession`) does not pass `parentAdmission`
+  yet, and `subagent_send` cannot answer a non-persistent worker child; both
+  belong to the worker parent's host composition (P3-11).
+- A run interrupted by a restart is reported (`recovery().interrupted`), not
+  re-attached to its still-running worker child.

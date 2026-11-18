@@ -223,6 +223,21 @@
 		},
 		{
 			"kind": "new",
+			"destination": "maestro/core/parent-admission.ts",
+			"reason": "P3-9 (post-H2, Maestro-owned): the receipt-backed parent-admission port (prepare, send once, reconcile by receipt, retryable refusals) and the run owner's OutcomeAdmission hand-off."
+		},
+		{
+			"kind": "new",
+			"destination": "maestro/runtime/admission-outbox.ts",
+			"reason": "P3-9 (post-H2, Maestro-owned): AdmissionOutbox, the checked-outcome outbox's delivery owner: attempt identity durable before transport, admission only by matching receipt, waits on busy/fenced/rebound/gone parents, never resends an uncertain attempt, reads receipts back after a restart before sending anything new; owner abandonment only."
+		},
+		{
+			"kind": "new",
+			"destination": "maestro/adapters/worker/parent-admission.ts",
+			"reason": "P3-9 (post-H2, Maestro-owned): WorkerParentAdmission over B2 (sessions.prompt if_busy reject to the parent's exact worker, epoch and session; UUIDv7 command, request hash; lost reply read back once), the versioned outcome envelope, and the Observer state saved with help-request outcomes in one OutcomeStore batch."
+		},
+		{
+			"kind": "new",
 			"destination": "maestro/adapters/worker/worker-exec-provider.ts",
 			"reason": "P3-7 (post-H2, Maestro-owned): WorkerExecutionProvider, the ExecProvider over pi-worker B2 through the exact @nublai/pi-worker-client tarball: typed workers.create {parent, launch_spec} into a claimed owner-prepared slot, the initial prompt as its own command, Observer wake-ups, workers.get/history.page readback, interrupt and stop by receipt; every mutation's UUIDv7 command ID persisted before transport, uncertainty kept and never retried; the leaf's FD 3 result claim transcribed into the run's parent-local completion record."
 		},
@@ -656,8 +671,8 @@
 			"blob": "2d0f444debb54698df366f1486cffff724db76bd",
 			"archive": "provenance/upstream/maestro/runtime/run-session.ts",
 			"owned_change": {
-				"reason": "P3-8: an optional injected OutcomeStore. With it, each attempt is recorded before its acquisition, FinalizeControl.recordCheck records a check's subject before it runs, and a finalized result is committed (one durable record) before delivery or retirement; dispatching is durable before onSettled, which then settles admitted (process-local), suppressed or uncertain. A failed commit keeps the run owned, undelivered and its surfaces retained; the next supervise retries only the commit. recordCheck rejects when the subject is not durable, so the check never runs. Suppression of a finalized result (before or during its commit, or after its dispatch mark) commits it and withdraws it as suppressed, never sending it. Only a run whose completion wait suppression ended before any result (tracked explicitly, never inferred from the result shape; a finalized failure without evidence is still committed and withdrawn) closes its recorded attempts; interrupted verification, a failed finalization and a result that could not be saved keep them open as recovery evidence. Without a store the delivery path is the original code.",
-				"blob": "43005158f378f5af3238fbd8588f64ed4f16fe6b"
+				"reason": "P3-8: an optional injected OutcomeStore. With it, each attempt is recorded before its acquisition, FinalizeControl.recordCheck records a check's subject before it runs, and a finalized result is committed (one durable record) before delivery or retirement; dispatching is durable before onSettled, which then settles admitted (process-local), suppressed or uncertain. A failed commit keeps the run owned, undelivered and its surfaces retained; the next supervise retries only the commit. recordCheck rejects when the subject is not durable, so the check never runs. Suppression of a finalized result (before or during its commit, or after its dispatch mark) commits it and withdraws it as suppressed, never sending it. Only a run whose completion wait suppression ended before any result (tracked explicitly, never inferred from the result shape; a finalized failure without evidence is still committed and withdrawn) closes its recorded attempts; interrupted verification, a failed finalization and a result that could not be saved keep them open as recovery evidence. Without a store the delivery path is the original code. P3-9: an optional parentAdmission (receipt-backed outbox, only with a store): the committed outcome carries its exact envelope and a delivery ID stable across commit retries, and is handed to the outbox, which owns its delivery; onSettled is then a settled notification only. Without it the P3-8 path is unchanged.",
+				"blob": "9512a20f188c891d0140d7a790366a52eb97f536"
 			}
 		},
 		{

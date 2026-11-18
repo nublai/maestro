@@ -45,6 +45,7 @@ try {
 			"--test-concurrency=1",
 			"test/worker/b2-conformance.test.ts",
 			"test/worker/b2-provider.test.ts",
+			"test/worker/b2-admission.test.ts",
 		],
 		{
 			cwd: root,
