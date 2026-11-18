@@ -59,6 +59,60 @@ export function commonLineRanges(
 	return ranges;
 }
 
+/**
+ * Original lines an owned change moved out of the copy into another file:
+ * the lines `mapped` does not already place are matched, in order, against
+ * `moved`, so moved code stays held to its original floor in its new file.
+ */
+export function movedLineRanges(
+	original: string[],
+	mapped: readonly LineRange[],
+	moved: string[],
+	destination: string,
+): LineRange[] {
+	const placed = new Set(
+		mapped.flatMap((range) =>
+			Array.from(
+				{ length: range.source_end - range.source_start + 1 },
+				(_, offset) => range.source_start + offset,
+			),
+		),
+	);
+	const rest = original.flatMap((text, index) =>
+		placed.has(index + 1) ? [] : [{ text, line: index + 1 }],
+	);
+	const ranges: LineRange[] = [];
+	for (const range of commonLineRanges(
+		rest.map((entry) => entry.text),
+		moved,
+		destination,
+	))
+		for (
+			let offset = 0;
+			offset <= range.source_end - range.source_start;
+			offset++
+		) {
+			const source = rest[range.source_start - 1 + offset]!.line;
+			const line = range.destination_start + offset;
+			const last = ranges.at(-1);
+			if (
+				last &&
+				last.source_end + 1 === source &&
+				last.destination_start + (last.source_end - last.source_start) + 1 ===
+					line
+			)
+				last.source_end = source;
+			else
+				ranges.push({
+					source_start: source,
+					source_end: source,
+					destination,
+					destination_start: line,
+				});
+		}
+	return ranges;
+}
+
 /** Indentation-insensitive: H1's split re-indents moved protocol code inside a factory. */
 const lines = (text: string) =>
 	text
@@ -104,6 +158,13 @@ if (
 		],
 		["pi-extension/subagents/index.ts", "pi-extension/subagents/extension.ts"],
 	]);
+	/** Owned changes that moved original code into new Maestro files (P3-4). */
+	const moves = new Map([
+		[
+			"maestro/adapters/pi/pi-harness-adapter.ts",
+			["maestro/adapters/pi/terminal-exec-provider.ts"],
+		],
+	]);
 	// `owned` re-maps files Maestro already owns whose copy records an owned change.
 	const owned = new Set(
 		copies.entries.flatMap((entry) =>
@@ -138,6 +199,23 @@ if (
 		assert.equal(before.length, original.total_lines, original.source);
 		const after = lines(readFileSync(resolve(root, destination), "utf8"));
 		const ranges = commonLineRanges(before, after, destination);
+		const primary = ranges.length;
+		const targets = step === "owned" ? (moves.get(original.source) ?? []) : [];
+		for (const target of targets)
+			ranges.push(
+				...movedLineRanges(
+					before,
+					ranges,
+					lines(readFileSync(resolve(root, target), "utf8")),
+					target,
+				),
+			);
+		const movedLines = ranges
+			.slice(primary)
+			.reduce(
+				(sum, range) => sum + range.source_end - range.source_start + 1,
+				0,
+			);
 		const mapped = ranges.reduce(
 			(sum, range) => sum + range.source_end - range.source_start + 1,
 			0,
@@ -146,7 +224,7 @@ if (
 		original.split_line_map = ranges;
 		original.mapping_status =
 			step === "owned"
-				? `Copy from the H1 pin (${destination}) with a recorded owned change after H2; ${mapped}/${before.length} original lines map by indentation-insensitive line diff, ${before.length - mapped} changed or removed after the coverage baseline, ${after.length - mapped} destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.`
+				? `Copy from the H1 pin (${destination}) with a recorded owned change after H2; ${mapped}/${before.length} original lines map by indentation-insensitive line diff${movedLines ? ` (${movedLines} of them moved into ${targets.join(", ")})` : ""}, ${before.length - mapped} changed or removed after the coverage baseline, ${after.length - (mapped - movedLines)} destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.`
 				: mapped === before.length && after.length === before.length
 					? `${step} whole-file identity copy from the H1 pin; no source lines split or omitted. ${step} per-file gate: scripts/test-unit.ts --coverage.`
 					: `${step} copy from the H1 pin (${destination}); ${mapped}/${before.length} original lines map by indentation-insensitive line diff, ${before.length - mapped} changed or removed upstream after the coverage baseline, ${after.length - mapped} destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.`;

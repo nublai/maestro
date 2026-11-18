@@ -600,78 +600,480 @@
 			"split_line_map": [
 				{
 					"source_start": 1,
-					"source_end": 54,
+					"source_end": 14,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
 					"destination_start": 1
+				},
+				{
+					"source_start": 15,
+					"source_end": 35,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 24
+				},
+				{
+					"source_start": 38,
+					"source_end": 38,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 45
+				},
+				{
+					"source_start": 40,
+					"source_end": 40,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 46
+				},
+				{
+					"source_start": 53,
+					"source_end": 53,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 52
+				},
+				{
+					"source_start": 54,
+					"source_end": 54,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 57
 				},
 				{
 					"source_start": 56,
 					"source_end": 58,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 56
+					"destination_start": 59
 				},
 				{
 					"source_start": 59,
-					"source_end": 87,
+					"source_end": 63,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 65
+					"destination_start": 68
 				},
 				{
-					"source_start": 88,
+					"source_start": 65,
+					"source_end": 86,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 73
+				},
+				{
+					"source_start": 90,
+					"source_end": 93,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 125
+				},
+				{
+					"source_start": 95,
+					"source_end": 105,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 134
+				},
+				{
+					"source_start": 107,
+					"source_end": 122,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 146
+				},
+				{
+					"source_start": 124,
+					"source_end": 124,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 165
+				},
+				{
+					"source_start": 128,
+					"source_end": 129,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 170
+				},
+				{
+					"source_start": 131,
+					"source_end": 131,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 173
+				},
+				{
+					"source_start": 140,
+					"source_end": 140,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 186
+				},
+				{
+					"source_start": 142,
+					"source_end": 208,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 188
+				},
+				{
+					"source_start": 210,
 					"source_end": 210,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 95
+					"destination_start": 256
 				},
 				{
 					"source_start": 211,
+					"source_end": 262,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 258
+				},
+				{
+					"source_start": 264,
+					"source_end": 272,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 311
+				},
+				{
+					"source_start": 274,
 					"source_end": 274,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 219
+					"destination_start": 321
 				},
 				{
 					"source_start": 275,
+					"source_end": 282,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 323
+				},
+				{
+					"source_start": 284,
+					"source_end": 284,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 332
+				},
+				{
+					"source_start": 294,
+					"source_end": 294,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 346
+				},
+				{
+					"source_start": 295,
+					"source_end": 296,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 352
+				},
+				{
+					"source_start": 298,
+					"source_end": 320,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 355
+				},
+				{
+					"source_start": 322,
+					"source_end": 348,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 379
+				},
+				{
+					"source_start": 350,
+					"source_end": 355,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 407
+				},
+				{
+					"source_start": 465,
+					"source_end": 466,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 415
+				},
+				{
+					"source_start": 471,
+					"source_end": 500,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 419
+				},
+				{
+					"source_start": 506,
+					"source_end": 506,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 452
+				},
+				{
+					"source_start": 508,
+					"source_end": 522,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 463
+				},
+				{
+					"source_start": 523,
+					"source_end": 525,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 479
+				},
+				{
+					"source_start": 530,
+					"source_end": 533,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 486
+				},
+				{
+					"source_start": 535,
+					"source_end": 548,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 491
+				},
+				{
+					"source_start": 552,
 					"source_end": 554,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 284
+					"destination_start": 507
 				},
 				{
 					"source_start": 555,
+					"source_end": 561,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 513
+				},
+				{
+					"source_start": 563,
+					"source_end": 564,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 521
+				},
+				{
+					"source_start": 566,
+					"source_end": 566,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 526
+				},
+				{
+					"source_start": 569,
 					"source_end": 583,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 567
+					"destination_start": 529
 				},
 				{
 					"source_start": 585,
 					"source_end": 592,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 597
+					"destination_start": 545
 				},
 				{
 					"source_start": 597,
 					"source_end": 597,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 607
+					"destination_start": 555
 				},
 				{
 					"source_start": 598,
 					"source_end": 601,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 611
+					"destination_start": 559
 				},
 				{
 					"source_start": 602,
+					"source_end": 620,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 569
+				},
+				{
+					"source_start": 622,
 					"source_end": 629,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 621
+					"destination_start": 589
 				},
 				{
 					"source_start": 630,
-					"source_end": 728,
+					"source_end": 652,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 622
+				},
+				{
+					"source_start": 654,
+					"source_end": 654,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 656
+				},
+				{
+					"source_start": 656,
+					"source_end": 662,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 659
+				},
+				{
+					"source_start": 668,
+					"source_end": 676,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 669
+				},
+				{
+					"source_start": 679,
+					"source_end": 679,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
 					"destination_start": 678
+				},
+				{
+					"source_start": 680,
+					"source_end": 714,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 682
+				},
+				{
+					"source_start": 717,
+					"source_end": 718,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 729
+				},
+				{
+					"source_start": 728,
+					"source_end": 728,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 741
+				},
+				{
+					"source_start": 41,
+					"source_end": 41,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 3
+				},
+				{
+					"source_start": 42,
+					"source_end": 46,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 25
+				},
+				{
+					"source_start": 48,
+					"source_end": 48,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 30
+				},
+				{
+					"source_start": 50,
+					"source_end": 50,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 32
+				},
+				{
+					"source_start": 52,
+					"source_end": 52,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 34
+				},
+				{
+					"source_start": 88,
+					"source_end": 88,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 59
+				},
+				{
+					"source_start": 127,
+					"source_end": 127,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 86
+				},
+				{
+					"source_start": 132,
+					"source_end": 135,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 91
+				},
+				{
+					"source_start": 137,
+					"source_end": 139,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 96
+				},
+				{
+					"source_start": 141,
+					"source_end": 141,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 100
+				},
+				{
+					"source_start": 286,
+					"source_end": 286,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 128
+				},
+				{
+					"source_start": 288,
+					"source_end": 288,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 139
+				},
+				{
+					"source_start": 290,
+					"source_end": 291,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 141
+				},
+				{
+					"source_start": 321,
+					"source_end": 321,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 237
+				},
+				{
+					"source_start": 358,
+					"source_end": 359,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 265
+				},
+				{
+					"source_start": 361,
+					"source_end": 361,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 269
+				},
+				{
+					"source_start": 362,
+					"source_end": 362,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 271
+				},
+				{
+					"source_start": 364,
+					"source_end": 368,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 274
+				},
+				{
+					"source_start": 370,
+					"source_end": 374,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 280
+				},
+				{
+					"source_start": 375,
+					"source_end": 385,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 286
+				},
+				{
+					"source_start": 387,
+					"source_end": 430,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 301
+				},
+				{
+					"source_start": 431,
+					"source_end": 432,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 346
+				},
+				{
+					"source_start": 434,
+					"source_end": 464,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 352
+				},
+				{
+					"source_start": 677,
+					"source_end": 677,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 392
+				},
+				{
+					"source_start": 715,
+					"source_end": 716,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 398
+				},
+				{
+					"source_start": 719,
+					"source_end": 727,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 402
 				}
 			],
-			"mapping_status": "Copy from the H1 pin (maestro/adapters/pi/pi-harness-adapter.ts) with a recorded owned change after H2; 722/728 original lines map by indentation-insensitive line diff, 6 changed or removed after the coverage baseline, 54 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
+			"mapping_status": "Copy from the H1 pin (maestro/adapters/pi/pi-harness-adapter.ts) with a recorded owned change after H2; 657/728 original lines map by indentation-insensitive line diff (138 of them moved into maestro/adapters/pi/terminal-exec-provider.ts), 71 changed or removed after the coverage baseline, 222 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
 			"covered_lines": 685,
 			"total_lines": 728,
 			"branch_function_variants": [

@@ -118,6 +118,11 @@
 			"import": "./dist/maestro/core/delegation-depth.js",
 			"default": "./dist/maestro/core/delegation-depth.js"
 		},
+		"./core/exec-provider": {
+			"types": "./dist/maestro/core/exec-provider.d.ts",
+			"import": "./dist/maestro/core/exec-provider.js",
+			"default": "./dist/maestro/core/exec-provider.js"
+		},
 		"./core/git-environment": {
 			"types": "./dist/maestro/core/git-environment.d.ts",
 			"import": "./dist/maestro/core/git-environment.js",
@@ -347,6 +352,11 @@
 			"types": "./dist/maestro/adapters/pi/task-model-init.d.ts",
 			"import": "./dist/maestro/adapters/pi/task-model-init.js",
 			"default": "./dist/maestro/adapters/pi/task-model-init.js"
+		},
+		"./adapters/pi/terminal-exec-provider": {
+			"types": "./dist/maestro/adapters/pi/terminal-exec-provider.d.ts",
+			"import": "./dist/maestro/adapters/pi/terminal-exec-provider.js",
+			"default": "./dist/maestro/adapters/pi/terminal-exec-provider.js"
 		},
 		"./adapters/pi/child/accept-check": {
 			"types": "./dist/maestro/adapters/pi/child/accept-check.d.ts",

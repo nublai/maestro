@@ -14,8 +14,19 @@ fresh tarball and tests the emitted package without Pi peers or TypeScript loade
 The package root (`@nubl/maestro`) and `@nubl/maestro/engine` are the same
 engine entry. `@nubl/maestro/engine` exposes `createRunSession`, `defaultRetainSurface` and
 existing core/run-session types without Pi peers, config discovery or provider
-initialization. `@nubl/maestro/testing` exposes the two fakes and reusable
-conformance runners. These entries execute emitted JavaScript.
+initialization. `@nubl/maestro/testing` exposes the fakes (harness adapter,
+surface provider and execution provider) and reusable conformance runners.
+These entries execute emitted JavaScript.
+
+The shared Pi adapter runs every execution effect through one `ExecProvider`
+(`@nubl/maestro/core/exec-provider`): launch, inspect/observe, read, prompt,
+interrupt, stop and reconcile, with explicit capabilities. A request that
+needs a capability the provider lacks is refused before anything is acquired.
+The provider also supervises completion: presence and wake-ups come from its
+`supervise`, or from `observe` when it has none.
+The Herdr/Core terminal execution is the first implementation
+(`TerminalExecProvider`, `@nubl/maestro/adapters/pi/terminal-exec-provider`),
+and the default when a host supplies only a surface provider.
 
 `@nubl/maestro/runtime` is the Pi-aware runtime barrel (`createDefaultRunSession`
 and its option types). A terminal host composes it with an explicit

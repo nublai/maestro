@@ -2,6 +2,58 @@
 
 ## Unreleased
 
+### ExecProvider seam (P3-4)
+
+No behaviour change for Herdr or Herdr Core hosts: same tools, schemas,
+error text, lifecycle, cancel and fallback.
+
+- `ExecProvider` (`@nubl/maestro/core/exec-provider`): where one run executes.
+  `launch`, `inspect`/`observe`, `read`, `prompt`, `interrupt`, `stop` and
+  `reconcile`, with explicit capabilities (resume, fork, persistent, shared
+  checkout, worktree, caller surface, execution exit and parent admission).
+  Handles carry the provider's opaque reference and capabilities; a surface ID
+  only when the provider really hosts one. `stop` reports whether the request
+  was sent separately from whether termination is confirmed.
+- `PiHarnessAdapter` sends every execution effect through one provider. The
+  existing Herdr/Core execution is `TerminalExecProvider`
+  (`@nubl/maestro/adapters/pi/terminal-exec-provider`), still the default when
+  only a surface is supplied; its stop logic moved there unchanged. A request
+  that needs a capability the provider lacks is refused before any
+  acquisition. Herdr Core keeps its existing refusal text for managed
+  worktrees and supplied panes. The run owner (`RunSession`) is unchanged.
+- The adapter keeps a provider's top-level `launchFailure` on the owned
+  attempt: an acquired launch with an uncertain dispatch stays owned, is never
+  retried with a fallback model and never completes as `done`. It passes the
+  acquisition signal to `launch` as the seam's control argument.
+- Completion presence and wake-ups come from the provider: the optional
+  `ExecProvider.supervise` (terminal: the existing batched pane and
+  session-file supervision, now passed to `TerminalExecProvider` as
+  `supervision`), else `observeSupervision` over `observe`. While that
+  observation stays open with no new snapshot, `observeSupervision` still
+  wakes each second, so a quiet push provider's run completes on its local
+  evidence or native exit. The adapter's
+  `supervision` option is terminal composition, now optional; an `exec`
+  provider supervises its own runs.
+- `PiExecution` is Pi's shared execution record: the terminal-only fields
+  (pane, pane ownership, launch script) are optional, so a provider without
+  panes invents none. `PiHarnessAdapter` is generic over it, defaulting to the
+  terminal's `PiRunningChild`.
+- `@nubl/maestro/testing` adds `FakeExecProvider` and
+  `registerExecProviderConformance`. The suite also drives the shared adapter
+  when a fixture composes one (`ExecAdapterBoundary`): refusal before
+  acquisition, aborted acquisition, the handle's surface and opaque
+  reference, read/stop and unconfirmed stops, uncertain launches, and
+  completion through `awaitCompletion` when a fixture can record evidence
+  (`finish`). The terminal fixtures compose the adapter as the run session
+  does, with its batched supervision coordinator. Fixture
+  `blockStop` now returns the request state the blocked stop must report.
+  The fake, a pane-less Pi fake (full and limited) and both terminal variants
+  pass it.
+- Terminal parent admission is declared `best-effort`: a host message without
+  receipts or deduplication.
+
+### Early-exit relay
+
 Docs and tests only; no behaviour change.
 
 - Documented a limit of the early-exit relay's masking. The relay cannot learn
