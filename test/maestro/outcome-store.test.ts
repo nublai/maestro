@@ -827,27 +827,48 @@ describe("FileOutcomeStore on disk", () => {
 		const root = mkdtempSync(join(tmpdir(), "maestro-outcome-lock-"));
 		t.after(() => rmSync(root, { recursive: true, force: true }));
 		const dir = join(root, "d".repeat(60), "e".repeat(60));
-		const store = await FileOutcomeStore.open({ dir, parent: "p" });
-		assert.ok(lstatSync(join(dir, OUTCOME_LOCK_FILE)).isSocket());
-		await assert.rejects(
-			FileOutcomeStore.open({ dir, parent: "p" }),
-			/one writer per store/,
-		);
-		await store.close();
-		const again = await FileOutcomeStore.open({ dir, parent: "p" });
-		await again.close();
-		assert.deepEqual(
-			readdirSync(tmpdir()).filter((name) => name.startsWith("maestro-lock-")),
-			[],
-			"no alias is left behind",
-		);
-		// A temporary directory too long for an alias falls back to /tmp.
+		// Aliases are made under TMPDIR: give this test a private one, so the
+		// check sees only this store's aliases, never another process's.
 		const previous = process.env.TMPDIR;
-		process.env.TMPDIR = dir;
+		// It lives under /tmp, short enough for an alias to fit beneath it.
+		const aliasRoot = mkdtempSync("/tmp/mo-");
+		t.after(() => rmSync(aliasRoot, { recursive: true, force: true }));
+		const made: string[] = [];
+		const mkdtemp = fs.mkdtempSync;
+		// SAFETY: the wrapper forwards its arguments and result unchanged, so it keeps mkdtemp's signature.
+		fs.mkdtempSync = ((...args: Parameters<typeof mkdtemp>) => {
+			const path = mkdtemp(...args);
+			made.push(path);
+			return path;
+		}) as typeof mkdtemp;
+		syncBuiltinESMExports();
 		try {
+			process.env.TMPDIR = aliasRoot;
+			const store = await FileOutcomeStore.open({ dir, parent: "p" });
+			assert.ok(lstatSync(join(dir, OUTCOME_LOCK_FILE)).isSocket());
+			await assert.rejects(
+				FileOutcomeStore.open({ dir, parent: "p" }),
+				/one writer per store/,
+			);
+			await store.close();
+			const again = await FileOutcomeStore.open({ dir, parent: "p" });
+			await again.close();
+			// Each of the three opens (one refused) made an alias in the private
+			// root, and each was removed.
+			assert.equal(
+				made.filter((p) => p.startsWith(join(aliasRoot, "maestro-lock-")))
+					.length,
+				3,
+				"the aliases are the ones this test's stores made",
+			);
+			assert.deepEqual(readdirSync(aliasRoot), [], "no alias is left behind");
+			// A temporary directory too long for an alias falls back to /tmp.
+			process.env.TMPDIR = dir;
 			const viaTmp = await FileOutcomeStore.open({ dir, parent: "p" });
 			await viaTmp.close();
 		} finally {
+			fs.mkdtempSync = mkdtemp;
+			syncBuiltinESMExports();
 			if (previous === undefined) delete process.env.TMPDIR;
 			else process.env.TMPDIR = previous;
 		}
