@@ -303,6 +303,66 @@ describe("owner-prepared worker slots", () => {
 				/outside every slot/,
 			);
 		}));
+
+	it("a claims path through a symbolic link into a slot is refused, and nothing lands in the slot", () =>
+		using((t) => {
+			const slot = join(t.root, ".piw-slots", "s0");
+			const before = readdirSync(slot).sort();
+			const link = join(t.base, "linked-state");
+			symlinkSync(slot, link);
+			assert.throws(
+				() =>
+					new WorkerSlotPool({
+						root: t.root,
+						slots: t.slots,
+						claimsDir: join(link, "claims"),
+					}),
+				/linked-state is a symbolic link/,
+			);
+			assert.deepEqual(readdirSync(slot).sort(), before);
+		}));
+
+	it("a claim file that is a link is never read through", () =>
+		using((t) => {
+			const pool = t.pool();
+			const inSlot = join(t.root, ".piw-slots", "s1", "fake.claim");
+			writeFileSync(
+				inSlot,
+				`${JSON.stringify({ launch_id: "from-a-slot" })}\n`,
+			);
+			symlinkSync(inSlot, join(pool.claimsDir, "s0.claim"));
+			assert.equal(pool.holder("s0"), undefined);
+			// Nor is it taken over: the exclusive create refuses it.
+			assert.throws(
+				() => pool.claim("launch-a"),
+				refusal("slots_exhausted", /s0 was claimed concurrently/),
+			);
+		}));
+
+	it("a claims directory swapped for a link after the pool was made is refused at the next claim or release", () =>
+		using((t) => {
+			const pool = t.pool();
+			const held = pool.claim("launch-a");
+			assert.equal(held.name, "s0");
+			// The claims' parent becomes a link into slot s1.
+			const state = join(t.base, "state");
+			const slot = join(t.root, ".piw-slots", "s1");
+			rmSync(state, { recursive: true });
+			mkdirSync(join(slot, "slots"), { mode: 0o700 });
+			writeFileSync(
+				join(slot, "slots", "s0.claim"),
+				`${JSON.stringify({ launch_id: "launch-a" })}\n`,
+			);
+			symlinkSync(slot, state);
+			assert.throws(() => pool.claim("launch-b"), /state is a symbolic link/);
+			assert.throws(
+				() => pool.release("s0", "launch-a"),
+				/state is a symbolic link/,
+			);
+			assert.throws(() => pool.holder("s0"), /state is a symbolic link/);
+			// The claim file inside the slot was neither deleted nor joined by another.
+			assert.deepEqual(readdirSync(join(slot, "slots")), ["s0.claim"]);
+		}));
 });
 
 describe("worker acquisition manifests", () => {

@@ -6,9 +6,11 @@
 import "../clean-host-env.ts";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { chmodSync, existsSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
-import { ClientFailure } from "@nublai/pi-worker-client";
+import { ClientFailure, type Receipt } from "@nublai/pi-worker-client";
+import { isAcquisitionUncertainError } from "../../maestro/core/surface-provider.ts";
+import { createRunSession } from "../../maestro/runtime/run-session.ts";
 import { encodeResultClaim } from "../../maestro/adapters/worker/fd-report.ts";
 import {
 	MAESTRO_WORKER_EXCLUDED_METHODS,
@@ -19,16 +21,67 @@ import {
 	WorkerLaunchStore,
 } from "../../maestro/adapters/worker/launch-store.ts";
 import { WorkerSlotRefusal } from "../../maestro/adapters/worker/slots.ts";
-import { WorkerLaunchRefusal } from "../../maestro/adapters/worker/worker-exec-provider.ts";
+import {
+	WorkerCommandUncertain,
+	WorkerLaunchRefusal,
+} from "../../maestro/adapters/worker/worker-exec-provider.ts";
 import {
 	adapterOver,
 	B2Fixture,
 	composeProvider,
 	freshRequest,
 	parentSession,
+	role,
 	spawnOptions,
 	workerOf,
 } from "../helpers/worker-b2-fixture.ts";
+
+/**
+ * The launch store fails every write from the moment the `nth` B2 reply to
+ * `operation` arrives: its directory turns read-only (a full disk or a lost
+ * mount, as the provider sees it). The reply itself is returned unchanged.
+ * The parent's next `workers.get` (a new launch starting) restores it.
+ */
+interface StoreFault {
+	seen: number;
+	broken: boolean;
+	/** The reply after which the store failed. */
+	reply?: Receipt;
+}
+
+function failStoreAfter(
+	composed: ReturnType<typeof composeProvider>,
+	parentWorkerId: string,
+	operation: string,
+	nth = 1,
+) {
+	const { client, launches } = composed;
+	const call = client.call.bind(client);
+	const state: StoreFault = { seen: 0, broken: false };
+	const restore = () => {
+		if (!state.broken) return;
+		chmodSync(launches.dir, 0o700);
+		state.broken = false;
+	};
+	// SAFETY: a pass-through wrapper with the client's own signature.
+	client.call = (async (
+		op: string,
+		options: { path?: { worker_id?: string } },
+	) => {
+		if (op === "workers.get" && options?.path?.worker_id === parentWorkerId)
+			restore();
+		// SAFETY: forwards the caller's own operation and options unchanged.
+		const reply = await call(op as never, options as never);
+		if (op === operation && ++state.seen === nth) {
+			// SAFETY: a mutation's reply is its receipt.
+			state.reply = reply as Receipt;
+			chmodSync(launches.dir, 0o500);
+			state.broken = true;
+		}
+		return reply;
+	}) as typeof client.call;
+	return { state, restore };
+}
 
 async function withFixture(
 	run: (f: {
@@ -139,6 +192,70 @@ describe("worker provider over real B2: prepared-slot acquisition", () => {
 			assert.equal(slots.holder("s0"), undefined);
 			const next = await provider.launch(freshRequest(session));
 			assert.equal(provider.manifest(next.handle)?.slot.name, "s0");
+		}));
+});
+
+describe("worker provider over real B2: invariant 4a (kept; P3-10 owns the handoff)", () => {
+	it("stopping a child that never reported fences its parent; the provider neither clears the fence nor launches a replacement", () =>
+		withFixture(async ({ fixture, composed, session }) => {
+			const { provider } = composed;
+			const launch = await provider.launch(freshRequest(session));
+			assert.deepEqual(await provider.stop(launch.handle), {
+				request: "sent",
+				termination: "confirmed",
+			});
+			const parent = await fixture.row(fixture.started.parentWorkerId);
+			assert.ok(parent.fence, "the worker fenced the parent");
+			await assert.rejects(
+				provider.launch(freshRequest(session)),
+				(error: Error) =>
+					error instanceof WorkerLaunchRefusal &&
+					/no running, unfenced execution/.test(error.message),
+			);
+			assert.equal(await fixture.op<number>("acquisitions"), 1);
+			assert.deepEqual(
+				(await fixture.row(fixture.started.parentWorkerId)).fence,
+				parent.fence,
+			);
+		}));
+});
+
+describe("worker provider over real B2: the role identity", () => {
+	it("a request to replace the system prompt is refused before acquisition; append travels as the preamble", () =>
+		withFixture(async ({ fixture, composed, session }) => {
+			const { provider, launches, slots } = composed;
+			const replace = freshRequest(session);
+			replace.behavior = {
+				...replace.behavior,
+				identity: "You are the reviewer.",
+				systemPromptMode: "replace",
+			};
+			await assert.rejects(
+				provider.launch(replace),
+				(error: Error) =>
+					error instanceof WorkerLaunchRefusal &&
+					/cannot replace a child's system prompt.*refused before acquisition/.test(
+						error.message,
+					),
+			);
+			assert.equal(await fixture.op<number>("acquisitions"), 0);
+			assert.equal(launches.list().length, 0);
+			assert.equal(slots.holder("s0"), undefined);
+			const append = freshRequest(session);
+			append.behavior = {
+				...append.behavior,
+				identity: "You are the reviewer.",
+				systemPromptMode: "append",
+			};
+			const launch = await provider.launch(append);
+			assert.equal(launch.launchFailure, undefined);
+			const [prompt] = await fixture.op<{ message: string }[]>("prompts", {
+				workerId: workerOf(provider, launch),
+			});
+			assert.match(
+				prompt?.message ?? "",
+				/^You are the reviewer\.\n\n---\n\nTask:\n/,
+			);
 		}));
 });
 
@@ -269,6 +386,415 @@ describe("worker provider over real B2: commands and uncertainty", () => {
 				.manifest(launch.handle)
 				?.commands.find((c) => c.input_id === "slash");
 			assert.equal(command?.outcome, "no_effect");
+		}));
+});
+
+describe("worker provider over real B2: a store failure after dispatch", () => {
+	it("after workers.create: the acquired worker is returned owned with an explicit failure; nothing more is sent", () =>
+		withFixture(async ({ fixture, composed, session }) => {
+			const { provider, slots } = composed;
+			const fault = failStoreAfter(
+				composed,
+				fixture.started.parentWorkerId,
+				"workers.create",
+			);
+			let launch;
+			try {
+				launch = await provider.launch(freshRequest(session));
+			} finally {
+				fault.restore();
+			}
+			const workerId = fault.state.reply?.worker_id;
+			assert.ok(workerId, "the worker acquired one child");
+			assert.match(
+				launch.launchFailure ?? "",
+				/acquired.*could not be recorded.*not prompted, retained/,
+			);
+			assert.equal(await fixture.op<number>("acquisitions"), 1);
+			assert.equal(
+				(await fixture.op<unknown[]>("prompts", { workerId })).length,
+				0,
+				"no initial prompt after the failed write",
+			);
+			// The original command, manifest and slot stay as they were.
+			const manifest = provider.manifest(launch.handle);
+			assert.equal(manifest?.state, "creating");
+			assert.deepEqual(
+				manifest?.commands.map((c) => [c.purpose, c.outcome]),
+				[["create", "pending"]],
+			);
+			assert.equal(slots.holder(manifest.slot.name), manifest.launch_id);
+			// It is owned: the provider stops exactly that worker.
+			assert.deepEqual(await provider.stop(launch.handle), {
+				request: "sent",
+				termination: "confirmed",
+			});
+			assert.equal((await fixture.row(workerId)).status, "stopped");
+		}));
+
+	// Worktree tasks take no model fallbacks; the unsafe path was a plain rejection
+	// the caller may retry, acquiring a second child (review reproduction).
+	it("after workers.create: the shared owner registers that owner instead of a retryable failure", () =>
+		withFixture(async ({ fixture, composed, session }) => {
+			const { provider, launches } = composed;
+			const { adapter } = adapterOver(provider, session);
+			const runs = createRunSession({
+				adapter,
+				roles: [role],
+				cwd: session.root,
+			});
+			const fault = failStoreAfter(
+				composed,
+				fixture.started.parentWorkerId,
+				"workers.create",
+			);
+			let handle;
+			try {
+				handle = await runs.spawn({
+					id: "post-create",
+					name: "post-create",
+					role: role.name,
+					prompt: "bounded task",
+					cwd: session.root,
+					worktree: { branch: "w" },
+					runtime: { model: "fake/test", thinking: "off" },
+				});
+			} finally {
+				fault.restore();
+			}
+			assert.match(handle.launchFailure ?? "", /could not be recorded/);
+			assert.equal(runs.getHandle("post-create"), handle);
+			assert.equal(
+				await fixture.op<number>("acquisitions"),
+				1,
+				"no replacement acquisition",
+			);
+			assert.equal(launches.list().length, 1, "no second manifest");
+		}));
+
+	it("after the initial sessions.prompt: the prompted worker stays owned, its prompt never re-sent", () =>
+		withFixture(async ({ fixture, composed, session }) => {
+			const { provider, slots } = composed;
+			const fault = failStoreAfter(
+				composed,
+				fixture.started.parentWorkerId,
+				"sessions.prompt",
+			);
+			let launch;
+			try {
+				launch = await provider.launch(freshRequest(session));
+			} finally {
+				fault.restore();
+			}
+			assert.match(
+				launch.launchFailure ?? "",
+				/initial prompt.*could not be recorded.*never re-sent/,
+			);
+			const workerId = workerOf(provider, launch);
+			assert.equal(
+				(await fixture.op<unknown[]>("prompts", { workerId })).length,
+				1,
+			);
+			assert.equal(await fixture.op<number>("acquisitions"), 1);
+			const manifest = provider.manifest(launch.handle);
+			assert.equal(manifest?.state, "acquired");
+			assert.deepEqual(
+				manifest?.commands.map((c) => [c.purpose, c.outcome]),
+				[
+					["create", "observed"],
+					["initial-prompt", "pending"],
+				],
+			);
+			assert.equal(slots.holder(manifest.slot.name), manifest.launch_id);
+		}));
+
+	it("after a later sessions.prompt or executions.interrupt: an uncertain command, never a plain failure", () =>
+		withFixture(async ({ fixture, composed, session }) => {
+			const { provider } = composed;
+			const launch = await provider.launch(freshRequest(session));
+			const workerId = workerOf(provider, launch);
+			const parent = fixture.started.parentWorkerId;
+			const prompted = failStoreAfter(composed, parent, "sessions.prompt");
+			try {
+				await assert.rejects(
+					provider.prompt(launch.handle, { id: "later", text: "more" }),
+					(error: Error) =>
+						error instanceof WorkerCommandUncertain &&
+						/input later was accepted.*could not be recorded.*never re-sent/.test(
+							error.message,
+						),
+				);
+			} finally {
+				prompted.restore();
+			}
+			assert.equal(
+				(await fixture.op<unknown[]>("prompts", { workerId })).length,
+				2,
+			);
+			const interrupted = failStoreAfter(
+				composed,
+				parent,
+				"executions.interrupt",
+			);
+			try {
+				await assert.rejects(
+					provider.interrupt(launch.handle),
+					(error: Error) =>
+						error instanceof WorkerCommandUncertain &&
+						/interrupt was observed.*could not be recorded/.test(error.message),
+				);
+			} finally {
+				interrupted.restore();
+			}
+			assert.deepEqual(
+				provider
+					.manifest(launch.handle)
+					?.commands.map((c) => [c.purpose, c.outcome]),
+				[
+					["create", "observed"],
+					["initial-prompt", "observed"],
+					["prompt", "pending"],
+					["interrupt", "pending"],
+				],
+			);
+		}));
+
+	it("after workers.stop: an unconfirmed stop report, never a rejection; the next stop confirms without a new command", () =>
+		withFixture(async ({ fixture, composed, session }) => {
+			const { provider } = composed;
+			const launch = await provider.launch(freshRequest(session));
+			const fault = failStoreAfter(
+				composed,
+				fixture.started.parentWorkerId,
+				"workers.stop",
+			);
+			let report;
+			try {
+				report = await provider.stop(launch.handle);
+			} finally {
+				fault.restore();
+			}
+			assert.equal(report.request, "sent");
+			assert.equal(report.termination, "unconfirmed");
+			assert.ok(
+				report.termination === "unconfirmed" &&
+					report.error instanceof WorkerCommandUncertain &&
+					/could not be recorded/.test(report.error.message),
+			);
+			assert.deepEqual(await provider.stop(launch.handle), {
+				request: "not-sent",
+				termination: "confirmed",
+			});
+			const stops = provider
+				.manifest(launch.handle)
+				?.commands.filter((c) => c.purpose === "stop");
+			assert.deepEqual(
+				stops?.map((c) => c.outcome),
+				["pending"],
+			);
+		}));
+
+	it("a create whose outcome stays unknown is AcquisitionUncertainError even when its record cannot be written", () =>
+		withFixture(async ({ fixture, composed, session }) => {
+			const { provider, client, launches } = composed;
+			const call = client.call.bind(client);
+			// SAFETY: a pass-through wrapper with the client's own signature.
+			client.call = (async (op: string, options: never) => {
+				if (op === "workers.create") {
+					// SAFETY: forwards the caller's own operation and options unchanged.
+					await call(op as never, options);
+					chmodSync(launches.dir, 0o500);
+					throw new Error("socket closed before the reply");
+				}
+				if (op === "receipts.get") throw new Error("socket unavailable");
+				// SAFETY: forwards the caller's own operation and options unchanged.
+				return call(op as never, options);
+			}) as typeof client.call;
+			try {
+				await assert.rejects(provider.launch(freshRequest(session)), (error) =>
+					isAcquisitionUncertainError(error),
+				);
+			} finally {
+				chmodSync(launches.dir, 0o700);
+			}
+			assert.equal(await fixture.op<number>("acquisitions"), 1);
+			const [manifest] = launches.list();
+			assert.equal(manifest?.state, "creating");
+			assert.equal(
+				composed.slots.holder(manifest.slot.name),
+				manifest.launch_id,
+			);
+		}));
+});
+
+/**
+ * The `nth` launch-store write from now fails, once; every other write lands.
+ * A launch writes, in order: 1 `creating`, 2 the create's command, 3 its
+ * outcome, 4 `acquired` (or `uncertain`), 5 the initial prompt's command, 6
+ * its outcome, 7 the launch's uncertainty.
+ */
+function failNthWrite(launches: WorkerLaunchStore, nth: number): void {
+	const update = launches.update.bind(launches);
+	let count = 0;
+	launches.update = (launchId, change) => {
+		if (++count === nth) throw new Error("EIO: injected write failure");
+		return update(launchId, change);
+	};
+}
+
+describe("worker provider over real B2: one failed store write at each step", () => {
+	it("the create's command: nothing is sent or acquired, and the slot is released", () =>
+		withFixture(async ({ fixture, composed, session }) => {
+			const { provider, launches, slots } = composed;
+			failNthWrite(launches, 2);
+			await assert.rejects(
+				provider.launch(freshRequest(session)),
+				/EIO: injected/,
+			);
+			assert.equal(await fixture.op<number>("acquisitions"), 0);
+			assert.equal(launches.list().length, 0);
+			assert.equal(slots.holder("s0"), undefined);
+		}));
+
+	for (const [nth, step, state, commands] of [
+		[3, "the create's outcome", "creating", [["create", "pending"]]],
+		[4, "the acquired state", "creating", [["create", "observed"]]],
+		[5, "the initial prompt's command", "acquired", [["create", "observed"]]],
+	] as const)
+		it(`${step}: the worker is owned with a failure, and nothing more is sent`, () =>
+			withFixture(async ({ fixture, composed, session }) => {
+				const { provider, launches } = composed;
+				failNthWrite(launches, nth);
+				const launch = await provider.launch(freshRequest(session));
+				assert.match(
+					launch.launchFailure ?? "",
+					/acquired, but its outcome could not be recorded \(EIO: injected write failure\); not prompted, retained and owned/,
+				);
+				const manifest = provider.manifest(launch.handle);
+				assert.equal(manifest?.state, state);
+				assert.deepEqual(
+					manifest?.commands.map((c) => [c.purpose, c.outcome]),
+					commands,
+				);
+				assert.equal(await fixture.op<number>("acquisitions"), 1);
+				assert.deepEqual(await provider.stop(launch.handle), {
+					request: "sent",
+					termination: "confirmed",
+				});
+				const stopped = provider.manifest(launch.handle);
+				assert.deepEqual(
+					stopped?.commands.map((c) => c.purpose),
+					["create", "stop"],
+					"no initial prompt was sent",
+				);
+			}));
+
+	it("a refused create's outcome: refused, its manifest and slot kept as they were", () =>
+		withFixture(async ({ fixture, composed, session }) => {
+			const { provider, launches, slots } = composed;
+			const refused = freshRequest(session);
+			refused.behavior = { ...refused.behavior, tools: "read,python" };
+			failNthWrite(launches, 3);
+			await assert.rejects(
+				provider.launch(refused),
+				(error: Error) =>
+					error instanceof WorkerLaunchRefusal &&
+					/nothing acquired, but its outcome could not be recorded/.test(
+						error.message,
+					),
+			);
+			assert.equal(await fixture.op<number>("acquisitions"), 0);
+			const [manifest] = launches.list();
+			assert.equal(manifest?.state, "creating");
+			assert.equal(slots.holder("s0"), manifest.launch_id);
+		}));
+
+	it("an unknown create naming no worker: AcquisitionUncertainError, its failure kept", () =>
+		withFixture(async ({ fixture, composed, session }) => {
+			const { provider, client, launches, slots } = composed;
+			const call = client.call.bind(client);
+			// SAFETY: a pass-through wrapper with the client's own signature.
+			client.call = (async (op: string, options: never) => {
+				if (op === "receipts.get") throw new Error("socket unavailable");
+				// SAFETY: forwards the caller's own operation and options unchanged.
+				const reply = await call(op as never, options);
+				if (op === "workers.create")
+					throw new Error("socket closed before the reply");
+				return reply;
+			}) as typeof client.call;
+			failNthWrite(launches, 4);
+			await assert.rejects(
+				provider.launch(freshRequest(session)),
+				(error: Error) =>
+					isAcquisitionUncertainError(error) &&
+					/never retried\. Its outcome could not be recorded \(EIO/.test(
+						error.message,
+					),
+			);
+			assert.equal(await fixture.op<number>("acquisitions"), 1);
+			const [manifest] = launches.list();
+			assert.equal(manifest?.state, "creating");
+			assert.equal(slots.holder(manifest.slot.name), manifest.launch_id);
+		}));
+
+	it("an unknown create naming its worker: owned and uncertain, its failure kept", () =>
+		withFixture(async ({ fixture, composed, session }) => {
+			const { provider, client, launches } = composed;
+			const call = client.call.bind(client);
+			// SAFETY: a pass-through wrapper with the client's own signature.
+			client.call = (async (op: string, options: never) => {
+				// SAFETY: forwards the caller's own operation and options unchanged.
+				const reply = await call(op as never, options);
+				if (op !== "workers.create") return reply;
+				// The create's receipt as if it were not settled yet: the worker is named, its outcome unknown.
+				// SAFETY: a mutation's reply is its receipt.
+				const receipt = reply as Receipt;
+				return { ...receipt, state: "accepted" };
+			}) as typeof client.call;
+			failNthWrite(launches, 4);
+			const launch = await provider.launch(freshRequest(session));
+			assert.match(
+				launch.launchFailure ?? "",
+				/create outcome unknown.*never retried\. Its outcome could not be recorded \(EIO/,
+			);
+			assert.equal(provider.manifest(launch.handle)?.state, "creating");
+			assert.equal(await fixture.op<number>("acquisitions"), 1);
+		}));
+
+	it("an unknown initial prompt's uncertainty: owned, never re-sent, its failure kept", () =>
+		withFixture(async ({ fixture, composed, session }) => {
+			const { provider, launches } = composed;
+			await fixture.op("uncertainNextLaunch");
+			failNthWrite(launches, 7);
+			const launch = await provider.launch(freshRequest(session));
+			assert.match(
+				launch.launchFailure ?? "",
+				/initial prompt outcome unknown.*never re-sent\. Its outcome could not be recorded \(EIO/,
+			);
+			const workerId = workerOf(provider, launch);
+			assert.equal(
+				(await fixture.op<unknown[]>("prompts", { workerId })).length,
+				1,
+			);
+		}));
+
+	it("a stop's command: not sent, reported unconfirmed, the worker still running", () =>
+		withFixture(async ({ fixture, composed, session }) => {
+			const { provider, launches } = composed;
+			const launch = await provider.launch(freshRequest(session));
+			failNthWrite(launches, 1);
+			const report = await provider.stop(launch.handle);
+			assert.equal(report.request, "not-sent");
+			assert.equal(report.termination, "unconfirmed");
+			assert.ok(
+				report.termination === "unconfirmed" &&
+					report.error instanceof Error &&
+					/EIO: injected/.test(report.error.message),
+			);
+			assert.equal(
+				(await fixture.row(workerOf(provider, launch))).status,
+				"ready",
+			);
 		}));
 });
 
@@ -430,6 +956,10 @@ describe("worker provider over real B2: Maestro's grant profile", () => {
 			assert.equal(seen.includes(foreign.workerId), false);
 		}));
 
+	// FLIP when pi-worker adds executions.interrupt to its parent channel (root
+	// decision 2026-11-18, P3-7 open items (1); a separate pi-worker PR): the
+	// expected gap becomes ["children.report"] and the provider's interrupt path,
+	// kept as is, then works through a sandboxed parent's channel.
 	it("records the P2-8 channel gap: its whitelist lacks executions.interrupt", () =>
 		withFixture(async ({ fixture }) => {
 			// A sandboxed parent's channel serves only its whitelist; Maestro's profile

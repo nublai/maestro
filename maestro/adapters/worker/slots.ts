@@ -12,8 +12,10 @@
  */
 import {
 	closeSync,
+	constants,
 	fsyncSync,
 	lstatSync,
+	mkdirSync,
 	openSync,
 	readFileSync,
 	realpathSync,
@@ -110,7 +112,10 @@ export interface WorkerSlotPoolOptions {
 	/** The parent's root (its sandbox root): the slots live in `root/.piw-slots`. */
 	root: string;
 	slots: readonly WorkerSlot[];
-	/** Where claims are recorded: private to the parent, outside every slot. */
+	/**
+	 * Where claims are recorded: private to the parent, outside every slot, and
+	 * reached through real directories only (no component is a symbolic link).
+	 */
 	claimsDir: string;
 }
 
@@ -136,20 +141,31 @@ export class WorkerSlotPool {
 			this.claimsDir.startsWith(`${slotsRoot}/`)
 		)
 			throw new Error("Slot claims are recorded outside every slot");
+		// With no link on the way, the lexical check above is the real location.
+		realDirectories(this.claimsDir);
 		privateDirectory(this.claimsDir);
 	}
 
 	/** The launch holding `name`, or undefined when it is free. */
 	holder(name: string): string | undefined {
+		const path = this.#claimPath(name);
+		let fd: number;
+		try {
+			fd = openSync(path, constants.O_RDONLY | constants.O_NOFOLLOW);
+		} catch {
+			return undefined;
+		}
 		try {
 			// SAFETY: only claim() writes this file, from this shape.
 			return (
-				JSON.parse(readFileSync(this.#claimPath(name), "utf8")) as {
+				JSON.parse(readFileSync(fd, "utf8")) as {
 					launch_id: string;
 				}
 			).launch_id;
 		} catch {
 			return undefined;
+		} finally {
+			closeSync(fd);
 		}
 	}
 
@@ -284,10 +300,47 @@ export class WorkerSlotPool {
 		return path;
 	}
 
+	/** A claim file's path, after re-checking that no link leads to its directory. */
 	#claimPath(name: string): string {
 		if (!SLOT_NAME.test(name))
 			throw new Error("A slot name is one path component");
+		realDirectories(this.claimsDir);
 		return join(this.claimsDir, `${name}.claim`);
+	}
+}
+
+/**
+ * Makes the absolute `path` from the root down, one real directory at a time,
+ * never following a link: every component must be a directory, not a symbolic
+ * link (a link could put claims inside a slot, where its child could delete
+ * them). Node has no `openat`; a component swapped between this walk and the
+ * use needs a writer outside every slot (the owner or the parent), and the
+ * claim file itself is opened exclusively without following a link.
+ */
+function realDirectories(path: string): void {
+	let current = "/";
+	for (const part of path.split("/").filter(Boolean)) {
+		current = join(current, part);
+		let stat;
+		try {
+			stat = lstatSync(current);
+		} catch {
+			// One level at a time: mkdir makes this component and follows nothing.
+			try {
+				mkdirSync(current, { mode: 0o700 });
+			} catch {
+				/* made concurrently: checked below */
+			}
+			stat = lstatSync(current);
+		}
+		if (stat.isSymbolicLink())
+			throw new Error(
+				`Slot claims are recorded through real directories only: ${current} is a symbolic link`,
+			);
+		if (!stat.isDirectory())
+			throw new Error(
+				`Slot claims are recorded through real directories only: ${current} is not a directory`,
+			);
 	}
 }
 

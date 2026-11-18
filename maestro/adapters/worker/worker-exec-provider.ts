@@ -168,7 +168,10 @@ export class WorkerCommandUncertain extends Error {
 /**
  * The initial prompt: the task, preceded by the role identity when there is
  * one. B2's LaunchSpec has no system-prompt field, so the identity travels as
- * the first input's preamble until a typed field exists.
+ * the first input's preamble until a typed field exists. That is weaker than
+ * a system prompt (it is ordinary conversation input), accepted by root only
+ * as interim append semantics; a request to replace the system prompt is
+ * refused before acquisition.
  */
 export function workerInitialPrompt(request: FreshPiLaunchRequest): string {
 	const identity = request.behavior.identity?.trim();
@@ -196,6 +199,12 @@ type RowRead =
 	| { kind: "unavailable"; error: string };
 
 type Settled = Reconciliation | ClientFailure;
+
+/** A sent command's outcome; `unrecorded` is the store failure that kept it off disk. */
+interface Sent {
+	settled: Settled;
+	unrecorded?: string;
+}
 
 const LIVE_STATUSES = new Set<Worker["status"]>([
 	"starting",
@@ -313,6 +322,7 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 			signal.throwIfAborted();
 		}
 		// From here an abort is admission intent only: nothing remote is cancelled by it.
+		// Once the create is sent, a failing store never turns into a plain rejection.
 		const createId = uuidv7(this.#now());
 		const body: Create = {
 			command_id: createId,
@@ -328,33 +338,55 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 			},
 			launch_spec: spec,
 		};
-		launches.update(launchId, (manifest) => {
-			manifest.state = "creating";
-		});
-		const created = await this.#mutate(
-			launchId,
-			"create",
-			"workers.create",
-			requestHash("workers.create", { body }),
-			undefined,
-			createId,
-			() => this.#client.call("workers.create", { body }),
-		);
+		let sentCreate: Sent;
+		try {
+			launches.update(launchId, (manifest) => {
+				manifest.state = "creating";
+			});
+			sentCreate = await this.#mutate(
+				launchId,
+				"create",
+				"workers.create",
+				requestHash("workers.create", { body }),
+				undefined,
+				createId,
+				() => this.#client.call("workers.create", { body }),
+			);
+		} catch (error) {
+			// #mutate throws only before its transport: nothing was sent.
+			this.#tryWrite(() => this.#notAcquired(launchId, slot));
+			throw error;
+		}
+		const { settled: created, unrecorded: createUnrecorded } = sentCreate;
 		const acquired = acquisition(created);
 		if (acquired.worker === "not_acquired") {
-			this.#notAcquired(launchId, slot);
+			// An unrecorded refusal keeps everything: its manifest still says `creating`.
+			const kept =
+				createUnrecorded ??
+				this.#tryWrite(() => this.#notAcquired(launchId, slot));
 			throw new WorkerLaunchRefusal(
-				`Worker create refused (${failureCode(created)}); nothing acquired, slot ${slot.name} released.`,
+				kept === undefined
+					? `Worker create refused (${failureCode(created)}); nothing acquired, slot ${slot.name} released.`
+					: `Worker create refused (${failureCode(created)}); nothing acquired, but its outcome could not be recorded (${kept}): slot ${slot.name} and its acquisition manifest retained.`,
 			);
 		}
 		const workerId = acquired.worker_id;
 		if (workerId === undefined) {
 			const why = `Worker create outcome unknown (${failureCode(created)}); slot ${slot.name} and its acquisition manifest retained, never retried.`;
-			launches.update(launchId, (manifest) => {
-				manifest.state = "uncertain";
-				manifest.uncertainty = why;
-			});
-			throw new AcquisitionUncertainError(why, { kind: "execution-start" });
+			const unwritten =
+				createUnrecorded ??
+				this.#tryWrite(() =>
+					launches.update(launchId, (manifest) => {
+						manifest.state = "uncertain";
+						manifest.uncertainty = why;
+					}),
+				);
+			throw new AcquisitionUncertainError(
+				unwritten === undefined
+					? why
+					: `${why} Its outcome could not be recorded (${unwritten}).`,
+				{ kind: "execution-start" },
+			);
 		}
 		this.#startObserver();
 		const child = this.#record(fresh, slot, runId, taskId, generationId);
@@ -373,26 +405,48 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 			ref: launchId,
 			capabilities: this.capabilities,
 		});
+		// The worker is owned from here: every failure is this handle's launchFailure.
+		const unrecorded = (failure: string) =>
+			`Worker ${workerId} acquired, but its outcome could not be recorded (${failure}); not prompted, retained and owned.`;
+		if (createUnrecorded !== undefined)
+			return {
+				handle,
+				launched: child,
+				launchFailure: unrecorded(createUnrecorded),
+			};
 		if (acquired.worker === "unknown") {
 			const why = `Worker ${workerId} create outcome unknown (${failureCode(created)}); retained and owned, never retried.`;
-			launches.update(launchId, (manifest) => {
-				manifest.state = "uncertain";
-				manifest.worker_id = workerId;
-				manifest.uncertainty = why;
-			});
-			return { handle, launched: child, launchFailure: why };
+			const unwritten = this.#tryWrite(() =>
+				launches.update(launchId, (manifest) => {
+					manifest.state = "uncertain";
+					manifest.worker_id = workerId;
+					manifest.uncertainty = why;
+				}),
+			);
+			return {
+				handle,
+				launched: child,
+				launchFailure:
+					unwritten === undefined
+						? why
+						: `${why} Its outcome could not be recorded (${unwritten}).`,
+			};
 		}
 		const binding = acquired.binding ?? (await this.#bindingOf(workerId));
-		launches.update(launchId, (manifest) => {
-			manifest.state = "acquired";
-			manifest.worker_id = workerId;
-			if (binding)
-				manifest.binding = {
-					worker_epoch: binding.worker_epoch,
-					session_id: binding.session_id,
-					binding_revision: binding.binding_revision,
-				};
-		});
+		const unwritten = this.#tryWrite(() =>
+			launches.update(launchId, (manifest) => {
+				manifest.state = "acquired";
+				manifest.worker_id = workerId;
+				if (binding)
+					manifest.binding = {
+						worker_epoch: binding.worker_epoch,
+						session_id: binding.session_id,
+						binding_revision: binding.binding_revision,
+					};
+			}),
+		);
+		if (unwritten !== undefined)
+			return { handle, launched: child, launchFailure: unrecorded(unwritten) };
 		if (!binding)
 			return {
 				handle,
@@ -409,22 +463,39 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 			message: (this.#options.initialPrompt ?? workerInitialPrompt)(fresh),
 			if_busy: "reject" as const,
 		};
-		const prompted = await this.#mutate(
-			launchId,
-			"initial-prompt",
-			"sessions.prompt",
-			requestHash("sessions.prompt", {
-				path: { worker_id: workerId },
-				body: promptBody,
-			}),
-			workerId,
-			promptId,
-			() =>
-				this.#client.call("sessions.prompt", {
+		let sentPrompt: Sent;
+		try {
+			sentPrompt = await this.#mutate(
+				launchId,
+				"initial-prompt",
+				"sessions.prompt",
+				requestHash("sessions.prompt", {
 					path: { worker_id: workerId },
 					body: promptBody,
 				}),
-		);
+				workerId,
+				promptId,
+				() =>
+					this.#client.call("sessions.prompt", {
+						path: { worker_id: workerId },
+						body: promptBody,
+					}),
+			);
+		} catch (error) {
+			// Not sent: its command could not be recorded first.
+			return {
+				handle,
+				launched: child,
+				launchFailure: unrecorded(errorText(error)),
+			};
+		}
+		const { settled: prompted } = sentPrompt;
+		if (sentPrompt.unrecorded !== undefined)
+			return {
+				handle,
+				launched: child,
+				launchFailure: `Worker ${workerId} initial prompt was ${provenText(prompted)}, but its outcome could not be recorded (${sentPrompt.unrecorded}); retained and owned, never re-sent.`,
+			};
 		const outcome = acquisition(created, prompted);
 		const prompt = outcome.worker === "acquired" ? outcome.prompt : "unknown";
 		if (prompt === "prompted") return { handle, launched: child };
@@ -432,10 +503,19 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 			prompt === "not_prompted"
 				? `Worker ${workerId} acquired but its initial prompt was refused (${failureCode(prompted)}); not prompted, retained.`
 				: `Worker ${workerId} initial prompt outcome unknown (${failureCode(prompted)}); retained and owned, never re-sent.`;
-		launches.update(launchId, (manifest) => {
-			manifest.uncertainty = why;
-		});
-		return { handle, launched: child, launchFailure: why };
+		const kept = this.#tryWrite(() =>
+			launches.update(launchId, (manifest) => {
+				manifest.uncertainty = why;
+			}),
+		);
+		return {
+			handle,
+			launched: child,
+			launchFailure:
+				kept === undefined
+					? why
+					: `${why} Its outcome could not be recorded (${kept}).`,
+		};
 	}
 
 	async inspect(handle: ExecHandle): Promise<PaneInspection> {
@@ -500,7 +580,7 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 			if_busy: "reject" as const,
 		};
 		const path = { worker_id: execution.workerId };
-		const settled = await this.#mutate(
+		const { settled, unrecorded } = await this.#mutate(
 			execution.ref,
 			"prompt",
 			"sessions.prompt",
@@ -510,6 +590,11 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 			() => this.#client.call("sessions.prompt", { path, body }),
 			input.id,
 		);
+		if (unrecorded !== undefined)
+			throw new WorkerCommandUncertain(
+				`Worker ${execution.workerId} input ${input.id} was ${provenText(settled)}, but its outcome could not be recorded (${unrecorded}); never re-sent.`,
+				commandId,
+			);
 		const receipt = observed(settled);
 		if (receipt?.admission === "accepted") return;
 		if (receipt || isNoEffect(settled))
@@ -543,7 +628,7 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 		if (running && running.state !== "settled")
 			body.execution_id = running.execution_id;
 		const path = { worker_id: execution.workerId };
-		const settled = await this.#mutate(
+		const { settled, unrecorded } = await this.#mutate(
 			execution.ref,
 			"interrupt",
 			"executions.interrupt",
@@ -552,6 +637,11 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 			commandId,
 			() => this.#client.call("executions.interrupt", { path, body }),
 		);
+		if (unrecorded !== undefined)
+			throw new WorkerCommandUncertain(
+				`Worker ${execution.workerId} interrupt was ${provenText(settled)}, but its outcome could not be recorded (${unrecorded}); never re-sent.`,
+				commandId,
+			);
 		if (observed(settled)) return;
 		if (isNoEffect(settled))
 			throw new Error(
@@ -593,16 +683,37 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 			binding_revision: worker.binding_revision,
 		};
 		const path = { worker_id: execution.workerId };
-		const settled = await this.#mutate(
-			execution.ref,
-			"stop",
-			"workers.stop",
-			requestHash("workers.stop", { path, body }),
-			execution.workerId,
-			commandId,
-			() => this.#client.call("workers.stop", { path, body }),
-		);
+		let sent: Sent;
+		try {
+			sent = await this.#mutate(
+				execution.ref,
+				"stop",
+				"workers.stop",
+				requestHash("workers.stop", { path, body }),
+				execution.workerId,
+				commandId,
+				() => this.#client.call("workers.stop", { path, body }),
+			);
+		} catch (error) {
+			// Not sent: its command could not be recorded first.
+			return { request: "not-sent", termination: "unconfirmed", error };
+		}
 		this.#wake(execution);
+		const { settled, unrecorded } = sent;
+		// An unrecorded outcome confirms nothing: the next stop reads the row again.
+		if (unrecorded !== undefined)
+			return {
+				request: isNoEffect(settled)
+					? "not-sent"
+					: observed(settled)
+						? "sent"
+						: "unknown",
+				termination: "unconfirmed",
+				error: new WorkerCommandUncertain(
+					`Worker ${execution.workerId} stop was ${provenText(settled)}, but its outcome could not be recorded (${unrecorded}); the worker stays owned.`,
+					commandId,
+				),
+			};
 		if (isNoEffect(settled))
 			return {
 				request: "not-sent",
@@ -668,6 +779,16 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 		if (request.handoff)
 			throw new WorkerLaunchRefusal(
 				`${this.name} execution does not support worktree handoffs; refused before acquisition.`,
+			);
+		// Root decision (P3-7 open items): the identity travels as the first input's
+		// preamble, accepted as interim append semantics only; replacing the system
+		// prompt waits for a typed LaunchSpec field.
+		if (
+			request.behavior.systemPromptMode === "replace" &&
+			request.behavior.identity?.trim()
+		)
+			throw new WorkerLaunchRefusal(
+				`${this.name} execution cannot replace a child's system prompt (B2's LaunchSpec has no system-prompt field; the role identity is only the first input's preamble); refused before acquisition.`,
 			);
 		const skills = request.behavior.skills?.trim();
 		if (skills && !this.#options.childSpec?.resources)
@@ -805,9 +926,21 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 		slots.release(slot.name, launchId);
 	}
 
+	/** Runs one store write; returns its failure instead of throwing (the store may be failing). */
+	#tryWrite(write: () => void): string | undefined {
+		try {
+			write();
+			return undefined;
+		} catch (error) {
+			return errorText(error);
+		}
+	}
+
 	/**
 	 * Sends one mutation once. Its command is durable first; a lost reply is
-	 * reconciled by one receipt read, never by sending again.
+	 * reconciled by one receipt read, never by sending again. Throws only
+	 * before the transport (its command could not be recorded: nothing sent);
+	 * a store that fails after it is reported as `unrecorded`, never thrown.
 	 */
 	async #mutate(
 		launchId: string,
@@ -818,7 +951,7 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 		commandId: string,
 		send: () => Promise<Receipt>,
 		inputId?: string,
-	): Promise<Settled> {
+	): Promise<Sent> {
 		const { launches } = this.#options;
 		const command: Parameters<WorkerLaunchStore["record"]>[1] = {
 			command_id: commandId,
@@ -845,8 +978,10 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 		}
 		const outcome =
 			settled instanceof ClientFailure ? "no_effect" : settled.outcome;
-		launches.settle(launchId, commandId, outcome, failureCode(settled));
-		return settled;
+		const unrecorded = this.#tryWrite(() =>
+			launches.settle(launchId, commandId, outcome, failureCode(settled)),
+		);
+		return unrecorded === undefined ? { settled } : { settled, unrecorded };
 	}
 
 	// ---- observation ----
@@ -1091,6 +1226,13 @@ function observed(settled: Settled): Receipt | undefined {
 	return settled instanceof ClientFailure || settled.outcome !== "observed"
 		? undefined
 		: settled.receipt;
+}
+
+/** What a sent command's reply or receipt proved, in words. */
+function provenText(settled: Settled): string {
+	if (isNoEffect(settled)) return "refused";
+	const receipt = observed(settled);
+	return receipt ? (receipt.admission ?? "observed") : "of unknown outcome";
 }
 
 function isNoEffect(settled: Settled): boolean {

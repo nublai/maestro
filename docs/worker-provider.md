@@ -34,6 +34,21 @@ outcome that stays unknown is recorded and never sent again. Outcomes:
   prompt was refused, the launch returns that worker with `launchFailure`. It
   stays owned and is never retried.
 
+A store that fails once a command was sent never becomes a plain rejection,
+which the shared owner would read as "nothing acquired" and could retry. The
+provider writes nothing more to the failing store, sends nothing more, and
+keeps the command (still `pending`, which a reader treats as unknown), the
+manifest and the slot claim as they were:
+
+- After `workers.create` (or the initial prompt) the launch returns the
+  acquired worker with `launchFailure`; the shared adapter then stops it as a
+  failed launch. A create whose outcome is unknown with no worker named still
+  rejects with `AcquisitionUncertainError`.
+- After a later `sessions.prompt` or `executions.interrupt`, the call rejects
+  with `WorkerCommandUncertain` (never re-send), naming what the reply proved.
+- After `workers.stop`, the report is unconfirmed, never a rejection. The next
+  stop reads the worker's row again and confirms it without a new command.
+
 ## Capabilities
 
 The provider supports managed worktrees (owner-prepared slots) only. Resume
@@ -43,6 +58,13 @@ caller's checkout and caller surfaces are refused before acquisition.
 `parentAdmission` stays `best-effort` until P3-9 adds receipt-backed admission.
 A request that names skills is refused unless the host supplies a resource
 mapping (`childSpec.resources`).
+
+The role identity is weaker than a system prompt here. B2's `LaunchSpec` has
+no system-prompt field, so the identity is the initial prompt's preamble
+(`workerInitialPrompt`): ordinary conversation input, not system
+instructions. Root accepted this only as interim append semantics. A request
+to replace the system prompt (`systemPromptMode: "replace"` with an identity)
+is refused before acquisition. A typed `LaunchSpec` field comes before P3-12.
 
 ## Owner-prepared slots (Q3)
 
@@ -66,7 +88,13 @@ slots in a manifest:
 - on its branch, with that branch at the slot's base.
 
 The pool claims the slot durably (`<state>/slots/<name>.claim`, created
-exclusively and fsynced). A requested branch selects the slot whose leaf
+exclusively and fsynced). The claims directory must lie outside
+`PARENT/.piw-slots` and be reached through real directories only: every
+component of its path is checked with `lstat` (and made one level at a time)
+at construction and before each claim, read and release, so no symbolic link
+can put a claim inside a slot, where its child could delete it. A claim file
+is read without following a link. Node has no `openat`; swapping a component
+between the check and the use needs a writer outside every slot. A requested branch selects the slot whose leaf
 matches it, otherwise the first free slot. A requested base other than `HEAD`
 must equal the slot's base. An exhausted pool or a mismatched slot is refused
 before any B2 call. A mismatched slot is refused, never skipped.
@@ -106,24 +134,43 @@ child's spec grants `children.report` only.
 ## Tests
 
 - `npm test` runs the unit cases: the reporter and its import and authority
-  boundary, slots, manifests and the grant closure.
+  boundary, slots, manifests, the grant closure and the real-B2 lane's
+  source check.
 - `npm run test:worker-b2` runs the `ExecProvider` conformance suite, including
   the adapter-boundary cases, plus the provider's B2 tests, against pi-worker's
   real supervisor and B2 server.
-  - It runs from a built checkout named by `MAESTRO_PI_WORKER_CHECKOUT`, at
-    the commit in `SOURCE.json`.
+  - It runs from a built checkout named by `MAESTRO_PI_WORKER_CHECKOUT`, and
+    refuses one that is not at the commit in `SOURCE.json`, has tracked or
+    untracked changes, or whose `dist` is not byte for byte what that tree
+    compiles to (`scripts/pi-worker-checkout.ts` compiles in memory with the
+    checkout's own TypeScript; files the build copies must equal their
+    tracked sources). The test files refuse to start unless the runner
+    verified the checkout.
   - Typed children are real subprocesses with the FD 3 pipe, and they report
     with Maestro's reporter.
   - It refuses to run without the checkout, and CI does not run it yet.
 
-## Known gaps (need root)
+## Root decisions and known gaps
 
-- The P2-8 parent-channel whitelist (`CHANNEL_METHODS`) has no
-  `executions.interrupt`, so a sandboxed parent cannot interrupt a child turn.
-  A test records this.
-- `LaunchSpec` has no system-prompt field. The role identity travels as the
-  initial prompt's preamble (`workerInitialPrompt`).
-- Stopping a child that has no result report fences its parent (B2 invariant
-  4a) until the owner resolves it. Cancel and failure handoffs are P3-10.
+Root decided the three open items on 2026-11-18:
+
+1. Parent-channel interrupt. The P2-8 whitelist (`CHANNEL_METHODS`) has no
+   `executions.interrupt` yet, so a sandboxed parent's interrupt is refused,
+   never a silent success. pi-worker adds it, scoped like the other channel
+   methods, in a separate pi-worker PR. The interrupt path stays as is; the
+   B2 test that records the gap is marked to flip when that lands.
+2. Role identity. The first-prompt preamble is interim, for append semantics
+   only; replace is refused (see Capabilities). A typed `LaunchSpec` field
+   comes before P3-12.
+3. Invariant 4a is kept. Stopping a child that has no result report fences
+   its parent until the owner resolves it; the provider neither clears the
+   fence nor launches a replacement, and a B2 test pins this. P3-10 owns the
+   cancellation and failure handoff: keep the cancel intent, the command and
+   stop evidence and the checked outcomes; expose the parent fence and
+   require owner reconciliation; never make up a child result. A confirmed
+   child stop and a parent that may take more input are separate facts.
+
+Still open:
+
 - The slot is not yet projected onto `AgentHandle.worktree`; the handoff and
   bound checks run through `artifacts.inspect` (P3-6, P3-10).

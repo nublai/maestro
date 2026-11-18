@@ -158,7 +158,8 @@ const RESULT_VERSION = 1;
 
 /**
  * The message of a `result` report: versioned JSON within the message bound.
- * An over-long summary is cut (never inside a character) so the claim fits.
+ * An over-long summary is cut (never inside a character) so the claim fits;
+ * when not even an empty summary fits, the claim goes without one.
  */
 export function encodeResultClaim(claim: ResultClaim): string {
 	const base = {
@@ -176,6 +177,8 @@ export function encodeResultClaim(claim: ResultClaim): string {
 		const encoded = JSON.stringify({ ...base, summary });
 		const over = Buffer.byteLength(encoded) - FD_REPORT_LIMITS.messageBytes;
 		if (over <= 0) return encoded;
+		// Nothing left to cut: the claim without a summary fits (checked above).
+		if (summary === "") return fixed;
 		// Cut by code points, at least a quarter of the excess bytes, then re-check.
 		const points = Array.from(summary);
 		summary = points

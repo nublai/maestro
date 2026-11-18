@@ -24,14 +24,25 @@ package exports and the public tools are unchanged. See
   - Every mutation's UUIDv7 command ID and request hash are persisted before
     transport. A lost reply gets one receipt read. Uncertainty is kept and
     never retried; an uncertain create keeps its manifest and slot.
+  - A store that fails after a command was sent is never a plain rejection:
+    the launch returns the acquired worker with `launchFailure` (or rejects
+    with `AcquisitionUncertainError` when no worker is named), a later prompt
+    or interrupt rejects with `WorkerCommandUncertain`, and a stop reports
+    unconfirmed. Nothing more is sent; the command, manifest and slot stay.
+  - The role identity is the initial prompt's preamble, accepted as interim
+    append semantics; a request to replace the system prompt is refused
+    before acquisition.
 - Owner-prepared slots (`WorkerSlotPool`, root decision Q3): locked linked
   worktrees of the parent's repository at `PARENT/.piw-slots/<name>`, checked
   with plain reads, so the parent makes no Git administrative writes.
-  Exhausted or mismatched slots are refused before any B2 call.
+  Exhausted or mismatched slots are refused before any B2 call. Claims live
+  outside every slot, reached through real directories only (no symbolic link
+  in the claims path).
 - FD reporter (`fd-report.ts`): the leaf writes its report to FD 3, never to
   B2. Its import closure is `node:fs` only, and `check:boundaries` enforces
   that for the source and the emitted file. The provider transcribes the first
-  result claim into the run's completion record; a claim is never proof.
+  result claim into the run's completion record; a claim is never proof. A
+  summary that cannot fit, not even empty, is left out rather than looping.
 - Grant profile (`grant-profile.ts`): the provider's exact methods plus
   `children.report`. It contains no `*`, no owner reconciliation, and no
   steering or follow-up.
@@ -41,7 +52,8 @@ package exports and the public tools are unchanged. See
   - `npm run test:worker-b2`: the ExecProvider conformance suite (with its
     adapter-boundary cases) and provider tests, against pi-worker's real
     supervisor and B2 server from a pinned, built checkout
-    (`MAESTRO_PI_WORKER_CHECKOUT`).
+    (`MAESTRO_PI_WORKER_CHECKOUT`). It refuses a checkout at another commit,
+    with local changes, or whose build is not what that commit compiles to.
 - Provenance: five new files.
 
 ### Checked-outcome outbox (P3-8)

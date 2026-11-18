@@ -6,7 +6,7 @@
  */
 import "../clean-host-env.ts";
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
@@ -183,6 +183,38 @@ describe("worker FD reporter", () => {
 				{ type: "invalid" },
 				message,
 			);
+	});
+});
+
+describe("worker FD reporter: a summary that cannot fit", () => {
+	it("returns the claim without its summary when even an empty one would break the bound", () => {
+		// The claim without a summary fits (8180 bytes); with `"summary":""` it is 8193.
+		const overhead = JSON.stringify({ v: 1, type: "done", accept: "" }).length;
+		const accept = "a".repeat(8180 - overhead);
+		// In a child with a deadline: an encoder that never returns must fail, not hang the suite.
+		const script = `import { encodeResultClaim } from ${JSON.stringify(REPORTER)};
+process.stdout.write(encodeResultClaim({ type: "done", accept: ${JSON.stringify(accept)}, summary: "x".repeat(100) }));`;
+		const child = spawnSync(
+			process.execPath,
+			["--input-type=module", "-e", script],
+			{
+				encoding: "utf8",
+				timeout: 10_000,
+				env: { PATH: process.env.PATH ?? "/usr/bin:/bin" },
+			},
+		);
+		assert.equal(
+			child.signal,
+			null,
+			"the encoder returned before its deadline",
+		);
+		assert.equal(child.status, 0, child.stderr);
+		assert.equal(Buffer.byteLength(child.stdout), 8180);
+		assert.ok(Buffer.byteLength(child.stdout) <= FD_REPORT_LIMITS.messageBytes);
+		assert.deepEqual(decodeResultClaim(child.stdout), {
+			type: "done",
+			accept,
+		});
 	});
 });
 

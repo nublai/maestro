@@ -7,7 +7,13 @@
  */
 import assert from "node:assert/strict";
 import { type ChildProcessWithoutNullStreams, spawn } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+	mkdirSync,
+	mkdtempSync,
+	readFileSync,
+	rmSync,
+	writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Client } from "@nublai/pi-worker-client";
@@ -79,12 +85,28 @@ const SUPERVISOR = new URL(
 	import.meta.url,
 ).pathname;
 
-/** The pinned pi-worker checkout, or a failure naming the variable. */
+/**
+ * The pinned pi-worker checkout, or a failure naming the variable. The lane's
+ * runner (`npm run test:worker-b2`) verifies it first and passes the commit it
+ * verified; a direct run without that verification is refused.
+ */
 export function piWorkerCheckout(): string {
 	const checkout = process.env.MAESTRO_PI_WORKER_CHECKOUT;
 	assert.ok(
 		checkout,
 		"MAESTRO_PI_WORKER_CHECKOUT must name a built pi-worker checkout (see vendor/pi-worker-client/SOURCE.json)",
+	);
+	// SAFETY: a small JSON file this repository writes.
+	const source = JSON.parse(
+		readFileSync(
+			new URL("../../vendor/pi-worker-client/SOURCE.json", import.meta.url),
+			"utf8",
+		),
+	) as { source_commit: string };
+	assert.equal(
+		process.env.MAESTRO_PI_WORKER_VERIFIED,
+		source.source_commit,
+		"Run through npm run test:worker-b2, which verifies the checkout is the pinned commit and its build",
 	);
 	return checkout;
 }
