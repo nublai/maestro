@@ -158,11 +158,19 @@ if (
 		],
 		["pi-extension/subagents/index.ts", "pi-extension/subagents/extension.ts"],
 	]);
-	/** Owned changes that moved original code into new Maestro files (P3-4). */
+	/**
+	 * Owned changes that moved original code into new Maestro files (P3-4), or
+	 * out of its place within the same file (P3-8: the cancel presentation
+	 * moved into `settledCompletion`).
+	 */
 	const moves = new Map([
 		[
 			"maestro/adapters/pi/pi-harness-adapter.ts",
 			["maestro/adapters/pi/terminal-exec-provider.ts"],
+		],
+		[
+			"maestro/runtime/pi-run-session.ts",
+			["maestro/runtime/pi-run-session.ts"],
 		],
 	]);
 	// `owned` re-maps files Maestro already owns whose copy records an owned change.

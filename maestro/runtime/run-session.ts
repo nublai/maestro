@@ -21,6 +21,13 @@ import type {
 	Task,
 	ThinkingLevel,
 } from "../core/types.ts";
+import type {
+	OutcomeDraft,
+	OutcomeJsonObject,
+	OutcomeKind,
+	OutcomeStore,
+	StoredOutcome,
+} from "../core/outcome-store.ts";
 import { defaultRetainSurface } from "./surface-retention.ts";
 
 // pi-herdr-agents extension
@@ -70,6 +77,24 @@ export interface RunSessionHooks {
 		result: RunResult,
 		task: Task,
 	): void | DeliveryDecision | Promise<void | DeliveryDecision>;
+	/**
+	 * The bounded checked outcome an injected outcome store commits before
+	 * `onSettled`; called only with a store. Absent fields fall back to the result.
+	 */
+	describeOutcome?(result: RunResult, task: Task): OutcomeDescription;
+}
+/** Host-owned parts of a committed outcome (`OutcomeDraft`). */
+// pi-herdr-agents extension
+export interface OutcomeDescription {
+	kind?: OutcomeKind;
+	generation?: string;
+	reportId?: string;
+	text?: string;
+	textSource?: string;
+	verdict?: OutcomeJsonObject;
+	subject?: OutcomeJsonObject;
+	facts?: OutcomeJsonObject;
+	envelope?: string;
 }
 // pi-herdr-agents extension
 export interface OwnedRunAttempt {
@@ -110,6 +135,12 @@ export interface FinalizeControl {
 	 * the work's output, is authoritative.
 	 */
 	interruption(): "cancelled" | "suppressed" | undefined;
+	/**
+	 * Present only with an outcome store: durably records the immutable subject
+	 * a check starts against. Await it before the check runs: it rejects when
+	 * the record could not be saved, and the check must then not run.
+	 */
+	recordCheck?(subject: OutcomeJsonObject): Promise<void>;
 }
 // pi-herdr-agents extension
 export interface PreparedRun {
@@ -146,6 +177,13 @@ export interface RunSessionOptions {
 	hooks?: RunSessionHooks;
 	operations?: RunSessionOperations;
 	retainSurface?: (result: RunResult, task: Task) => boolean;
+	/**
+	 * Checked-outcome outbox. With it, each attempt is recorded before its
+	 * acquisition and a finalized result is committed before it is delivered or
+	 * its run retired; a failed commit keeps the run owned and undelivered.
+	 * Without it, delivery and retirement are unchanged.
+	 */
+	outcomeStore?: OutcomeStore;
 }
 /**
  * Operator cancel report. `requested` means the intent is recorded but an
@@ -214,10 +252,28 @@ interface RunEntry {
 	/** Delay between failed supervision/termination probes of an uncertain owner. */
 	uncertainRetryDelayMs: number;
 	cancel?: CancelState;
+	/** Attempts recorded in the outcome store (one-based count). */
+	recordedAttempts: number;
+	/** The committed outcome; its run no longer needs a close record. */
+	recorded?: StoredOutcome;
+	/** A finalized result whose commit failed: retried by the next supervise. */
+	unrecorded?: RunResult;
+	/**
+	 * The run's recorded attempts stay open at retirement, as recovery evidence:
+	 * a check started without a committed verdict, or finalization failed.
+	 */
+	interrupted?: boolean;
+	/**
+	 * Suppression ended the completion wait before it produced any result.
+	 * Set only there, never inferred from a result's shape: a finalized
+	 * failure without evidence is a real result and is saved, withdrawn.
+	 */
+	abandoned?: boolean;
 }
 
 const ABORT_MESSAGE = "Aborted while waiting for subagent to finish";
 const CANCELLED_BEFORE_LAUNCH = "Subagent was cancelled before launch.";
+const OUTCOME_NOT_RECORDED = "The outcome store could not record this run";
 const UNCERTAIN_RETRY_INITIAL_MS = 1_000;
 const UNCERTAIN_RETRY_MAX_MS = 30_000;
 
@@ -228,6 +284,7 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 	const consumed = new Set<string>();
 	const sessionBase = options.sessionIdPrefix ?? Date.now().toString(36);
 	const retainSurface = options.retainSurface ?? defaultRetainSurface;
+	const store = options.outcomeStore;
 
 	function reserve(task: Task): RunEntry {
 		if (entries.has(task.id) || consumed.has(task.id)) {
@@ -245,6 +302,7 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 			acquiring: false,
 			settled: false,
 			uncertainRetryDelayMs: UNCERTAIN_RETRY_INITIAL_MS,
+			recordedAttempts: 0,
 		};
 		entries.set(task.id, entry);
 		return entry;
@@ -329,6 +387,86 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 		entry.prepared = undefined;
 		entry.attempts.length = 0;
 		entry.producer = undefined;
+		if (
+			store &&
+			entry.recordedAttempts &&
+			!entry.recorded &&
+			!entry.unrecorded &&
+			!entry.interrupted
+		) {
+			// Only a run abandoned before any result closes its recorded attempts.
+			// Interrupted verification and an unsaved result stay open for recovery.
+			// A lost close only shows the run as interrupted after a restart: fail safe.
+			const reason = entry.suppressed
+				? "suppressed"
+				: entry.cancel
+					? "cancelled"
+					: "ended without an outcome";
+			entry.recordedAttempts = 0;
+			try {
+				void store.closeRun(entry.task.id, reason).catch(() => {});
+			} catch {
+				/* best effort, see above */
+			}
+		}
+	}
+
+	/** Records the next attempt before its acquisition; false when it could not. */
+	async function recordAttempt(
+		entry: RunEntry,
+		candidate: RuntimeCandidate | undefined,
+		failures: { model: string; error: string }[],
+	): Promise<boolean> {
+		const attempt = entry.recordedAttempts + 1;
+		const record: Parameters<OutcomeStore["recordAttempt"]>[0] = {
+			taskId: entry.task.id,
+			attempt,
+		};
+		if (candidate) {
+			record.model = candidate.model;
+			record.thinking = candidate.thinking;
+		}
+		try {
+			await store!.recordAttempt(record);
+		} catch (error) {
+			failures.push({
+				model: candidate?.model ?? "adapter default",
+				error: `${OUTCOME_NOT_RECORDED}: ${errorText(error)}`,
+			});
+			return false;
+		}
+		entry.recordedAttempts = attempt;
+		return true;
+	}
+
+	function outcomeDraft(entry: RunEntry, result: RunResult): OutcomeDraft {
+		const described = options.hooks?.describeOutcome?.(result, entry.task);
+		const draft: OutcomeDraft = {
+			taskId: entry.task.id,
+			attempt: Math.max(1, entry.recordedAttempts),
+			kind: described?.kind ?? (result.outcome === "help" ? "help" : "result"),
+			runId: result.handle.id,
+			outcome: result.outcome,
+			text: described?.text ?? result.output ?? result.error ?? "",
+			// The kernel's run ends at this delivery, a help request included.
+			closesRun: true,
+		};
+		if (result.exitCode !== undefined) draft.exitCode = result.exitCode;
+		if (result.cancellation) {
+			const { requestedAt, termination, confirmedAt, error } =
+				result.cancellation;
+			draft.cancellation = { requestedAt, termination, confirmedAt, error };
+		}
+		for (const field of [
+			"generation",
+			"reportId",
+			"textSource",
+			"envelope",
+		] as const)
+			if (described?.[field] !== undefined) draft[field] = described[field];
+		for (const field of ["verdict", "subject", "facts"] as const)
+			if (described?.[field] !== undefined) draft[field] = described[field];
+		return draft;
 	}
 
 	function release(entry: RunEntry, result: RunResult) {
@@ -355,6 +493,18 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 	function suppressedBeforeSupervision(entry: RunEntry) {
 		const owner = entry.active;
 		if (!owner) return; // Pending acquisition still owns the reservation.
+		const unsaved = entry.unrecorded;
+		if (store && unsaved) {
+			// A finalized result whose commit failed is saved, withdrawn, never
+			// dropped; its retirement keeps the run's evidence until that lands.
+			try {
+				release(entry, unsaved);
+			} finally {
+				retire(entry);
+			}
+			void withdraw(store, entry, unsaved).catch(() => {});
+			return;
+		}
 		try {
 			release(entry, rejectedResult(owner.handle, new Error(ABORT_MESSAGE)));
 		} finally {
@@ -380,6 +530,18 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 			let owner: OwnedRunAttempt;
 			entry.acquiring = true;
 			try {
+				// Recorded before acquisition; an unrecorded attempt launches nothing.
+				if (
+					store &&
+					(!(await recordAttempt(
+						entry,
+						prepared.candidates[index],
+						failures,
+					)) ||
+						entry.suppressed ||
+						entry.cancel)
+				)
+					break;
 				owner = await prepared.spawnAttempt(
 					spawnOptions(entry, prepared, index),
 					index,
@@ -493,6 +655,7 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 		entry: RunEntry,
 		result: RunResult,
 	): Promise<RunResult> {
+		if (store) return deliverRecorded(store, entry, result);
 		try {
 			if (!entry.suppressed)
 				await options.hooks?.onSettled?.(result, entry.task);
@@ -500,6 +663,126 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 			return result;
 		} finally {
 			// A rejected send retains panes but not full runtime ownership.
+			retire(entry);
+		}
+	}
+
+	/**
+	 * Commit, then deliver. The committed outcome, not the live run, owns the
+	 * result: a failed commit keeps the run owned, undelivered and its panes
+	 * retained (the next supervise retries the commit, never the check), and
+	 * `dispatching` is durable before the host sends anything.
+	 */
+	/**
+	 * A suppressed run's finalized result: committed (unless it already is),
+	 * then withdrawn, so nothing is sent and nothing is silently dropped. When
+	 * the commit fails the run's recorded attempts stay open for recovery.
+	 */
+	async function withdraw(
+		outcomes: OutcomeStore,
+		entry: RunEntry,
+		result: RunResult,
+	): Promise<void> {
+		if (!entry.recorded) {
+			entry.unrecorded = result;
+			entry.recorded = await outcomes.commit(outcomeDraft(entry, result));
+			entry.unrecorded = undefined;
+		}
+		await withdrawCommitted(outcomes, entry.recorded);
+	}
+
+	/** A lost settlement leaves `dispatching`, which recovers as uncertain. */
+	function withdrawCommitted(
+		outcomes: OutcomeStore,
+		stored: StoredOutcome,
+	): Promise<void> {
+		return outcomes
+			.settle(stored.outcome.deliveryId, {
+				state: "suppressed",
+				reason: "run suppressed before delivery",
+			})
+			.then(
+				() => {},
+				() => {},
+			);
+	}
+
+	async function deliverRecorded(
+		outcomes: OutcomeStore,
+		entry: RunEntry,
+		result: RunResult,
+	): Promise<RunResult> {
+		if (entry.suppressed) {
+			// Nothing is delivered for a suppressed run, as without a store. A
+			// finalized result, a failure without evidence included, is still saved
+			// (withdrawn) before its run retires; one whose save fails stays open.
+			// Only a wait suppression abandoned before any result closes its run.
+			try {
+				if (!entry.abandoned)
+					await withdraw(outcomes, entry, result).catch(() => {});
+				release(entry, result);
+				return result;
+			} finally {
+				retire(entry);
+			}
+		}
+		if (!entry.recorded) {
+			entry.unrecorded = result;
+			try {
+				entry.recorded = await outcomes.commit(outcomeDraft(entry, result));
+			} catch (error) {
+				throw new Error(
+					`${OUTCOME_NOT_RECORDED}; its outcome was not delivered and the run stays owned: ${errorText(error)}`,
+					{ cause: error },
+				);
+			}
+			entry.unrecorded = undefined;
+		}
+		const id = entry.recorded.outcome.deliveryId;
+		const settle = (
+			settlement: Parameters<OutcomeStore["settle"]>[1],
+		): Promise<void> =>
+			// A lost settlement leaves `dispatching`, which recovers as uncertain.
+			outcomes.settle(id, settlement).then(
+				() => {},
+				() => {},
+			);
+		try {
+			if (entry.suppressed) {
+				await withdrawCommitted(outcomes, entry.recorded);
+				release(entry, result);
+				return result;
+			}
+			try {
+				await outcomes.dispatch(id);
+			} catch (error) {
+				throw new Error(
+					`The subagent's outcome is recorded but could not be marked for delivery, so it was not sent; it stays pending in the outcome store: ${errorText(error)}`,
+					{ cause: error },
+				);
+			}
+			// Suppressed while the mark was written: withdraw it, never send it.
+			if (entry.suppressed) {
+				await withdrawCommitted(outcomes, entry.recorded);
+				release(entry, result);
+				return result;
+			}
+			let decision: void | DeliveryDecision;
+			try {
+				decision = await options.hooks?.onSettled?.(result, entry.task);
+			} catch (error) {
+				// A failed send may or may not have reached the parent: never resent.
+				await settle({ state: "uncertain", reason: errorText(error) });
+				throw error;
+			}
+			await settle(
+				decision === "suppressed"
+					? { state: "suppressed", reason: "host suppressed delivery" }
+					: { state: "admitted", evidence: "process-local" },
+			);
+			release(entry, result);
+			return result;
+		} finally {
 			retire(entry);
 		}
 	}
@@ -550,6 +833,8 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 				entry.uncertainRetryDelayMs = UNCERTAIN_RETRY_INITIAL_MS;
 				result = evidenceResult(owner.handle, evidence);
 			} catch (error) {
+				// The wait ended after suppression: no result exists, only the abandonment.
+				const abandoned = entry.suppressed;
 				if (
 					entry.cancel &&
 					entry.cancel.termination !== "confirmed" &&
@@ -571,6 +856,8 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 					}
 				}
 				result = rejectedResult(owner.handle, error);
+				// A recorded cancel still settles as the cancelled result below.
+				if (abandoned && !entry.cancel) entry.abandoned = true;
 			}
 			// Settle point: intent recorded before this synchronous check wins, and a
 			// natural result that cannot start a fallback makes later cancels too late.
@@ -600,10 +887,32 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 				},
 				interruption: () => interruption,
 			};
+			if (store) {
+				const attempt = Math.max(1, entry.recordedAttempts);
+				control.recordCheck = async (subject) => {
+					// Verification has begun: until a verdict commits, its run is evidence.
+					entry.interrupted = true;
+					try {
+						await store.recordCheck({
+							taskId: entry.task.id,
+							attempt,
+							subject,
+						});
+					} catch (error) {
+						// Fail closed: a check whose subject is not durable never runs.
+						throw new Error(
+							`${OUTCOME_NOT_RECORDED}: it could not record the check's subject, so the check did not run: ${errorText(error)}`,
+							{ cause: error },
+						);
+					}
+				};
+			}
 			try {
 				if (owner.finalize)
 					result = await owner.finalize(result, entry.task, control);
 			} catch (error) {
+				// A failed finalization is not an abandoned run: keep its evidence.
+				if (store) entry.interrupted = true;
 				retire(entry);
 				throw error;
 			}
@@ -708,6 +1017,13 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 				resumeOptions.acquisitionSignal = entry.cancelIntent.signal;
 				let owner: OwnedRunAttempt;
 				try {
+					if (store) {
+						const failures: { model: string; error: string }[] = [];
+						if (!(await recordAttempt(entry, undefined, failures)))
+							throw new Error(failures[0]!.error);
+						if (entry.suppressed) throw new Error(ABORT_MESSAGE);
+						if (entry.cancel) throw new Error(CANCELLED_BEFORE_LAUNCH);
+					}
 					owner = options.operations?.resume
 						? await options.operations.resume(resumeOptions, task)
 						: wrap(await options.adapter.resume(resumeOptions));
@@ -775,7 +1091,10 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 					throw error;
 				}
 				// Start synchronously: microtask deferral changes evidence-vs-abort ordering.
-				void produce(entry).then(resolveProducer, rejectProducer);
+				// A finalized result whose commit failed retries only the commit.
+				void (
+					entry.unrecorded ? deliver(entry, entry.unrecorded) : produce(entry)
+				).then(resolveProducer, rejectProducer);
 			} else {
 				refresh(entry, Date.now());
 			}

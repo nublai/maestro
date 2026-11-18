@@ -562,6 +562,21 @@ const handle = await session.spawn(task);
 const completion = session.supervise(handle, task);
 adapter.complete(handle.id, { reason: "done", exitCode: 0 });
 assert.equal((await completion).outcome, "completed");
+// P3-8: the emitted outcome store commits before delivery and reopens as one writer.
+const { FileOutcomeStore } = await import("@nubl/maestro/runtime/file-outcome-store");
+const outcomeDir = (await import("node:path")).join(process.cwd(), "outcome-store");
+const outcomes = await FileOutcomeStore.open({ dir: outcomeDir, parent: "fixture-parent" });
+await assert.rejects(FileOutcomeStore.open({ dir: outcomeDir, parent: "fixture-parent" }), (error) => error.code === "locked");
+const recorded = createRunSession({ adapter, roles: [role], cwd: process.cwd(), outcomeStore: outcomes, hooks: { onSettled() { assert.equal(outcomes.recovery().outcomes[0].delivery.state, "dispatching"); } } });
+const recordedTask = { ...task, id: "recorded" };
+const recordedHandle = await recorded.spawn(recordedTask);
+const recordedCompletion = recorded.supervise(recordedHandle, recordedTask);
+adapter.complete(recordedHandle.id, { reason: "done", exitCode: 0 });
+assert.equal((await recordedCompletion).outcome, "completed");
+await outcomes.close();
+const reopened = await FileOutcomeStore.open({ dir: outcomeDir, parent: "fixture-parent" });
+assert.deepEqual(reopened.recovery().final.map((entry) => [entry.state, entry.evidence]), [["admitted", "process-local"]]);
+await reopened.close();
 `,
 	);
 	run(process.execPath, ["consumer.js"]);
@@ -610,7 +625,7 @@ assert.equal((await completion).outcome, "completed");
 		"tsconfig.json",
 	]);
 	console.log(
-		`Packed JS generic-owner lifecycle, ${Object.keys(pkg.exports).length} finite exports (${piExports.length} Pi entries refuse without peers; ${typeExports.length} need peer types), peer-free strict Promise consumer (Node dev types supplied), maps, license and discovery allowlist: passed.`,
+		`Packed JS generic-owner lifecycle (also with the file outcome store), ${Object.keys(pkg.exports).length} finite exports (${piExports.length} Pi entries refuse without peers; ${typeExports.length} need peer types), peer-free strict Promise consumer (Node dev types supplied), maps, license and discovery allowlist: passed.`,
 	);
 	piConsumer(fixture, join(fixture, tarballs[0]), piExports, typeExports);
 } finally {
