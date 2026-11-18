@@ -14,6 +14,7 @@ import type {
 import type { ProcessIdentityProbe } from "../adapters/pi/process-identity.ts";
 import type { AcceptRunner } from "../adapters/pi/accept-runner.ts";
 import type { AcceptOutcome, AcceptSpec } from "../core/accept.ts";
+import type { OutcomeStore } from "../core/outcome-store.ts";
 import type { PiLaunchOperations } from "../adapters/pi/launch-operations.ts";
 import type {
 	WorktreeOperations,
@@ -327,6 +328,11 @@ export interface DefaultRunSessionOptions {
 	outcomeLedger?: boolean;
 	/** Host platform for the Windows support scope; tests inject win32. */
 	platform?: NodeJS.Platform;
+	/**
+	 * Checked-outcome outbox (P3-8), opt-in. A reload must pass the same
+	 * instance or none: the live owner keeps the store it was created with.
+	 */
+	outcomeStore?: OutcomeStore;
 }
 // pi-herdr-agents extension
 export interface PiWorktreeHandoffInput {

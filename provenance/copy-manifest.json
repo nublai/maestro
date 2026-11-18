@@ -212,6 +212,16 @@
 			"reason": "P3-4 (post-H2, Maestro-owned): reusable ExecProvider conformance runner, run against the fake and both terminal variants."
 		},
 		{
+			"kind": "new",
+			"destination": "maestro/core/outcome-store.ts",
+			"reason": "P3-8 (post-H2, Maestro-owned): the injected OutcomeStore contract (attempt, check and outcome records, delivery states and transitions, dedupe key, bounds and validation)."
+		},
+		{
+			"kind": "new",
+			"destination": "maestro/runtime/file-outcome-store.ts",
+			"reason": "P3-8 (post-H2, Maestro-owned): the file-backed OutcomeStore: single-writer lock, versioned checksummed journal fsynced per record, torn-tail recovery and atomic snapshot compaction."
+		},
+		{
 			"kind": "copy",
 			"source": "maestro/adapters/pi/pi-harness-adapter.ts",
 			"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
@@ -415,8 +425,8 @@
 			"blob": "caa51685cabb70116dde62907994996282eb6a07",
 			"archive": "provenance/upstream/maestro/core/index.ts",
 			"owned_change": {
-				"reason": "P3-4: the type-only core barrel also re-exports the ExecProvider seam's types.",
-				"blob": "c8d4d94fd791d0248f9b258e23cd187ccaef69b6"
+				"reason": "P3-4: the type-only core barrel also re-exports the ExecProvider seam's types. P3-8: the barrel also re-exports the OutcomeStore types.",
+				"blob": "4c967455f2fee75098531eef045a1808940c9586"
 			}
 		},
 		{
@@ -551,7 +561,11 @@
 			"source": "maestro/runtime/accept-recheck.ts",
 			"destination": "maestro/runtime/accept-recheck.ts",
 			"blob": "980a04e20dceed533b570fb01165c0050e52c5f4",
-			"archive": "provenance/upstream/maestro/runtime/accept-recheck.ts"
+			"archive": "provenance/upstream/maestro/runtime/accept-recheck.ts",
+			"owned_change": {
+				"reason": "P3-8: with an outcome store, the parent re-check records its subject (command hash, cwd, worktree branch/base/HEAD) before it runs; without one nothing is awaited.",
+				"blob": "3b0d0c78a29162c3c88b81286e0bb531e2e3a70e"
+			}
 		},
 		{
 			"kind": "copy",
@@ -587,7 +601,11 @@
 			"source": "maestro/runtime/pi-run-session-types.ts",
 			"destination": "maestro/runtime/pi-run-session-types.ts",
 			"blob": "38ce85d8dfcc8bdb09efda9cca40c755a23f8eaf",
-			"archive": "provenance/upstream/maestro/runtime/pi-run-session-types.ts"
+			"archive": "provenance/upstream/maestro/runtime/pi-run-session-types.ts",
+			"owned_change": {
+				"reason": "P3-8: DefaultRunSessionOptions gains the optional outcomeStore.",
+				"blob": "52dbc676effc684cfbdc4b54a5cd7efa5fab0a03"
+			}
 		},
 		{
 			"kind": "copy",
@@ -597,8 +615,8 @@
 			"archive": "provenance/upstream/maestro/runtime/pi-run-session.ts",
 			"classification": "split",
 			"owned_change": {
-				"reason": "#149: the host summary of such an exit appends the relayed exitOutput.",
-				"blob": "6e3d394ac5cd21c0dae901e5850d2446c1689ddb"
+				"reason": "#149: the host summary of such an exit appends the relayed exitOutput. P3-8: DefaultRunSessionOptions.outcomeStore passes to the kernel and stays fixed across reloads (a different instance refuses); describeOutcome supplies the bounded completion (summary or help text, verdict, worktree subject, runtime facts); the cancel presentation adjustment moved into settledCompletion, shared by describeOutcome and onSettled.",
+				"blob": "b74df20ecf884578db054aaa9f41c33755319adc"
 			}
 		},
 		{
@@ -606,7 +624,11 @@
 			"source": "maestro/runtime/run-session.ts",
 			"destination": "maestro/runtime/run-session.ts",
 			"blob": "2d0f444debb54698df366f1486cffff724db76bd",
-			"archive": "provenance/upstream/maestro/runtime/run-session.ts"
+			"archive": "provenance/upstream/maestro/runtime/run-session.ts",
+			"owned_change": {
+				"reason": "P3-8: an optional injected OutcomeStore. With it, each attempt is recorded before its acquisition, FinalizeControl.recordCheck records a check's subject before it runs, and a finalized result is committed (one durable record) before delivery or retirement; dispatching is durable before onSettled, which then settles admitted (process-local), suppressed or uncertain. A failed commit keeps the run owned, undelivered and its surfaces retained; the next supervise retries only the commit. A run retired without an outcome closes its recorded attempts. Without a store the delivery path is the original code.",
+				"blob": "e433562cdc8560eeca20cafaf20255eb8386ecd9"
+			}
 		},
 		{
 			"kind": "copy",

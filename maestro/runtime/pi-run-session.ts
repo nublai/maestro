@@ -11,6 +11,8 @@ import type {
 	CompletionEvidence,
 } from "../core/types.ts";
 import type { SurfaceProvider } from "../core/surface-provider.ts";
+import type { OutcomeJsonObject, OutcomeStore } from "../core/outcome-store.ts";
+import type { RunResult } from "../core/types.ts";
 import { PiHarnessAdapter } from "../adapters/pi/pi-harness-adapter.ts";
 import {
 	launchOperationsFromSurface,
@@ -67,6 +69,7 @@ import {
 	type RunSession,
 	type RunObservation,
 	type OwnedRunAttempt,
+	type OutcomeDescription,
 	type PreparedRun,
 } from "./run-session.ts";
 import { createPiPersistentIO } from "./pi-persistent-io.ts";
@@ -144,6 +147,71 @@ interface PiSessionOwner {
 	markers?: DelegatedMarkers;
 	/** Owns this composition's parent re-checks; a quit terminates them. */
 	acceptChecks?: AcceptCheckOwner;
+	/** The kernel's outcome store, fixed at creation; reloads keep it. */
+	outcomeStore?: OutcomeStore;
+}
+
+/**
+ * The completion a delivery presents. A cancel can settle after a retryable
+ * attempt was finalized with its natural error; present the actual outcome.
+ */
+function settledCompletion(
+	entry: PiEntry,
+	result: RunResult,
+): PiCompletedMetadata {
+	// Exhausted acquisition failures are attached by the generic kernel after
+	// the last real attempt was finalized; preserve its original raw text.
+	const completed = { ...entry.completed!, run: result };
+	if (result.evidence?.errorMessage !== undefined)
+		completed.errorMessage = result.evidence.errorMessage;
+	if (result.cancellation) {
+		completed.summary = "Subagent cancelled.";
+		completed.summarySource = "host";
+		completed.error = "cancelled";
+		completed.exitCode = 1;
+		completed.sessionFile = entry.record.sessionFile;
+		completed.errorMessage = undefined;
+		completed.ping = undefined;
+	}
+	return completed;
+}
+
+/** The bounded outcome an injected store commits; presentation stays in onSettled. */
+function describeCompletion(
+	completed: PiCompletedMetadata,
+): OutcomeDescription {
+	const description: OutcomeDescription = {
+		kind: completed.ping ? "help" : "result",
+		text: completed.ping ? completed.ping.message : completed.summary,
+		textSource: completed.ping ? "child" : completed.summarySource,
+	};
+	if (completed.generationId) description.generation = completed.generationId;
+	if (completed.accept)
+		description.verdict = JSON.parse(JSON.stringify(completed.accept));
+	const facts: OutcomeJsonObject = { exitCode: completed.exitCode };
+	if (completed.error) facts.error = completed.error;
+	if (completed.errorMessage) facts.errorMessage = completed.errorMessage;
+	const plan = completed.runtimePlan;
+	if (plan)
+		facts.runtime = {
+			model: plan.observed?.model ?? plan.model,
+			thinking: plan.thinking,
+		};
+	const worktree = completed.worktree;
+	if (worktree) {
+		const subject: OutcomeJsonObject = {
+			branch: worktree.branch,
+			baseSha: worktree.baseSha,
+			headSha: worktree.headSha,
+			clean: worktree.clean,
+			conflicted: worktree.conflicted,
+			commitsAhead: worktree.commitsAhead,
+		};
+		if (worktree.gitError) subject.gitError = worktree.gitError;
+		description.subject = subject;
+	}
+	description.facts = facts;
+	return description;
 }
 
 // A detached close can outlive settlement without capturing a child, metadata,
@@ -244,6 +312,9 @@ export function createDefaultRunSession(
 		const nextNative = options.infrastructure?.surfaceProvider.nativeExecution;
 		if (options.infrastructure && previousNative !== nextNative)
 			throw new Error("Injected native execution binding changed; restart Pi");
+		// The live kernel commits to the store it was created with.
+		if (options.outcomeStore && options.outcomeStore !== adopted.outcomeStore)
+			throw new Error("Outcome store changed; restart Pi");
 	}
 	let state: PiSessionOwner;
 	let resumePi: (input: PiResumeInput) => Promise<AgentHandle>;
@@ -317,6 +388,7 @@ export function createDefaultRunSession(
 			},
 			roles,
 			cwd: process.cwd(),
+			outcomeStore: options.outcomeStore,
 			operations: {
 				async prepare(task, role) {
 					if (task.worktree)
@@ -414,24 +486,15 @@ export function createDefaultRunSession(
 					);
 					if (entry) observed(entry.record, observation);
 				},
+				describeOutcome(result, task) {
+					const entry = entries.get(task.id);
+					return entry?.completed
+						? describeCompletion(settledCompletion(entry, result))
+						: {};
+				},
 				async onSettled(result, task) {
 					const entry = entries.get(task.id)!;
-					// Exhausted acquisition failures are attached by the generic kernel after
-					// the last real attempt was finalized; preserve its original raw text.
-					const completed = { ...entry.completed!, run: result };
-					if (result.evidence?.errorMessage !== undefined)
-						completed.errorMessage = result.evidence.errorMessage;
-					if (result.cancellation) {
-						// A cancel can settle after a retryable attempt was finalized with
-						// its natural error; present the run's actual cancelled outcome.
-						completed.summary = "Subagent cancelled.";
-						completed.summarySource = "host";
-						completed.error = "cancelled";
-						completed.exitCode = 1;
-						completed.sessionFile = entry.record.sessionFile;
-						completed.errorMessage = undefined;
-						completed.ping = undefined;
-					}
+					const completed = settledCompletion(entry, result);
 					entry.completed = completed;
 					try {
 						const decision = await state.options.hooks.onSettled(
@@ -477,6 +540,7 @@ export function createDefaultRunSession(
 		state = {
 			binding,
 			options,
+			outcomeStore: options.outcomeStore,
 			kernel,
 			entries,
 			infrastructure,

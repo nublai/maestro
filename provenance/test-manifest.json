@@ -1147,7 +1147,11 @@
 		"test/combined-coverage.test.ts",
 		"test/config-defaults.test.ts",
 		"test/maestro/exit-output.test.ts",
-		"test/maestro/exec-provider.test.ts"
+		"test/maestro/exec-provider.test.ts",
+		"test/maestro/outcome-store.test.ts",
+		"test/maestro/outcome-store-crash.test.ts",
+		"test/maestro/outcome-run-session.test.ts",
+		"test/maestro/outcome-terminal-delivery.test.ts"
 	],
 	"identity_ledger": "baseline/test-identities.json.gz",
 	"identity_capture": "evidence/baseline-final/baseline.jsonl",

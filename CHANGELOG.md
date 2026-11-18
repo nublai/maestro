@@ -2,6 +2,45 @@
 
 ## Unreleased
 
+### Checked-outcome outbox (P3-8)
+
+Opt-in. Without an outcome store nothing changes for current hosts: same
+messages, retirement, surface release and audit ledger (a regression test
+compares the parent messages, ledger and surfaces with and without a store).
+
+- `OutcomeStore` (`@nubl/maestro/core/outcome-store`): the injected outbox a
+  run owner commits to. Attempt and check-start records; one record per
+  checked outcome (bounded text with the full text's digest, verdict, subject,
+  cancellation and host facts, optional exact envelope) with its `pending`
+  delivery; delivery states `pending -> dispatching -> admitted`, or
+  `uncertain`, `blocked`, `suppressed`. `uncertain` is never dispatched again.
+  Deduplication by parent, task, generation, attempt, kind and source report;
+  a help request never takes the result's slot. A batch saves outcomes and an
+  opaque observer state (the pi-worker client observer's persisted state) in
+  one record.
+- `FileOutcomeStore` (`@nubl/maestro/runtime/file-outcome-store`): one writer
+  per directory (an atomically linked lock; a dead holder on the same host is
+  recovered, a live or foreign one refuses), a versioned and checksummed
+  journal fsynced per record, a torn tail cut on open (earlier damage, a
+  sequence gap or another version refuses), and atomic snapshot compaction.
+  Directory 0700, files 0600. A store belongs to one parent; another parent
+  must adopt it explicitly. On open, a delivery left `dispatching` becomes
+  `uncertain`, and runs with attempts but no outcome are reported interrupted.
+  `terminalOutcomeStoreDir` places a terminal parent's store under
+  `herdr-agents/outcome-store/`.
+- `createRunSession({ outcomeStore })` and
+  `createDefaultRunSession({ outcomeStore })`: each attempt (including a
+  resume) is recorded before acquisition; `FinalizeControl.recordCheck`
+  records a check's subject before the parent re-check runs; the finalized
+  result is committed before delivery, `dispatching` is durable before
+  `onSettled`, and the result then settles `admitted` (process-local
+  evidence), `suppressed` or, if the send rejects, `uncertain`. A failed
+  commit keeps the run owned, undelivered and its surfaces retained; the next
+  `supervise` retries the commit, never the check. New hook
+  `describeOutcome`; Pi supplies the summary or help text, verdict, worktree
+  subject and runtime facts. A reload must keep the live owner's store.
+- Not yet: worker parent admission, receipts and recovery delivery (P3-9).
+
 ### ExecProvider seam (P3-4)
 
 No behaviour change for Herdr or Herdr Core hosts: same tools, schemas,

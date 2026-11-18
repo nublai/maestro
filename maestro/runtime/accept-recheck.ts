@@ -5,6 +5,7 @@
 import { appendFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import {
+	acceptCheckHash,
 	buildOutcomeLedgerLine,
 	changedCheckFiles,
 	OUTCOME_LEDGER_FILE,
@@ -15,6 +16,7 @@ import {
 	type OutcomeLedgerLine,
 } from "../core/accept.ts";
 import type { CompletionEvidence, RunResult } from "../core/types.ts";
+import type { OutcomeJsonObject } from "../core/outcome-store.ts";
 import type { WorktreeHandoff } from "../core/worktree.ts";
 import type { AcceptRunner } from "../adapters/pi/accept-runner.ts";
 import type { AcceptCheckOwner } from "../adapters/pi/accept-groups.ts";
@@ -65,6 +67,9 @@ export async function runParentAcceptCheck(
 	if (reason) outcome = skippedOutcome(spec, reason);
 	else {
 		const cwd = input.cwd;
+		// With an outcome store, the subject is durable before the check runs.
+		if (cwd && input.control.recordCheck)
+			await input.control.recordCheck(checkSubject(spec, cwd, worktree));
 		const command = cwd
 			? await input.control.cancellable((signal) =>
 					input.runner({
@@ -95,6 +100,24 @@ export async function runParentAcceptCheck(
 		if (changed.length) outcome.changedCheckFiles = changed;
 	}
 	return outcome;
+}
+
+/** What a check runs against: its command hash, checkout and recorded HEAD. */
+function checkSubject(
+	spec: AcceptSpec,
+	cwd: string,
+	worktree: WorktreeHandoff | undefined,
+): OutcomeJsonObject {
+	const subject: OutcomeJsonObject = {
+		checkHash: acceptCheckHash(spec.run),
+		cwd,
+	};
+	if (worktree) {
+		subject.branch = worktree.branch;
+		subject.baseSha = worktree.baseSha;
+		subject.headSha = worktree.headSha;
+	}
+	return subject;
 }
 
 /** How one model attempt ended, for its outcome-ledger line. */

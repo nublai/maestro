@@ -153,6 +153,11 @@
 			"import": "./dist/maestro/core/opened-primary-workspace.js",
 			"default": "./dist/maestro/core/opened-primary-workspace.js"
 		},
+		"./core/outcome-store": {
+			"types": "./dist/maestro/core/outcome-store.d.ts",
+			"import": "./dist/maestro/core/outcome-store.js",
+			"default": "./dist/maestro/core/outcome-store.js"
+		},
 		"./core/platform-support": {
 			"types": "./dist/maestro/core/platform-support.d.ts",
 			"import": "./dist/maestro/core/platform-support.js",
@@ -247,6 +252,11 @@
 			"types": "./dist/maestro/runtime/delegated-marker.d.ts",
 			"import": "./dist/maestro/runtime/delegated-marker.js",
 			"default": "./dist/maestro/runtime/delegated-marker.js"
+		},
+		"./runtime/file-outcome-store": {
+			"types": "./dist/maestro/runtime/file-outcome-store.d.ts",
+			"import": "./dist/maestro/runtime/file-outcome-store.js",
+			"default": "./dist/maestro/runtime/file-outcome-store.js"
 		},
 		"./runtime/host-surface-binding": {
 			"types": "./dist/maestro/runtime/host-surface-binding.d.ts",
