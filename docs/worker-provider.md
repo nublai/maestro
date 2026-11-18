@@ -212,8 +212,11 @@ child's spec grants `children.report` only.
     Under load a leader can be a zombie whose last thread is still exiting;
     that stop is `outcome_unknown` (the worker stays owned) and the provider
     reports it unconfirmed. The tests accept it: they stop again, as an owner
-    may, and a later stop confirms (or finds that B2 observed the exit). The
-    conformance fixture declares this with `unobserveNextStop`.
+    may, and a later stop confirms (or finds that B2 observed the exit). Only
+    a stop whose B2 receipt is `outcome_unknown` is repeated, at most three
+    stops per execution. The conformance fixture declares this with
+    `unobserveNextStop`; the kit then repeats a stop only after an
+    unconfirmed report, never after a rejection or another error.
   - It runs from a built checkout named by `MAESTRO_PI_WORKER_CHECKOUT`, and
     refuses one that is not at the commit in `SOURCE.json`, has tracked or
     untracked changes, or whose `dist` is not byte for byte what that tree
