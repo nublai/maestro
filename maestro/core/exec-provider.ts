@@ -236,14 +236,19 @@ export function execRefusal(
 
 const SUPERVISION_ABORTED = "Aborted while waiting for subagent to finish";
 const SUPERVISION_CLOSED = "Supervision registration was unregistered";
-/** Cadence after `observe` has ended, so a late wait still re-reads presence. */
-const AFTER_OBSERVE_INTERVAL_MS = 1_000;
+/**
+ * Steady cadence of a wait with no snapshot. A quiet push observer owes none,
+ * yet local completion evidence and native exit must still be re-read.
+ */
+const STEADY_INTERVAL_MS = 1_000;
 
 /**
  * The default {@link ExecSupervision}: every `observe` snapshot is a
  * `reconcile` wake-up and the presence `inspect` reports. Observation starts
- * on the first wait. Once `observe` ends or fails, waits fall back to a
- * steady cadence and `inspect` asks the provider directly.
+ * on the first wait. While it stays open, a wait with no new snapshot still
+ * wakes each second (`wake`: re-read local evidence, not presence). Once
+ * `observe` ends or fails, waits `reconcile` on a steady cadence
+ * (`intervalMs`, default one second) and `inspect` asks the provider directly.
  */
 export function observeSupervision(
 	provider: Pick<ExecProvider<unknown, unknown>, "observe" | "inspect">,
@@ -308,11 +313,12 @@ export function observeSupervision(
 					if (closed) reject(new Error(SUPERVISION_CLOSED));
 					else resolve(wake);
 				};
-				if (ended)
-					timer = setTimeout(
-						() => parked?.("reconcile"),
-						intervalMs ?? AFTER_OBSERVE_INTERVAL_MS,
-					);
+				timer = ended
+					? setTimeout(
+							() => parked?.("reconcile"),
+							intervalMs ?? STEADY_INTERVAL_MS,
+						)
+					: setTimeout(() => parked?.("wake"), STEADY_INTERVAL_MS);
 			});
 		},
 		inspect: () =>

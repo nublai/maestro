@@ -232,6 +232,8 @@ function piBoundary<Child extends PiExecution>(
 	exec: PiExecProvider<Child>,
 	parent: ReturnType<typeof parentFixture>,
 	uncertainNextLaunch?: (reason: string) => void,
+	/** An adapter already composed over `exec`; default: one given `exec`. */
+	composed?: PiHarnessAdapter<Child>,
 ): ExecAdapterBoundary<Child> & { adapter: PiHarnessAdapter<Child> } {
 	const launches = new Map<Child, ExecLaunch<Child>>();
 	const launch = exec.launch.bind(exec);
@@ -240,12 +242,14 @@ function piBoundary<Child extends PiExecution>(
 		launches.set(result.launched, result);
 		return result;
 	};
-	const adapter = new PiHarnessAdapter<Child>({
-		exec,
-		modelRegistry,
-		parent: parent.parent,
-		parentRuntime: { provider: "fake", modelId: "test", thinking: "off" },
-	});
+	const adapter =
+		composed ??
+		new PiHarnessAdapter<Child>({
+			exec,
+			modelRegistry,
+			parent: parent.parent,
+			parentRuntime: { provider: "fake", modelId: "test", thinking: "off" },
+		});
 	const boundary: ExecAdapterBoundary<Child> & {
 		adapter: PiHarnessAdapter<Child>;
 	} = {
@@ -340,6 +344,9 @@ function paneLessConformance(
 			capabilities: { ...capabilities, executionExit: false },
 			launched: paneLessExecution(runs),
 		});
+		const boundary = piBoundary(provider, parent, (reason) =>
+			provider.uncertainNextLaunch(reason),
+		);
 		return {
 			provider,
 			request: () => freshRequest(parent),
@@ -351,9 +358,13 @@ function paneLessConformance(
 				return blockedRequest;
 			},
 			prompted: async ({ handle }) => provider.execution(handle).prompts,
-			adapter: piBoundary(provider, parent, (reason) =>
-				provider.uncertainNextLaunch(reason),
-			),
+			adapter: {
+				...boundary,
+				finish: async (handle) => {
+					recordDone(boundary.adapter.getRunningChild(handle));
+					provider.exit(boundary.launchOf(handle).handle);
+				},
+			},
 			dispose: async () => parent.dispose(),
 		};
 	});
@@ -371,6 +382,69 @@ paneLessConformance(
 	"not-sent",
 );
 
+/** Pi's own `done` record, as the child writes it before it exits. */
+function recordDone(child: PiExecution) {
+	writeFileSync(`${child.sessionFile}.exit`, JSON.stringify({ type: "done" }));
+}
+
+/**
+ * The terminal adapter composed as the run session composes it: built from a
+ * surface, with one batched SupervisionCoordinator the adapter forwards to
+ * its own TerminalExecProvider. Each coordinator registration is recorded.
+ */
+function productionTerminal(
+	parent: ReturnType<typeof parentFixture>,
+	surface: FakeSurfaceProvider,
+) {
+	const wake = new FileWakeRegistry();
+	const supervision = new SupervisionCoordinator(
+		async () => ({
+			complete: true,
+			panes: surface.listSurfaces().map((info) => ({
+				paneId: info.id,
+				workspaceId: info.workspaceId ?? "",
+			})),
+		}),
+		(id) => surface.inspectSurface(id),
+		false,
+		wake,
+	);
+	const registered: string[] = [];
+	const register = supervision.register.bind(supervision);
+	supervision.register = (sessionFile, id) => {
+		registered.push(sessionFile);
+		return register(sessionFile, id);
+	};
+	const adapter = new PiHarnessAdapter<PiRunningChild>({
+		surface,
+		paneConfig,
+		operations: launchOperationsFromSurface(surface, paneConfig),
+		supervision,
+		modelRegistry,
+		parent: parent.parent,
+		parentRuntime: { provider: "fake", modelId: "test", thinking: "off" },
+	});
+	// The provider the adapter built for itself; nothing else may stand in.
+	const provider = adapter["exec"];
+	const boundary = piBoundary(provider, parent, undefined, adapter);
+	return {
+		provider,
+		boundary,
+		/** Fails unless completion of `handle` is supervised by the coordinator. */
+		assertCoordinated(handle: AgentHandle) {
+			assert.ok(
+				registered.includes(adapter.getRunningChild(handle).sessionFile),
+				"completion is supervised by the run's coordinator",
+			);
+		},
+		dispose() {
+			supervision.close();
+			wake.close();
+			parent.dispose();
+		},
+	};
+}
+
 registerExecProviderConformance(
 	{ describe, it },
 	"Terminal (legacy Herdr pane)",
@@ -383,8 +457,8 @@ registerExecProviderConformance(
 			created++;
 			return create(options);
 		};
-		const operations = launchOperationsFromSurface(surface, paneConfig);
-		const provider = new TerminalExecProvider({ surface, operations });
+		const terminal = productionTerminal(parent, surface);
+		const { provider, boundary } = terminal;
 		return {
 			provider,
 			request: () => freshRequest(parent),
@@ -402,8 +476,15 @@ registerExecProviderConformance(
 				return "unknown";
 			},
 			prompted: async ({ launched }) => terminalPrompts(launched),
-			adapter: piBoundary(provider, parent),
-			dispose: async () => parent.dispose(),
+			adapter: {
+				...boundary,
+				finish: async (handle) => {
+					terminal.assertCoordinated(handle);
+					// The pane stays open: the session-file wake carries completion.
+					recordDone(boundary.adapter.getRunningChild(handle));
+				},
+			},
+			dispose: async () => terminal.dispose(),
 		};
 	},
 );
@@ -414,7 +495,8 @@ registerExecProviderConformance(
 	async () => {
 		const parent = parentFixture();
 		const surface = new FakeCoreSurface();
-		const provider = new TerminalExecProvider({ surface, paneConfig });
+		const terminal = productionTerminal(parent, surface);
+		const { provider, boundary } = terminal;
 		return {
 			provider,
 			request: () => freshRequest(parent),
@@ -434,8 +516,17 @@ registerExecProviderConformance(
 				return "unknown";
 			},
 			prompted: async ({ launched }) => terminalPrompts(launched),
-			adapter: piBoundary(provider, parent),
-			dispose: async () => parent.dispose(),
+			adapter: {
+				...boundary,
+				finish: async (handle) => {
+					terminal.assertCoordinated(handle);
+					const child = boundary.adapter.getRunningChild(handle);
+					// Native exit first: the sidecar's wake then finds it finished.
+					surface.states.set(child.surface, { kind: "finished", exitCode: 0 });
+					recordDone(child);
+				},
+			},
+			dispose: async () => terminal.dispose(),
 		};
 	},
 );
@@ -1069,6 +1160,87 @@ describe("completion supervised by the provider", () => {
 		}
 	});
 
+	/**
+	 * A push provider that reports presence once and then stays quiet until its
+	 * observation is aborted: valid, since `observe` owes no periodic snapshots.
+	 */
+	function quietPush(f: ReturnType<typeof sharedAdapterFixture>) {
+		f.exec.observe = async function* (handle, options) {
+			f.exec.calls.push("observe");
+			yield await f.exec.inspect(handle);
+			await new Promise<void>((resolve) =>
+				options.signal.addEventListener("abort", () => resolve(), {
+					once: true,
+				}),
+			);
+		};
+	}
+
+	/** The completion, or a failure when it is still pending after `ms`. */
+	async function within<T>(ms: number, pending: Promise<T>): Promise<T> {
+		let timer: ReturnType<typeof setTimeout> | undefined;
+		try {
+			return await Promise.race([
+				pending,
+				new Promise<never>((_, reject) => {
+					timer = setTimeout(
+						() => reject(new Error(`still waiting after ${ms}ms`)),
+						ms,
+					);
+				}),
+			]);
+		} finally {
+			clearTimeout(timer);
+		}
+	}
+
+	// Astra delta P2: the default supervision must not wait only for snapshots.
+	it("a quiet push observer still completes on a sidecar written after observation starts", async () => {
+		const f = sharedAdapterFixture({ executionExit: false });
+		quietPush(f);
+		const controller = new AbortController();
+		try {
+			const handle = await f.adapter.spawn(spawnOptions(f.parent.root));
+			const waiting = f.adapter.awaitCompletion(handle, controller.signal);
+			await eventually(
+				() => f.exec.calls.includes("observe"),
+				"provider observation",
+			);
+			await new Promise((resolve) => setTimeout(resolve, 50));
+			writeFileSync(
+				`${f.adapter.getRunningChild(handle).sessionFile}.exit`,
+				JSON.stringify({ type: "done" }),
+			);
+			assert.equal((await within(3_000, waiting)).reason, "done");
+		} finally {
+			controller.abort();
+			f.dispose();
+		}
+	});
+
+	it("a quiet push observer still reconciles a native execution that ended", async () => {
+		const f = sharedAdapterFixture({ executionExit: true });
+		quietPush(f);
+		const controller = new AbortController();
+		try {
+			const handle = await f.adapter.spawn(spawnOptions(f.parent.root));
+			const waiting = f.adapter.awaitCompletion(handle, controller.signal);
+			await eventually(
+				() => f.exec.calls.includes("observe"),
+				"provider observation",
+			);
+			writeFileSync(
+				`${f.adapter.getRunningChild(handle).sessionFile}.exit`,
+				JSON.stringify({ type: "done" }),
+			);
+			f.exec.exit(f.execHandle());
+			assert.equal((await within(3_000, waiting)).reason, "done");
+		} finally {
+			controller.abort();
+			f.dispose();
+		}
+	});
+
 	it("the terminal provider supervises through its batched coordinator", async () => {
 		const parent = parentFixture();
 		const surface = new FakeSurfaceProvider();
@@ -1139,6 +1311,28 @@ describe("observeSupervision", () => {
 		assert.equal(await supervision.wait(signal), "reconcile");
 		supervision.close();
 		await assert.rejects(supervision.wait(signal), /unregistered/);
+	});
+
+	it("while a quiet observation stays open, waits still wake on a steady cadence", async () => {
+		const provider = observed();
+		const { handle } = await provider.launch("task");
+		provider.observe = async function* (watched, options) {
+			yield await provider.inspect(watched);
+			await new Promise<void>((resolve) =>
+				options.signal.addEventListener("abort", () => resolve(), {
+					once: true,
+				}),
+			);
+		};
+		const supervision = observeSupervision(provider, handle, 5);
+		const signal = new AbortController().signal;
+		assert.equal(await supervision.wait(signal), "reconcile");
+		// No snapshot follows: a local-evidence wake, no extra presence read.
+		const before = provider.calls.length;
+		assert.equal(await supervision.wait(signal), "wake");
+		assert.equal((await supervision.inspect()).kind, "present");
+		assert.equal(provider.calls.length, before);
+		supervision.close();
 	});
 
 	it("an aborted wait rejects, and close releases a parked wait", async () => {

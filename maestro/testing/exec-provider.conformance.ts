@@ -55,6 +55,12 @@ export interface ExecAdapterBoundary<Launched> {
 	launchOf(handle: AgentHandle): ExecLaunch<Launched>;
 	/** The next launch acquires but reports its dispatch uncertain. */
 	uncertainNextLaunch?(reason: string): void;
+	/**
+	 * Record the run's own `done` completion evidence and end it naturally,
+	 * while `awaitCompletion` waits on it. The fixture may also check that the
+	 * wait is supervised the way its host composes supervision.
+	 */
+	finish?(handle: AgentHandle): Promise<void>;
 }
 
 const BOOLEAN_CAPABILITIES = [
@@ -448,6 +454,31 @@ function registerAdapterBoundary<Launch, Launched>(
 			const handle = await boundary.spawn();
 			assert.equal(await fixture.acquisitions(), before + 1);
 			assert.equal(handle.launchFailure, "dispatch outcome unknown");
+		},
+	);
+
+	adapterCase(
+		"recorded completion evidence completes the run through awaitCompletion",
+		async (_fixture, boundary, skip) => {
+			if (!boundary.finish)
+				return skip("fixture cannot record completion evidence");
+			const handle = await boundary.spawn();
+			const controller = new AbortController();
+			const waiting = boundary.adapter.awaitCompletion(
+				handle,
+				controller.signal,
+			);
+			// A wait that never wakes fails here rather than hanging the suite.
+			const timer = setTimeout(() => controller.abort(), 5_000);
+			try {
+				await boundary.finish(handle);
+				const evidence = await waiting;
+				assert.equal(evidence.reason, "done");
+				assert.equal(evidence.exitCode, 0);
+			} finally {
+				clearTimeout(timer);
+				controller.abort();
+			}
 		},
 	);
 }

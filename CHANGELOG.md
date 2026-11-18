@@ -28,7 +28,10 @@ error text, lifecycle, cancel and fallback.
 - Completion presence and wake-ups come from the provider: the optional
   `ExecProvider.supervise` (terminal: the existing batched pane and
   session-file supervision, now passed to `TerminalExecProvider` as
-  `supervision`), else `observeSupervision` over `observe`. The adapter's
+  `supervision`), else `observeSupervision` over `observe`. While that
+  observation stays open with no new snapshot, `observeSupervision` still
+  wakes each second, so a quiet push provider's run completes on its local
+  evidence or native exit. The adapter's
   `supervision` option is terminal composition, now optional; an `exec`
   provider supervises its own runs.
 - `PiExecution` is Pi's shared execution record: the terminal-only fields
@@ -39,7 +42,10 @@ error text, lifecycle, cancel and fallback.
   `registerExecProviderConformance`. The suite also drives the shared adapter
   when a fixture composes one (`ExecAdapterBoundary`): refusal before
   acquisition, aborted acquisition, the handle's surface and opaque
-  reference, read/stop and unconfirmed stops, uncertain launches. Fixture
+  reference, read/stop and unconfirmed stops, uncertain launches, and
+  completion through `awaitCompletion` when a fixture can record evidence
+  (`finish`). The terminal fixtures compose the adapter as the run session
+  does, with its batched supervision coordinator. Fixture
   `blockStop` now returns the request state the blocked stop must report.
   The fake, a pane-less Pi fake (full and limited) and both terminal variants
   pass it.
