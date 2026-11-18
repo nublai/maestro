@@ -75,6 +75,15 @@ registerExecProviderConformance(
 				// The supervisor recorded the stop; its termination is not observed.
 				return "unknown";
 			},
+			// B2 confirms a stop only once the leader process is proven gone; under
+			// load a leader that is a zombie with a thread still exiting is not, so
+			// a stop that did end the child is `outcome_unknown` and a later stop
+			// confirms it.
+			unobserveNextStop: async (launch) => {
+				await fixture.op("unobserveNextStop", {
+					workerId: workerOf(provider, launch),
+				});
+			},
 			prompted: async (launch) => {
 				const received = await fixture.op<
 					{ command_id: string; message: string }[]

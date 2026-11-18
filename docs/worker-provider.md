@@ -167,9 +167,14 @@ Help requests are not completions. Each FD 3 `help` claim the provider's
 Observer surfaces becomes its own outcome (`kind: help`, keyed by the
 report's command ID, never taking the run's result slot or closing it),
 committed in the same store record as the Observer's state
-(`workerObserverPersistence`). A restarted parent restores that state
-(`observer.restored`) and resumes observation (`resumeObservation()`), so a
-help request is neither lost nor delivered twice. The parent answers through
+(`workerObserverPersistence`). The first snapshot without a saved state
+(a cold seed: the Observer's first ever, or a restart with nothing saved)
+counts every report already on a row as seen without naming it, so the
+persistence retains the owned children's help requests listed there in the
+same record; a child that asks for help before that snapshot is not lost. A
+restarted parent restores the saved state (`observer.restored`) and resumes
+observation (`resumeObservation()`), so a help request is neither lost nor
+delivered twice. The parent answers through
 the child's own `sessions.prompt` (B2 refuses resume); wiring that answer to
 the public tools is host composition (P3-11).
 
@@ -203,6 +208,12 @@ child's spec grants `children.report` only.
   SIGKILLed and restarted, B2 restarts, lost replies, fences, wrong, rebound
   and stopped parents, expired and denied receipts, help requests), against
   pi-worker's real supervisor and B2 server.
+  - B2 confirms a stop only once the child's leader process is proven gone.
+    Under load a leader can be a zombie whose last thread is still exiting;
+    that stop is `outcome_unknown` (the worker stays owned) and the provider
+    reports it unconfirmed. The tests accept it: they stop again, as an owner
+    may, and a later stop confirms (or finds that B2 observed the exit). The
+    conformance fixture declares this with `unobserveNextStop`.
   - It runs from a built checkout named by `MAESTRO_PI_WORKER_CHECKOUT`, and
     refuses one that is not at the commit in `SOURCE.json`, has tracked or
     untracked changes, or whose `dist` is not byte for byte what that tree

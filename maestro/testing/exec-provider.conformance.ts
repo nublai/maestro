@@ -34,6 +34,14 @@ export interface ExecProviderFixture<Launch, Launched> {
 	 * the request provably reached the execution).
 	 */
 	blockStop?(launch: ExecLaunch<Launched>): Promise<ExecStopRequest>;
+	/**
+	 * Make the next stop of this execution end it without the host observing
+	 * that, as a real host may under load (pi-worker's B2 then reports the
+	 * stop `outcome_unknown`). Present when this provider's stops can go
+	 * unobserved: the suite's other stops are then repeated, as an owner may
+	 * repeat one, until a later stop confirms (at most three stops).
+	 */
+	unobserveNextStop?(launch: ExecLaunch<Launched>): Promise<void>;
 	/** Read back the inputs `prompt` delivered to this execution. */
 	prompted?(launch: ExecLaunch<Launched>): Promise<ExecPromptInput[]>;
 	/**
@@ -70,6 +78,50 @@ const BOOLEAN_CAPABILITIES = [
 	unknown,
 	unknown
 >["provider"]["capabilities"])[];
+
+/** Stops a test sends to one execution whose stops can go unobserved. */
+const STOP_ATTEMPTS = 3;
+
+/**
+ * Stops and asserts the termination confirmed. A provider whose stops are
+ * always observed confirms the first stop it sends. One whose stops can go
+ * unobserved (`unobserveNextStop`) may report a stop it sent (or may have
+ * sent) unconfirmed; the stop is then repeated, as an owner may, up to
+ * {@link STOP_ATTEMPTS} stops, and the last confirms: by its own request, or
+ * because the host has meanwhile observed the end (`not-sent`). A stop never
+ * sent is not repeated.
+ */
+async function stopConfirmed<Launch, Launched>(
+	fixture: ExecProviderFixture<Launch, Launched>,
+	handle: ExecHandle,
+): Promise<void> {
+	const attempts = fixture.unobserveNextStop ? STOP_ATTEMPTS : 1;
+	let report = await fixture.provider.stop(handle);
+	let stops = 1;
+	const repeat = () =>
+		report.termination !== "confirmed" && report.request !== "not-sent";
+	for (; stops < attempts && repeat(); stops++)
+		report = await fixture.provider.stop(handle);
+	if (stops === 1)
+		assert.deepEqual(report, { request: "sent", termination: "confirmed" });
+	else assert.equal(report.termination, "confirmed");
+}
+
+/** The adapter's kill, repeated like {@link stopConfirmed}. */
+async function killConfirmed<Launch, Launched>(
+	fixture: ExecProviderFixture<Launch, Launched>,
+	adapter: HarnessAdapter,
+	handle: AgentHandle,
+): Promise<void> {
+	const attempts = fixture.unobserveNextStop ? STOP_ATTEMPTS : 1;
+	for (let n = 1; ; n++)
+		try {
+			await adapter.kill(handle);
+			return;
+		} catch (error) {
+			if (n >= attempts) throw error;
+		}
+}
 
 /** The ExecProvider contract every implementation (fake, terminal, worker) meets. */
 export function registerExecProviderConformance<Launch, Launched>(
@@ -259,13 +311,33 @@ export function registerExecProviderConformance<Launch, Launched>(
 			async () => {
 				await usingFixture(factory, async (fixture) => {
 					const { handle } = await fixture.provider.launch(fixture.request());
-					const report = await fixture.provider.stop(handle);
-					assert.deepEqual(report, {
-						request: "sent",
-						termination: "confirmed",
-					});
+					await stopConfirmed(fixture, handle);
 					assert.notEqual(
 						(await fixture.provider.reconcile(handle)).kind,
+						"live",
+					);
+				});
+			},
+		);
+
+		runner.it(
+			"a stop the host did not observe is an unconfirmed report; a later stop confirms",
+			async (t) => {
+				await usingFixture(factory, async (fixture) => {
+					if (!fixture.unobserveNextStop)
+						return t.skip("this provider's stops are always observed");
+					const launch = await fixture.provider.launch(fixture.request());
+					await fixture.unobserveNextStop(launch);
+					const first = await fixture.provider.stop(launch.handle);
+					assert.equal(first.termination, "unconfirmed");
+					assert.ok(first.termination === "unconfirmed" && first.error);
+					// Owned until confirmed: the host may observe the end itself
+					// meanwhile, so the next stop confirms with or without a request.
+					const later = await fixture.provider.stop(launch.handle);
+					if (later.termination !== "confirmed")
+						await stopConfirmed(fixture, launch.handle);
+					assert.notEqual(
+						(await fixture.provider.reconcile(launch.handle)).kind,
 						"live",
 					);
 				});
@@ -428,14 +500,14 @@ function registerAdapterBoundary<Launch, Launched>(
 					kind: "live",
 				});
 				const other = await boundary.spawn();
-				await adapter.kill(other);
+				await killConfirmed(fixture, adapter, other);
 				const stopped = boundary.launchOf(other).handle;
 				assert.notEqual(
 					(await fixture.provider.reconcile(stopped)).kind,
 					"live",
 				);
 			} else {
-				await adapter.kill(handle);
+				await killConfirmed(fixture, adapter, handle);
 				assert.notEqual(
 					(await fixture.provider.reconcile(launch.handle)).kind,
 					"live",
