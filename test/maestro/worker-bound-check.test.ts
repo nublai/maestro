@@ -7,7 +7,13 @@
  */
 import "../clean-host-env.ts";
 import assert from "node:assert/strict";
-import { describe, it } from "node:test";
+import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { after, describe, it } from "node:test";
+import { FakeHarnessAdapter } from "../../maestro/adapters/fake/fake-harness-adapter.ts";
+import { runAcceptCommand } from "../../maestro/adapters/pi/accept-runner.ts";
+import { committedVerdict } from "../../maestro/adapters/worker/run-checks.ts";
 import {
 	type AcceptCommandResult,
 	acceptCheckHash,
@@ -23,16 +29,24 @@ import type {
 	OutcomeJsonObject,
 } from "../../maestro/core/outcome-store.ts";
 import type { AgentHandle, RunResult } from "../../maestro/core/types.ts";
-import type { FinalizeControl } from "../../maestro/runtime/run-session.ts";
 import {
+	createRunSession,
+	type FinalizeControl,
+} from "../../maestro/runtime/run-session.ts";
+import type { Role, Task } from "../../maestro/core/types.ts";
+import {
+	CHECK_ENV_ALLOWLIST,
 	runWorkerBoundCheck,
 	TERMINATION_STOPS,
+	type WorkerBoundCheck,
 	type WorkerCheckPort,
 } from "../../maestro/adapters/worker/bound-check.ts";
-import type {
-	ArtifactFacts,
-	WorkerArtifactRead,
-	WorkerRunBinding,
+import type { AcceptCommandOptions } from "../../maestro/adapters/pi/accept-runner.ts";
+import {
+	type ArtifactFacts,
+	type WorkerArtifactRead,
+	WorkerCommandUncertain,
+	type WorkerRunBinding,
 } from "../../maestro/adapters/worker/worker-exec-provider.ts";
 
 const BASE = "b".repeat(40);
@@ -56,6 +70,32 @@ const handle: ExecHandle = {
 	},
 };
 const spec = normalizeAcceptSpec({ run: "npm test", timeoutSec: 30 });
+/** The check's environment source in every case: synthetic, never process.env. */
+const SOURCE = Object.freeze({
+	PATH: "/usr/bin:/bin",
+	LANG: "C.UTF-8",
+	PARENT_ONLY: "parent value",
+	DECLARED: "declared value",
+});
+/** Where checks make their scratch HOME/TMPDIR; removed after the file. */
+const SCRATCH = mkdtempSync(join(tmpdir(), "bound-check-unit-"));
+after(() => rmSync(SCRATCH, { recursive: true, force: true }));
+function scratchRoot(): string {
+	return SCRATCH;
+}
+
+/** B2's own `outcome_unknown` receipt for a stop (the zombie-leader case). */
+function unknownStop(): ExecStopReport {
+	return {
+		request: "unknown",
+		termination: "unconfirmed",
+		error: new WorkerCommandUncertain(
+			"stop not confirmed (outcome_unknown)",
+			"stop-1",
+			"outcome_unknown",
+		),
+	};
+}
 
 function facts(
 	change: (facts: ArtifactFacts) => void = () => {},
@@ -180,12 +220,16 @@ function control(
 	options: {
 		interruption?: "cancelled" | "suppressed";
 		recordFails?: boolean;
+		/** The window's signal aborts, as the kernel's does once a cancel's termination is confirmed. */
+		aborted?: boolean;
 	} = {},
 ) {
 	const subjects: OutcomeJsonObject[] = [];
 	const value: FinalizeControl = {
 		async cancellable(work) {
-			return work(new AbortController().signal);
+			const window = new AbortController();
+			if (options.aborted) window.abort();
+			return work(window.signal);
 		},
 		interruption: () => options.interruption,
 		async recordCheck(subject) {
@@ -200,9 +244,11 @@ function control(
 function runner(
 	calls: string[],
 	result: AcceptCommandResult = { kind: "exit", exitCode: 0, output: "ok" },
+	seen: AcceptCommandOptions[] = [],
 ) {
-	return async () => {
+	return async (options: AcceptCommandOptions) => {
 		calls.push("run");
+		seen.push(options);
 		return result;
 	};
 }
@@ -216,15 +262,20 @@ async function check(
 	} = {},
 ) {
 	const fake = port(options);
-	const made = control(fake.calls, options);
+	const made = control(fake.calls, {
+		...options,
+		aborted: options.command?.kind === "aborted",
+	});
+	const seen: AcceptCommandOptions[] = [];
 	const outcome = await runWorkerBoundCheck(fake.port, {
 		handle,
 		spec,
 		result: options.result ?? completed(),
 		control: made.control,
-		runner: runner(fake.calls, options.command),
+		runner: runner(fake.calls, options.command, seen),
+		environment: { source: SOURCE, scratchRoot: scratchRoot() },
 	});
-	return { ...fake, ...made, outcome };
+	return { ...fake, ...made, outcome, seen };
 }
 
 describe("V1 bound check: a verdict bound to what owner Git read", () => {
@@ -281,12 +332,36 @@ describe("V1 bound check: a verdict bound to what owner Git read", () => {
 		assert.equal(outcome.verdict.exitCode, 1);
 	});
 
-	it("a claim without a commit binds to the branch owner Git reads", async () => {
-		const { outcome } = await check({
+	it("a claim without a commit gives no verdict: the claimed commit is mandatory; nothing is stopped, read or run", async () => {
+		const { outcome, calls } = await check({
 			claim: { reportId: "r1", decoded: { type: "done" } },
 		});
-		assert.equal(outcome.accept.verdict, "accepted");
+		assert.deepEqual(calls, []);
+		assert.equal(outcome.accept.verdict, "error");
+		assert.equal(
+			outcome.accept.reason,
+			"the child's result report claims no commit",
+		);
+		assert.equal(outcome.bound, false);
 		assert.equal(outcome.verdict.claimedCommit, null);
+		assert.equal(outcome.verdict.check, "not-run");
+	});
+
+	it("without a durable subject record (no outcome store) nothing is checked", async () => {
+		const fake = port();
+		const made = control(fake.calls);
+		delete made.control.recordCheck;
+		const outcome = await runWorkerBoundCheck(fake.port, {
+			handle,
+			spec,
+			result: completed(),
+			control: made.control,
+			runner: runner(fake.calls),
+			environment: { source: SOURCE, scratchRoot: scratchRoot() },
+		});
+		assert.deepEqual(fake.calls, []);
+		assert.equal(outcome.accept.verdict, "error");
+		assert.equal(outcome.bound, false);
 	});
 });
 
@@ -333,13 +408,7 @@ describe("V1 bound check: failed and missing reports", () => {
 
 describe("V1 bound check: termination before the authoritative read", () => {
 	it("a stop that stays unobserved is repeated at most three times in all, then gives no verdict and reads nothing; the report is kept", async () => {
-		const { outcome, calls } = await check({
-			stop: {
-				request: "unknown",
-				termination: "unconfirmed",
-				error: new Error("stop not confirmed (outcome_unknown)"),
-			},
-		});
+		const { outcome, calls } = await check({ stop: unknownStop() });
 		assert.deepEqual(calls, ["stop", "stop", "stop"]);
 		assert.equal(TERMINATION_STOPS, 3);
 		assert.equal(outcome.accept.verdict, "error");
@@ -355,11 +424,7 @@ describe("V1 bound check: termination before the authoritative read", () => {
 
 	it("an unobserved stop followed by one that confirms is checked", async () => {
 		const reports: ExecStopReport[] = [
-			{
-				request: "unknown",
-				termination: "unconfirmed",
-				error: new Error("stop not confirmed (outcome_unknown)"),
-			},
+			unknownStop(),
 			{ request: "not-sent", termination: "confirmed" },
 		];
 		const fake = port();
@@ -378,10 +443,49 @@ describe("V1 bound check: termination before the authoritative read", () => {
 			result: completed(),
 			control: made.control,
 			runner: runner(fake.calls),
+			environment: { source: SOURCE, scratchRoot: scratchRoot() },
 		});
 		assert.equal(outcome.accept.verdict, "accepted");
 		assert.equal(object(outcome.verdict.termination).stops, 2);
 	});
+
+	const unrepeated: [string, ExecStopReport][] = [
+		[
+			"a sent stop whose receipt was observed but not confirmed",
+			{
+				request: "sent",
+				termination: "unconfirmed",
+				error: new WorkerCommandUncertain("stop not confirmed (rejected)", "s"),
+			},
+		],
+		[
+			"a stop left unknown for another reason (receipt missing)",
+			{
+				request: "unknown",
+				termination: "unconfirmed",
+				error: new WorkerCommandUncertain(
+					"stop not confirmed (receipt_missing)",
+					"s",
+					"receipt_missing",
+				),
+			},
+		],
+		[
+			"a stop whose error only says outcome_unknown in its text",
+			{
+				request: "unknown",
+				termination: "unconfirmed",
+				error: new Error("stop not confirmed (outcome_unknown)"),
+			},
+		],
+	];
+	for (const [what, stop] of unrepeated)
+		it(`${what} is never repeated: only B2's outcome_unknown receipt is`, async () => {
+			const { outcome, calls } = await check({ stop });
+			assert.deepEqual(calls, ["stop"]);
+			assert.equal(outcome.accept.reason, "child termination not confirmed");
+			assert.equal(outcome.bound, false);
+		});
 
 	it("a stop never sent is not repeated", async () => {
 		const { outcome, calls } = await check({
@@ -634,6 +738,7 @@ describe("V1 bound check: fail closed before the check runs", () => {
 				result: completed(),
 				control: made.control,
 				runner: runner(fake.calls),
+				environment: { source: SOURCE, scratchRoot: scratchRoot() },
 			}),
 			/disk full/,
 		);
@@ -760,4 +865,281 @@ describe("V1 bound check: a cancelled check", () => {
 		assert.deepEqual(calls, []);
 		assert.equal(outcome.accept.reason, "cancelled");
 	});
+});
+
+describe("V1 bound check: the command's synthetic environment", () => {
+	it("carries only allowlisted and declared variables, HOME and TMPDIR in the check's scratch; nothing else of the parent's", async () => {
+		const fake = port();
+		const made = control(fake.calls);
+		const seen: AcceptCommandOptions[] = [];
+		const outcome = await runWorkerBoundCheck(fake.port, {
+			handle,
+			spec,
+			result: completed(),
+			control: made.control,
+			runner: runner(fake.calls, undefined, seen),
+			environment: {
+				source: SOURCE,
+				declared: ["DECLARED"],
+				scratchRoot: scratchRoot(),
+			},
+		});
+		assert.equal(outcome.accept.verdict, "accepted");
+		const env = seen[0]?.env;
+		assert.ok(env, "the runner is given an explicit environment");
+		assert.deepEqual(Object.keys(env).sort(), [
+			"DECLARED",
+			"HOME",
+			"LANG",
+			"PATH",
+			"TMPDIR",
+		]);
+		assert.equal("PARENT_ONLY" in env, false, "a parent variable never passes");
+		assert.equal(env.PATH === SOURCE.PATH, true, "PATH is allowlisted");
+		assert.equal(env.DECLARED === SOURCE.DECLARED, true, "declared passes");
+		assert.equal(
+			String(env.HOME).startsWith(join(SCRATCH, "maestro-check-")),
+			true,
+			"HOME is the check's scratch",
+		);
+		assert.equal(
+			String(env.TMPDIR).startsWith(join(SCRATCH, "maestro-check-")),
+			true,
+			"TMPDIR is the check's scratch",
+		);
+		assert.equal(existsSync(String(env.HOME)), false, "scratch removed after");
+		// Names only in the evidence, never a value.
+		const recorded = object(object(outcome.verdict.environment).env);
+		assert.equal(recorded.kind, "synthetic");
+		assert.deepEqual(recorded.names, [
+			...CHECK_ENV_ALLOWLIST,
+			"DECLARED",
+			"HOME",
+			"TMPDIR",
+		]);
+		assert.equal(
+			JSON.stringify(outcome.verdict).includes("declared value"),
+			false,
+			"no variable value is recorded",
+		);
+	});
+
+	it("a parent variable does not reach the real command (Maestro's accept runner, sh -c)", async () => {
+		const fake = port();
+		const made = control(fake.calls);
+		const cwd = mkdtempSync(join(SCRATCH, "slot-"));
+		const binding = fake.port.runBinding.bind(fake.port);
+		fake.port.runBinding = (h) => {
+			const value = binding(h);
+			if (value) value.slot.path = cwd;
+			return value;
+		};
+		const outcome = await runWorkerBoundCheck(fake.port, {
+			handle,
+			spec: normalizeAcceptSpec({
+				run: 'test -z "${PARENT_ONLY+set}" && test -n "$DECLARED" && test -d "$HOME" && test -d "$TMPDIR" && test "$HOME" != "$PWD"',
+				timeoutSec: 30,
+			}),
+			result: completed(),
+			control: made.control,
+			runner: runAcceptCommand,
+			environment: {
+				source: SOURCE,
+				declared: ["DECLARED"],
+				scratchRoot: scratchRoot(),
+			},
+		});
+		assert.equal(
+			outcome.accept.verdict,
+			"accepted",
+			"the command saw only its own environment",
+		);
+		assert.deepEqual(
+			readdirSync(SCRATCH).filter((name) => name.startsWith("maestro-check-")),
+			[],
+			"the scratch is removed",
+		);
+	});
+
+	for (const name of ["HOME", "TMPDIR", "NOT A NAME"])
+		it(`a declared variable that may not pass (${name === "NOT A NAME" ? "not a name" : name}) refuses the check before it runs`, async () => {
+			const fake = port();
+			const made = control(fake.calls);
+			const outcome = await runWorkerBoundCheck(fake.port, {
+				handle,
+				spec,
+				result: completed(),
+				control: made.control,
+				runner: runner(fake.calls),
+				environment: {
+					source: SOURCE,
+					declared: [name],
+					scratchRoot: scratchRoot(),
+				},
+			});
+			assert.deepEqual(fake.calls, ["stop", "inspect"]);
+			assert.equal(outcome.accept.verdict, "error");
+			assert.equal(outcome.bound, false);
+		});
+});
+
+describe("V1 bound check under the real run owner: a cancel during the second inspection", () => {
+	const role: Role = {
+		name: "worker",
+		version: "1",
+		description: "worker",
+		systemPrompt: "worker",
+		allowedTools: [],
+	};
+
+	it("wins: the cancel is accepted, the run is cancelled and the verdict is skipped (cancelled), never accepted and bound", async () => {
+		const adapter = new FakeHarnessAdapter();
+		const session = createRunSession({ adapter, roles: [role], cwd: ROOT });
+		const task: Task = {
+			id: "race",
+			name: "race",
+			prompt: "p",
+			role: "worker",
+			cwd: ROOT,
+		};
+		const fake = port();
+		const inspect = fake.port.inspectArtifact.bind(fake.port);
+		let cancelled: ReturnType<typeof session.cancel> | undefined;
+		fake.port.inspectArtifact = async (h, request) => {
+			const read = await inspect(h, request);
+			// The second reading: the operator cancels while it is in flight.
+			if (fake.calls.filter((c) => c === "inspect").length === 2)
+				cancelled = session.cancel(task.id);
+			return read;
+		};
+		let check: WorkerBoundCheck | undefined;
+		const handleOf = await session.spawn(task, {
+			role,
+			persistent: false,
+			candidates: [{ model: "fixture/model", thinking: "off" }],
+			async spawnAttempt(options) {
+				return {
+					adapter,
+					handle: await adapter.spawn(options),
+					async finalize(result, _task, control) {
+						check = await runWorkerBoundCheck(fake.port, {
+							handle,
+							spec,
+							result,
+							// The kernel's own window; only the subject record is a stub.
+							control: { ...control, recordCheck: async () => {} },
+							runner: runner(fake.calls),
+							environment: { source: SOURCE, scratchRoot: scratchRoot() },
+						});
+						return result;
+					},
+				};
+			},
+		});
+		const result = session.supervise(handleOf, task);
+		adapter.complete(handleOf.id, { reason: "done", exitCode: 0 });
+		const settled = await result;
+		assert.ok(cancelled, "the cancel was made during the second inspection");
+		const report = await cancelled;
+		assert.equal(
+			report.status,
+			"confirmed",
+			"the cancel is accepted, not too late",
+		);
+		assert.equal(settled.outcome, "killed");
+		assert.ok(settled.cancellation, "the delivered result is cancelled");
+		assert.ok(check);
+		assert.equal(check.bound, false);
+		assert.equal(check.accept.verdict, "skipped");
+		assert.equal(check.accept.reason, "cancelled");
+		assert.equal(check.verdict.check, "cancelled");
+		assert.equal(committedVerdict(check, settled).verdict, "skipped");
+	});
+
+	it("the committed verdict is re-checked against the delivered result: a cancelled run never carries a bound verdict", async () => {
+		const { outcome } = await check();
+		assert.equal(outcome.bound, true);
+		const cancelledRun = completed();
+		cancelledRun.outcome = "killed";
+		cancelledRun.cancellation = { requestedAt: 1, termination: "confirmed" };
+		const verdict = committedVerdict(outcome, cancelledRun);
+		assert.equal(verdict.verdict, "skipped");
+		assert.equal(verdict.bound, false);
+		assert.equal(verdict.reason, "cancelled");
+		assert.equal(verdict.exitCode, undefined);
+		assert.equal(verdict.checkHash, outcome.verdict.checkHash, "evidence kept");
+		// A natural run keeps the check's own verdict.
+		assert.equal(committedVerdict(outcome, completed()).verdict, "accepted");
+	});
+});
+
+describe("the cancel-intent gate: durable before any stop (run owner)", () => {
+	const role: Role = {
+		name: "worker",
+		version: "1",
+		description: "worker",
+		systemPrompt: "worker",
+		allowedTools: [],
+	};
+
+	for (const how of ["throws", "rejects"] as const)
+		it(`a failed durable write (the hook ${how}) sends no stop and surfaces the failure; a cancel retried once the write succeeds stops the run`, async () => {
+			const adapter = new FakeHarnessAdapter();
+			const order: string[] = [];
+			const kill = adapter.kill.bind(adapter);
+			adapter.kill = async (h) => {
+				order.push("kill");
+				return kill(h);
+			};
+			let failing = true;
+			const session = createRunSession({
+				adapter,
+				roles: [role],
+				cwd: ROOT,
+				hooks: {
+					persistCancelIntent() {
+						order.push("persist");
+						if (!failing) return;
+						const failure = new Error("manifest write failed");
+						if (how === "throws") throw failure;
+						return Promise.reject(failure);
+					},
+				},
+			});
+			const task: Task = {
+				id: "gate",
+				name: "gate",
+				prompt: "p",
+				role: "worker",
+				cwd: ROOT,
+			};
+			const running = await session.spawn(task, {
+				role,
+				persistent: false,
+				candidates: [{ model: "fixture/model", thinking: "off" }],
+				async spawnAttempt(options) {
+					return { adapter, handle: await adapter.spawn(options) };
+				},
+			});
+			const settled = session.supervise(running, task);
+			const first = await session.cancel(task.id);
+			assert.equal(first.status, "unconfirmed");
+			assert.match(
+				first.error ?? "",
+				/cancel intent could not be recorded durably, so no stop was sent: manifest write failed/,
+			);
+			assert.deepEqual(
+				order,
+				["persist"],
+				"no stop without the durable intent",
+			);
+			assert.equal(await adapter.getState(running), "working", "still live");
+			failing = false;
+			const second = await session.cancel(task.id);
+			assert.equal(second.status, "confirmed");
+			assert.deepEqual(order, ["persist", "persist", "kill"]);
+			const result = await settled;
+			assert.equal(result.outcome, "killed");
+			assert.equal(result.cancellation?.termination, "confirmed");
+		});
 });

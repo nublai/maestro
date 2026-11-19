@@ -170,11 +170,14 @@ export class WorkerSlotPool {
 	}
 
 	/**
-	 * Durably claims one free slot for `launchId`: the one whose branch leaf
-	 * (or `<namespace>/<leaf>`) is `branch` when it is free, else the first free
-	 * slot in manifest order. A `base` other than `HEAD` must be the slot's
-	 * base. The chosen slot is checked against its manifest first; a mismatch
-	 * is refused, never skipped.
+	 * Durably claims one free slot for `launchId`: with a `branch`, the slot
+	 * whose branch (or its leaf, or `<namespace>/<leaf>`) it names, and only
+	 * when that slot is free; without one, the first free slot in manifest
+	 * order. A branch no prepared slot has asks for a worktree of the child's
+	 * own, which needs an owner operation: refused, never replaced by another
+	 * slot (P3-10, root decision 8). A `base` other than `HEAD` must be the
+	 * slot's base. The chosen slot is checked against its manifest first; a
+	 * mismatch is refused, never skipped.
 	 */
 	claim(
 		launchId: string,
@@ -189,11 +192,23 @@ export class WorkerSlotPool {
 				`No owner-prepared worker slot is free (${this.slots.length} prepared, all claimed); refused before acquisition. Dynamic worktree creation needs an owner operation.`,
 			);
 		const wanted = request.branch;
-		const slot =
-			(wanted === undefined
-				? undefined
-				: free.find((candidate) => matchesBranch(candidate.branch, wanted))) ??
-			free[0]!;
+		let slot = free[0]!;
+		if (wanted !== undefined) {
+			const named = this.slots.find((candidate) =>
+				matchesBranch(candidate.branch, wanted),
+			);
+			if (!named)
+				throw new WorkerSlotRefusal(
+					"slot_mismatch",
+					`No owner-prepared worker slot is on the requested branch; a worker child cannot have a worktree of its own (that needs an owner operation); refused before acquisition.`,
+				);
+			if (!free.includes(named))
+				throw new WorkerSlotRefusal(
+					"slots_exhausted",
+					`Worker slot ${named.name}, on the requested branch, is already claimed; refused before acquisition.`,
+				);
+			slot = named;
+		}
 		const base = request.base;
 		if (base !== undefined && base !== "HEAD" && base !== slot.baseSha)
 			throw new WorkerSlotRefusal(

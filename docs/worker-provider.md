@@ -65,7 +65,10 @@ The provider supports managed worktrees (owner-prepared slots) only. Resume
 caller's checkout and caller surfaces are refused before acquisition.
 Interactive children (a worker child has no terminal for a person) and
 children that spawn subagents (a child's grant is `children.report` only) are
-refused too, before any B2 call (P3-10).
+refused too, before any B2 call (P3-10). Through `WorkerRunChecks` the run
+owner also refuses, before any acquisition, a persistent specialist and a
+model fallback list (each attempt would be a new child in a new slot), and
+the slot pool refuses a worktree of the child's own (below).
 `executionExit` is false because B2 reports status, not exit codes.
 `parentAdmission` is `receipt` (P3-9): checked outcomes reach the parent
 through `WorkerParentAdmission`, proven by B2 receipts.
@@ -117,9 +120,13 @@ can put a claim inside a slot, where its child could delete it. A claim file
 is read without following a link. Node has no `openat`; swapping a component
 between the check and the use needs a writer outside every slot.
 
-A requested branch selects the slot whose leaf matches it, otherwise the
-first free slot. A requested base other than `HEAD` must equal the slot's
-base. An exhausted pool or a mismatched slot is refused before
+A requested branch names its slot: the slot whose branch, leaf or
+`<namespace>/<leaf>` it is, and only when that slot is free. A branch no
+prepared slot has asks for a worktree of the child's own, which needs an
+owner operation: refused (`slot_mismatch`), never replaced by another slot;
+a named slot already claimed is refused too (P3-10, root decision 8). A
+request without a branch takes the first free slot. A requested base other
+than `HEAD` must equal the slot's base. An exhausted pool or a mismatched slot is refused before
 `workers.create`: only the `hello` and the parent's `workers.get` (reads) come
 first. A mismatched slot is refused, never skipped.
 
@@ -206,16 +213,20 @@ re-check:
 
 1. Only a completed run with a `done` result claim is checked; a failed or
    missing report is `skipped`, a completion without a result claim `error`.
+   The claim must name its commit: a claim without one gets no verdict
+   (`error`, nothing stopped, read or run). Without an outcome store to
+   record the subject nothing is checked either.
 2. The child's termination is confirmed first, for the generation that ran: a
-   stop confirms only for the epoch it named (or a row already stopped). A
-   stop B2 did not observe (unconfirmed, sent or maybe sent) is repeated, at
-   most three stops in all; a stop never sent is not. Unconfirmed: `error
+   stop confirms only for the epoch it named (or a row already stopped). Only
+   an unconfirmed report naming B2's own `outcome_unknown` receipt for the
+   stop is repeated, at most three stops in all; a refusal, a stop never
+   sent, a rejection or any other uncertainty is not. Unconfirmed: `error
    (child termination not confirmed)`, nothing read, the report and the
-   worker kept.
+   worker kept for the owner.
 3. `artifacts.inspect` at that epoch for the slot's branch and issued base.
    The subject binds only when the facts name this worker and generation, the
    base is the issued one and an ancestor, HEAD and the pin's HEAD are the
-   issued branch, HEAD is the branch's commit, a claimed commit is that
+   issued branch, HEAD is the branch's commit, the claimed commit is that
    commit, and the checkout is clean but for the worker's own runtime
    directories (`.piw-agent/`, `.piw-worker/`, untracked, listed by name in
    the subject). A conflicted, dirty or truncated status, a pin mismatch, a
@@ -225,20 +236,31 @@ re-check:
    replace objects disabled, runtime directories) is recorded
    (`recordCheck`) before the approved command runs with Maestro's
    parent-side accept runner (`sh -c` in the slot, in the parent's process
-   and sandbox, never a worker or daemon shell), cancellable.
+   and sandbox, never a worker or daemon shell), cancellable. Its
+   environment is synthetic, from an explicit allowlist: `PATH`, `LANG` and
+   `LC_ALL` from the source (`checkEnvironment.source`, default the parent's
+   environment), the variables the approved command declares
+   (`checkEnvironment.declared`), and `HOME` and `TMPDIR` in the check's own
+   scratch directory (under `checkEnvironment.scratchRoot`, default the
+   system temporary directory; removed after the check). Nothing else of the
+   parent's environment reaches the command.
 5. After it the same inspection must read the same subject and checkout
    status; anything else is `error (subject changed ...)`, the command's exit
    kept as evidence. Otherwise the exit decides: `accepted` or `rejected`,
    both bound.
 
-A cancel that wins during the check is `skipped (cancelled)` (`check:
-cancelled`), its own outcome; the run then delivers the cancelled result.
+The command and the inspection after it share one cancellable window. A
+cancel that arrives during either wins: the check is `skipped (cancelled)`
+(`check: cancelled`), its own outcome, and the run delivers the cancelled
+result. Once the window has closed the verdict is decided and a later cancel
+is too late (`already-terminal`). The committed verdict is checked again
+against the delivered result: a cancelled run never carries a bound verdict.
 
 The committed outcome keeps, in the OutcomeStore:
 
 - `verdict`: verdict, `bound`, command hash (never the command), exit or
-  result kind, timeout, environment (runner, shell, cwd; variable names
-  only), termination (request, confirmation, stops, epoch), the claimed
+  result kind, timeout, environment (runner, shell, cwd; the synthetic
+  environment's variable names only, never values), termination (request, confirmation, stops, epoch), the claimed
   commit and the report ID;
 - `subject`: `before` and `after`, as read;
 - `facts.handoff`: the worker, slot, branch and base; the result and help
@@ -249,9 +271,13 @@ The committed outcome keeps, in the OutcomeStore:
 
 Hand-offs, not new child results:
 
-- A cancel records its intent in the launch manifest (`onCancelState`,
-  synchronously) before the stop is sent; the outcome carries the
-  cancellation facts and the stop evidence.
+- A cancel's intent is durable in the launch manifest before any stop it
+  leads to is sent: the run owner's `persistCancelIntent` hook is a
+  mandatory gate in the cancellation path, not the presentation-only
+  `onCancelState`. When the write fails no stop is sent; the cancel reports
+  `unconfirmed` with the failure and the run stays live, so a retried cancel
+  writes again before it stops. The outcome carries the cancellation facts
+  and the stop evidence.
 - Invariant 4a is kept: a child stopped or gone without a result report
   fences its parent. The hand-off names the fence and asks for owner
   reconciliation; the outbox holds the outcome (`attention()`). Nothing here
@@ -300,13 +326,17 @@ child's spec grants `children.report` only.
   SIGKILLed and restarted, B2 restarts, lost replies, fences, wrong, rebound
   and stopped parents, expired and denied receipts, help requests; and the
   interrupted-run hand-offs after a SIGKILL during a check and before a
-  cancel's stop) and the bound checks (`b2-bound-check.test.ts`: V1 against
+  cancel's stop, and after a cancel whose durable intent could not be
+  written, which sent no stop) and the bound checks (`b2-bound-check.test.ts`: V1 against
   an actual child commit compared with the owner's own Git, over the owner
   socket and over a sandboxed parent's channel; a tree changed by the check,
   a pin mismatch, a missing object, a lost inspect reply, a dirty checkout, a
   wrong claimed commit; failed and missing reports, a cancelled check, a
-  cancel before any report, sibling isolation with an unconfirmed stop),
-  against pi-worker's real supervisor and B2 server.
+  cancel before any report, a cancel during the inspection after the check,
+  sibling isolation with an unconfirmed stop; the command's synthetic
+  environment; a persistent specialist, a model fallback list and a worktree
+  of the child's own refused before acquisition), against pi-worker's real
+  supervisor and B2 server.
   - B2 confirms a stop only once the child's leader process is proven gone.
     Under load a leader can be a zombie whose last thread is still exiting;
     that stop is `outcome_unknown` (the worker stays owned) and the provider

@@ -16,6 +16,7 @@ import {
 	type WorkerParentBinding,
 } from "../../maestro/adapters/worker/parent-admission.ts";
 import type { AcceptRunner } from "../../maestro/adapters/pi/accept-runner.ts";
+import type { CheckEnvironmentOptions } from "../../maestro/adapters/worker/bound-check.ts";
 import { WorkerRunChecks } from "../../maestro/adapters/worker/run-checks.ts";
 import type { WorkerExecutionProviderOptions } from "../../maestro/adapters/worker/worker-exec-provider.ts";
 import type { AcceptRequest } from "../../maestro/core/accept.ts";
@@ -49,8 +50,14 @@ export interface WorkerParentOptions {
 	 * P3-10: compose `WorkerRunChecks` (the V1 bound check and the hand-offs)
 	 * as the run owner's operations and hooks. Off: the P3-9 composition.
 	 */
-	checks?: { runner?: AcceptRunner };
+	checks?: { runner?: AcceptRunner; environment?: CheckEnvironmentOptions };
 }
+
+/** The accept command's environment source in tests: synthetic, never process.env. */
+export const CHECK_ENV_SOURCE = Object.freeze({
+	PATH: "/usr/bin:/bin",
+	LANG: "C",
+});
 
 /** The parent's state directory layout under `dir`. */
 export function outcomesDir(dir: string): string {
@@ -107,6 +114,9 @@ export async function composeWorkerParent(
 		const checkOptions: ConstructorParameters<typeof WorkerRunChecks>[0] = {
 			provider: composed.provider,
 			adapter,
+			checkEnvironment: options.checks.environment ?? {
+				source: CHECK_ENV_SOURCE,
+			},
 		};
 		if (options.checks.runner) checkOptions.runner = options.checks.runner;
 		checks = new WorkerRunChecks(checkOptions);
@@ -145,10 +155,15 @@ export async function composeWorkerParent(
 	};
 }
 
+/**
+ * A worker child's task. `slot` names the owner-prepared slot it runs in
+ * (its branch leaf): a worker child has no worktree of its own (P3-10).
+ */
 export function workerTask(
 	id: string,
 	root: string,
 	accept?: AcceptRequest,
+	slot = "s0",
 ): Task {
 	const task: Task = {
 		id,
@@ -156,7 +171,7 @@ export function workerTask(
 		role: role.name,
 		prompt: "bounded task",
 		cwd: root,
-		worktree: { branch: "w" },
+		worktree: { branch: slot },
 		runtime: { model: "fake/test", thinking: "off" },
 	};
 	if (accept) task.accept = normalizeAcceptSpec(accept);

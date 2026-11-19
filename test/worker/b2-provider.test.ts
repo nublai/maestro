@@ -42,6 +42,7 @@ import {
 	adapterOver,
 	B2Fixture,
 	composeProvider,
+	freeSlot,
 	freshRequest,
 	parentSession,
 	role,
@@ -154,6 +155,16 @@ async function withFixture(
 	}
 }
 
+/** A fresh request for the first free owner-prepared slot, by name. */
+function fresh(
+	composed: ReturnType<typeof composeProvider>,
+	session: ReturnType<typeof parentSession>,
+) {
+	return freshRequest(session, {
+		worktree: { branch: freeSlot(composed.slots) },
+	});
+}
+
 /** Owner Git with a synthetic environment, never the user's configuration. */
 function ownerGit(cwd: string, ...args: string[]) {
 	return execFileSync("git", ["-C", cwd, ...args], {
@@ -172,11 +183,11 @@ describe("worker provider over real B2: prepared-slot acquisition", () => {
 	it("an exhausted pool is refused before any B2 create; nothing is recorded", () =>
 		withFixture(async ({ fixture, composed, session }) => {
 			const { provider, launches } = composed;
-			const first = await provider.launch(freshRequest(session));
+			const first = await provider.launch(fresh(composed, session));
 			assert.equal(first.launchFailure, undefined);
 			const before = await fixture.op<number>("acquisitions");
 			await assert.rejects(
-				provider.launch(freshRequest(session)),
+				provider.launch(freshRequest(session, { worktree: { branch: "s0" } })),
 				(error: Error) =>
 					error instanceof WorkerSlotRefusal &&
 					error.code === "slots_exhausted" &&
@@ -198,7 +209,7 @@ describe("worker provider over real B2: prepared-slot acquisition", () => {
 				`${fixture.started.root}/.piw-slots/${s0.name}`,
 			);
 			await assert.rejects(
-				provider.launch(freshRequest(session)),
+				provider.launch(fresh(composed, session)),
 				(error: Error) =>
 					error instanceof WorkerSlotRefusal &&
 					error.code === "slot_mismatch" &&
@@ -228,7 +239,7 @@ describe("worker provider over real B2: prepared-slot acquisition", () => {
 	it("a create the worker refuses acquires nothing, releases its slot and keeps no manifest", () =>
 		withFixture(async ({ fixture, composed, session }) => {
 			const { provider, slots, launches } = composed;
-			const refused = freshRequest(session);
+			const refused = fresh(composed, session);
 			// Not in the parent's launch spec: the worker refuses the child's authority.
 			refused.behavior = { ...refused.behavior, tools: "read,python" };
 			await assert.rejects(
@@ -241,7 +252,7 @@ describe("worker provider over real B2: prepared-slot acquisition", () => {
 			assert.equal(await fixture.op<number>("acquisitions"), 0);
 			assert.equal(launches.list().length, 0);
 			assert.equal(slots.holder("s0"), undefined);
-			const next = await provider.launch(freshRequest(session));
+			const next = await provider.launch(fresh(composed, session));
 			assert.equal(provider.manifest(next.handle)?.slot.name, "s0");
 		}));
 });
@@ -250,12 +261,12 @@ describe("worker provider over real B2: invariant 4a (kept; P3-10 owns the hando
 	it("stopping a child that never reported fences its parent; the provider neither clears the fence nor launches a replacement", () =>
 		withFixture(async ({ fixture, composed, session }) => {
 			const { provider } = composed;
-			const launch = await provider.launch(freshRequest(session));
+			const launch = await provider.launch(fresh(composed, session));
 			await stopConfirmed(provider, launch.handle);
 			const parent = await fixture.row(fixture.started.parentWorkerId);
 			assert.ok(parent.fence, "the worker fenced the parent");
 			await assert.rejects(
-				provider.launch(freshRequest(session)),
+				provider.launch(fresh(composed, session)),
 				(error: Error) =>
 					error instanceof WorkerLaunchRefusal &&
 					/no running, unfenced execution/.test(error.message),
@@ -272,7 +283,7 @@ describe("worker provider over real B2: the role identity", () => {
 	it("a request to replace the system prompt is refused before acquisition; append travels as the preamble", () =>
 		withFixture(async ({ fixture, composed, session }) => {
 			const { provider, launches, slots } = composed;
-			const replace = freshRequest(session);
+			const replace = fresh(composed, session);
 			replace.behavior = {
 				...replace.behavior,
 				identity: "You are the reviewer.",
@@ -289,7 +300,7 @@ describe("worker provider over real B2: the role identity", () => {
 			assert.equal(await fixture.op<number>("acquisitions"), 0);
 			assert.equal(launches.list().length, 0);
 			assert.equal(slots.holder("s0"), undefined);
-			const append = freshRequest(session);
+			const append = fresh(composed, session);
 			append.behavior = {
 				...append.behavior,
 				identity: "You are the reviewer.",
@@ -323,7 +334,7 @@ describe("worker provider over real B2: unsupported tool modes (P3-10)", () => {
 					// SAFETY: forwards the caller's own operation and options unchanged.
 					return call(op as never, options);
 				}) as typeof client.call;
-				const request = freshRequest(session);
+				const request = fresh(composed, session);
 				request.behavior = { ...request.behavior, ...behavior };
 				await assert.rejects(
 					provider.launch(request),
@@ -343,7 +354,7 @@ describe("worker provider over real B2: commands and uncertainty", () => {
 	it("every mutation has a UUIDv7 command ID and the exact request hash the worker recorded", () =>
 		withFixture(async ({ composed, session }) => {
 			const { provider, client } = composed;
-			const launch = await provider.launch(freshRequest(session));
+			const launch = await provider.launch(fresh(composed, session));
 			await provider.prompt(launch.handle, { id: "input-1", text: "more" });
 			await provider.interrupt(launch.handle);
 			const { stops } = await stopConfirmed(provider, launch.handle);
@@ -403,7 +414,7 @@ describe("worker provider over real B2: commands and uncertainty", () => {
 				// SAFETY: forwards the caller's own operation and options unchanged.
 				return call(operation as never, options as never);
 			}) as typeof client.call;
-			const launch = await provider.launch(freshRequest(session));
+			const launch = await provider.launch(fresh(composed, session));
 			await provider.prompt(launch.handle, { id: "next", text: "more" });
 			await provider.interrupt(launch.handle);
 			await provider.stop(launch.handle);
@@ -420,7 +431,7 @@ describe("worker provider over real B2: commands and uncertainty", () => {
 		withFixture(async ({ fixture, composed, session }) => {
 			const { provider } = composed;
 			await fixture.op("uncertainNextLaunch");
-			const launch = await provider.launch(freshRequest(session));
+			const launch = await provider.launch(fresh(composed, session));
 			assert.match(
 				launch.launchFailure ?? "",
 				/initial prompt outcome unknown.*never re-sent/,
@@ -447,7 +458,11 @@ describe("worker provider over real B2: commands and uncertainty", () => {
 			// Through the shared adapter the next uncertain launch keeps its uncertainty on the run.
 			const { adapter } = adapterOver(provider, session);
 			await fixture.op("uncertainNextLaunch");
-			const handle = await adapter.spawn(spawnOptions(session.root));
+			const handle = await adapter.spawn(
+				spawnOptions(session.root, {
+					worktreeRequest: { branch: freeSlot(composed.slots) },
+				}),
+			);
 			assert.match(
 				handle.launchFailure ?? "",
 				/initial prompt outcome unknown/,
@@ -457,7 +472,7 @@ describe("worker provider over real B2: commands and uncertainty", () => {
 	it("a refused input is not delivered and is never retried under the same command", () =>
 		withFixture(async ({ composed, session }) => {
 			const { provider } = composed;
-			const launch = await provider.launch(freshRequest(session));
+			const launch = await provider.launch(fresh(composed, session));
 			await assert.rejects(
 				provider.prompt(launch.handle, { id: "slash", text: "/compact" }),
 				/refused input slash \(slash_commands_use_typed_methods\); not delivered/,
@@ -480,7 +495,7 @@ describe("worker provider over real B2: a store failure after dispatch", () => {
 			);
 			let launch;
 			try {
-				launch = await provider.launch(freshRequest(session));
+				launch = await provider.launch(fresh(composed, session));
 			} finally {
 				fault.restore();
 			}
@@ -533,7 +548,7 @@ describe("worker provider over real B2: a store failure after dispatch", () => {
 					role: role.name,
 					prompt: "bounded task",
 					cwd: session.root,
-					worktree: { branch: "w" },
+					worktree: { branch: "s0" },
 					runtime: { model: "fake/test", thinking: "off" },
 				});
 			} finally {
@@ -560,7 +575,7 @@ describe("worker provider over real B2: a store failure after dispatch", () => {
 			role: role.name,
 			prompt: "bounded task",
 			cwd: "",
-			worktree: { branch: "w" },
+			worktree: { branch: "s0" },
 			runtime: { model: "fake/test", thinking: "off" as const },
 		};
 		try {
@@ -643,7 +658,7 @@ describe("worker provider over real B2: a store failure after dispatch", () => {
 					role: role.name,
 					prompt: "bounded task",
 					cwd: session.root,
-					worktree: { branch: "w" },
+					worktree: { branch: "s0" },
 					runtime: { model: "fake/test", thinking: "off" },
 				});
 				assert.match(
@@ -690,7 +705,7 @@ describe("worker provider over real B2: a store failure after dispatch", () => {
 			);
 			let launch;
 			try {
-				launch = await provider.launch(freshRequest(session));
+				launch = await provider.launch(fresh(composed, session));
 			} finally {
 				fault.restore();
 			}
@@ -719,7 +734,7 @@ describe("worker provider over real B2: a store failure after dispatch", () => {
 	it("after a later sessions.prompt or executions.interrupt: an uncertain command, never a plain failure", () =>
 		withFixture(async ({ fixture, composed, session }) => {
 			const { provider } = composed;
-			const launch = await provider.launch(freshRequest(session));
+			const launch = await provider.launch(fresh(composed, session));
 			const workerId = workerOf(provider, launch);
 			const parent = fixture.started.parentWorkerId;
 			const prompted = failStoreAfter(composed, parent, "sessions.prompt");
@@ -776,7 +791,7 @@ describe("worker provider over real B2: a store failure after dispatch", () => {
 			let observed = true;
 			await withFixture(async ({ fixture, composed, session }) => {
 				const { provider } = composed;
-				const launch = await provider.launch(freshRequest(session));
+				const launch = await provider.launch(fresh(composed, session));
 				const fault = failStoreAfter(
 					composed,
 					fixture.started.parentWorkerId,
@@ -837,8 +852,9 @@ describe("worker provider over real B2: a store failure after dispatch", () => {
 				return call(op as never, options);
 			}) as typeof client.call;
 			try {
-				await assert.rejects(provider.launch(freshRequest(session)), (error) =>
-					isAcquisitionUncertainError(error),
+				await assert.rejects(
+					provider.launch(fresh(composed, session)),
+					(error) => isAcquisitionUncertainError(error),
 				);
 			} finally {
 				chmodSync(launches.dir, 0o700);
@@ -874,7 +890,7 @@ describe("worker provider over real B2: one failed store write at each step", ()
 			const { provider, launches, slots } = composed;
 			failNthWrite(launches, 2);
 			await assert.rejects(
-				provider.launch(freshRequest(session)),
+				provider.launch(fresh(composed, session)),
 				/EIO: injected/,
 			);
 			assert.equal(await fixture.op<number>("acquisitions"), 0);
@@ -891,7 +907,7 @@ describe("worker provider over real B2: one failed store write at each step", ()
 			withFixture(async ({ fixture, composed, session }) => {
 				const { provider, launches } = composed;
 				failNthWrite(launches, nth);
-				const launch = await provider.launch(freshRequest(session));
+				const launch = await provider.launch(fresh(composed, session));
 				assert.match(
 					launch.launchFailure ?? "",
 					/acquired, but its outcome could not be recorded \(EIO: injected write failure\); not prompted, retained and owned/,
@@ -915,7 +931,7 @@ describe("worker provider over real B2: one failed store write at each step", ()
 	it("a refused create's outcome: refused, its manifest and slot kept as they were", () =>
 		withFixture(async ({ fixture, composed, session }) => {
 			const { provider, launches, slots } = composed;
-			const refused = freshRequest(session);
+			const refused = fresh(composed, session);
 			refused.behavior = { ...refused.behavior, tools: "read,python" };
 			failNthWrite(launches, 3);
 			await assert.rejects(
@@ -947,7 +963,7 @@ describe("worker provider over real B2: one failed store write at each step", ()
 			}) as typeof client.call;
 			failNthWrite(launches, 4);
 			await assert.rejects(
-				provider.launch(freshRequest(session)),
+				provider.launch(fresh(composed, session)),
 				(error: Error) =>
 					isAcquisitionUncertainError(error) &&
 					/never retried\. Its outcome could not be recorded \(EIO/.test(
@@ -975,7 +991,7 @@ describe("worker provider over real B2: one failed store write at each step", ()
 				return { ...receipt, state: "accepted" };
 			}) as typeof client.call;
 			failNthWrite(launches, 4);
-			const launch = await provider.launch(freshRequest(session));
+			const launch = await provider.launch(fresh(composed, session));
 			assert.match(
 				launch.launchFailure ?? "",
 				/create outcome unknown.*never retried\. Its outcome could not be recorded \(EIO/,
@@ -989,7 +1005,7 @@ describe("worker provider over real B2: one failed store write at each step", ()
 			const { provider, launches } = composed;
 			await fixture.op("uncertainNextLaunch");
 			failNthWrite(launches, 7);
-			const launch = await provider.launch(freshRequest(session));
+			const launch = await provider.launch(fresh(composed, session));
 			assert.match(
 				launch.launchFailure ?? "",
 				/initial prompt outcome unknown.*never re-sent\. Its outcome could not be recorded \(EIO/,
@@ -1004,7 +1020,7 @@ describe("worker provider over real B2: one failed store write at each step", ()
 	it("a stop's command: not sent, reported unconfirmed, the worker still running", () =>
 		withFixture(async ({ fixture, composed, session }) => {
 			const { provider, launches } = composed;
-			const launch = await provider.launch(freshRequest(session));
+			const launch = await provider.launch(fresh(composed, session));
 			failNthWrite(launches, 1);
 			const report = await provider.stop(launch.handle);
 			assert.equal(report.request, "not-sent");
@@ -1026,7 +1042,11 @@ describe("worker provider over real B2: the FD-only report path", () => {
 		withFixture(async ({ fixture, composed, session }) => {
 			const { provider } = composed;
 			const { adapter, launchOf } = adapterOver(provider, session);
-			const handle = await adapter.spawn(spawnOptions(session.root));
+			const handle = await adapter.spawn(
+				spawnOptions(session.root, {
+					worktreeRequest: { branch: freeSlot(composed.slots) },
+				}),
+			);
 			const launch = launchOf(handle);
 			const workerId = workerOf(provider, launch);
 			assert.deepEqual(await fixture.op("env", { workerId }), {
@@ -1081,7 +1101,11 @@ describe("worker provider over real B2: the FD-only report path", () => {
 		withFixture(async ({ fixture, composed, session }) => {
 			const { provider } = composed;
 			const { adapter, launchOf } = adapterOver(provider, session);
-			const handle = await adapter.spawn(spawnOptions(session.root));
+			const handle = await adapter.spawn(
+				spawnOptions(session.root, {
+					worktreeRequest: { branch: freeSlot(composed.slots) },
+				}),
+			);
 			const workerId = workerOf(provider, launchOf(handle));
 			const waiting = adapter.awaitCompletion(
 				handle,
@@ -1107,7 +1131,11 @@ describe("worker provider over real B2: the FD-only report path", () => {
 		withFixture(async ({ fixture, composed, session }) => {
 			const { provider } = composed;
 			const { adapter, launchOf } = adapterOver(provider, session);
-			const handle = await adapter.spawn(spawnOptions(session.root));
+			const handle = await adapter.spawn(
+				spawnOptions(session.root, {
+					worktreeRequest: { branch: freeSlot(composed.slots) },
+				}),
+			);
 			const workerId = workerOf(provider, launchOf(handle));
 			const waiting = adapter.awaitCompletion(
 				handle,
@@ -1161,7 +1189,7 @@ describe("worker provider over real B2: Maestro's grant profile", () => {
 					error instanceof ClientFailure &&
 					error.message === "grant_method_denied",
 			);
-			await provider.launch(freshRequest(session));
+			await provider.launch(fresh(composed, session));
 			const seen: string[] = [];
 			const controller = new AbortController();
 			const watching = client

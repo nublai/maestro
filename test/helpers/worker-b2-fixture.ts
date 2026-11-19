@@ -306,6 +306,19 @@ export function parentSession() {
 	};
 }
 
+/**
+ * The first owner-prepared slot no launch has claimed, by name: what a
+ * request names for its child to run there (P3-10: a branch no free slot has
+ * is refused, never replaced by another slot).
+ */
+export function freeSlot(slots: WorkerSlotPool): string {
+	const free = slots.slots.find(
+		(slot) => slots.holder(slot.name) === undefined,
+	);
+	assert.ok(free, "a free owner-prepared slot");
+	return free.name;
+}
+
 export function freshRequest(
 	session: ReturnType<typeof parentSession>,
 	overrides: Partial<FreshPiLaunchRequest> = {},
@@ -315,7 +328,7 @@ export function freshRequest(
 		name: "conformance",
 		task: "bounded task",
 		cwd: session.root,
-		worktree: { branch: "w" },
+		worktree: { branch: "s0" },
 		parent: session.parent,
 		runtimePlan: {
 			provider: "fake",
@@ -346,7 +359,7 @@ export function spawnOptions(
 		sessionId: "logical",
 		role,
 		runtime: { model: "fake/test", thinking: "off" },
-		worktreeRequest: { branch: "w" },
+		worktreeRequest: { branch: "s0" },
 		...extra,
 	};
 }
