@@ -5,7 +5,9 @@
  * - `operations` launches each run through the shared Pi adapter over the
  *   worker provider (the task's own ID is the child's B2 task, so a restarted
  *   owner can find its launch) and finalizes it: a requested accept check is
- *   the V1 bound check (`bound-check.ts`), never the terminal re-check.
+ *   the V1 bound check (`bound-check.ts`), never the terminal re-check. Its
+ *   command runs in a verified copy of the subject tree read from the parent
+ *   root's repository (`materialize.ts`), never in the child's checkout.
  * - `describeOutcome` puts the check's verdict (command hash, exit or result,
  *   environment, termination) and both subjects, and the run's hand-off facts,
  *   into the outcome the run owner commits to the outbox.
@@ -58,6 +60,7 @@ import {
 	type WorkerBoundCheck,
 } from "./bound-check.ts";
 import type { WorkerAcquisitionManifest } from "./launch-store.ts";
+import { type MaterializeLimits, objectsGitDir } from "./materialize.ts";
 import type {
 	WorkerExecutionProvider,
 	WorkerRowState,
@@ -77,6 +80,14 @@ export interface WorkerRunChecksOptions {
 	 * values, the variables the approved command declares, its scratch root.
 	 */
 	checkEnvironment?: CheckEnvironmentOptions;
+	/**
+	 * The Git directory whose object database the accept command's verified
+	 * copy is read from. Default: the repository of the provider's parent root
+	 * (`objectsGitDir`), resolved per check; never the child's checkout.
+	 */
+	repository?: string;
+	/** Caps of the verified copy. Default `MATERIALIZE_LIMITS`. */
+	materializeLimits?: Partial<MaterializeLimits>;
 }
 
 /** What one finalized run hands to its committed outcome. */
@@ -97,6 +108,8 @@ export class WorkerRunChecks {
 	readonly #runner: AcceptRunner;
 	readonly #owner: AcceptCheckOwner | undefined;
 	readonly #environment: CheckEnvironmentOptions | undefined;
+	readonly #repository: () => string;
+	readonly #limits: Partial<MaterializeLimits> | undefined;
 	readonly #described = new WeakMap<Task, Described>();
 
 	constructor(options: WorkerRunChecksOptions) {
@@ -105,6 +118,11 @@ export class WorkerRunChecks {
 		this.#runner = options.runner ?? runAcceptCommand;
 		this.#owner = options.owner;
 		this.#environment = options.checkEnvironment;
+		const repository = options.repository;
+		this.#repository = repository
+			? () => repository
+			: () => objectsGitDir(options.provider.parentRoot);
+		this.#limits = options.materializeLimits;
 	}
 
 	/** Launch and finalization for `createRunSession({ operations })`. */
@@ -262,8 +280,10 @@ export class WorkerRunChecks {
 				control,
 				runner: this.#runner,
 				owner: this.#owner,
+				repository: this.#repository,
 			};
 			if (this.#environment) input.environment = this.#environment;
+			if (this.#limits) input.materializeLimits = this.#limits;
 			check = await runWorkerBoundCheck(this.#provider, input);
 		}
 		const binding = this.#provider.runBinding(exec);

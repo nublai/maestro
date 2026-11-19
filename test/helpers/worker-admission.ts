@@ -17,6 +17,7 @@ import {
 } from "../../maestro/adapters/worker/parent-admission.ts";
 import type { AcceptRunner } from "../../maestro/adapters/pi/accept-runner.ts";
 import type { CheckEnvironmentOptions } from "../../maestro/adapters/worker/bound-check.ts";
+import type { MaterializeLimits } from "../../maestro/adapters/worker/materialize.ts";
 import { WorkerRunChecks } from "../../maestro/adapters/worker/run-checks.ts";
 import type { WorkerExecutionProviderOptions } from "../../maestro/adapters/worker/worker-exec-provider.ts";
 import type { AcceptRequest } from "../../maestro/core/accept.ts";
@@ -50,7 +51,12 @@ export interface WorkerParentOptions {
 	 * P3-10: compose `WorkerRunChecks` (the V1 bound check and the hand-offs)
 	 * as the run owner's operations and hooks. Off: the P3-9 composition.
 	 */
-	checks?: { runner?: AcceptRunner; environment?: CheckEnvironmentOptions };
+	checks?: {
+		runner?: AcceptRunner;
+		environment?: CheckEnvironmentOptions;
+		/** Caps of the check's verified copy (round B). */
+		materializeLimits?: Partial<MaterializeLimits>;
+	};
 }
 
 /** The accept command's environment source in tests: synthetic, never process.env. */
@@ -119,6 +125,8 @@ export async function composeWorkerParent(
 			},
 		};
 		if (options.checks.runner) checkOptions.runner = options.checks.runner;
+		if (options.checks.materializeLimits)
+			checkOptions.materializeLimits = options.checks.materializeLimits;
 		checks = new WorkerRunChecks(checkOptions);
 	}
 	const sessionOptions: Parameters<typeof createRunSession>[0] = {

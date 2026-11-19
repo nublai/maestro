@@ -226,35 +226,64 @@ re-check:
 3. `artifacts.inspect` at that epoch for the slot's branch and issued base.
    The subject binds only when the facts name this worker and generation, the
    base is the issued one and an ancestor, HEAD and the pin's HEAD are the
-   issued branch, HEAD is the branch's commit, the claimed commit is that
-   commit, and the checkout is clean but for the worker's own runtime
-   directories (`.piw-agent/`, `.piw-worker/`, untracked, listed by name in
-   the subject). A conflicted, dirty or truncated status, a pin mismatch, a
-   missing object, a refused or unanswered inspection: `error` with the
-   reason, and the command does not run.
+   issued branch, HEAD is the branch's commit, and the claimed commit is that
+   commit. The checkout's status is recorded as a hygiene fact: it is not
+   what acceptance rests on (step 5), but a conflicted, dirty or truncated
+   status (anything but the worker's own runtime directories `.piw-agent/`
+   and `.piw-worker/`, untracked, listed by name) still gives no verdict. A
+   pin mismatch, a missing object, a refused or unanswered inspection:
+   `error` with the reason, and the command does not run.
 4. The subject (commit, tree, base, branch, root, pin identity, Git version,
    replace objects disabled, runtime directories) is recorded
-   (`recordCheck`) before the approved command runs with Maestro's
-   parent-side accept runner (`sh -c` in the slot, in the parent's process
-   and sandbox, never a worker or daemon shell), cancellable. Its
-   environment is synthetic, from an explicit allowlist: `PATH`, `LANG` and
-   `LC_ALL` from the source (`checkEnvironment.source`, default the parent's
-   environment), the variables the approved command declares
-   (`checkEnvironment.declared`), and `HOME` and `TMPDIR` in the check's own
-   scratch directory (under `checkEnvironment.scratchRoot`, default the
-   system temporary directory; removed after the check). Nothing else of the
-   parent's environment reaches the command.
-5. After it the same inspection must read the same subject and checkout
+   (`recordCheck`) before anything runs.
+5. The command never runs in the child's checkout. `materialize.ts` writes a
+   fresh, byte-exact copy of the subject tree into the check's own scratch,
+   from the object database of the parent root's repository (the slots are
+   its linked worktrees; `objectsGitDir`, plain file reads; `repository`
+   overrides it):
+   - every object is read with `git cat-file --batch` alone: no filters,
+     textconv, attributes, hooks, replace objects
+     (`--no-replace-objects`, `GIT_NO_REPLACE_OBJECTS=1`) or lazy fetch, no
+     system or global configuration, a synthetic environment;
+   - Maestro recomputes each object's ID (`<type> <size>\0<content>`, SHA-1
+     or SHA-256 by the ID's length) before using it; the commit must name
+     the inspected tree;
+   - files are written exclusively, with modes 100644 or 100755;
+   - refused, typed, fail closed: a missing (`object_missing`), corrupt
+     (`object_corrupt`), mistyped or malformed object, a gitlink (`gitlink`),
+     a symbolic link (`symlink`: its target is child-controlled and no lexical
+     rule keeps a link chain inside the copy, so links are never written), any
+     other mode, a name that is empty, `.`, `..`, `.git` in any case or holds
+     `/`;
+   - caps (`materializeLimits`, recorded with the copy): 100,000 entries,
+     1 GiB of object bytes, 64 levels, 4,096-byte paths, 120 s;
+   - the copy's tree ID is then recomputed from the bytes and modes on disk
+     and must be the inspected tree.
+
+   The approved command then runs there with Maestro's parent-side accept
+   runner (`sh -c` in the copy, in the parent's process and sandbox, never a
+   worker or daemon shell), cancellable. Its environment is synthetic, from
+   an explicit allowlist: `PATH`, `LANG` and `LC_ALL` from the source
+   (`checkEnvironment.source`, default the parent's environment), the
+   variables the approved command declares (`checkEnvironment.declared`), and
+   `HOME` and `TMPDIR` in the check's own scratch directory (under
+   `checkEnvironment.scratchRoot`, default the system temporary directory).
+   Nothing else of the parent's environment reaches the command. The whole
+   scratch, copy included, is removed after the check. A copy that is
+   refused: `error (the subject could not be materialized (<code>: ...))`,
+   and the command does not run.
+6. After it the same inspection must read the same subject and checkout
    status; anything else is `error (subject changed ...)`, the command's exit
    kept as evidence. Otherwise the exit decides: `accepted` or `rejected`,
    both bound.
 
-The command and the inspection after it share one cancellable window. A
-cancel that arrives during either wins: the check is `skipped (cancelled)`
-(`check: cancelled`), its own outcome, and the run delivers the cancelled
-result. Once the window has closed the verdict is decided and a later cancel
-is too late (`already-terminal`). The committed verdict is checked again
-against the delivered result: a cancelled run never carries a bound verdict.
+The copy, the command and the inspection after it share one cancellable
+window. A cancel that arrives during any of them wins: the check is `skipped
+(cancelled)` (`check: cancelled`), its own outcome, and the run delivers the
+cancelled result. Once the window has closed the verdict is decided and a
+later cancel is too late (`already-terminal`). The committed verdict is
+checked again against the delivered result: a cancelled run never carries a
+bound verdict.
 
 The committed outcome keeps, in the OutcomeStore:
 
@@ -262,7 +291,9 @@ The committed outcome keeps, in the OutcomeStore:
   result kind, timeout, environment (runner, shell, cwd; the synthetic
   environment's variable names only, never values), termination (request, confirmation, stops, epoch), the claimed
   commit and the report ID;
-- `subject`: `before` and `after`, as read;
+- `subject`: `before` and `after`, as read, and `materialized`: the copy's
+  recomputed commit and tree, algorithm, file, directory and byte counts,
+  time taken and caps (a refused copy is `verdict.materialized.refused`);
 - `facts.handoff`: the worker, slot, branch and base; the result and help
   report IDs; every command the launch sent and what it proved; the child's
   row; the parent's row (`fenced`, its fence's command ID) apart from it,
@@ -318,8 +349,9 @@ child's spec grants `children.report` only.
 
 - `npm test` runs the unit cases: the reporter and its import and authority
   boundary, slots, manifests, the grant closure, the real-B2 lane's source
-  check and the V1 bound check over a fake port
-  (`worker-bound-check.test.ts`).
+  check, the V1 bound check over a fake port and a real repository
+  (`worker-bound-check.test.ts`) and the verified copy against real
+  repositories (`worker-materialize.test.ts`).
 - `npm run test:worker-b2` runs the `ExecProvider` conformance suite, including
   the adapter-boundary cases, plus the provider's and the parent admission's
   B2 tests (`b2-admission.test.ts`: the O1 crash cuts with the Maestro process
@@ -329,8 +361,12 @@ child's spec grants `children.report` only.
   cancel's stop, and after a cancel whose durable intent could not be
   written, which sent no stop) and the bound checks (`b2-bound-check.test.ts`: V1 against
   an actual child commit compared with the owner's own Git, over the owner
-  socket and over a sandboxed parent's channel; a tree changed by the check,
-  a pin mismatch, a missing object, a lost inspect reply, a dirty checkout, a
+  socket and over a sandboxed parent's channel; a check that writes only to
+  its copy, a checkout changed during the check; a committed `.gitignore`
+  with an ignored file, the `ident` attribute with changed working bytes and
+  a loose object corrupted under its old ID (none accepted), a blob lost
+  after the inspection, a gitlink, a symbolic link and an oversize subject
+  (refused); a pin mismatch, a missing object, a lost inspect reply, a dirty checkout, a
   wrong claimed commit; failed and missing reports, a cancelled check, a
   cancel before any report, a cancel during the inspection after the check,
   sibling isolation with an unconfirmed stop; the command's synthetic

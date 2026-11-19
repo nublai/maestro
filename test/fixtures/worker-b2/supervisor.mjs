@@ -27,14 +27,17 @@
  */
 import { execFileSync } from "node:child_process";
 import {
+	chmodSync,
 	mkdirSync,
 	mkdtempSync,
 	realpathSync,
 	rmSync,
+	symlinkSync,
 	writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { deflateSync } from "node:zlib";
 import { pathToFileURL } from "node:url";
 
 const checkout = process.env.MAESTRO_PI_WORKER_CHECKOUT;
@@ -457,6 +460,57 @@ const ops = {
 		ownerGit(cwd, "add", "--", file);
 		ownerGit(cwd, "commit", "-qm", `child ${file}`);
 		return ownerGit(cwd, "rev-parse", "HEAD");
+	},
+	/**
+	 * The child commits several entries at once: files (`text`, optional
+	 * `mode` 0o755), symbolic links (`symlink`: the target) and gitlinks
+	 * (`gitlink`: a commit ID, recorded in the index only). Returns the commit.
+	 */
+	commitEntries: async ({ workerId, entries }) => {
+		const cwd = f.supervisor.get(workerId).cwd;
+		for (const entry of entries) {
+			const path = join(cwd, entry.path);
+			if (entry.gitlink) {
+				ownerGit(
+					cwd,
+					"update-index",
+					"--add",
+					"--cacheinfo",
+					`160000,${entry.gitlink},${entry.path}`,
+				);
+				continue;
+			}
+			mkdirSync(dirname(path), { recursive: true });
+			if (entry.symlink) symlinkSync(entry.symlink, path);
+			else writeFileSync(path, entry.text, { mode: entry.mode ?? 0o644 });
+			ownerGit(cwd, "add", "--", entry.path);
+		}
+		ownerGit(cwd, "commit", "-qm", "child entries");
+		return ownerGit(cwd, "rev-parse", "HEAD");
+	},
+	/** The object ID of `path` in `commit`, read by the owner. */
+	objectOf: async ({ commit, path }) =>
+		ownerGit(repoDir, "rev-parse", `${commit}:${path}`),
+	/**
+	 * A loose object's file now holds `text` as a `type` object under its old
+	 * ID (the shared object store is writable from a sandbox).
+	 */
+	corruptObject: async ({ sha, type, text }) => {
+		const file = join(
+			repoDir,
+			".git",
+			"objects",
+			sha.slice(0, 2),
+			sha.slice(2),
+		);
+		const content = Buffer.from(text);
+		chmodSync(file, 0o644);
+		writeFileSync(
+			file,
+			deflateSync(
+				Buffer.concat([Buffer.from(`${type} ${content.length}\0`), content]),
+			),
+		);
 	},
 	/** A file appears in the child's slot (untracked unless it is tracked already). */
 	write: async ({ workerId, file, text }) => {

@@ -7,7 +7,13 @@
  */
 import "../clean-host-env.ts";
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
+import {
+	existsSync,
+	mkdirSync,
+	mkdtempSync,
+	readdirSync,
+	rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, describe, it } from "node:test";
@@ -48,10 +54,18 @@ import {
 	WorkerCommandUncertain,
 	type WorkerRunBinding,
 } from "../../maestro/adapters/worker/worker-exec-provider.ts";
+import { MATERIALIZE_LIMITS } from "../../maestro/adapters/worker/materialize.ts";
+import { makeRepo } from "../helpers/git-objects.ts";
 
 const BASE = "b".repeat(40);
-const COMMIT = "c".repeat(40);
-const TREE = "d".repeat(40);
+/** Where checks make their scratch HOME/TMPDIR; removed after the file. */
+const SCRATCH = mkdtempSync(join(tmpdir(), "bound-check-unit-"));
+after(() => rmSync(SCRATCH, { recursive: true, force: true }));
+/** A real repository: the subject's commit and tree are materialized from it. */
+const REPO = makeRepo(join(SCRATCH, "repo"));
+const COMMIT = REPO.commit({ "feature.txt": "feature\n" });
+const TREE = REPO.treeOf(COMMIT);
+const REPOSITORY = () => REPO.gitDir;
 const OTHER = "e".repeat(40);
 const BRANCH = "refs/heads/maestro-s0/s0";
 const ROOT = "/parent/.piw-slots/s0";
@@ -77,9 +91,6 @@ const SOURCE = Object.freeze({
 	PARENT_ONLY: "parent value",
 	DECLARED: "declared value",
 });
-/** Where checks make their scratch HOME/TMPDIR; removed after the file. */
-const SCRATCH = mkdtempSync(join(tmpdir(), "bound-check-unit-"));
-after(() => rmSync(SCRATCH, { recursive: true, force: true }));
 function scratchRoot(): string {
 	return SCRATCH;
 }
@@ -225,9 +236,9 @@ function control(
 	} = {},
 ) {
 	const subjects: OutcomeJsonObject[] = [];
+	const window = new AbortController();
 	const value: FinalizeControl = {
 		async cancellable(work) {
-			const window = new AbortController();
 			if (options.aborted) window.abort();
 			return work(window.signal);
 		},
@@ -238,7 +249,9 @@ function control(
 			subjects.push(subject);
 		},
 	};
-	return { control: value, subjects };
+	/** Aborts the window's signal, as a cancel confirmed during the command does. */
+	const abort = () => window.abort();
+	return { control: value, subjects, abort };
 }
 
 function runner(
@@ -262,17 +275,20 @@ async function check(
 	} = {},
 ) {
 	const fake = port(options);
-	const made = control(fake.calls, {
-		...options,
-		aborted: options.command?.kind === "aborted",
-	});
+	const made = control(fake.calls, options);
 	const seen: AcceptCommandOptions[] = [];
+	const command = runner(fake.calls, options.command, seen);
 	const outcome = await runWorkerBoundCheck(fake.port, {
+		repository: REPOSITORY,
 		handle,
 		spec,
 		result: options.result ?? completed(),
 		control: made.control,
-		runner: runner(fake.calls, options.command, seen),
+		// An aborted command: the window's cancel came while it ran.
+		runner: async (given) => {
+			if (options.command?.kind === "aborted") made.abort();
+			return command(given);
+		},
 		environment: { source: SOURCE, scratchRoot: scratchRoot() },
 	});
 	return { ...fake, ...made, outcome, seen };
@@ -352,6 +368,7 @@ describe("V1 bound check: a verdict bound to what owner Git read", () => {
 		const made = control(fake.calls);
 		delete made.control.recordCheck;
 		const outcome = await runWorkerBoundCheck(fake.port, {
+			repository: REPOSITORY,
 			handle,
 			spec,
 			result: completed(),
@@ -438,6 +455,7 @@ describe("V1 bound check: termination before the authoritative read", () => {
 		};
 		const made = control(fake.calls);
 		const outcome = await runWorkerBoundCheck(fake.port, {
+			repository: REPOSITORY,
 			handle,
 			spec,
 			result: completed(),
@@ -733,6 +751,7 @@ describe("V1 bound check: fail closed before the check runs", () => {
 		const made = control(fake.calls, { recordFails: true });
 		await assert.rejects(
 			runWorkerBoundCheck(fake.port, {
+				repository: REPOSITORY,
 				handle,
 				spec,
 				result: completed(),
@@ -867,12 +886,176 @@ describe("V1 bound check: a cancelled check", () => {
 	});
 });
 
+describe("V1 bound check: the command runs in a verified copy of the subject, never the child's checkout", () => {
+	it("runs in a fresh copy of the inspected tree in the check's scratch; the copy's recomputed tree is recorded with the subject; the copy is deleted after", async () => {
+		const seenFiles: string[][] = [];
+		const fake = port();
+		const made = control(fake.calls);
+		const seen: AcceptCommandOptions[] = [];
+		const command = runner(fake.calls, undefined, seen);
+		const outcome = await runWorkerBoundCheck(fake.port, {
+			repository: REPOSITORY,
+			handle,
+			spec,
+			result: completed(),
+			control: made.control,
+			runner: async (given) => {
+				seenFiles.push(readdirSync(given.cwd).sort());
+				return command(given);
+			},
+			environment: { source: SOURCE, scratchRoot: scratchRoot() },
+		});
+		assert.equal(outcome.accept.verdict, "accepted");
+		assert.equal(outcome.bound, true);
+		const cwd = String(seen[0]?.cwd);
+		assert.notEqual(cwd, ROOT, "never the child's checkout");
+		assert.equal(cwd.startsWith(join(SCRATCH, "maestro-check-")), true);
+		assert.deepEqual(seenFiles, [["feature.txt"]], "the commit's tree only");
+		assert.equal(existsSync(cwd), false, "the copy is deleted after");
+		const materialized = object(outcome.subject?.materialized);
+		assert.equal(materialized.tree, TREE);
+		assert.equal(materialized.commit, COMMIT);
+		assert.equal(materialized.algorithm, "sha1");
+		assert.equal(materialized.files, 1);
+		assert.equal(object(materialized.limits).max_entries, 100_000);
+		assert.equal(
+			object(outcome.verdict.environment).cwd,
+			"materialized-subject",
+		);
+	});
+
+	it("an object corrupted under its old ID: no verdict, the command never runs", async () => {
+		// The same commit in another object store, its blob forged in place.
+		const bad = makeRepo(join(SCRATCH, "corrupt"));
+		assert.equal(bad.commit({ "feature.txt": "feature\n" }), COMMIT);
+		bad.corrupt(
+			bad.git("rev-parse", `${COMMIT}:feature.txt`),
+			"blob",
+			"forged\n",
+		);
+		const fake = port();
+		const made = control(fake.calls);
+		const outcome = await runWorkerBoundCheck(fake.port, {
+			repository: () => bad.gitDir,
+			handle,
+			spec,
+			result: completed(),
+			control: made.control,
+			runner: runner(fake.calls),
+			environment: { source: SOURCE, scratchRoot: scratchRoot() },
+		});
+		assert.deepEqual(fake.calls, ["stop", "inspect", "record"]);
+		assert.equal(outcome.accept.verdict, "error");
+		assert.equal(outcome.bound, false);
+		assert.match(
+			String(outcome.accept.reason),
+			/^the subject could not be materialized \(object_corrupt: [0-9a-f]{40}\)$/,
+		);
+		assert.deepEqual(outcome.verdict.materialized, {
+			refused: "object_corrupt",
+		});
+		assert.equal(outcome.verdict.check, "not-run");
+		assert.deepEqual(
+			readdirSync(SCRATCH).filter((name) => name.startsWith("maestro-check-")),
+			[],
+			"the scratch is removed",
+		);
+	});
+
+	it("no object repository: no verdict, the command never runs", async () => {
+		const fake = port();
+		const made = control(fake.calls);
+		const outcome = await runWorkerBoundCheck(fake.port, {
+			handle,
+			spec,
+			result: completed(),
+			control: made.control,
+			runner: runner(fake.calls),
+			environment: { source: SOURCE, scratchRoot: scratchRoot() },
+		});
+		assert.deepEqual(fake.calls, ["stop", "inspect", "record"]);
+		assert.equal(outcome.accept.verdict, "error");
+		assert.match(String(outcome.accept.reason), /repository_unavailable/);
+	});
+
+	it("a copy whose tree is not the inspected tree binds nothing", async () => {
+		const fake = port();
+		const made = control(fake.calls);
+		const outcome = await runWorkerBoundCheck(fake.port, {
+			repository: REPOSITORY,
+			materialize: async (request) => {
+				mkdirSync(request.dest);
+				return {
+					commit: request.commit,
+					tree: OTHER,
+					algorithm: "sha1",
+					files: 0,
+					directories: 0,
+					bytes: 0,
+					limits: { ...MATERIALIZE_LIMITS },
+					elapsedMs: 0,
+				};
+			},
+			handle,
+			spec,
+			result: completed(),
+			control: made.control,
+			runner: runner(fake.calls),
+			environment: { source: SOURCE, scratchRoot: scratchRoot() },
+		});
+		assert.equal(outcome.accept.verdict, "error");
+		assert.equal(outcome.bound, false);
+		assert.equal(
+			outcome.accept.reason,
+			"the materialized tree is not the inspected tree",
+		);
+	});
+
+	it("the copy's caps are the check's: an oversize subject is refused", async () => {
+		const fake = port();
+		const made = control(fake.calls);
+		const outcome = await runWorkerBoundCheck(fake.port, {
+			repository: REPOSITORY,
+			materializeLimits: { maxBytes: 16 },
+			handle,
+			spec,
+			result: completed(),
+			control: made.control,
+			runner: runner(fake.calls),
+			environment: { source: SOURCE, scratchRoot: scratchRoot() },
+		});
+		assert.deepEqual(fake.calls, ["stop", "inspect", "record"]);
+		assert.deepEqual(outcome.verdict.materialized, { refused: "too_large" });
+	});
+
+	it("a cancel during the copy wins: skipped (cancelled), nothing runs", async () => {
+		const fake = port();
+		const made = control(fake.calls, {
+			aborted: true,
+			interruption: "cancelled",
+		});
+		const outcome = await runWorkerBoundCheck(fake.port, {
+			repository: REPOSITORY,
+			handle,
+			spec,
+			result: completed(),
+			control: made.control,
+			runner: runner(fake.calls),
+			environment: { source: SOURCE, scratchRoot: scratchRoot() },
+		});
+		assert.deepEqual(fake.calls, ["stop", "inspect", "record"]);
+		assert.equal(outcome.accept.verdict, "skipped");
+		assert.equal(outcome.accept.reason, "cancelled");
+	});
+});
+
 describe("V1 bound check: the command's synthetic environment", () => {
 	it("carries only allowlisted and declared variables, HOME and TMPDIR in the check's scratch; nothing else of the parent's", async () => {
 		const fake = port();
 		const made = control(fake.calls);
 		const seen: AcceptCommandOptions[] = [];
 		const outcome = await runWorkerBoundCheck(fake.port, {
+			repository: REPOSITORY,
 			handle,
 			spec,
 			result: completed(),
@@ -935,6 +1118,7 @@ describe("V1 bound check: the command's synthetic environment", () => {
 			return value;
 		};
 		const outcome = await runWorkerBoundCheck(fake.port, {
+			repository: REPOSITORY,
 			handle,
 			spec: normalizeAcceptSpec({
 				run: 'test -z "${PARENT_ONLY+set}" && test -n "$DECLARED" && test -d "$HOME" && test -d "$TMPDIR" && test "$HOME" != "$PWD"',
@@ -966,6 +1150,7 @@ describe("V1 bound check: the command's synthetic environment", () => {
 			const fake = port();
 			const made = control(fake.calls);
 			const outcome = await runWorkerBoundCheck(fake.port, {
+				repository: REPOSITORY,
 				handle,
 				spec,
 				result: completed(),
@@ -1023,6 +1208,7 @@ describe("V1 bound check under the real run owner: a cancel during the second in
 					handle: await adapter.spawn(options),
 					async finalize(result, _task, control) {
 						check = await runWorkerBoundCheck(fake.port, {
+							repository: REPOSITORY,
 							handle,
 							spec,
 							result,

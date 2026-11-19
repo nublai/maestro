@@ -239,7 +239,12 @@
 		{
 			"kind": "new",
 			"destination": "maestro/adapters/worker/bound-check.ts",
-			"reason": "P3-10 (post-H2, Maestro-owned): the V1 bound check: confirmed termination of the generation that ran, then artifacts.inspect at the saved launch pin before and after Maestro's parent-side accept runner; base ancestry, issued branch, HEAD, claimed commit and a clean checkout (the worker's runtime directories accounted for by name) bind the subject; any failure to bind, or a changed subject, gives no accepted verdict; a cancelled check is its own outcome."
+			"reason": "P3-10 (post-H2, Maestro-owned): the V1 bound check: confirmed termination of the generation that ran, then artifacts.inspect at the saved launch pin before and after Maestro's parent-side accept runner; base ancestry, issued branch, HEAD, claimed commit and a clean checkout (a hygiene fact; the worker's runtime directories accounted for by name) bind the subject; the command runs in a fresh verified copy of the subject tree, never the child's checkout; any failure to bind or copy, or a changed subject, gives no accepted verdict; a cancelled check is its own outcome."
+		},
+		{
+			"kind": "new",
+			"destination": "maestro/adapters/worker/materialize.ts",
+			"reason": "P3-10 round B (post-H2, Maestro-owned): the bound check's fresh, byte-exact copy of the subject tree, read with git cat-file --batch (no filters, attributes, hooks, replace objects or lazy fetch) with every object's hash recomputed by Maestro; gitlinks, symbolic links, unsupported modes and unsafe names refused; entry, byte, depth, path and time caps; the copy's recomputed tree must be the inspected tree."
 		},
 		{
 			"kind": "new",

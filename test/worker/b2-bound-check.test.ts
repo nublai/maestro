@@ -8,7 +8,13 @@
 import "../clean-host-env.ts";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import {
+	existsSync,
+	mkdtempSync,
+	readFileSync,
+	rmSync,
+	writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
@@ -239,6 +245,11 @@ describe("V1 bound check over real B2: an actual child commit", () => {
 			assert.match(String(before.pin), /^[0-9a-f]{64}$/);
 			assert.equal(before.worktree, "clean");
 			assert.equal(before.replace_objects, "disabled");
+			// The command ran in a verified copy: its recomputed tree is the inspected one.
+			const materialized = object(object(stored.outcome.subject).materialized);
+			assert.equal(materialized.commit, sha);
+			assert.equal(materialized.tree, before.tree);
+			assert.equal(object(verdict.environment).cwd, "materialized-subject");
 			// The outcome names the child's report; the hand-off its facts.
 			assert.equal(
 				stored.outcome.reportId,
@@ -318,10 +329,10 @@ describe("V1 bound check over real B2: an actual child commit", () => {
 });
 
 describe("V1 bound check over real B2: no accepted verdict unless the subject binds", () => {
-	it("a check that leaves a file behind changed the tree between before and after", () =>
+	it("a check that writes files changes only its own copy: the child's checkout is untouched and the verdict is bound", () =>
 		withParent(async ({ fixture, parent }) => {
 			const { workerId, result } = await launched(parent, "stray", {
-				run: "printf x > stray.txt",
+				run: "printf x > stray.txt && printf changed > note",
 			});
 			const sha = await fixture.op<string>("commit", {
 				workerId,
@@ -331,6 +342,39 @@ describe("V1 bound check over real B2: no accepted verdict unless the subject bi
 			await report(fixture, workerId, { type: "done", commit: sha });
 			await result;
 			const stored = outcomeOf(parent, "stray");
+			const verdict = object(stored.outcome.verdict);
+			assert.equal(verdict.verdict, "accepted");
+			assert.equal(verdict.bound, true);
+			const slot = (await fixture.row(workerId)).cwd;
+			assert.equal(existsSync(join(slot, "stray.txt")), false);
+			assert.equal(readFileSync(join(slot, "note"), "utf8"), "base\n");
+			assert.equal(
+				object(object(stored.outcome.subject).after).worktree,
+				"clean",
+			);
+		}));
+
+	it("the child's checkout changed during the check (after its termination): the tree changed between before and after, no accepted verdict", () =>
+		withParent(async ({ fixture, parent, scratch }) => {
+			const started = join(scratch, "started");
+			const release = join(scratch, "release");
+			const { workerId, result } = await launched(parent, "changed", {
+				run: `: > '${started}'; while [ ! -e '${release}' ]; do sleep 0.05; done`,
+			});
+			const sha = await fixture.op<string>("commit", {
+				workerId,
+				file: "feature.txt",
+				text: "feature\n",
+			});
+			await report(fixture, workerId, { type: "done", commit: sha });
+			try {
+				await until(() => existsSync(started), 30_000);
+				await fixture.op("write", { workerId, file: "stray.txt", text: "x" });
+			} finally {
+				writeFileSync(release, "");
+			}
+			await result;
+			const stored = outcomeOf(parent, "changed");
 			const verdict = object(stored.outcome.verdict);
 			assert.equal(verdict.verdict, "error");
 			assert.equal(verdict.bound, false);
@@ -351,21 +395,6 @@ describe("V1 bound check over real B2: no accepted verdict unless the subject bi
 				object(object(stored.outcome.subject).after).worktree,
 				"dirty",
 			);
-		}));
-
-	it("a check that changes a tracked file is no accepted verdict", () =>
-		withParent(async ({ fixture, parent }) => {
-			const { workerId, result } = await launched(parent, "tracked", {
-				run: "printf changed > note",
-			});
-			await report(fixture, workerId, {
-				type: "done",
-				commit: baseOf(fixture),
-			});
-			await result;
-			const verdict = object(outcomeOf(parent, "tracked").outcome.verdict);
-			assert.equal(verdict.verdict, "error");
-			assert.match(String(verdict.reason), /subject changed/);
 		}));
 
 	it("a pin mismatch (the slot's HEAD retargeted after launch) is refused before the check runs", () =>
@@ -478,6 +507,194 @@ describe("V1 bound check over real B2: no accepted verdict unless the subject bi
 			assert.match(String(verdict.reason), /claimed commit is not/);
 			assert.equal(mark.ran(), false);
 		}));
+});
+
+describe("V1 bound check over real B2: the command runs in a verified copy of the commit (round B)", () => {
+	it("a committed .gitignore and an ignored file the command needs: the checkout reads clean, the copy lacks the file, no accepted verdict", () =>
+		withParent(async ({ fixture, parent }) => {
+			const { workerId, result } = await launched(parent, "ignored", {
+				run: "test -f hidden.txt",
+			});
+			const sha = await fixture.op<string>("commitEntries", {
+				workerId,
+				entries: [{ path: ".gitignore", text: "hidden.txt\n" }],
+			});
+			await fixture.op("write", { workerId, file: "hidden.txt", text: "x" });
+			await report(fixture, workerId, { type: "done", commit: sha });
+			await result;
+			const stored = outcomeOf(parent, "ignored");
+			const verdict = object(stored.outcome.verdict);
+			assert.notEqual(verdict.verdict, "accepted");
+			assert.equal(verdict.verdict, "rejected", "the commit lacks the file");
+			// Clean status is a hygiene fact here, not what the verdict rests on.
+			assert.equal(
+				object(object(stored.outcome.subject).before).worktree,
+				"clean",
+			);
+		}));
+
+	it("the ident attribute with changed working bytes: the checkout reads clean, the copy holds the committed bytes, no accepted verdict", () =>
+		withParent(async ({ fixture, parent }) => {
+			const forged = `value=$Id: ${"a".repeat(40)} $\n`;
+			const { workerId, result } = await launched(parent, "ident", {
+				run: `grep -q ${"a".repeat(40)} feature.txt`,
+			});
+			const sha = await fixture.op<string>("commitEntries", {
+				workerId,
+				entries: [
+					{ path: ".gitattributes", text: "feature.txt ident\n" },
+					{ path: "feature.txt", text: "value=$Id$\n" },
+				],
+			});
+			await fixture.op("write", {
+				workerId,
+				file: "feature.txt",
+				text: forged,
+			});
+			await report(fixture, workerId, { type: "done", commit: sha });
+			await result;
+			const stored = outcomeOf(parent, "ident");
+			const verdict = object(stored.outcome.verdict);
+			assert.notEqual(verdict.verdict, "accepted");
+			assert.equal(verdict.verdict, "rejected", "the committed bytes lack it");
+			assert.equal(
+				object(object(stored.outcome.subject).before).worktree,
+				"clean",
+			);
+		}));
+
+	it("a loose object corrupted under its old ID: the copy refuses it, the command never runs", () =>
+		withParent(async ({ fixture, parent, scratch }) => {
+			const mark = marked(scratch, "corrupt");
+			const { workerId, result } = await launched(parent, "corrupt", {
+				run: `grep -q feature feature.txt && ${mark.run}`,
+			});
+			const sha = await fixture.op<string>("commit", {
+				workerId,
+				file: "feature.txt",
+				text: "feature\n",
+			});
+			const blob = await fixture.op<string>("objectOf", {
+				commit: sha,
+				path: "feature.txt",
+			});
+			await fixture.op("corruptObject", {
+				sha: blob,
+				type: "blob",
+				text: "forged\n",
+			});
+			await report(fixture, workerId, { type: "done", commit: sha });
+			await result;
+			const verdict = object(outcomeOf(parent, "corrupt").outcome.verdict);
+			assert.equal(verdict.verdict, "error");
+			assert.equal(verdict.bound, false);
+			assert.equal(
+				verdict.reason,
+				`the subject could not be materialized (object_corrupt: ${blob})`,
+			);
+			assert.deepEqual(verdict.materialized, { refused: "object_corrupt" });
+			assert.equal(mark.ran(), false, "the command never ran");
+		}));
+
+	it("a blob gone from the shared object store after the inspection: the copy refuses it (object_missing), the command never runs", () =>
+		withParent(async ({ fixture, parent, scratch }) => {
+			const mark = marked(scratch, "gone");
+			const { workerId, result } = await launched(parent, "gone", {
+				run: mark.run,
+			});
+			const sha = await fixture.op<string>("commit", {
+				workerId,
+				file: "feature.txt",
+				text: "feature\n",
+			});
+			const blob = await fixture.op<string>("objectOf", {
+				commit: sha,
+				path: "feature.txt",
+			});
+			// Owner Git reads the blob while inspecting (a blob missing before
+			// it is an inspection refusal): the store loses it right after.
+			const { provider } = parent.composed;
+			const inspect = provider.inspectArtifact.bind(provider);
+			let reads = 0;
+			provider.inspectArtifact = async (handle, request) => {
+				const read = await inspect(handle, request);
+				if (++reads === 1) await fixture.op("removeObject", { sha: blob });
+				return read;
+			};
+			await report(fixture, workerId, { type: "done", commit: sha });
+			await result;
+			const verdict = object(outcomeOf(parent, "gone").outcome.verdict);
+			assert.equal(verdict.verdict, "error");
+			assert.equal(verdict.bound, false);
+			assert.equal(
+				verdict.reason,
+				`the subject could not be materialized (object_missing: ${blob})`,
+			);
+			assert.deepEqual(verdict.materialized, { refused: "object_missing" });
+			assert.equal(mark.ran(), false, "the command never ran");
+		}));
+
+	const refusals: [
+		string,
+		string,
+		(fixture: B2Fixture, workerId: string) => Promise<string>,
+		WorkerParentOptions["checks"],
+	][] = [
+		[
+			"a gitlink",
+			"gitlink",
+			(fixture, workerId) =>
+				fixture.op<string>("commitEntries", {
+					workerId,
+					entries: [{ path: "sub", gitlink: baseOf(fixture) }],
+				}),
+			{},
+		],
+		[
+			"a symbolic link",
+			"symlink",
+			(fixture, workerId) =>
+				fixture.op<string>("commitEntries", {
+					workerId,
+					entries: [{ path: "link", symlink: "note" }],
+				}),
+			{},
+		],
+		[
+			"an oversize subject",
+			"too_large",
+			(fixture, workerId) =>
+				fixture.op<string>("commit", {
+					workerId,
+					file: "big.txt",
+					text: "x".repeat(4096),
+				}),
+			{ materializeLimits: { maxBytes: 1024 } },
+		],
+	];
+	for (const [what, code, commit, checks] of refusals)
+		it(`${what}: refused (${code}), the command never runs`, () =>
+			withParent(
+				async ({ fixture, parent, scratch }) => {
+					const mark = marked(scratch, code);
+					const { workerId, result } = await launched(parent, code, {
+						run: mark.run,
+					});
+					const sha = await commit(fixture, workerId);
+					await report(fixture, workerId, { type: "done", commit: sha });
+					await result;
+					const verdict = object(outcomeOf(parent, code).outcome.verdict);
+					assert.equal(verdict.verdict, "error");
+					assert.equal(verdict.bound, false);
+					assert.match(
+						String(verdict.reason),
+						new RegExp(`^the subject could not be materialized \\(${code}\\b`),
+					);
+					assert.deepEqual(verdict.materialized, { refused: code });
+					assert.equal(mark.ran(), false, "the command never ran");
+				},
+				{ checks },
+			));
 });
 
 describe("V1 bound check over real B2: failure and cancel hand-offs", () => {

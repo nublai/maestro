@@ -354,6 +354,14 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 		}; refused before acquisition.`;
 	}
 
+	/**
+	 * The parent's root, whose repository's object database holds every
+	 * slot's commits (the slots are its linked worktrees).
+	 */
+	get parentRoot(): string {
+		return this.#options.slots.root;
+	}
+
 	/** The launch's acquisition manifest (slot, commands, outcomes). */
 	manifest(handle: ExecHandle) {
 		return this.#options.launches.read(this.#execution(handle).ref);
