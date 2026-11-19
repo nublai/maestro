@@ -74,6 +74,15 @@ export interface RunSessionHooks {
 		task: Task,
 		state: "requested" | "confirmed" | "unconfirmed",
 	): void;
+	/**
+	 * A mandatory durability gate, not presentation: durably records the
+	 * operator's cancel intent for the run's current owner before each owned
+	 * kill a cancel leads to. A throw or rejection means the intent is not
+	 * durable: that kill is not sent, the cancel stays unconfirmed with the
+	 * failure as its error, and the run stays live and retryable. Absent, the
+	 * kill path is unchanged.
+	 */
+	persistCancelIntent?(handle: AgentHandle, task: Task): void | Promise<void>;
 	/** Successful void/delivered/suppressed permits cleanup; rejection retains panes. */
 	onSettled?(
 		result: RunResult,
@@ -617,8 +626,21 @@ export function createRunSession(options: RunSessionOptions): RunSession {
 		if (!state || !owner || state.termination === "confirmed")
 			return Promise.resolve();
 		if (state.kill) return state.kill;
+		const persist = options.hooks?.persistCancelIntent;
 		const kill = (async () => {
 			try {
+				if (persist) {
+					try {
+						// Always asynchronous, even for a hook that throws synchronously:
+						// this kill is registered (`state.kill`) before it settles.
+						await (async () => persist(owner.handle, entry.task))();
+					} catch (error) {
+						throw new Error(
+							`The cancel intent could not be recorded durably, so no stop was sent: ${errorText(error)}`,
+							{ cause: error },
+						);
+					}
+				}
 				await owner.adapter.kill(owner.handle);
 				state.termination = "confirmed";
 				state.confirmedAt = Date.now();

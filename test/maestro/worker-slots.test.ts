@@ -121,15 +121,34 @@ describe("owner-prepared worker slots", () => {
 			);
 		}));
 
-	it("prefers the slot named by the requested branch and checks a requested base", () =>
+	it("a branch no prepared slot has asks for a worktree of the child's own: refused before acquisition, nothing claimed", () =>
+		using((t) => {
+			const pool = t.pool();
+			assert.throws(
+				() => pool.claim(uuidv7(), { branch: "feature/own" }),
+				refusal(
+					"slot_mismatch",
+					/cannot have a worktree of its own.*refused before acquisition/,
+				),
+			);
+			assert.equal(pool.holder("s0"), undefined);
+			assert.equal(pool.holder("s1"), undefined);
+		}));
+
+	it("claims the slot named by the requested branch and checks a requested base", () =>
 		using((t) => {
 			const pool = t.pool();
 			assert.equal(pool.claim(uuidv7(), { branch: "s1" }).name, "s1");
-			assert.equal(
-				pool.claim(uuidv7(), { branch: "s1" }).name,
-				"s0",
-				"taken: the first free one",
+			// P3-10 (root decision 8): never another slot in its place.
+			assert.throws(
+				() => pool.claim(uuidv7(), { branch: "s1" }),
+				refusal(
+					"slots_exhausted",
+					/s1, on the requested branch, is already claimed.*refused before acquisition/,
+				),
+				"taken: refused, not the first free one",
 			);
+			assert.equal(pool.holder("s0"), undefined, "nothing else claimed");
 			const other = ownerTopology();
 			try {
 				assert.throws(

@@ -18,6 +18,7 @@ import {
 	adapterOver,
 	B2Fixture,
 	composeProvider,
+	freeSlot,
 	freshRequest,
 	parentSession,
 	spawnOptions,
@@ -36,13 +37,13 @@ registerExecProviderConformance(
 		const { adapter, launchOf } = adapterOver(provider, session);
 		const boundary: ExecAdapterBoundary<PiExecution> = {
 			adapter,
-			spawn: (acquisitionSignal) =>
-				adapter.spawn(
-					spawnOptions(
-						session.root,
-						acquisitionSignal ? { acquisitionSignal } : {},
-					),
-				),
+			spawn: (acquisitionSignal) => {
+				const extra: Parameters<typeof spawnOptions>[1] = {
+					worktreeRequest: { branch: freeSlot(composed.slots) },
+				};
+				if (acquisitionSignal) extra.acquisitionSignal = acquisitionSignal;
+				return adapter.spawn(spawnOptions(session.root, extra));
+			},
 			spawnRequiring: (requirement) =>
 				spawnRequiring(adapter, session.root, requirement),
 			launchOf,
@@ -59,7 +60,10 @@ registerExecProviderConformance(
 		};
 		return {
 			provider,
-			request: () => freshRequest(session),
+			request: () =>
+				freshRequest(session, {
+					worktree: { branch: freeSlot(composed.slots) },
+				}),
 			acquisitions: () => fixture.op<number>("acquisitions"),
 			exit: async (launch) => {
 				await fixture.op("exit", { workerId: workerOf(provider, launch) });

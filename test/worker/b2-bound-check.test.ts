@@ -21,8 +21,11 @@ import type {
 	StoredOutcome,
 } from "../../maestro/core/outcome-store.ts";
 import type { AcceptRequest } from "../../maestro/core/accept.ts";
+import type { Task } from "../../maestro/core/types.ts";
 import {
+	CHECK_ENV_SOURCE,
 	composeWorkerParent,
+	type WorkerParentOptions,
 	workerTask,
 } from "../helpers/worker-admission.ts";
 import { B2Fixture, piWorkerCheckout } from "../helpers/worker-b2-fixture.ts";
@@ -79,7 +82,11 @@ async function withParent(
 		parent: Parent;
 		scratch: string;
 	}) => Promise<void>,
-	options: { slots?: number; channel?: boolean } = {},
+	options: {
+		slots?: number;
+		channel?: boolean;
+		checks?: NonNullable<WorkerParentOptions["checks"]>;
+	} = {},
 ) {
 	piWorkerCheckout();
 	const fixture = await B2Fixture.start(options.slots ?? 4, {
@@ -89,7 +96,9 @@ async function withParent(
 	const scratch = mkdtempSync(join(tmpdir(), "maestro-bound-marks-"));
 	let parent: Parent | undefined;
 	try {
-		parent = await composeWorkerParent(fixture.started, dir, { checks: {} });
+		parent = await composeWorkerParent(fixture.started, dir, {
+			checks: options.checks ?? {},
+		});
 		await parent.outbox.start();
 		await run({ fixture, parent, scratch });
 	} finally {
@@ -103,7 +112,13 @@ async function withParent(
 
 /** One child launched and supervised by the run owner. */
 async function launched(parent: Parent, id: string, accept?: AcceptRequest) {
-	const task = workerTask(id, parent.session.root, accept);
+	// Each child of a case in the next owner-prepared slot, by name.
+	const task = workerTask(
+		id,
+		parent.session.root,
+		accept,
+		`s${launchedTasks.length}`,
+	);
 	launchedTasks.push(task.id);
 	const handle = await parent.runs.spawn(task);
 	const workerId = parent.workerOf(handle);
@@ -123,6 +138,13 @@ function report(
 		kind: "result",
 		message: encodeResultClaim(claim),
 	});
+}
+
+/** The issued base: a child that made no commit claims it (its branch's tip). */
+function baseOf(fixture: B2Fixture): string {
+	const base = fixture.started.slots[0]?.baseSha;
+	assert.ok(base, "an owner-prepared slot");
+	return base;
 }
 
 /** The B2 identity of the child's result report: its `children.report` command ID. */
@@ -336,7 +358,10 @@ describe("V1 bound check over real B2: no accepted verdict unless the subject bi
 			const { workerId, result } = await launched(parent, "tracked", {
 				run: "printf changed > note",
 			});
-			await report(fixture, workerId, { type: "done" });
+			await report(fixture, workerId, {
+				type: "done",
+				commit: baseOf(fixture),
+			});
 			await result;
 			const verdict = object(outcomeOf(parent, "tracked").outcome.verdict);
 			assert.equal(verdict.verdict, "error");
@@ -353,7 +378,10 @@ describe("V1 bound check over real B2: no accepted verdict unless the subject bi
 				slot: "s0",
 				ref: "refs/heads/maestro-s1/s1",
 			});
-			await report(fixture, workerId, { type: "done" });
+			await report(fixture, workerId, {
+				type: "done",
+				commit: baseOf(fixture),
+			});
 			await result;
 			const verdict = object(outcomeOf(parent, "pin").outcome.verdict);
 			assert.equal(verdict.verdict, "error");
@@ -401,7 +429,10 @@ describe("V1 bound check over real B2: no accepted verdict unless the subject bi
 			const { workerId, result } = await launched(parent, "lost", {
 				run: mark.run,
 			});
-			await report(fixture, workerId, { type: "done" });
+			await report(fixture, workerId, {
+				type: "done",
+				commit: baseOf(fixture),
+			});
 			await result;
 			const verdict = object(outcomeOf(parent, "lost").outcome.verdict);
 			assert.equal(verdict.verdict, "error");
@@ -417,7 +448,10 @@ describe("V1 bound check over real B2: no accepted verdict unless the subject bi
 				run: mark.run,
 			});
 			await fixture.op("write", { workerId, file: "stray.txt", text: "x" });
-			await report(fixture, workerId, { type: "done" });
+			await report(fixture, workerId, {
+				type: "done",
+				commit: baseOf(fixture),
+			});
 			await result;
 			const verdict = object(outcomeOf(parent, "dirty").outcome.verdict);
 			assert.match(String(verdict.reason), /dirty \(1 unexpected entry\)/);
@@ -503,7 +537,10 @@ describe("V1 bound check over real B2: failure and cancel hand-offs", () => {
 			const { task, workerId, result } = await launched(parent, "cx", {
 				run: "sleep 30",
 			});
-			await report(fixture, workerId, { type: "done" });
+			await report(fixture, workerId, {
+				type: "done",
+				commit: baseOf(fixture),
+			});
 			// The subject is durable once the check started.
 			await until(() =>
 				parent.store
@@ -695,4 +732,165 @@ describe("interrupted-run hand-off over real B2: a lost close", () => {
 			rmSync(dir, { recursive: true, force: true });
 		}
 	});
+});
+
+describe("V1 bound check over real B2: B2's outcome_unknown stop", () => {
+	it("is repeated: the next stop confirms and the commit is checked", () =>
+		withParent(async ({ fixture, parent }) => {
+			const { workerId, result } = await launched(parent, "zombie", {
+				run: "test -f feature.txt",
+			});
+			const sha = await fixture.op<string>("commit", {
+				workerId,
+				file: "feature.txt",
+				text: "feature\n",
+			});
+			// B2 does not observe the first stop's end: `outcome_unknown`.
+			await fixture.op("unobserveNextStop", { workerId });
+			await report(fixture, workerId, { type: "done", commit: sha });
+			await result;
+			const verdict = object(outcomeOf(parent, "zombie").outcome.verdict);
+			assert.equal(verdict.verdict, "accepted");
+			assert.equal(verdict.bound, true);
+			const termination = object(verdict.termination);
+			assert.equal(termination.termination, "confirmed");
+			assert.equal(termination.stops, 2, "one repeat after outcome_unknown");
+		}));
+});
+
+describe("V1 bound check over real B2: a cancel during the second inspection", () => {
+	it("wins: the run is cancelled, its verdict skipped (cancelled), never accepted and bound", () =>
+		withParent(async ({ fixture, parent }) => {
+			const { task, workerId, result } = await launched(parent, "late", {
+				run: "test -f feature.txt",
+			});
+			const { provider } = parent.composed;
+			const inspect = provider.inspectArtifact.bind(provider);
+			let reads = 0;
+			let cancelled: ReturnType<Parent["runs"]["cancel"]> | undefined;
+			provider.inspectArtifact = async (handle, request) => {
+				const read = await inspect(handle, request);
+				// The second reading: the operator cancels while it is in flight.
+				if (++reads === 2) cancelled = parent.runs.cancel(task.id);
+				return read;
+			};
+			const sha = await fixture.op<string>("commit", {
+				workerId,
+				file: "feature.txt",
+				text: "feature\n",
+			});
+			await report(fixture, workerId, { type: "done", commit: sha });
+			const settled = await result;
+			assert.equal(reads, 2, "the check read before and after");
+			assert.ok(cancelled, "the cancel came during the second inspection");
+			assert.equal(
+				(await cancelled).status,
+				"confirmed",
+				"accepted, not too late",
+			);
+			assert.equal(settled.outcome, "killed");
+			assert.equal(settled.cancellation?.termination, "confirmed");
+			const stored = outcomeOf(parent, "late");
+			const verdict = object(stored.outcome.verdict);
+			assert.equal(verdict.verdict, "skipped");
+			assert.equal(verdict.bound, false);
+			assert.equal(verdict.reason, "cancelled");
+			assert.equal(verdict.check, "cancelled");
+			assert.equal(stored.outcome.outcome, "killed");
+		}));
+});
+
+describe("V1 bound check over real B2: the accept command's synthetic environment", () => {
+	it("a parent variable does not reach the command; HOME and TMPDIR are the check's own scratch, outside the slot", () =>
+		withParent(
+			async ({ fixture, parent }) => {
+				const { workerId, result } = await launched(parent, "env", {
+					run: 'test -z "${PARENT_ONLY+set}" && test -n "$DECLARED" && test -d "$HOME" && test -d "$TMPDIR" && case "$HOME" in "$PWD"*) exit 3;; esac',
+				});
+				const sha = await fixture.op<string>("commit", {
+					workerId,
+					file: "feature.txt",
+					text: "feature\n",
+				});
+				await report(fixture, workerId, { type: "done", commit: sha });
+				await result;
+				const verdict = object(outcomeOf(parent, "env").outcome.verdict);
+				assert.equal(
+					verdict.verdict,
+					"accepted",
+					"the command saw only its own environment",
+				);
+				assert.equal(verdict.bound, true);
+				const env = object(object(verdict.environment).env);
+				assert.equal(env.kind, "synthetic");
+				assert.deepEqual(env.names, [
+					"PATH",
+					"LANG",
+					"LC_ALL",
+					"DECLARED",
+					"HOME",
+					"TMPDIR",
+				]);
+				assert.equal(
+					JSON.stringify(verdict).includes("declared value"),
+					false,
+					"names only, never a value",
+				);
+			},
+			{
+				checks: {
+					environment: {
+						source: {
+							...CHECK_ENV_SOURCE,
+							PARENT_ONLY: "parent value",
+							DECLARED: "declared value",
+						},
+						declared: ["DECLARED"],
+					},
+				},
+			},
+		));
+});
+
+describe("V1 bound check over real B2: what a worker child cannot honour is refused before acquisition", () => {
+	const refusals: [string, (task: Task) => void, RegExp][] = [
+		[
+			"a persistent specialist (the task asks)",
+			(task) => {
+				task.behavior = { persistent: true };
+			},
+			/does not support persistent specialists; refused before acquisition/,
+		],
+		[
+			"a model fallback list",
+			(task) => {
+				task.runtime = {
+					model: "fake/test",
+					thinking: "off",
+					fallbacks: [{ model: "fake/other", thinking: "off" }],
+				};
+			},
+			/does not support model fallback lists.*refused before acquisition/,
+		],
+		[
+			"a worktree of its own (a branch no prepared slot has)",
+			(task) => {
+				task.worktree = { branch: "feature/own" };
+			},
+			/cannot have a worktree of its own.*refused before acquisition/,
+		],
+	];
+	for (const [what, change, refusal] of refusals)
+		it(`${what}: refused; nothing claimed, recorded or acquired`, () =>
+			withParent(async ({ fixture, parent }) => {
+				const task = workerTask("refused", parent.session.root);
+				change(task);
+				await assert.rejects(parent.runs.spawn(task), (error: Error) =>
+					refusal.test(error.message),
+				);
+				assert.equal(await fixture.op<number>("acquisitions"), 0);
+				assert.equal(parent.composed.launches.list().length, 0);
+				for (const slot of fixture.started.slots)
+					assert.equal(parent.composed.slots.holder(slot.name), undefined);
+			}));
 });

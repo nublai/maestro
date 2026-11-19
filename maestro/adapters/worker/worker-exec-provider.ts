@@ -252,10 +252,13 @@ export class WorkerLaunchRefusal extends Error {
 /** A mutation whose outcome is not proven. Never send it again; the owner reconciles. */
 export class WorkerCommandUncertain extends Error {
 	readonly commandId: string;
-	constructor(message: string, commandId: string) {
+	/** B2's own reason when its receipt read left the command unknown (`outcome_unknown`, ...). */
+	readonly unknownReason?: string;
+	constructor(message: string, commandId: string, unknownReason?: string) {
 		super(message);
 		this.name = "WorkerCommandUncertain";
 		this.commandId = commandId;
+		if (unknownReason !== undefined) this.unknownReason = unknownReason;
 	}
 }
 
@@ -1028,6 +1031,9 @@ export class WorkerExecutionProvider implements PiExecProvider<PiExecution> {
 			error: new WorkerCommandUncertain(
 				`Worker ${execution.workerId} stop not confirmed (${failureCode(settled)}); the worker stays owned.`,
 				commandId,
+				settled instanceof ClientFailure || settled.outcome !== "unknown"
+					? undefined
+					: settled.reason,
 			),
 		};
 	}

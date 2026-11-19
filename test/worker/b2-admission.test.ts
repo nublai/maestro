@@ -138,7 +138,12 @@ function maestro(
 	dir: string,
 	mode: "run" | "recover",
 	cut?: MaestroCut,
-	extra: { checks?: boolean; accept?: string; cancel?: boolean } = {},
+	extra: {
+		checks?: boolean;
+		accept?: string;
+		cancel?: boolean;
+		cancelWriteFails?: boolean;
+	} = {},
 ) {
 	const child = spawn(
 		process.execPath,
@@ -218,6 +223,7 @@ async function withFixture(
 	piWorkerCheckout();
 	const fixture = await B2Fixture.start(4, options);
 	parentWorkerId = fixture.started.parentWorkerId;
+	launches = 0;
 	const dir = mkdtempSync(join(tmpdir(), "maestro-admission-"));
 	try {
 		await run(fixture, dir);
@@ -227,12 +233,16 @@ async function withFixture(
 	}
 }
 
+/** Children a case launched so far (its next slot). */
+let launches = 0;
+
 /** One child launched by the run owner while the parent's turn runs. */
 async function launched(
 	parent: Awaited<ReturnType<typeof composeWorkerParent>>,
 	id = "t",
 ) {
-	const task = workerTask(id, parent.session.root);
+	// Each child of a case in the next owner-prepared slot, by name.
+	const task = workerTask(id, parent.session.root, undefined, `s${launches++}`);
 	const handle = await parent.runs.spawn(task);
 	return { task, handle, workerId: parent.workerOf(handle) };
 }
@@ -1270,6 +1280,52 @@ describe("P3-10 interrupted-run hand-off over real B2 (Maestro SIGKILLed, then r
 			);
 			assert.equal(object(facts.child).status, "ready");
 			assert.equal((await fixture.row(workerId)).status, "ready");
+			assert.equal(await fixture.op<number>("acquisitions"), 1);
+		}));
+
+	it("a cancel whose durable intent cannot be written sends no stop and reports the failure; after a restart no intent or stop is claimed", () =>
+		withFixture(async (fixture, dir) => {
+			const run = maestro(fixture, dir, "run", undefined, {
+				checks: true,
+				cancelWriteFails: true,
+			});
+			const { workerId } = await run.next("launched");
+			const cancel = await run.next("cancel");
+			assert.equal(cancel.status, "unconfirmed");
+			assert.match(
+				cancel.error ?? "",
+				/cancel intent could not be recorded durably, so no stop was sent/,
+			);
+			assert.equal(cancel.stops, 0, "no workers.stop was sent");
+			await run.next("cut");
+			assert.equal(await run.exited, "SIGKILL", run.stderr());
+			assert.equal(
+				(await fixture.row(workerId)).status,
+				"ready",
+				"the child was never stopped",
+			);
+			const recover = maestro(fixture, dir, "recover", undefined, {
+				checks: true,
+			});
+			const recovered = await recover.next("recovered");
+			assert.equal(await recover.exited, 0, recover.stderr());
+			assert.equal(recovered.handed?.length, 1);
+			const handed = recovered.handed![0]!.outcome;
+			assert.equal(handed.outcome, "interrupted");
+			assert.equal(
+				handed.cancellation,
+				undefined,
+				"no cancel intent is claimed that was never durable",
+			);
+			const facts = object(object(handed.facts).handoff);
+			assert.deepEqual(
+				(Array.isArray(facts.commands) ? facts.commands : []).filter(
+					(c) => object(c).purpose === "stop",
+				),
+				[],
+				"no stop was recorded or sent",
+			);
+			assert.equal(object(facts.child).status, "ready");
 			assert.equal(await fixture.op<number>("acquisitions"), 1);
 		}));
 });

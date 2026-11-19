@@ -8,15 +8,20 @@
  *    stop of that epoch confirms), before any authoritative reading.
  * 2. `artifacts.inspect` at the worker's saved launch pin (owner Git, P3-6)
  *    resolves the slot's branch and the issued base: the base must be an
- *    ancestor, HEAD must be on the issued branch at that commit, a commit the
- *    child claimed must be that commit, and the checkout must be clean except
+ *    ancestor, HEAD must be on the issued branch at that commit, the commit
+ *    the child's result report claims (mandatory) must be that commit, and
+ *    the checkout must be clean except
  *    for the worker's own staged runtime directories (listed, never ignored).
  *    The subject is the commit, its native tree, the base, the branch, the
  *    root and the pin's identity.
  * 3. The subject is durable (`recordCheck`) before the approved command runs
- *    with Maestro's parent-side accept runner in the slot, cancellable.
+ *    with Maestro's parent-side accept runner in the slot, cancellable, in a
+ *    synthetic environment built from an explicit allowlist (never the
+ *    parent's environment passed through).
  * 4. The same inspection after the check must read the same subject and the
- *    same checkout status; anything else is a changed subject.
+ *    same checkout status; anything else is a changed subject. It is inside
+ *    the cancellable window: a cancel that arrives at any point before the
+ *    verdict is decided wins, and the verdict is then `skipped (cancelled)`.
  *
  * A changed subject, a missing object, a pin mismatch, a dirty or conflicted
  * checkout, an unconfirmed termination or an inspection that is refused or
@@ -32,6 +37,9 @@ import {
 	skippedOutcome,
 	verdictFromCommand,
 } from "../../core/accept.ts";
+import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import type { ExecHandle, ExecStopReport } from "../../core/exec-provider.ts";
 import type {
 	OutcomeJson,
@@ -41,10 +49,11 @@ import type { CompletionEvidence, RunResult } from "../../core/types.ts";
 import type { FinalizeControl } from "../../runtime/run-session.ts";
 import type { AcceptCheckOwner } from "../pi/accept-groups.ts";
 import type { AcceptRunner } from "../pi/accept-runner.ts";
-import type {
-	ArtifactFacts,
-	WorkerArtifactRead,
-	WorkerRunBinding,
+import {
+	type ArtifactFacts,
+	type WorkerArtifactRead,
+	WorkerCommandUncertain,
+	type WorkerRunBinding,
 } from "./worker-exec-provider.ts";
 
 /**
@@ -68,6 +77,67 @@ export interface WorkerCheckPort {
 	): Promise<WorkerArtifactRead>;
 }
 
+/**
+ * The variables a check's environment may take from its source, by name
+ * (root decision, P3-10): `PATH` and the locale. `HOME` and `TMPDIR` are
+ * always the check's own scratch directories; anything else reaches the
+ * command only when the approved check declares it
+ * ({@link CheckEnvironmentOptions.declared}).
+ */
+export const CHECK_ENV_ALLOWLIST: readonly string[] = Object.freeze([
+	"PATH",
+	"LANG",
+	"LC_ALL",
+]);
+
+/** How a bound check builds its command's synthetic environment. */
+export interface CheckEnvironmentOptions {
+	/** Where allowlisted values are read from. Default `process.env`. */
+	source?: Readonly<Record<string, string | undefined>>;
+	/** Further variable names the approved accept command declares. */
+	declared?: readonly string[];
+	/** Where the check's scratch directory (its HOME and TMPDIR) is made. Default `os.tmpdir()`. */
+	scratchRoot?: string;
+}
+
+const VARIABLE_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
+/**
+ * The names a check's environment carries: the allowlist and the declared
+ * names, then `HOME` and `TMPDIR`. A declared name that is not a plain
+ * variable name, or that names `HOME` or `TMPDIR`, is refused.
+ */
+export function checkEnvironmentNames(
+	declared: readonly string[] = [],
+): string[] {
+	for (const name of declared)
+		if (!VARIABLE_NAME.test(name) || name === "HOME" || name === "TMPDIR")
+			throw new Error(
+				"An accept check declares an environment variable it may not pass",
+			);
+	return [...new Set([...CHECK_ENV_ALLOWLIST, ...declared])];
+}
+
+/**
+ * The check command's environment: only allowlisted and declared variables
+ * present in `source`, with `HOME` and `TMPDIR` inside `scratch`. Nothing
+ * else of the parent's environment reaches the command.
+ */
+export function checkEnvironment(
+	source: Readonly<Record<string, string | undefined>>,
+	declared: readonly string[],
+	scratch: string,
+): NodeJS.ProcessEnv {
+	const env: NodeJS.ProcessEnv = {};
+	for (const name of checkEnvironmentNames(declared)) {
+		const value = source[name];
+		if (value !== undefined) env[name] = value;
+	}
+	env.HOME = join(scratch, "home");
+	env.TMPDIR = join(scratch, "tmp");
+	return env;
+}
+
 export interface WorkerBoundCheckInput {
 	handle: ExecHandle;
 	spec: AcceptSpec;
@@ -76,6 +146,8 @@ export interface WorkerBoundCheckInput {
 	runner: AcceptRunner;
 	/** Stops this check at shutdown (`accept-groups.ts`). */
 	owner?: AcceptCheckOwner;
+	/** The command's synthetic environment. */
+	environment?: CheckEnvironmentOptions;
 }
 
 export interface WorkerBoundCheck {
@@ -90,13 +162,18 @@ export interface WorkerBoundCheck {
 }
 
 /** Where and how the command runs: Maestro's parent-side runner, never the worker. */
-function environment(cwd: string): OutcomeJsonObject {
+function environment(cwd: string, names: readonly string[]): OutcomeJsonObject {
 	return {
 		runner: "maestro-parent-accept-runner",
 		shell: "sh -c",
 		cwd,
 		// Variable names only, never values.
-		env: "the parent process environment without PI_SUBAGENT_*",
+		env: {
+			kind: "synthetic",
+			names: [...names, "HOME", "TMPDIR"],
+			home: "check scratch",
+			tmpdir: "check scratch",
+		},
 	};
 }
 
@@ -160,7 +237,7 @@ function judge(
 	read: WorkerArtifactRead,
 	binding: WorkerRunBinding,
 	epoch: string,
-	claimed: string | undefined,
+	claimed: string,
 	when: string,
 ): Judged {
 	if (read.kind !== "facts")
@@ -183,7 +260,7 @@ function judge(
 		return refuse("the checkout is not on its issued branch");
 	if (!facts.head.matches_commit)
 		return refuse("the checkout's HEAD is not its branch's commit");
-	if (claimed !== undefined && claimed !== facts.commit.commit_id)
+	if (claimed !== facts.commit.commit_id)
 		return refuse("the child's claimed commit is not its branch's commit");
 	const { worktree } = facts;
 	if (worktree.state === "conflicted")
@@ -233,6 +310,19 @@ function errorOutcome(spec: AcceptSpec, reason: string): AcceptOutcome {
 export const TERMINATION_STOPS = 3;
 const TERMINATION_RETRY_MS = 200;
 
+/**
+ * Whether a stop may be repeated (root decision, P3-10): only an unconfirmed
+ * report naming B2's own `outcome_unknown` receipt for that stop. A refusal,
+ * a stop never sent, any other uncertainty or error is never repeated.
+ */
+export function unobservedStop(stop: ExecStopReport): boolean {
+	return (
+		stop.termination === "unconfirmed" &&
+		stop.error instanceof WorkerCommandUncertain &&
+		stop.error.unknownReason === "outcome_unknown"
+	);
+}
+
 function delay(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -244,7 +334,8 @@ function errorText(error: unknown): string {
 
 /**
  * Runs the V1 bound check of one worker run. Rejects only when the check's
- * subject could not be recorded (`recordCheck`): the command then never ran.
+ * subject could not be recorded (`recordCheck`, mandatory): the command then
+ * never ran.
  */
 export async function runWorkerBoundCheck(
 	port: WorkerCheckPort,
@@ -291,11 +382,30 @@ export async function runWorkerBoundCheck(
 	}
 	const claimed = claim.decoded.commit;
 	record.claimedCommit = claimed ?? null;
+	// Root decision: the claimed commit is mandatory for a bound verdict.
+	if (claimed === undefined) {
+		record.check = "not-run";
+		return finish(
+			errorOutcome(spec, "the child's result report claims no commit"),
+			false,
+		);
+	}
+	const recordCheck = input.control.recordCheck;
+	if (!recordCheck) {
+		record.check = "not-run";
+		return finish(
+			errorOutcome(
+				spec,
+				"the check's subject cannot be recorded (no outcome store)",
+			),
+			false,
+		);
+	}
 	// 1. Termination of the generation that ran, before any authoritative read.
-	// A stop the worker may not have observed (unconfirmed, sent or maybe sent)
-	// is repeated, as an owner may, at most TERMINATION_STOPS in all; a stop
-	// never sent, or one that rejects, is not. A repeat finding the row stopped
-	// sends nothing.
+	// Only a stop B2 reports as `outcome_unknown` is repeated, as an owner may,
+	// at most TERMINATION_STOPS in all; a refusal, a stop never sent, one that
+	// rejects or any other uncertainty is not. A repeat finding the row
+	// stopped sends nothing. When the budget runs out the worker stays owned.
 	let stop: ExecStopReport;
 	let stops = 0;
 	for (;;) {
@@ -305,12 +415,7 @@ export async function runWorkerBoundCheck(
 		} catch (error) {
 			stop = { request: "not-sent", termination: "unconfirmed", error };
 		}
-		if (
-			stop.termination === "confirmed" ||
-			stop.request === "not-sent" ||
-			stops >= TERMINATION_STOPS
-		)
-			break;
+		if (!unobservedStop(stop) || stops >= TERMINATION_STOPS) break;
 		await delay(TERMINATION_RETRY_MS);
 	}
 	const epoch = port.runBinding(handle)?.terminatedEpoch;
@@ -349,23 +454,58 @@ export async function runWorkerBoundCheck(
 		);
 	}
 	const cwd = binding.slot.path;
-	record.environment = environment(cwd);
-	// 3. Durable before it runs; a rejection means the check never ran.
-	if (input.control.recordCheck)
-		await input.control.recordCheck({
-			checkHash: acceptCheckHash(spec.run),
-			cwd,
-			...before.subject,
+	const options = input.environment ?? {};
+	const declared = options.declared ?? [];
+	let names: string[];
+	try {
+		names = checkEnvironmentNames(declared);
+	} catch (error) {
+		record.check = "not-run";
+		return finish(errorOutcome(spec, errorText(error)), false, {
+			before: before.subject,
 		});
-	const command = await input.control.cancellable((signal) =>
-		input.runner({
-			run: spec.run,
-			cwd,
-			timeoutMs: spec.timeoutSec * 1000,
-			signal,
-			owner: input.owner,
-		}),
+	}
+	record.environment = environment(cwd, names);
+	// 3. Durable before it runs; a rejection means the check never ran.
+	await recordCheck({
+		checkHash: acceptCheckHash(spec.run),
+		cwd,
+		...before.subject,
+	});
+	// The check's own HOME and TMPDIR, outside the checkout, removed after it.
+	const scratch = mkdtempSync(
+		join(options.scratchRoot ?? tmpdir(), "maestro-check-"),
 	);
+	let command: Awaited<ReturnType<AcceptRunner>>;
+	let afterRead: WorkerArtifactRead | undefined;
+	try {
+		mkdirSync(join(scratch, "home"));
+		mkdirSync(join(scratch, "tmp"));
+		const env = checkEnvironment(
+			options.source ?? process.env,
+			declared,
+			scratch,
+		);
+		// The command and the reading after it share one cancellable window:
+		// a cancel that arrives during either wins once termination is
+		// confirmed (the kernel reports it), so a bound verdict is never
+		// decided after a cancel was accepted.
+		command = await input.control.cancellable(async (signal) => {
+			const ran = await input.runner({
+				run: spec.run,
+				cwd,
+				timeoutMs: spec.timeoutSec * 1000,
+				signal,
+				owner: input.owner,
+				env,
+			});
+			if (!signal.aborted)
+				afterRead = await port.inspectArtifact(handle, request);
+			return ran;
+		});
+	} finally {
+		rmSync(scratch, { recursive: true, force: true });
+	}
 	record.result = command.kind;
 	const interruption = input.control.interruption();
 	if (interruption) {
@@ -379,13 +519,12 @@ export async function runWorkerBoundCheck(
 	}
 	record.check = "ran";
 	// 4. The same subject and checkout after the check, or no bound verdict.
-	const after = judge(
-		await port.inspectArtifact(handle, request),
-		binding,
-		epoch,
-		claimed,
-		"after the check",
-	);
+	const after: Judged = afterRead
+		? judge(afterRead, binding, epoch, claimed, "after the check")
+		: {
+				kind: "refused",
+				reason: "artifact inspection after the check not made",
+			};
 	const subjects: OutcomeJsonObject = { before: before.subject };
 	if (after.kind === "bound") subjects.after = after.subject;
 	else if (after.facts) subjects.after = after.facts;

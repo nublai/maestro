@@ -14,11 +14,14 @@
  * P3-10: `checks` composes `WorkerRunChecks`; `accept` is the task's check
  * command; `cancel` cancels the run once launched. Cuts `during-check` (the
  * check's subject is durable, its command not started) and `before-stop` (the
- * cancel's stop command is durable, not sent).
+ * cancel's stop command is durable, not sent). `cancelWriteFails`: the
+ * cancel's durable intent write fails (the launch manifests directory is
+ * read-only for it); the process prints the cancel's report and whether a
+ * stop was sent, then SIGKILLs itself (`after-refused-cancel`).
  *
  * Events: one JSON object per stdout line. Synthetic environment only.
  */
-import { renameSync } from "node:fs";
+import { chmodSync, renameSync } from "node:fs";
 import type { Receipt } from "@nublai/pi-worker-client";
 import type {
 	OutcomeRecovery,
@@ -44,7 +47,8 @@ export type MaestroCut =
 	| "compaction-before-rename"
 	| "compaction-after-rename"
 	| "during-check"
-	| "before-stop";
+	| "before-stop"
+	| "after-refused-cancel";
 
 interface Args {
 	started: B2Started;
@@ -54,6 +58,7 @@ interface Args {
 	checks?: boolean;
 	accept?: string;
 	cancel?: boolean;
+	cancelWriteFails?: boolean;
 }
 
 // SAFETY: the test passes this JSON (Args) itself.
@@ -63,6 +68,7 @@ const args = JSON.parse(process.argv[2] ?? "{}") as Args;
 export type MaestroEvent =
 	| { event: "cut"; where: MaestroCut }
 	| { event: "launched"; workerId: string }
+	| { event: "cancel"; status: string; error?: string; stops: number }
 	| {
 			event: "settled";
 			outcome: string;
@@ -232,6 +238,32 @@ async function main(): Promise<void> {
 	);
 	const handle = await parent.runs.spawn(task);
 	emit({ event: "launched", workerId: parent.workerOf(handle) });
+	if (args.cancelWriteFails) {
+		const { client, launches } = parent.composed;
+		let stops = 0;
+		const call = client.call.bind(client);
+		// SAFETY: a pass-through wrapper with the client's own signature.
+		client.call = (async (op: string, opts: never) => {
+			if (op === "workers.stop") stops++;
+			// SAFETY: forwards the caller's own operation and options unchanged.
+			return call(op as never, opts);
+		}) as typeof client.call;
+		chmodSync(launches.dir, 0o500);
+		let report;
+		try {
+			report = await parent.runs.cancel(task.id);
+		} finally {
+			chmodSync(launches.dir, 0o700);
+		}
+		const event: MaestroEvent = {
+			event: "cancel",
+			status: report.status,
+			stops,
+		};
+		if (report.error !== undefined) event.error = report.error;
+		emit(event);
+		cut("after-refused-cancel");
+	}
 	if (args.cancel) void parent.runs.cancel(task.id);
 	const result = await parent.runs.supervise(handle, task);
 	emit({

@@ -9,8 +9,13 @@
  * - `describeOutcome` puts the check's verdict (command hash, exit or result,
  *   environment, termination) and both subjects, and the run's hand-off facts,
  *   into the outcome the run owner commits to the outbox.
- * - `onCancelState` records the run's cancel intent durably in its launch
- *   manifest before the stop it leads to is sent.
+ * - `persistCancelIntent` is the cancellation path's mandatory gate: the run's
+ *   cancel intent is durable in its launch manifest before any stop the
+ *   cancel leads to is sent; when the write fails no stop is sent and the
+ *   cancel reports the failure.
+ * - `prepare` refuses, before any acquisition, a model fallback list, which a
+ *   worker child cannot honour (a persistent specialist is refused by the
+ *   provider's capabilities, also before acquisition).
  * - `handOffInterrupted` turns each run a previous owner left open (a restart)
  *   into a host-authored hand-off outcome with its saved check subject, its
  *   commands, cancellation and termination facts and the parent's fence. It
@@ -47,7 +52,11 @@ import type {
 	PiExecution,
 	PiHarnessAdapter,
 } from "../pi/pi-harness-adapter.ts";
-import { runWorkerBoundCheck, type WorkerBoundCheck } from "./bound-check.ts";
+import {
+	type CheckEnvironmentOptions,
+	runWorkerBoundCheck,
+	type WorkerBoundCheck,
+} from "./bound-check.ts";
 import type { WorkerAcquisitionManifest } from "./launch-store.ts";
 import type {
 	WorkerExecutionProvider,
@@ -63,6 +72,11 @@ export interface WorkerRunChecksOptions {
 	runner?: AcceptRunner;
 	/** Stops running checks at the parent's shutdown. */
 	owner?: AcceptCheckOwner;
+	/**
+	 * The accept command's synthetic environment: its source of allowlisted
+	 * values, the variables the approved command declares, its scratch root.
+	 */
+	checkEnvironment?: CheckEnvironmentOptions;
 }
 
 /** What one finalized run hands to its committed outcome. */
@@ -82,6 +96,7 @@ export class WorkerRunChecks {
 	readonly #adapter: PiHarnessAdapter<PiExecution>;
 	readonly #runner: AcceptRunner;
 	readonly #owner: AcceptCheckOwner | undefined;
+	readonly #environment: CheckEnvironmentOptions | undefined;
 	readonly #described = new WeakMap<Task, Described>();
 
 	constructor(options: WorkerRunChecksOptions) {
@@ -89,69 +104,83 @@ export class WorkerRunChecks {
 		this.#adapter = options.adapter;
 		this.#runner = options.runner ?? runAcceptCommand;
 		this.#owner = options.owner;
+		this.#environment = options.checkEnvironment;
 	}
 
 	/** Launch and finalization for `createRunSession({ operations })`. */
 	readonly operations: RunSessionOperations = {
-		prepare: async (task, role): Promise<PreparedRun> => ({
-			role,
-			persistent:
-				task.behavior?.persistent ?? role.defaults?.persistent ?? false,
-			candidates: task.runtime
-				? [
-						{ model: task.runtime.model, thinking: task.runtime.thinking },
-						...(task.runtime.fallbacks ?? []),
-					]
-				: [],
-			spawnAttempt: async (options, _index, cancelled) => {
-				const handle = await this.#adapter.spawn({
-					...options,
-					acquisitionSignal: cancelled,
-					accept: task.accept,
-					// The child's B2 task is the run's own: a restart finds its launch.
-					launchIdentity: { taskId: task.id },
-				});
-				const owner: OwnedRunAttempt = {
-					handle,
-					adapter: this.#adapter,
-					finalize: async (result, finalized, control) => {
-						const described = await this.#finalize(
-							handle,
-							result,
-							finalized,
-							control,
-						);
-						this.#described.set(finalized, described);
-						return result;
-					},
-				};
-				return owner;
-			},
-		}),
-	};
-
-	/** The run owner's hooks: the outcome's check and hand-off, the durable cancel intent. */
-	readonly hooks: Required<
-		Pick<RunSessionHooks, "describeOutcome" | "onCancelState">
-	> = {
-		describeOutcome: (result, task) => this.describeOutcome(result, task),
-		onCancelState: (handle, _task, state) => {
-			if (state !== "requested") return;
-			const exec = this.#exec(handle);
-			// Best effort, synchronous, before the kill: a failed write keeps the
-			// intent in memory only, and the hand-off then cannot name it.
-			if (exec) this.#provider.recordCancelIntent(exec);
+		prepare: async (task, role): Promise<PreparedRun> => {
+			// Refused before acquisition (root decision 8), never downgraded.
+			if (task.runtime?.fallbacks?.length)
+				throw new Error(
+					`${this.#provider.name} execution does not support model fallback lists (each attempt would be a new child in a new slot); refused before acquisition.`,
+				);
+			return {
+				role,
+				// A persistent run is refused by the provider's capabilities.
+				persistent:
+					task.behavior?.persistent ?? role.defaults?.persistent ?? false,
+				candidates: task.runtime
+					? [{ model: task.runtime.model, thinking: task.runtime.thinking }]
+					: [],
+				spawnAttempt: async (options, _index, cancelled) =>
+					this.#spawn(task, options, cancelled),
+			};
 		},
 	};
 
-	describeOutcome(_result: RunResult, task: Task): OutcomeDescription {
+	/** One attempt: the shared adapter's launch, finalized with the bound check. */
+	async #spawn(
+		task: Task,
+		options: Parameters<PreparedRun["spawnAttempt"]>[0],
+		cancelled: Parameters<PreparedRun["spawnAttempt"]>[2],
+	): Promise<OwnedRunAttempt> {
+		const handle = await this.#adapter.spawn({
+			...options,
+			acquisitionSignal: cancelled,
+			accept: task.accept,
+			// The child's B2 task is the run's own: a restart finds its launch.
+			launchIdentity: { taskId: task.id },
+		});
+		return {
+			handle,
+			adapter: this.#adapter,
+			finalize: async (result, finalized, control) => {
+				const described = await this.#finalize(
+					handle,
+					result,
+					finalized,
+					control,
+				);
+				this.#described.set(finalized, described);
+				return result;
+			},
+		};
+	}
+
+	/** The run owner's hooks: the outcome's check and hand-off, the durable cancel intent. */
+	readonly hooks: Required<
+		Pick<RunSessionHooks, "describeOutcome" | "persistCancelIntent">
+	> = {
+		describeOutcome: (result, task) => this.describeOutcome(result, task),
+		persistCancelIntent: (handle) => {
+			const exec = this.#exec(handle);
+			if (!exec) throw new Error("the run has no worker execution");
+			// The gate: a failed write sends no stop (the run owner reports it).
+			const failure = this.#provider.recordCancelIntent(exec);
+			if (failure !== undefined)
+				throw new Error(`the launch manifest write failed (${failure})`);
+		},
+	};
+
+	describeOutcome(result: RunResult, task: Task): OutcomeDescription {
 		const described = this.#described.get(task);
 		if (!described) return {};
 		const description: OutcomeDescription = {
 			facts: { handoff: described.handoff },
 		};
 		if (described.check) {
-			description.verdict = described.check.verdict;
+			description.verdict = committedVerdict(described.check, result);
 			if (described.check.subject)
 				description.subject = described.check.subject;
 		}
@@ -224,16 +253,19 @@ export class WorkerRunChecks {
 		const exec = this.#exec(handle);
 		if (!exec)
 			return { handoff: { worker: null, reason: "no worker execution" } };
-		const check = task.accept
-			? await runWorkerBoundCheck(this.#provider, {
-					handle: exec,
-					spec: task.accept,
-					result,
-					control,
-					runner: this.#runner,
-					owner: this.#owner,
-				})
-			: undefined;
+		let check: WorkerBoundCheck | undefined;
+		if (task.accept) {
+			const input: Parameters<typeof runWorkerBoundCheck>[1] = {
+				handle: exec,
+				spec: task.accept,
+				result,
+				control,
+				runner: this.#runner,
+				owner: this.#owner,
+			};
+			if (this.#environment) input.environment = this.#environment;
+			check = await runWorkerBoundCheck(this.#provider, input);
+		}
 		const binding = this.#provider.runBinding(exec);
 		const manifest = this.#provider.manifest(exec);
 		const [child, parent] = await Promise.all([
@@ -254,6 +286,27 @@ export class WorkerRunChecks {
 		if (manifest?.binding) described.generation = manifest.binding.worker_epoch;
 		return described;
 	}
+}
+
+/**
+ * The verdict the committed outcome carries, re-checked against the result
+ * actually delivered: a run that delivers cancelled never carries a bound
+ * verdict, whatever the check decided (`skipped (cancelled)` instead).
+ */
+export function committedVerdict(
+	check: WorkerBoundCheck,
+	result: RunResult,
+): OutcomeJsonObject {
+	if (!result.cancellation || !check.bound) return check.verdict;
+	// The command's exit decided nothing: it is not carried as the verdict's.
+	const { exitCode: _exit, ...evidence } = check.verdict;
+	return {
+		...evidence,
+		verdict: "skipped",
+		bound: false,
+		reason: "cancelled",
+		check: "cancelled",
+	};
 }
 
 /** A stable delivery identity for one interrupted run of one earlier owner. */
