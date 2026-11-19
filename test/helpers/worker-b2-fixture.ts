@@ -71,9 +71,23 @@ export interface OwnerRow {
 }
 
 /** A fixture op's arguments: JSON values only. */
+/** One entry a fixture child commits (`commitEntries`). */
+export interface FixtureEntry {
+	path: string;
+	text?: string;
+	mode?: number;
+	symlink?: string;
+	gitlink?: string;
+}
+
 export type FixtureArgs = Record<
 	string,
-	string | number | boolean | readonly string[] | undefined
+	| string
+	| number
+	| boolean
+	| readonly string[]
+	| readonly FixtureEntry[]
+	| undefined
 >;
 
 interface Reply {

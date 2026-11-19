@@ -10,25 +10,32 @@
  *    resolves the slot's branch and the issued base: the base must be an
  *    ancestor, HEAD must be on the issued branch at that commit, the commit
  *    the child's result report claims (mandatory) must be that commit, and
- *    the checkout must be clean except
- *    for the worker's own staged runtime directories (listed, never ignored).
- *    The subject is the commit, its native tree, the base, the branch, the
- *    root and the pin's identity.
- * 3. The subject is durable (`recordCheck`) before the approved command runs
- *    with Maestro's parent-side accept runner in the slot, cancellable, in a
- *    synthetic environment built from an explicit allowlist (never the
- *    parent's environment passed through).
+ *    the checkout's status is recorded. The subject is the commit, its native
+ *    tree, the base, the branch, the root and the pin's identity. The
+ *    checkout's clean status is a hygiene fact, not the basis of acceptance;
+ *    a dirty or conflicted checkout (anything but the worker's own staged
+ *    runtime directories, listed, never ignored) still gives no verdict.
+ * 3. The subject is durable (`recordCheck`). Then the command never runs in
+ *    the child's checkout (founder decision, round B): `materialize.ts`
+ *    writes a fresh, byte-exact copy of the subject tree into the check's own
+ *    scratch from the repository's object database, every object's hash
+ *    recomputed here, and the copy's recomputed tree must be the inspected
+ *    tree. The approved command runs there with Maestro's parent-side accept
+ *    runner, cancellable, in a synthetic environment built from an explicit
+ *    allowlist (never the parent's environment passed through). The copy is
+ *    deleted afterwards.
  * 4. The same inspection after the check must read the same subject and the
  *    same checkout status; anything else is a changed subject. It is inside
  *    the cancellable window: a cancel that arrives at any point before the
  *    verdict is decided wins, and the verdict is then `skipped (cancelled)`.
  *
- * A changed subject, a missing object, a pin mismatch, a dirty or conflicted
- * checkout, an unconfirmed termination or an inspection that is refused or
- * unanswered gives no accepted revision-bound verdict: `error`, with the
- * reason, and the command does not run when the subject was never bound. A
- * cancel that wins during the check is `skipped (cancelled)`, its own
- * outcome. Facts only: the verdict comes from the command's exit.
+ * A changed subject, a missing or corrupt object, a subject that cannot be
+ * materialized, a pin mismatch, a dirty or conflicted checkout, an
+ * unconfirmed termination or an inspection that is refused or unanswered
+ * gives no accepted revision-bound verdict: `error`, with the reason, and the
+ * command does not run when the subject was never bound or copied. A cancel
+ * that wins during the check is `skipped (cancelled)`, its own outcome. Facts
+ * only: the verdict comes from the command's exit.
  */
 import {
 	acceptCheckHash,
@@ -37,7 +44,7 @@ import {
 	skippedOutcome,
 	verdictFromCommand,
 } from "../../core/accept.ts";
-import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { ExecHandle, ExecStopReport } from "../../core/exec-provider.ts";
@@ -49,6 +56,15 @@ import type { CompletionEvidence, RunResult } from "../../core/types.ts";
 import type { FinalizeControl } from "../../runtime/run-session.ts";
 import type { AcceptCheckOwner } from "../pi/accept-groups.ts";
 import type { AcceptRunner } from "../pi/accept-runner.ts";
+import {
+	type Materialized,
+	type MaterializeLimits,
+	MaterializeRefusal,
+	materializeGitEnvironment,
+	materializeTree,
+	removeScratch,
+	type SubjectMaterializer,
+} from "./materialize.ts";
 import {
 	type ArtifactFacts,
 	type WorkerArtifactRead,
@@ -148,6 +164,16 @@ export interface WorkerBoundCheckInput {
 	owner?: AcceptCheckOwner;
 	/** The command's synthetic environment. */
 	environment?: CheckEnvironmentOptions;
+	/**
+	 * The Git directory whose object database holds the subject (default:
+	 * none, and every check fails closed). Called once per check; a throw is
+	 * `repository_unavailable`.
+	 */
+	repository?: () => string;
+	/** Caps of the materialized copy. Default `MATERIALIZE_LIMITS`. */
+	materializeLimits?: Partial<MaterializeLimits>;
+	/** Writes the verified copy. Default {@link materializeTree}. */
+	materialize?: SubjectMaterializer;
 }
 
 export interface WorkerBoundCheck {
@@ -162,11 +188,12 @@ export interface WorkerBoundCheck {
 }
 
 /** Where and how the command runs: Maestro's parent-side runner, never the worker. */
-function environment(cwd: string, names: readonly string[]): OutcomeJsonObject {
+function environment(names: readonly string[]): OutcomeJsonObject {
 	return {
 		runner: "maestro-parent-accept-runner",
 		shell: "sh -c",
-		cwd,
+		// A fresh verified copy of the subject tree, never the child's checkout.
+		cwd: "materialized-subject",
 		// Variable names only, never values.
 		env: {
 			kind: "synthetic",
@@ -453,7 +480,6 @@ export async function runWorkerBoundCheck(
 			before.facts ? { before: before.facts } : undefined,
 		);
 	}
-	const cwd = binding.slot.path;
 	const options = input.environment ?? {};
 	const declared = options.declared ?? [];
 	let names: string[];
@@ -465,49 +491,74 @@ export async function runWorkerBoundCheck(
 			before: before.subject,
 		});
 	}
-	record.environment = environment(cwd, names);
+	record.environment = environment(names);
+	const commit = String(before.subject.commit);
+	const tree = String(before.subject.tree);
 	// 3. Durable before it runs; a rejection means the check never ran.
 	await recordCheck({
 		checkHash: acceptCheckHash(spec.run),
-		cwd,
+		cwd: "materialized-subject",
 		...before.subject,
 	});
-	// The check's own HOME and TMPDIR, outside the checkout, removed after it.
+	// The check's own scratch, outside the checkout, removed after it: its
+	// HOME and TMPDIR and the verified copy of the subject tree it runs in.
 	const scratch = mkdtempSync(
 		join(options.scratchRoot ?? tmpdir(), "maestro-check-"),
 	);
-	let command: Awaited<ReturnType<AcceptRunner>>;
+	const cwd = join(scratch, "subject");
+	const source = options.source ?? process.env;
+	let window: Windowed;
 	let afterRead: WorkerArtifactRead | undefined;
 	try {
 		mkdirSync(join(scratch, "home"));
 		mkdirSync(join(scratch, "tmp"));
-		const env = checkEnvironment(
-			options.source ?? process.env,
-			declared,
-			scratch,
+		const env = checkEnvironment(source, declared, scratch);
+		const materialize = input.materialize ?? materializeTree;
+		// The copy, the command and the reading after it share one
+		// cancellable window: a cancel that arrives during any of them wins
+		// once termination is confirmed (the kernel reports it), so a bound
+		// verdict is never decided after a cancel was accepted.
+		window = await input.control.cancellable(
+			async (signal): Promise<Windowed> => {
+				let copy: Materialized;
+				try {
+					if (!input.repository)
+						throw new MaterializeRefusal(
+							"repository_unavailable",
+							"no object repository",
+						);
+					copy = await materialize({
+						gitDir: input.repository(),
+						commit,
+						tree,
+						dest: cwd,
+						env: materializeGitEnvironment(source.PATH, env.HOME ?? scratch),
+						limits: input.materializeLimits,
+						signal,
+					});
+				} catch (error) {
+					if (error instanceof MaterializeRefusal)
+						return { kind: "unmaterialized", refusal: error };
+					throw error;
+				}
+				const ran = await input.runner({
+					run: spec.run,
+					cwd,
+					timeoutMs: spec.timeoutSec * 1000,
+					signal,
+					owner: input.owner,
+					env,
+				});
+				if (!signal.aborted)
+					afterRead = await port.inspectArtifact(handle, request);
+				return { kind: "ran", copy, command: ran };
+			},
 		);
-		// The command and the reading after it share one cancellable window:
-		// a cancel that arrives during either wins once termination is
-		// confirmed (the kernel reports it), so a bound verdict is never
-		// decided after a cancel was accepted.
-		command = await input.control.cancellable(async (signal) => {
-			const ran = await input.runner({
-				run: spec.run,
-				cwd,
-				timeoutMs: spec.timeoutSec * 1000,
-				signal,
-				owner: input.owner,
-				env,
-			});
-			if (!signal.aborted)
-				afterRead = await port.inspectArtifact(handle, request);
-			return ran;
-		});
 	} finally {
-		rmSync(scratch, { recursive: true, force: true });
+		removeScratch(scratch);
 	}
-	record.result = command.kind;
 	const interruption = input.control.interruption();
+	if (window.kind === "ran") record.result = window.command.kind;
 	if (interruption) {
 		record.check = interruption;
 		const skipped = skippedOutcome(
@@ -517,7 +568,39 @@ export async function runWorkerBoundCheck(
 		skipped.cwd = cwd;
 		return finish(skipped, false, { before: before.subject });
 	}
+	if (window.kind === "unmaterialized") {
+		// Nothing of a refused copy is used: the command never ran.
+		record.check = "not-run";
+		record.materialized = { refused: window.refusal.code };
+		return finish(
+			errorOutcome(
+				spec,
+				`the subject could not be materialized (${window.refusal.message})`,
+			),
+			false,
+			{ before: before.subject },
+		);
+	}
+	const { copy, command } = window;
 	record.check = "ran";
+	// The copy's own recomputed tree is the inspected tree, or nothing binds.
+	const materialized: OutcomeJsonObject = {
+		source: "git cat-file --batch, every object's hash recomputed",
+		commit: copy.commit,
+		tree: copy.tree,
+		algorithm: copy.algorithm,
+		files: copy.files,
+		directories: copy.directories,
+		bytes: copy.bytes,
+		elapsed_ms: copy.elapsedMs,
+		limits: {
+			max_entries: copy.limits.maxEntries,
+			max_bytes: copy.limits.maxBytes,
+			max_depth: copy.limits.maxDepth,
+			max_path_bytes: copy.limits.maxPathBytes,
+			time_ms: copy.limits.timeMs,
+		},
+	};
 	// 4. The same subject and checkout after the check, or no bound verdict.
 	const after: Judged = afterRead
 		? judge(afterRead, binding, epoch, claimed, "after the check")
@@ -528,22 +611,20 @@ export async function runWorkerBoundCheck(
 	const subjects: OutcomeJsonObject = { before: before.subject };
 	if (after.kind === "bound") subjects.after = after.subject;
 	else if (after.facts) subjects.after = after.facts;
-	if (after.kind !== "bound") {
-		const outcome = errorOutcome(spec, `subject changed: ${after.reason}`);
+	subjects.materialized = materialized;
+	const unbound = (reason: string) => {
+		const outcome = errorOutcome(spec, reason);
 		if (command.kind === "exit") outcome.exitCode = command.exitCode;
 		outcome.cwd = cwd;
 		return finish(outcome, false, subjects);
-	}
+	};
+	if (copy.commit !== commit || copy.tree !== tree)
+		return unbound("the materialized tree is not the inspected tree");
+	if (after.kind !== "bound")
+		return unbound(`subject changed: ${after.reason}`);
 	const differs = changed(before.subject, after.subject);
-	if (differs.length) {
-		const outcome = errorOutcome(
-			spec,
-			`subject changed during the check (${differs.join(", ")})`,
-		);
-		if (command.kind === "exit") outcome.exitCode = command.exitCode;
-		outcome.cwd = cwd;
-		return finish(outcome, false, subjects);
-	}
+	if (differs.length)
+		return unbound(`subject changed during the check (${differs.join(", ")})`);
 	const outcome = verdictFromCommand(command, spec, result.evidence?.accept);
 	outcome.cwd = cwd;
 	return finish(
@@ -552,3 +633,12 @@ export async function runWorkerBoundCheck(
 		subjects,
 	);
 }
+
+/** How the check's cancellable window ended, unless a cancel won it. */
+type Windowed =
+	| { kind: "unmaterialized"; refusal: MaterializeRefusal }
+	| {
+			kind: "ran";
+			copy: Materialized;
+			command: Awaited<ReturnType<AcceptRunner>>;
+	  };

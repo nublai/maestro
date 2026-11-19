@@ -19,8 +19,17 @@ unchanged. See [docs/worker-provider.md](docs/worker-provider.md#bound-checks-an
   claimed commit (mandatory) as that commit, and a clean checkout
   (the worker's `.piw-agent/` and `.piw-worker/` are listed by name). The
   subject (commit, tree, base, branch, root, pin identity) is durable before
-  the approved command runs with Maestro's parent-side accept runner in the
-  slot in a synthetic environment (an explicit allowlist: `PATH`, the
+  the approved command runs with Maestro's parent-side accept runner, never
+  in the child's checkout: in a fresh, byte-exact copy of the subject tree
+  (`maestro/adapters/worker/materialize.ts`), read from the repository's
+  object database with `git cat-file --batch` (no filters, attributes,
+  hooks, replace objects or lazy fetch) with every object's hash recomputed
+  by Maestro and the copy's own tree recomputed and required to equal the
+  inspected tree; a missing or corrupt object, a gitlink, a symbolic link,
+  an unsupported mode or name, or a copy over its entry, byte, depth, path
+  or time caps is refused with a typed reason and nothing runs. The child
+  checkout's clean status is a recorded hygiene fact (a dirty one still gets
+  no verdict). The command runs in a synthetic environment (an explicit allowlist: `PATH`, the
   locale, declared variables, `HOME` and `TMPDIR` in the check's scratch),
   and must read the same after it. Otherwise there is no accepted verdict:
   `error` with the reason, and the command does not run when nothing was
