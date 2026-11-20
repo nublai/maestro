@@ -1356,6 +1356,39 @@ test("suppression gates lifecycle and drains before owned cancellation; deferred
 		assert.equal(closes, 1);
 	}));
 
+test("a resume after supervisor loss ignores the orphaned done and delivers the new ping", () =>
+	fixture(async (f) => {
+		const input = f.input();
+		const first = await f.session.spawnPi(input);
+		const previous = f.latest()!;
+		f.complete(previous);
+		await f.session.supervise(first, input.task);
+		// Recreate what an unsupervised child writes when it exits.
+		f.complete(previous);
+		const resumed = await f.session.resumePi({
+			taskId: "after-crash",
+			name: "resumed",
+			sessionPath: previous.sessionFile,
+		});
+		const sidecar = `${previous.sessionFile}.exit`;
+		assert.equal(
+			existsSync(sidecar),
+			false,
+			"previous done is no longer live evidence",
+		);
+		const wait = f.session.supervise(
+			resumed,
+			f.session.getTask("after-crash")!,
+		);
+		f.complete(f.latest()!, {
+			type: "ping",
+			name: "resumed",
+			message: "new turn",
+		});
+		await wait;
+		assert.equal(f.settled.at(-1)!.ping?.message, "new turn");
+	}));
+
 test("resume uses the returned public ID and prelaunch cursor; persistent saved policy refuses acquisition", () =>
 	fixture(async (f) => {
 		const input = f.input();

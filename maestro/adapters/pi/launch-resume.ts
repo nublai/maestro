@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { getSubagentActivityFile } from "./activity-file.ts";
 import { createLifecycle } from "../../core/lifecycle.ts";
@@ -176,6 +176,15 @@ export async function launchResumedPiSubagent(
 			lifecycle: createLifecycle(startTime),
 		};
 		request.acquisitionSignal?.throwIfAborted();
+		// The previous child may have exited after its supervisor disappeared.
+		// Retire its completion before dispatch; afterwards the new child can
+		// legitimately finish before start/runScript even acknowledges launch.
+		const exitFile = `${request.sessionFile}.exit`;
+		try {
+			renameSync(exitFile, `${exitFile}.previous`);
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+		}
 		if (operations.nativeExecution) {
 			try {
 				const nativeSurface = await operations.nativeExecution.start({

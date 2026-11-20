@@ -170,7 +170,11 @@
 			"source": "maestro/adapters/pi/launch-resume.ts",
 			"destination": "maestro/adapters/pi/launch-resume.ts",
 			"blob": "f282c8e8552990f1abaae8b8364f3a5ea491d0a2",
-			"archive": "provenance/upstream/maestro/adapters/pi/launch-resume.ts"
+			"archive": "provenance/upstream/maestro/adapters/pi/launch-resume.ts",
+			"owned_change": {
+				"reason": "Retire a previous run's completion sidecar before dispatching a resume of its transcript.",
+				"blob": "2e80b372e68a181c3b39d198d87343ddabca4647"
+			}
 		},
 		{
 			"kind": "copy",
