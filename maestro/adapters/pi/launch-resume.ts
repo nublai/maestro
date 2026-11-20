@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { getSubagentActivityFile } from "./activity-file.ts";
@@ -13,6 +14,7 @@ import {
 	findStoredSessionModel,
 	getNewEntries,
 	readSubagentSessionPolicy,
+	readSubagentSystemPrompt,
 } from "./session.ts";
 import {
 	buildSubagentToolAllowlist,
@@ -95,6 +97,7 @@ export async function launchResumedPiSubagent(
 			"resume keeps a session's model, so launch a new subagent with an in-scope model instead",
 		);
 	}
+	const savedPrompt = readSubagentSystemPrompt(request.sessionFile);
 	request.acquisitionSignal?.throwIfAborted();
 	const surface = operations.nativeExecution
 		? undefined
@@ -118,6 +121,27 @@ export async function launchResumedPiSubagent(
 			);
 			mkdirSync(dirname(messageFile), { recursive: true });
 			writeFileSync(messageFile, request.message, "utf8");
+		}
+
+		let systemPromptArgs: string[] = [];
+		if (savedPrompt) {
+			const promptFile = join(
+				artifactDir,
+				"subagent-resume",
+				`system-prompt-${randomUUID()}.md`,
+			);
+			mkdirSync(dirname(promptFile), { recursive: true });
+			writeFileSync(promptFile, savedPrompt.prompt, {
+				encoding: "utf8",
+				mode: 0o600,
+				flag: "wx",
+			});
+			systemPromptArgs = [
+				savedPrompt.mode === "replace"
+					? "--system-prompt"
+					: "--append-system-prompt",
+				shellQuote(promptFile),
+			];
 		}
 
 		const env = [
@@ -151,6 +175,7 @@ export async function launchResumedPiSubagent(
 			shellQuote(request.sessionFile),
 			...(pinnedModel ? ["--model", shellQuote(pinnedModel)] : []),
 			...scopeArgs,
+			...systemPromptArgs,
 			...(toolAllowlist ? ["--tools", shellQuote(toolAllowlist)] : []),
 			"-e",
 			shellQuote(request.childEntryPath ?? DEFAULT_CHILD_ENTRY_PATH),

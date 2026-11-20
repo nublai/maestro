@@ -477,24 +477,48 @@
 			"split_line_map": [
 				{
 					"source_start": 1,
+					"source_end": 15,
+					"destination": "maestro/adapters/pi/launch-resume.ts",
+					"destination_start": 2
+				},
+				{
+					"source_start": 16,
 					"source_end": 23,
 					"destination": "maestro/adapters/pi/launch-resume.ts",
-					"destination_start": 1
+					"destination_start": 18
 				},
 				{
 					"source_start": 25,
+					"source_end": 97,
+					"destination": "maestro/adapters/pi/launch-resume.ts",
+					"destination_start": 27
+				},
+				{
+					"source_start": 98,
+					"source_end": 122,
+					"destination": "maestro/adapters/pi/launch-resume.ts",
+					"destination_start": 101
+				},
+				{
+					"source_start": 123,
+					"source_end": 153,
+					"destination": "maestro/adapters/pi/launch-resume.ts",
+					"destination_start": 147
+				},
+				{
+					"source_start": 154,
 					"source_end": 155,
 					"destination": "maestro/adapters/pi/launch-resume.ts",
-					"destination_start": 25
+					"destination_start": 179
 				},
 				{
 					"source_start": 157,
 					"source_end": 258,
 					"destination": "maestro/adapters/pi/launch-resume.ts",
-					"destination_start": 157
+					"destination_start": 182
 				}
 			],
-			"mapping_status": "M3 copy from the H1 pin (maestro/adapters/pi/launch-resume.ts); 256/258 original lines map by indentation-insensitive line diff, 2 changed or removed upstream after the coverage baseline, 2 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
+			"mapping_status": "Copy from the H1 pin (maestro/adapters/pi/launch-resume.ts) with a recorded owned change after H2; 256/258 original lines map by indentation-insensitive line diff, 2 changed or removed after the coverage baseline, 27 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
 			"covered_lines": 258,
 			"total_lines": 258,
 			"branch_function_variants": [
@@ -514,48 +538,60 @@
 			"split_line_map": [
 				{
 					"source_start": 1,
-					"source_end": 48,
+					"source_end": 39,
 					"destination": "maestro/adapters/pi/launch.ts",
 					"destination_start": 1
+				},
+				{
+					"source_start": 40,
+					"source_end": 48,
+					"destination": "maestro/adapters/pi/launch.ts",
+					"destination_start": 41
 				},
 				{
 					"source_start": 50,
 					"source_end": 51,
 					"destination": "maestro/adapters/pi/launch.ts",
-					"destination_start": 50
+					"destination_start": 51
 				},
 				{
 					"source_start": 52,
 					"source_end": 62,
 					"destination": "maestro/adapters/pi/launch.ts",
-					"destination_start": 53
+					"destination_start": 54
 				},
 				{
 					"source_start": 63,
 					"source_end": 110,
 					"destination": "maestro/adapters/pi/launch.ts",
-					"destination_start": 65
+					"destination_start": 66
 				},
 				{
 					"source_start": 111,
+					"source_end": 803,
+					"destination": "maestro/adapters/pi/launch.ts",
+					"destination_start": 115
+				},
+				{
+					"source_start": 804,
 					"source_end": 832,
 					"destination": "maestro/adapters/pi/launch.ts",
-					"destination_start": 114
+					"destination_start": 814
 				},
 				{
 					"source_start": 834,
 					"source_end": 913,
 					"destination": "maestro/adapters/pi/launch.ts",
-					"destination_start": 837
+					"destination_start": 844
 				},
 				{
 					"source_start": 919,
 					"source_end": 1044,
 					"destination": "maestro/adapters/pi/launch.ts",
-					"destination_start": 925
+					"destination_start": 932
 				}
 			],
-			"mapping_status": "M3 copy from the H1 pin (maestro/adapters/pi/launch.ts); 1037/1044 original lines map by indentation-insensitive line diff, 7 changed or removed upstream after the coverage baseline, 13 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
+			"mapping_status": "Copy from the H1 pin (maestro/adapters/pi/launch.ts) with a recorded owned change after H2; 1037/1044 original lines map by indentation-insensitive line diff, 7 changed or removed after the coverage baseline, 20 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
 			"covered_lines": 1035,
 			"total_lines": 1044,
 			"branch_function_variants": [
@@ -1168,12 +1204,18 @@
 			"split_line_map": [
 				{
 					"source_start": 1,
-					"source_end": 1057,
+					"source_end": 139,
 					"destination": "maestro/adapters/pi/session.ts",
 					"destination_start": 1
+				},
+				{
+					"source_start": 140,
+					"source_end": 1057,
+					"destination": "maestro/adapters/pi/session.ts",
+					"destination_start": 188
 				}
 			],
-			"mapping_status": "M3 whole-file identity copy from the H1 pin; no source lines split or omitted. M3 per-file gate: scripts/test-unit.ts --coverage.",
+			"mapping_status": "Copy from the H1 pin (maestro/adapters/pi/session.ts) with a recorded owned change after H2; 1057/1057 original lines map by indentation-insensitive line diff, 0 changed or removed after the coverage baseline, 48 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
 			"covered_lines": 1022,
 			"total_lines": 1057,
 			"branch_function_variants": [
