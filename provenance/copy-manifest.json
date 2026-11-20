@@ -170,14 +170,22 @@
 			"source": "maestro/adapters/pi/launch-resume.ts",
 			"destination": "maestro/adapters/pi/launch-resume.ts",
 			"blob": "f282c8e8552990f1abaae8b8364f3a5ea491d0a2",
-			"archive": "provenance/upstream/maestro/adapters/pi/launch-resume.ts"
+			"archive": "provenance/upstream/maestro/adapters/pi/launch-resume.ts",
+			"owned_change": {
+				"reason": "Store and reuse the exact system-prompt mode and content when resuming a Pi child.",
+				"blob": "7aaa24a8c571fd8f8150f47b0102ec7985809b04"
+			}
 		},
 		{
 			"kind": "copy",
 			"source": "maestro/adapters/pi/launch.ts",
 			"destination": "maestro/adapters/pi/launch.ts",
 			"blob": "16c33eddff2f333e3dfa99031240b105078a6ac1",
-			"archive": "provenance/upstream/maestro/adapters/pi/launch.ts"
+			"archive": "provenance/upstream/maestro/adapters/pi/launch.ts",
+			"owned_change": {
+				"reason": "Store and reuse the exact system-prompt mode and content when resuming a Pi child.",
+				"blob": "6fb7b6f3a029a80c71dedeee7b2a5f920ce02c5e"
+			}
 		},
 		{
 			"kind": "copy",
@@ -318,7 +326,11 @@
 			"source": "maestro/adapters/pi/session.ts",
 			"destination": "maestro/adapters/pi/session.ts",
 			"blob": "1c2ae82a6f41f2fd03afbe08603d99c15310c49c",
-			"archive": "provenance/upstream/maestro/adapters/pi/session.ts"
+			"archive": "provenance/upstream/maestro/adapters/pi/session.ts",
+			"owned_change": {
+				"reason": "Store and reuse the exact system-prompt mode and content when resuming a Pi child.",
+				"blob": "61197c6cdcc0b24fbc35f89f2f3fe1d1138df0fd"
+			}
 		},
 		{
 			"kind": "copy",
