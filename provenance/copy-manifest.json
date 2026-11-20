@@ -142,7 +142,11 @@
 			"source": "maestro/adapters/pi/child/protocol.ts",
 			"destination": "maestro/adapters/pi/child/protocol.ts",
 			"blob": "3b1058a3120ed01c98681e1c316d02dc078d1402",
-			"archive": "provenance/upstream/maestro/adapters/pi/child/protocol.ts"
+			"archive": "provenance/upstream/maestro/adapters/pi/child/protocol.ts",
+			"owned_change": {
+				"reason": "Capture and verify a Pi process identity on macOS as well as Linux; retain launch capture diagnostics.",
+				"blob": "2b9e0f4a4714b6fc19d47fc5e08d41d7afae2ae1"
+			}
 		},
 		{
 			"kind": "copy",
@@ -163,7 +167,11 @@
 			"source": "maestro/adapters/pi/launch-operations.ts",
 			"destination": "maestro/adapters/pi/launch-operations.ts",
 			"blob": "36ee2536a0a37fa1a839f669e588849e4d821b26",
-			"archive": "provenance/upstream/maestro/adapters/pi/launch-operations.ts"
+			"archive": "provenance/upstream/maestro/adapters/pi/launch-operations.ts",
+			"owned_change": {
+				"reason": "Capture and verify a Pi process identity on macOS as well as Linux; retain launch capture diagnostics.",
+				"blob": "c798c96a5fbbb0e97b35abc2df4cf7b110c56af2"
+			}
 		},
 		{
 			"kind": "copy",
@@ -177,7 +185,11 @@
 			"source": "maestro/adapters/pi/launch.ts",
 			"destination": "maestro/adapters/pi/launch.ts",
 			"blob": "16c33eddff2f333e3dfa99031240b105078a6ac1",
-			"archive": "provenance/upstream/maestro/adapters/pi/launch.ts"
+			"archive": "provenance/upstream/maestro/adapters/pi/launch.ts",
+			"owned_change": {
+				"reason": "Capture and verify a Pi process identity on macOS as well as Linux; retain launch capture diagnostics.",
+				"blob": "3e1cce8f71db6f3845c163ac5e66940e6d3b9ac4"
+			}
 		},
 		{
 			"kind": "copy",
@@ -288,8 +300,8 @@
 			"blob": "b329ef6e037d3f9874d1999a616b451fbb210633",
 			"archive": "provenance/upstream/maestro/adapters/pi/pi-harness-adapter.ts",
 			"owned_change": {
-				"reason": "#149: a non-zero exit with no errorMessage and no session messages reads the terminal tail into exitOutput, the read bounded by EXIT_OUTPUT_READ_TIMEOUT_MS. P3-4: every execution effect (launch, inspect, read, prompt, interrupt, stop, reconcile) goes through one ExecProvider; the terminal mechanics (pane close/absence, retained-worktree process stop, Core native terminate) moved unchanged into TerminalExecProvider, the default when no provider is supplied. Capability refusals precede acquisition; the handle is projected from the provider's handle. PR #7 review: the provider's top-level launchFailure is recorded on the owned record at tracking; the acquisition signal is passed as the launch control; completion waits on the provider's supervise (or observe) instead of the injected pane supervisor, which moved into TerminalExecProvider; the adapter is generic over PiExecution, whose terminal-only fields are optional.",
-				"blob": "24651ff424c6d698de2e4a07d9d3d1f8aa6b7ed9"
+				"reason": "#149: a non-zero exit with no errorMessage and no session messages reads the terminal tail into exitOutput, the read bounded by EXIT_OUTPUT_READ_TIMEOUT_MS. P3-4: every execution effect (launch, inspect, read, prompt, interrupt, stop, reconcile) goes through one ExecProvider; the terminal mechanics (pane close/absence, retained-worktree process stop, Core native terminate) moved unchanged into TerminalExecProvider, the default when no provider is supplied. Capability refusals precede acquisition; the handle is projected from the provider's handle. PR #7 review: the provider's top-level launchFailure is recorded on the owned record at tracking; the acquisition signal is passed as the launch control; completion waits on the provider's supervise (or observe) instead of the injected pane supervisor, which moved into TerminalExecProvider; the adapter is generic over PiExecution, whose terminal-only fields are optional. | Capture and verify a Pi process identity on macOS as well as Linux; retain launch capture diagnostics.",
+				"blob": "f2259c0f5a7c01fa2eabd6e9621892faf8d7afc1"
 			}
 		},
 		{
@@ -297,7 +309,11 @@
 			"source": "maestro/adapters/pi/process-identity.ts",
 			"destination": "maestro/adapters/pi/process-identity.ts",
 			"blob": "5704a0f66be6d43d8d82a7b657f37ab1064ff3c8",
-			"archive": "provenance/upstream/maestro/adapters/pi/process-identity.ts"
+			"archive": "provenance/upstream/maestro/adapters/pi/process-identity.ts",
+			"owned_change": {
+				"reason": "Capture and verify a Pi process identity on macOS as well as Linux; retain launch capture diagnostics.",
+				"blob": "7eaae180e29d703d4414abfa892de3c917b12246"
+			}
 		},
 		{
 			"kind": "copy",
