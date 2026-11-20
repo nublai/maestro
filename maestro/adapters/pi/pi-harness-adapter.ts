@@ -41,7 +41,7 @@ import type { FileWakeRegistry } from "../../core/wake.ts";
 import type { SupervisionCoordinator } from "../../core/supervision.ts";
 import {
 	judgeProcessIdentity,
-	linuxProcessProbe,
+	hostProcessProbe,
 	type ProcessIdentityProbe,
 } from "./process-identity.ts";
 import type { PiLaunchOperations } from "./launch-operations.ts";
@@ -514,7 +514,7 @@ export class PiHarnessAdapter<Child extends PiExecution = PiRunningChild>
 							child.processIdentity
 								? judgeProcessIdentity(
 										child.processIdentity,
-										this.options.processProbe ?? linuxProcessProbe,
+										this.options.processProbe ?? hostProcessProbe,
 									).kind
 								: "unknown",
 						waitForNextCheck: supervision.wait,
