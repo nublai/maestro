@@ -413,6 +413,18 @@ export class PiHarnessAdapter<Child extends PiExecution = PiRunningChild>
 		const report = await this.exec.stop(this.execHandle(child));
 		if (report.termination === "unconfirmed") throw report.error;
 	}
+	async confirmTerminated(handle: AgentHandle): Promise<boolean> {
+		let child: Child;
+		try {
+			child = this.getRunningChild(handle);
+		} catch {
+			return false;
+		}
+		return (
+			(await this.exec.confirmTerminated?.(this.execHandle(child))) ?? false
+		);
+	}
+
 	async readOutput(handle: AgentHandle, lines?: number): Promise<string> {
 		const child = this.getRunningChild(handle);
 		return this.exec.read(this.execHandle(child), lines);

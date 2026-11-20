@@ -786,6 +786,27 @@ registerExecProviderConformance(
 );
 
 describe("ExecProvider seam", () => {
+	it("confirms native termination from observation without stopping or closing the pane", async () => {
+		const parent = parentFixture();
+		const surface = new FakeCoreSurface();
+		const terminal = productionTerminal(parent, surface);
+		try {
+			const { adapter } = terminal.boundary;
+			const handle = await terminal.boundary.spawn();
+			const id = adapter.getRunningChild(handle).surface;
+			assert.equal(await adapter.confirmTerminated(handle), false);
+			surface.states.set(id, { kind: "unavailable" });
+			assert.equal(await adapter.confirmTerminated(handle), false);
+			surface.states.set(id, { kind: "finished", exitCode: 143 });
+			assert.equal(await adapter.confirmTerminated(handle), true);
+			surface.states.delete(id);
+			assert.equal(await adapter.confirmTerminated(handle), true);
+			assert.equal((await surface.inspectSurface(id)).kind, "present");
+		} finally {
+			terminal.dispose();
+		}
+	});
+
 	it("terminal capabilities: Herdr supports every request; Core keeps its refusal text", () => {
 		const legacy = new TerminalExecProvider({
 			surface: new FakeSurfaceProvider(),

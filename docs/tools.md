@@ -435,15 +435,15 @@ The cancel intent is recorded before anything is aborted or killed. From then on
 | --- | --- |
 | `confirmed` | Termination is confirmed. One cancelled result is delivered automatically. |
 | `requested` | A launch or fallback acquisition is still in flight. Its owner is terminated as soon as it is acquired; no later model is tried. |
-| `unconfirmed` | Termination failed (the error is reported). The run stays live, owned, and supervised, and nothing is delivered or cleaned up. Call `subagent_cancel` again to retry. |
+| `unconfirmed` | Termination is not yet confirmed (the error is reported). The run stays owned and supervised until the host can confirm it has stopped. Call `subagent_cancel` again to retry the stop. |
 | `already-terminal` | The run already took a natural result or was retired; nothing was cancelled. |
 
 If a watcher fails while cancellation remains unconfirmed, the host retries
 observation of the same owner with bounded backoff. A failed watcher is not exit
 evidence and does not trigger another kernel termination attempt. Once real
-completion evidence arrives, the producer makes one confirmation attempt. If
-termination is still unconfirmed, an explicit cancel retry or shutdown releases
-that wait.
+completion evidence arrives, the producer makes one confirmation attempt.
+While a terminal cancel is unconfirmed, the host also checks about every two seconds for the same evidence that would confirm a stop, without sending a signal or closing a pane.
+If the host observes termination, it delivers the cancelled result without an explicit retry.
 
 Repeated cancels join an in-flight termination and keep the first request time. The parent receives exactly one `subagent_result` whose details carry `error: "cancelled"` and a `cancellation` record (`requestedAt`, `termination`, `confirmedAt`). Its message says the run was cancelled and lists any models already attempted. It is never presented as a provider failure. A child's natural result taken before the cancel stays authoritative. A cancel while a provider error is still eligible for fallback wins and stops that fallback. A cancel while the parent re-runs an [accept check](#accept-checks) stops that check and delivers the cancelled result with `Check: skipped (cancelled)`.
 

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Terminal cancellation
+
+- An unconfirmed cancel now settles if the host later observes that the child has stopped.
+  The host checks about every two seconds using the same evidence as a stop, without sending another signal or closing a pane.
+
 ### Bound checks and failure and cancel hand-offs (P3-10)
 
 Opt-in by explicit composition (`WorkerRunChecks` as a worker parent's run

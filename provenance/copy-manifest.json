@@ -55,7 +55,11 @@
 			"destination": "docs/tools.md",
 			"blob": "edfd04d261745a323a919474557e3084a97f459d",
 			"archive": "provenance/upstream/docs/tools.md",
-			"classification": "split"
+			"classification": "split",
+			"owned_change": {
+				"reason": "Observe later termination after an unconfirmed cancel without signalling again.",
+				"blob": "d548ab6876529a5499dcc1bea2f81071fb21ebc7"
+			}
 		},
 		{
 			"kind": "copy",
@@ -288,8 +292,8 @@
 			"blob": "b329ef6e037d3f9874d1999a616b451fbb210633",
 			"archive": "provenance/upstream/maestro/adapters/pi/pi-harness-adapter.ts",
 			"owned_change": {
-				"reason": "#149: a non-zero exit with no errorMessage and no session messages reads the terminal tail into exitOutput, the read bounded by EXIT_OUTPUT_READ_TIMEOUT_MS. P3-4: every execution effect (launch, inspect, read, prompt, interrupt, stop, reconcile) goes through one ExecProvider; the terminal mechanics (pane close/absence, retained-worktree process stop, Core native terminate) moved unchanged into TerminalExecProvider, the default when no provider is supplied. Capability refusals precede acquisition; the handle is projected from the provider's handle. PR #7 review: the provider's top-level launchFailure is recorded on the owned record at tracking; the acquisition signal is passed as the launch control; completion waits on the provider's supervise (or observe) instead of the injected pane supervisor, which moved into TerminalExecProvider; the adapter is generic over PiExecution, whose terminal-only fields are optional.",
-				"blob": "24651ff424c6d698de2e4a07d9d3d1f8aa6b7ed9"
+				"reason": "#149: a non-zero exit with no errorMessage and no session messages reads the terminal tail into exitOutput, the read bounded by EXIT_OUTPUT_READ_TIMEOUT_MS. P3-4: every execution effect (launch, inspect, read, prompt, interrupt, stop, reconcile) goes through one ExecProvider; the terminal mechanics (pane close/absence, retained-worktree process stop, Core native terminate) moved unchanged into TerminalExecProvider, the default when no provider is supplied. Capability refusals precede acquisition; the handle is projected from the provider's handle. PR #7 review: the provider's top-level launchFailure is recorded on the owned record at tracking; the acquisition signal is passed as the launch control; completion waits on the provider's supervise (or observe) instead of the injected pane supervisor, which moved into TerminalExecProvider; the adapter is generic over PiExecution, whose terminal-only fields are optional. | Observe later termination after an unconfirmed cancel without signalling again.",
+				"blob": "80cf222be9ea3461d74c67e873939692153946c5"
 			}
 		},
 		{
@@ -469,7 +473,11 @@
 			"source": "maestro/core/harness-adapter.ts",
 			"destination": "maestro/core/harness-adapter.ts",
 			"blob": "b2148810e1ede34b515b10e66438b0a467d725d7",
-			"archive": "provenance/upstream/maestro/core/harness-adapter.ts"
+			"archive": "provenance/upstream/maestro/core/harness-adapter.ts",
+			"owned_change": {
+				"reason": "Observe later termination after an unconfirmed cancel without signalling again.",
+				"blob": "118e2e4878014dabd087e8ee988c8aff57f9d01c"
+			}
 		},
 		{
 			"kind": "copy",
@@ -584,8 +592,8 @@
 			"blob": "8cd2d264f055d6e831ed6262c4b4e391375ea361",
 			"archive": "provenance/upstream/maestro/core/types.ts",
 			"owned_change": {
-				"reason": "#149: CompletionEvidence.exitOutput carries a child's last terminal lines when it fails before its session starts.",
-				"blob": "c67009368ca94e3fd1ae894cc6cc699b23f13809"
+				"reason": "#149: CompletionEvidence.exitOutput carries a child's last terminal lines when it fails before its session starts. | Observe later termination after an unconfirmed cancel without signalling again.",
+				"blob": "10c3b7ee2dc630512fb7033e88e904dda6ba8ddc"
 			}
 		},
 		{
@@ -663,8 +671,8 @@
 			"blob": "38ce85d8dfcc8bdb09efda9cca40c755a23f8eaf",
 			"archive": "provenance/upstream/maestro/runtime/pi-run-session-types.ts",
 			"owned_change": {
-				"reason": "P3-8: DefaultRunSessionOptions gains the optional outcomeStore.",
-				"blob": "52dbc676effc684cfbdc4b54a5cd7efa5fab0a03"
+				"reason": "P3-8: DefaultRunSessionOptions gains the optional outcomeStore. | Observe later termination after an unconfirmed cancel without signalling again.",
+				"blob": "96ab54b08135a943be84e2e820e79f695f75ff73"
 			}
 		},
 		{
@@ -675,8 +683,8 @@
 			"archive": "provenance/upstream/maestro/runtime/pi-run-session.ts",
 			"classification": "split",
 			"owned_change": {
-				"reason": "#149: the host summary of such an exit appends the relayed exitOutput. P3-8: DefaultRunSessionOptions.outcomeStore passes to the kernel and stays fixed across reloads (a different instance refuses); describeOutcome supplies the bounded completion (summary or help text, verdict, worktree subject, runtime facts); the cancel presentation adjustment moved into settledCompletion, shared by describeOutcome and onSettled.",
-				"blob": "b74df20ecf884578db054aaa9f41c33755319adc"
+				"reason": "#149: the host summary of such an exit appends the relayed exitOutput. P3-8: DefaultRunSessionOptions.outcomeStore passes to the kernel and stays fixed across reloads (a different instance refuses); describeOutcome supplies the bounded completion (summary or help text, verdict, worktree subject, runtime facts); the cancel presentation adjustment moved into settledCompletion, shared by describeOutcome and onSettled. | Observe later termination after an unconfirmed cancel without signalling again.",
+				"blob": "e26274be78ff95df9171dcf35d618d502b9cc3a5"
 			}
 		},
 		{
@@ -686,8 +694,8 @@
 			"blob": "2d0f444debb54698df366f1486cffff724db76bd",
 			"archive": "provenance/upstream/maestro/runtime/run-session.ts",
 			"owned_change": {
-				"reason": "P3-8: an optional injected OutcomeStore. With it, each attempt is recorded before its acquisition, FinalizeControl.recordCheck records a check's subject before it runs, and a finalized result is committed (one durable record) before delivery or retirement; dispatching is durable before onSettled, which then settles admitted (process-local), suppressed or uncertain. A failed commit keeps the run owned, undelivered and its surfaces retained; the next supervise retries only the commit. recordCheck rejects when the subject is not durable, so the check never runs. Suppression of a finalized result (before or during its commit, or after its dispatch mark) commits it and withdraws it as suppressed, never sending it. Only a run whose completion wait suppression ended before any result (tracked explicitly, never inferred from the result shape; a finalized failure without evidence is still committed and withdrawn) closes its recorded attempts; interrupted verification, a failed finalization and a result that could not be saved keep them open as recovery evidence. Without a store the delivery path is the original code. P3-9: an optional parentAdmission (receipt-backed outbox, only with a store): the committed outcome carries its exact envelope and a delivery ID stable across commit retries, and is handed to the outbox, which owns its delivery; onSettled is then a settled notification only. Without it the P3-8 path is unchanged. P3-10: an optional persistCancelIntent hook, a mandatory durability gate in the cancellation path (not the presentation-only onCancelState): before each owned kill a cancel leads to, it durably records the cancel intent; a throw or rejection sends no kill, leaves the cancel unconfirmed with the failure as its error and the run live and retryable. Without the hook the kill path is the original code.",
-				"blob": "727e53b50b0081e19e3c6bfc121ca72a43f0ffe5"
+				"reason": "P3-8: an optional injected OutcomeStore. With it, each attempt is recorded before its acquisition, FinalizeControl.recordCheck records a check's subject before it runs, and a finalized result is committed (one durable record) before delivery or retirement; dispatching is durable before onSettled, which then settles admitted (process-local), suppressed or uncertain. A failed commit keeps the run owned, undelivered and its surfaces retained; the next supervise retries only the commit. recordCheck rejects when the subject is not durable, so the check never runs. Suppression of a finalized result (before or during its commit, or after its dispatch mark) commits it and withdraws it as suppressed, never sending it. Only a run whose completion wait suppression ended before any result (tracked explicitly, never inferred from the result shape; a finalized failure without evidence is still committed and withdrawn) closes its recorded attempts; interrupted verification, a failed finalization and a result that could not be saved keep them open as recovery evidence. Without a store the delivery path is the original code. P3-9: an optional parentAdmission (receipt-backed outbox, only with a store): the committed outcome carries its exact envelope and a delivery ID stable across commit retries, and is handed to the outbox, which owns its delivery; onSettled is then a settled notification only. Without it the P3-8 path is unchanged. P3-10: an optional persistCancelIntent hook, a mandatory durability gate in the cancellation path (not the presentation-only onCancelState): before each owned kill a cancel leads to, it durably records the cancel intent; a throw or rejection sends no kill, leaves the cancel unconfirmed with the failure as its error and the run live and retryable. Without the hook the kill path is the original code. | Observe later termination after an unconfirmed cancel without signalling again.",
+				"blob": "e67e00dd5952d08d5918553cd54b20498a09d578"
 			}
 		},
 		{

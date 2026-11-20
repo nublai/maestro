@@ -388,6 +388,7 @@ export function createDefaultRunSession(
 			},
 			roles,
 			cwd: process.cwd(),
+			terminationRecheckMs: options.infrastructure?.terminationRecheckMs,
 			outcomeStore: options.outcomeStore,
 			operations: {
 				async prepare(task, role) {
