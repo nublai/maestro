@@ -767,154 +767,178 @@
 					"destination_start": 407
 				},
 				{
-					"source_start": 465,
-					"source_end": 466,
+					"source_start": 367,
+					"source_end": 367,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
 					"destination_start": 415
+				},
+				{
+					"source_start": 368,
+					"source_end": 368,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 418
+				},
+				{
+					"source_start": 461,
+					"source_end": 461,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 422
+				},
+				{
+					"source_start": 464,
+					"source_end": 465,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 425
+				},
+				{
+					"source_start": 466,
+					"source_end": 466,
+					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
+					"destination_start": 428
 				},
 				{
 					"source_start": 471,
 					"source_end": 500,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 419
+					"destination_start": 431
 				},
 				{
 					"source_start": 506,
 					"source_end": 506,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 452
+					"destination_start": 464
 				},
 				{
 					"source_start": 508,
 					"source_end": 522,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 463
+					"destination_start": 475
 				},
 				{
 					"source_start": 523,
 					"source_end": 525,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 479
+					"destination_start": 491
 				},
 				{
 					"source_start": 530,
 					"source_end": 533,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 486
+					"destination_start": 498
 				},
 				{
 					"source_start": 535,
 					"source_end": 548,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 491
+					"destination_start": 503
 				},
 				{
 					"source_start": 552,
 					"source_end": 554,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 507
+					"destination_start": 519
 				},
 				{
 					"source_start": 555,
 					"source_end": 561,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 513
+					"destination_start": 525
 				},
 				{
 					"source_start": 563,
 					"source_end": 564,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 521
+					"destination_start": 533
 				},
 				{
 					"source_start": 566,
 					"source_end": 566,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 526
+					"destination_start": 538
 				},
 				{
 					"source_start": 569,
 					"source_end": 583,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 529
+					"destination_start": 541
 				},
 				{
 					"source_start": 585,
 					"source_end": 592,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 545
+					"destination_start": 557
 				},
 				{
 					"source_start": 597,
 					"source_end": 597,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 555
+					"destination_start": 567
 				},
 				{
 					"source_start": 598,
 					"source_end": 601,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 559
+					"destination_start": 571
 				},
 				{
 					"source_start": 602,
 					"source_end": 620,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 569
+					"destination_start": 581
 				},
 				{
 					"source_start": 622,
 					"source_end": 629,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 589
+					"destination_start": 601
 				},
 				{
 					"source_start": 630,
 					"source_end": 652,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 622
+					"destination_start": 634
 				},
 				{
 					"source_start": 654,
 					"source_end": 654,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 656
+					"destination_start": 668
 				},
 				{
 					"source_start": 656,
 					"source_end": 662,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 659
+					"destination_start": 671
 				},
 				{
 					"source_start": 668,
 					"source_end": 676,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 669
+					"destination_start": 681
 				},
 				{
 					"source_start": 679,
 					"source_end": 679,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 678
+					"destination_start": 690
 				},
 				{
 					"source_start": 680,
 					"source_end": 714,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 682
+					"destination_start": 694
 				},
 				{
 					"source_start": 717,
 					"source_end": 718,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 729
+					"destination_start": 741
 				},
 				{
 					"source_start": 728,
 					"source_end": 728,
 					"destination": "maestro/adapters/pi/pi-harness-adapter.ts",
-					"destination_start": 741
+					"destination_start": 753
 				},
 				{
 					"source_start": 41,
@@ -1020,7 +1044,7 @@
 				},
 				{
 					"source_start": 364,
-					"source_end": 368,
+					"source_end": 366,
 					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
 					"destination_start": 274
 				},
@@ -1032,48 +1056,72 @@
 				},
 				{
 					"source_start": 375,
-					"source_end": 385,
+					"source_end": 375,
 					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
 					"destination_start": 286
 				},
 				{
+					"source_start": 376,
+					"source_end": 385,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 343
+				},
+				{
 					"source_start": 387,
+					"source_end": 392,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 357
+				},
+				{
+					"source_start": 403,
 					"source_end": 430,
 					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
-					"destination_start": 301
+					"destination_start": 364
 				},
 				{
 					"source_start": 431,
 					"source_end": 432,
 					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
-					"destination_start": 346
+					"destination_start": 393
 				},
 				{
 					"source_start": 434,
-					"source_end": 464,
+					"source_end": 460,
 					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
-					"destination_start": 352
+					"destination_start": 399
+				},
+				{
+					"source_start": 462,
+					"source_end": 463,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 427
+				},
+				{
+					"source_start": 470,
+					"source_end": 470,
+					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
+					"destination_start": 429
 				},
 				{
 					"source_start": 677,
 					"source_end": 677,
 					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
-					"destination_start": 392
+					"destination_start": 439
 				},
 				{
 					"source_start": 715,
 					"source_end": 716,
 					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
-					"destination_start": 398
+					"destination_start": 445
 				},
 				{
 					"source_start": 719,
 					"source_end": 727,
 					"destination": "maestro/adapters/pi/terminal-exec-provider.ts",
-					"destination_start": 402
+					"destination_start": 449
 				}
 			],
-			"mapping_status": "Copy from the H1 pin (maestro/adapters/pi/pi-harness-adapter.ts) with a recorded owned change after H2; 657/728 original lines map by indentation-insensitive line diff (138 of them moved into maestro/adapters/pi/terminal-exec-provider.ts), 71 changed or removed after the coverage baseline, 222 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
+			"mapping_status": "Copy from the H1 pin (maestro/adapters/pi/pi-harness-adapter.ts) with a recorded owned change after H2; 648/728 original lines map by indentation-insensitive line diff (125 of them moved into maestro/adapters/pi/terminal-exec-provider.ts), 80 changed or removed after the coverage baseline, 230 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
 			"covered_lines": 685,
 			"total_lines": 728,
 			"branch_function_variants": [
@@ -2406,49 +2454,49 @@
 					"source_start": 347,
 					"source_end": 443,
 					"destination": "maestro/runtime/pi-run-session.ts",
-					"destination_start": 392
+					"destination_start": 393
 				},
 				{
 					"source_start": 444,
 					"source_end": 445,
 					"destination": "maestro/runtime/pi-run-session.ts",
-					"destination_start": 495
+					"destination_start": 496
 				},
 				{
 					"source_start": 462,
 					"source_end": 506,
 					"destination": "maestro/runtime/pi-run-session.ts",
-					"destination_start": 498
+					"destination_start": 499
 				},
 				{
 					"source_start": 507,
 					"source_end": 526,
 					"destination": "maestro/runtime/pi-run-session.ts",
-					"destination_start": 544
+					"destination_start": 545
 				},
 				{
 					"source_start": 528,
 					"source_end": 580,
 					"destination": "maestro/runtime/pi-run-session.ts",
-					"destination_start": 565
+					"destination_start": 566
 				},
 				{
 					"source_start": 582,
 					"source_end": 588,
 					"destination": "maestro/runtime/pi-run-session.ts",
-					"destination_start": 619
+					"destination_start": 620
 				},
 				{
 					"source_start": 589,
 					"source_end": 724,
 					"destination": "maestro/runtime/pi-run-session.ts",
-					"destination_start": 627
+					"destination_start": 628
 				},
 				{
 					"source_start": 726,
 					"source_end": 1095,
 					"destination": "maestro/runtime/pi-run-session.ts",
-					"destination_start": 764
+					"destination_start": 765
 				},
 				{
 					"source_start": 66,
@@ -2475,7 +2523,7 @@
 					"destination_start": 168
 				}
 			],
-			"mapping_status": "Copy from the H1 pin (maestro/runtime/pi-run-session.ts) with a recorded owned change after H2; 1052/1095 original lines map by indentation-insensitive line diff (17 of them moved into maestro/runtime/pi-run-session.ts), 43 changed or removed after the coverage baseline, 98 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
+			"mapping_status": "Copy from the H1 pin (maestro/runtime/pi-run-session.ts) with a recorded owned change after H2; 1052/1095 original lines map by indentation-insensitive line diff (17 of them moved into maestro/runtime/pi-run-session.ts), 43 changed or removed after the coverage baseline, 99 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
 			"covered_lines": 1061,
 			"total_lines": 1095,
 			"branch_function_variants": [
@@ -2495,162 +2543,228 @@
 			"split_line_map": [
 				{
 					"source_start": 1,
+					"source_end": 5,
+					"destination": "maestro/runtime/run-session.ts",
+					"destination_start": 2
+				},
+				{
+					"source_start": 6,
 					"source_end": 23,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 1
+					"destination_start": 8
 				},
 				{
 					"source_start": 24,
+					"source_end": 67,
+					"destination": "maestro/runtime/run-session.ts",
+					"destination_start": 33
+				},
+				{
+					"source_start": 68,
 					"source_end": 72,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 31
+					"destination_start": 86
 				},
 				{
 					"source_start": 73,
 					"source_end": 73,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 85
+					"destination_start": 96
 				},
 				{
 					"source_start": 74,
 					"source_end": 74,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 87
+					"destination_start": 98
 				},
 				{
 					"source_start": 75,
 					"source_end": 112,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 100
+					"destination_start": 111
 				},
 				{
 					"source_start": 113,
 					"source_end": 148,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 144
+					"destination_start": 155
 				},
 				{
 					"source_start": 149,
+					"source_end": 194,
+					"destination": "maestro/runtime/run-session.ts",
+					"destination_start": 211
+				},
+				{
+					"source_start": 195,
 					"source_end": 216,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 187
+					"destination_start": 259
 				},
 				{
 					"source_start": 217,
 					"source_end": 220,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 272
+					"destination_start": 300
 				},
 				{
 					"source_start": 221,
 					"source_end": 230,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 277
+					"destination_start": 305
 				},
 				{
 					"source_start": 231,
 					"source_end": 247,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 288
+					"destination_start": 319
 				},
 				{
 					"source_start": 248,
 					"source_end": 331,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 306
+					"destination_start": 337
 				},
 				{
 					"source_start": 332,
 					"source_end": 332,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 410
+					"destination_start": 441
 				},
 				{
 					"source_start": 333,
 					"source_end": 333,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 413
+					"destination_start": 444
 				},
 				{
 					"source_start": 334,
 					"source_end": 357,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 472
+					"destination_start": 510
 				},
 				{
 					"source_start": 358,
 					"source_end": 358,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 500
+					"destination_start": 538
 				},
 				{
 					"source_start": 359,
 					"source_end": 382,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 509
+					"destination_start": 547
 				},
 				{
 					"source_start": 383,
+					"source_end": 428,
+					"destination": "maestro/runtime/run-session.ts",
+					"destination_start": 583
+				},
+				{
+					"source_start": 431,
+					"source_end": 436,
+					"destination": "maestro/runtime/run-session.ts",
+					"destination_start": 631
+				},
+				{
+					"source_start": 438,
+					"source_end": 438,
+					"destination": "maestro/runtime/run-session.ts",
+					"destination_start": 640
+				},
+				{
+					"source_start": 439,
+					"source_end": 439,
+					"destination": "maestro/runtime/run-session.ts",
+					"destination_start": 654
+				},
+				{
+					"source_start": 445,
+					"source_end": 451,
+					"destination": "maestro/runtime/run-session.ts",
+					"destination_start": 656
+				},
+				{
+					"source_start": 452,
+					"source_end": 452,
+					"destination": "maestro/runtime/run-session.ts",
+					"destination_start": 665
+				},
+				{
+					"source_start": 454,
+					"source_end": 457,
+					"destination": "maestro/runtime/run-session.ts",
+					"destination_start": 667
+				},
+				{
+					"source_start": 458,
+					"source_end": 465,
+					"destination": "maestro/runtime/run-session.ts",
+					"destination_start": 736
+				},
+				{
+					"source_start": 467,
 					"source_end": 495,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 545
+					"destination_start": 745
 				},
 				{
 					"source_start": 496,
 					"source_end": 506,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 659
+					"destination_start": 775
 				},
 				{
 					"source_start": 507,
 					"source_end": 552,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 790
+					"destination_start": 924
 				},
 				{
 					"source_start": 553,
 					"source_end": 573,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 838
+					"destination_start": 972
 				},
 				{
 					"source_start": 574,
 					"source_end": 602,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 861
+					"destination_start": 995
 				},
 				{
 					"source_start": 603,
 					"source_end": 603,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 895
+					"destination_start": 1029
 				},
 				{
 					"source_start": 604,
 					"source_end": 606,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 911
+					"destination_start": 1045
 				},
 				{
 					"source_start": 607,
 					"source_end": 710,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 916
+					"destination_start": 1050
 				},
 				{
 					"source_start": 711,
 					"source_end": 777,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 1027
+					"destination_start": 1161
 				},
 				{
 					"source_start": 779,
 					"source_end": 927,
 					"destination": "maestro/runtime/run-session.ts",
-					"destination_start": 1098
+					"destination_start": 1232
 				}
 			],
-			"mapping_status": "Copy from the H1 pin (maestro/runtime/run-session.ts) with a recorded owned change after H2; 926/927 original lines map by indentation-insensitive line diff, 1 changed or removed after the coverage baseline, 320 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
+			"mapping_status": "Copy from the H1 pin (maestro/runtime/run-session.ts) with a recorded owned change after H2; 916/927 original lines map by indentation-insensitive line diff, 11 changed or removed after the coverage baseline, 464 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
 			"covered_lines": 922,
 			"total_lines": 927,
 			"branch_function_variants": [

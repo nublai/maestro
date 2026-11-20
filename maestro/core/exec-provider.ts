@@ -209,6 +209,8 @@ export interface ExecProvider<Launch, Launched> {
 	 * only a handle this provider did not issue is refused.
 	 */
 	stop(handle: ExecHandle): Promise<ExecStopReport>;
+	/** Observe whether the target is gone using stop's evidence; never sends a stop. */
+	confirmTerminated?(handle: ExecHandle): Promise<boolean>;
 	/** Re-read the execution's own state. Pure observation. */
 	reconcile(handle: ExecHandle): Promise<ExecReconciliation>;
 }

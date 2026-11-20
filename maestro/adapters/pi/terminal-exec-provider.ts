@@ -284,6 +284,62 @@ export class TerminalExecProvider implements PiExecProvider<PiRunningChild> {
 	}
 
 	/**
+	 * Observation only, never a signal: the evidence kill() accepts, read again
+	 * later. An unconfirmed cancel polls it, so a pane closed or a Pi that
+	 * exited after the kill deadline still settles the run. A retained
+	 * child is gone when its captured identity has exited, or when its pane is
+	 * gone while that identity is not known alive; any other child, when its
+	 * pane is gone. Without an identity a live pane proves nothing.
+	 */
+	async confirmTerminated(handle: ExecHandle): Promise<boolean> {
+		const child = this.child(handle);
+		const deadline = Date.now() + (this.options.killTimeoutMs ?? 5_000);
+		const native = this.options.surface.nativeExecution;
+		if (native) {
+			const state = await settleBefore(
+				Promise.resolve()
+					.then(() => native.inspect(child.surface))
+					.catch(() => undefined),
+				deadline,
+				{ unref: true },
+			);
+			return state?.kind === "finished" || state?.kind === "missing";
+		}
+		const retained = child.worktree || !child.ownsSurface;
+		const probe = this.options.processProbe ?? linuxProcessProbe;
+		const identityBefore = retained ? child.processIdentity : undefined;
+		if (identityBefore) {
+			const state = judgeProcessIdentity(identityBefore, probe);
+			if (state.kind !== "unknown") return state.kind === "exited";
+		}
+		// Background observation never holds the process open.
+		if (!(await this.paneIsMissing(child, deadline, { unref: true })))
+			return false;
+		// The inspection awaited: an identity captured meanwhile is judged too, and
+		// confirms only while not known alive.
+		const identity = retained ? child.processIdentity : undefined;
+		return !identity || judgeProcessIdentity(identity, probe).kind !== "alive";
+	}
+	/** Herdr reports the pane absent; a failure or late answer is never "gone". */
+	private async paneIsMissing(
+		child: PiRunningChild,
+		deadline: number,
+		options: { unref?: boolean } = {},
+	): Promise<boolean> {
+		return (
+			(
+				await settleBefore(
+					// Providers may throw synchronously or reject; both mean "unknown".
+					Promise.resolve()
+						.then(() => this.options.surface.inspectSurface(child.surface))
+						.catch(() => undefined),
+					deadline,
+					options,
+				)
+			)?.kind === "missing"
+		);
+	}
+	/**
 	 * Exit evidence is only the launch-verified identity (PID + start time, on
 	 * this boot and PID namespace) no longer existing, or a gone pane while that
 	 * identity is not known alive. SIGTERM goes only to that identity,
@@ -304,16 +360,7 @@ export class TerminalExecProvider implements PiExecProvider<PiRunningChild> {
 			: "caller-provided pane";
 		const timeoutMs = this.options.killTimeoutMs ?? 5_000;
 		const deadline = Date.now() + timeoutMs;
-		const paneGone = async () =>
-			(
-				await settleBefore(
-					// Providers may throw synchronously or reject; both mean "unknown".
-					Promise.resolve()
-						.then(() => this.options.surface.inspectSurface(child.surface))
-						.catch(() => undefined),
-					deadline,
-				)
-			)?.kind === "missing";
+		const paneGone = () => this.paneIsMissing(child, deadline);
 		let identity = child.processIdentity;
 		if (!identity) {
 			// An expired capture gets one fresh attempt within this cancel's budget.
