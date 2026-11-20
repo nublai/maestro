@@ -177,7 +177,11 @@
 			"source": "maestro/adapters/pi/launch.ts",
 			"destination": "maestro/adapters/pi/launch.ts",
 			"blob": "16c33eddff2f333e3dfa99031240b105078a6ac1",
-			"archive": "provenance/upstream/maestro/adapters/pi/launch.ts"
+			"archive": "provenance/upstream/maestro/adapters/pi/launch.ts",
+			"owned_change": {
+				"reason": "Seed installed Pi project packages before dispatching a new managed worktree child.",
+				"blob": "1186da7d05c7861999d6a4932e52bc9a8402b605"
+			}
 		},
 		{
 			"kind": "copy",
@@ -614,7 +618,11 @@
 			"source": "maestro/core/worktree.ts",
 			"destination": "maestro/core/worktree.ts",
 			"blob": "edd659a9b35f98bf21a7ad8e16e0153e3c7b00ca",
-			"archive": "provenance/upstream/maestro/core/worktree.ts"
+			"archive": "provenance/upstream/maestro/core/worktree.ts",
+			"owned_change": {
+				"reason": "Seed installed Pi project packages before dispatching a new managed worktree child.",
+				"blob": "d209e0c62c08bbad3e723a6da3640c2c6215cabb"
+			}
 		},
 		{
 			"kind": "copy",
@@ -709,7 +717,11 @@
 			"source": "maestro/runtime/worktree-operations.ts",
 			"destination": "maestro/runtime/worktree-operations.ts",
 			"blob": "6477c19e280632a21fa8fa2811f2fb25babf1b3c",
-			"archive": "provenance/upstream/maestro/runtime/worktree-operations.ts"
+			"archive": "provenance/upstream/maestro/runtime/worktree-operations.ts",
+			"owned_change": {
+				"reason": "Seed installed Pi project packages before dispatching a new managed worktree child.",
+				"blob": "1028ce638751ef8a9e1601c459c1c26eecc9862f"
+			}
 		},
 		{
 			"kind": "copy",

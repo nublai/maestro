@@ -538,24 +538,42 @@
 				},
 				{
 					"source_start": 111,
-					"source_end": 832,
+					"source_end": 609,
 					"destination": "maestro/adapters/pi/launch.ts",
 					"destination_start": 114
+				},
+				{
+					"source_start": 610,
+					"source_end": 610,
+					"destination": "maestro/adapters/pi/launch.ts",
+					"destination_start": 614
+				},
+				{
+					"source_start": 611,
+					"source_end": 625,
+					"destination": "maestro/adapters/pi/launch.ts",
+					"destination_start": 627
+				},
+				{
+					"source_start": 627,
+					"source_end": 832,
+					"destination": "maestro/adapters/pi/launch.ts",
+					"destination_start": 643
 				},
 				{
 					"source_start": 834,
 					"source_end": 913,
 					"destination": "maestro/adapters/pi/launch.ts",
-					"destination_start": 837
+					"destination_start": 850
 				},
 				{
 					"source_start": 919,
 					"source_end": 1044,
 					"destination": "maestro/adapters/pi/launch.ts",
-					"destination_start": 925
+					"destination_start": 938
 				}
 			],
-			"mapping_status": "M3 copy from the H1 pin (maestro/adapters/pi/launch.ts); 1037/1044 original lines map by indentation-insensitive line diff, 7 changed or removed upstream after the coverage baseline, 13 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
+			"mapping_status": "Copy from the H1 pin (maestro/adapters/pi/launch.ts) with a recorded owned change after H2; 1036/1044 original lines map by indentation-insensitive line diff, 8 changed or removed after the coverage baseline, 27 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
 			"covered_lines": 1035,
 			"total_lines": 1044,
 			"branch_function_variants": [
@@ -2129,12 +2147,18 @@
 			"split_line_map": [
 				{
 					"source_start": 1,
-					"source_end": 95,
+					"source_end": 87,
 					"destination": "maestro/core/worktree.ts",
 					"destination_start": 1
+				},
+				{
+					"source_start": 88,
+					"source_end": 95,
+					"destination": "maestro/core/worktree.ts",
+					"destination_start": 93
 				}
 			],
-			"mapping_status": "M2 whole-file identity copy; no source lines split or omitted. M2 per-file gate: scripts/test-unit.ts --coverage.",
+			"mapping_status": "Copy from the H1 pin (maestro/core/worktree.ts) with a recorded owned change after H2; 95/95 original lines map by indentation-insensitive line diff, 0 changed or removed after the coverage baseline, 5 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
 			"covered_lines": 95,
 			"total_lines": 95,
 			"branch_function_variants": [
@@ -2720,12 +2744,42 @@
 			"split_line_map": [
 				{
 					"source_start": 1,
-					"source_end": 798,
+					"source_end": 2,
 					"destination": "maestro/runtime/worktree-operations.ts",
 					"destination_start": 1
+				},
+				{
+					"source_start": 3,
+					"source_end": 6,
+					"destination": "maestro/runtime/worktree-operations.ts",
+					"destination_start": 4
+				},
+				{
+					"source_start": 7,
+					"source_end": 8,
+					"destination": "maestro/runtime/worktree-operations.ts",
+					"destination_start": 9
+				},
+				{
+					"source_start": 9,
+					"source_end": 137,
+					"destination": "maestro/runtime/worktree-operations.ts",
+					"destination_start": 13
+				},
+				{
+					"source_start": 138,
+					"source_end": 793,
+					"destination": "maestro/runtime/worktree-operations.ts",
+					"destination_start": 381
+				},
+				{
+					"source_start": 794,
+					"source_end": 798,
+					"destination": "maestro/runtime/worktree-operations.ts",
+					"destination_start": 1038
 				}
 			],
-			"mapping_status": "M3 whole-file identity copy from the H1 pin; no source lines split or omitted. M3 per-file gate: scripts/test-unit.ts --coverage.",
+			"mapping_status": "Copy from the H1 pin (maestro/runtime/worktree-operations.ts) with a recorded owned change after H2; 798/798 original lines map by indentation-insensitive line diff, 0 changed or removed after the coverage baseline, 244 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
 			"covered_lines": 774,
 			"total_lines": 798,
 			"branch_function_variants": [
