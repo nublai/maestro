@@ -1,11 +1,15 @@
 import { execFileSync, spawn } from "node:child_process";
 import {
+	chmodSync,
 	existsSync,
 	mkdirSync,
 	renameSync,
 	lstatSync,
+	mkdtempSync,
 	readdirSync,
 	readFileSync,
+	realpathSync,
+	rmSync,
 	writeFileSync,
 	unlinkSync,
 } from "node:fs";
@@ -133,6 +137,245 @@ export async function resolveGitCommit(
 			Deadline.after(GIT_BASE_TIMEOUT_MS),
 		),
 	);
+}
+
+/** Total wall time for seeding every project package dir of one launch. */
+export const PROJECT_PACKAGE_SEED_TIMEOUT_MS = 60_000;
+
+function isRealDirectory(path: string): boolean {
+	try {
+		return lstatSync(path).isDirectory();
+	} catch {
+		return false;
+	}
+}
+
+function hasEntries(path: string): boolean {
+	try {
+		return readdirSync(path).length > 0;
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Project package dirs Pi installs under `.pi/`. `npm` is installed once it holds
+ * `node_modules`; `git` has no marker, so any content counts.
+ */
+const PROJECT_PACKAGE_DIRS: ReadonlyArray<{
+	name: string;
+	installed(dir: string): boolean;
+}> = [
+	{
+		name: "npm",
+		installed: (dir) => isRealDirectory(join(dir, "node_modules")),
+	},
+	{ name: "git", installed: hasEntries },
+];
+
+/** Copy attempts in order: an APFS/reflink clone where the host has one, then a plain copy. */
+function copyAttempts(): string[][] {
+	if (process.platform === "darwin") return [["-cR"], ["-R"]];
+	if (process.platform === "linux") return [["-R", "--reflink=auto"], ["-R"]];
+	return [["-R"]];
+}
+
+/** One owned `cp`; the deadline kills its process group so a huge tree cannot hold the launch. */
+async function runCopy(
+	args: string[],
+	source: string,
+	destination: string,
+	deadline: Deadline,
+): Promise<void> {
+	const timeout = deadline.remainingMs();
+	return new Promise((resolvePromise, reject) => {
+		const child = spawn("cp", [...args, `${source}${sep}.`, destination], {
+			stdio: ["ignore", "ignore", "pipe"],
+			detached: process.platform !== "win32",
+		});
+		let settled = false;
+		const errors: Buffer[] = [];
+		let errorBytes = 0;
+		const fail = (error: Error) => {
+			if (settled) return;
+			settled = true;
+			clearTimeout(timer);
+			reject(error);
+		};
+		const timer = setTimeout(() => {
+			try {
+				if (process.platform !== "win32" && child.pid)
+					process.kill(-child.pid, "SIGKILL");
+				else child.kill("SIGKILL");
+			} catch {
+				/* already exited */
+			}
+			child.stderr.destroy();
+			child.unref();
+			fail(new Error(`copy exceeded its ${timeout}ms budget`));
+		}, timeout);
+		child.on("error", fail);
+		child.stderr.on("data", (chunk: Buffer) => {
+			errorBytes += chunk.length;
+			if (errorBytes <= 4096) errors.push(chunk);
+		});
+		child.on("close", (code, signal) => {
+			if (settled) return;
+			if (code !== 0)
+				return fail(
+					new Error(
+						`cp exited ${code ?? signal}: ${Buffer.concat(errors).toString("utf8").trim()}`,
+					),
+				);
+			settled = true;
+			clearTimeout(timer);
+			resolvePromise();
+		});
+	});
+}
+
+function removePackageStage(path: string): void {
+	const options = {
+		recursive: true,
+		force: true,
+		maxRetries: 3,
+		retryDelay: 25,
+	};
+	try {
+		rmSync(path, options);
+	} catch (error) {
+		if (
+			!(error instanceof Error) ||
+			!("code" in error) ||
+			(error.code !== "EACCES" && error.code !== "EPERM")
+		)
+			throw error;
+		// A failed copy can leave a directory with the source's unreadable mode.
+		// Restore access only in staging; do not follow copied symbolic links.
+		const pending = [path];
+		while (pending.length) {
+			const dir = pending.pop()!;
+			const stat = lstatSync(dir, { throwIfNoEntry: false });
+			if (!stat?.isDirectory()) continue;
+			chmodSync(dir, 0o700);
+			for (const entry of readdirSync(dir, { withFileTypes: true })) {
+				if (entry.isDirectory()) pending.push(join(dir, entry.name));
+			}
+		}
+		rmSync(path, options);
+	}
+}
+
+function packageDestination(
+	path: string,
+): "empty" | "ignore-only" | "occupied" {
+	const stat = lstatSync(path, { throwIfNoEntry: false });
+	if (!stat) return "empty";
+	if (!stat.isDirectory()) return "occupied";
+	const entries = readdirSync(path, { withFileTypes: true });
+	if (!entries.length) return "empty";
+	return entries.length === 1 &&
+		entries[0].name === ".gitignore" &&
+		entries[0].isFile()
+		? "ignore-only"
+		: "occupied";
+}
+
+function publishPackageStage(staging: string, target: string): void {
+	const kind = packageDestination(target);
+	if (kind === "occupied") return;
+	if (kind === "empty") {
+		renameSync(staging, target);
+		return;
+	}
+	// Pi commonly leaves a tracked .gitignore in an otherwise empty package
+	// directory. Preserve it and publish only the entries from our staged copy.
+	const moved: string[] = [];
+	try {
+		for (const name of readdirSync(staging)) {
+			if (name === ".gitignore") continue;
+			const destination = join(target, name);
+			if (lstatSync(destination, { throwIfNoEntry: false }))
+				throw new Error(
+					`package destination appeared during seeding: ${destination}`,
+				);
+			renameSync(join(staging, name), destination);
+			moved.push(name);
+		}
+	} catch (error) {
+		for (const name of moved.reverse())
+			renameSync(join(target, name), join(staging, name));
+		throw error;
+	}
+}
+
+/**
+ * Seeds a new managed worktree with the source checkout's installed project
+ * packages (`.pi/npm`, `.pi/git`), which are gitignored and so never reach the
+ * worktree. Without them the child's Pi installs them at startup, which can
+ * outlast launch readiness. Pi reads project packages relative to its own
+ * cwd (the worktree root), even when the source project was a subdirectory.
+ * Returns warnings; it never throws.
+ */
+export async function seedProjectPackages(
+	sourceCwd: string,
+	targetCwd: string,
+): Promise<string[]> {
+	const warnings: string[] = [];
+	const sourcePi = join(sourceCwd, ".pi");
+	if (!isRealDirectory(sourcePi)) return warnings;
+	let targetPi: string;
+	try {
+		targetPi = join(realpathSync(targetCwd), ".pi");
+	} catch (error) {
+		return [`Project package seeding skipped: ${message(error)}`];
+	}
+	const deadline = Deadline.after(PROJECT_PACKAGE_SEED_TIMEOUT_MS);
+	for (const { name, installed } of PROJECT_PACKAGE_DIRS) {
+		const source = join(sourcePi, name);
+		const target = join(targetPi, name);
+		if (!isRealDirectory(source) || !installed(source)) continue;
+		let failure = "";
+		let copied = false;
+		for (const args of copyAttempts()) {
+			let staging: string | undefined;
+			let staged = false;
+			try {
+				const pi = lstatSync(targetPi, { throwIfNoEntry: false });
+				if (pi && !pi.isDirectory())
+					throw new Error("worktree .pi is not a real directory");
+				if (!pi) mkdirSync(targetPi);
+				// Never merge into an occupied checkout or follow a destination link.
+				if (packageDestination(target) === "occupied") {
+					copied = true;
+					break;
+				}
+				staging = mkdtempSync(join(targetPi, `.seed-${name}-`));
+				await runCopy(args, source, staging, deadline);
+				staged = true;
+				publishPackageStage(staging, target);
+				copied = true;
+			} catch (error) {
+				failure = message(error);
+			} finally {
+				if (staging) {
+					try {
+						removePackageStage(staging);
+					} catch (error) {
+						warnings.push(
+							`Cannot remove project package staging directory: ${message(error)}`,
+						);
+					}
+				}
+			}
+			if (copied || staged || deadline.expired()) break;
+		}
+		if (!copied)
+			warnings.push(
+				`Project package seeding failed for .pi/${name}; the child will install its own: ${failure}`,
+			);
+	}
+	return warnings;
 }
 
 export async function resolveWorktreeProvisionCwd(
@@ -791,6 +1034,7 @@ export function createWorktreeOperations(): WorktreeOperations {
 	return {
 		resolveGitCommit,
 		resolveWorktreeProvisionCwd,
+		seedProjectPackages,
 		writeWorktreeManifest,
 		captureWorktreeHandoff,
 		persistWorktreeResult,
