@@ -675,8 +675,8 @@
 			"archive": "provenance/upstream/maestro/runtime/pi-run-session.ts",
 			"classification": "split",
 			"owned_change": {
-				"reason": "#149: the host summary of such an exit appends the relayed exitOutput. P3-8: DefaultRunSessionOptions.outcomeStore passes to the kernel and stays fixed across reloads (a different instance refuses); describeOutcome supplies the bounded completion (summary or help text, verdict, worktree subject, runtime facts); the cancel presentation adjustment moved into settledCompletion, shared by describeOutcome and onSettled.",
-				"blob": "b74df20ecf884578db054aaa9f41c33755319adc"
+				"reason": "#149: the host summary of such an exit appends the relayed exitOutput. P3-8: DefaultRunSessionOptions.outcomeStore passes to the kernel and stays fixed across reloads (a different instance refuses); describeOutcome supplies the bounded completion (summary or help text, verdict, worktree subject, runtime facts); the cancel presentation adjustment moved into settledCompletion, shared by describeOutcome and onSettled. | Allow a Pi run facade to launch when a reload-adopted legacy kernel omits the acquisition signal.",
+				"blob": "95eb2565955c6916b63408014f1133ae1c69ffa3"
 			}
 		},
 		{

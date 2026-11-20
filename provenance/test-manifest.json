@@ -1063,6 +1063,7 @@
 		"test/maestro/worktree-operations.test.ts"
 	],
 	"maestro_unit_entries": [
+		"test/maestro/reload-legacy-kernel.test.ts",
 		"test/copy-fidelity.test.ts",
 		"test/scaffold.test.ts",
 		"test/test-migration.test.ts",
