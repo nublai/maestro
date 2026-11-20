@@ -2446,9 +2446,15 @@
 				},
 				{
 					"source_start": 726,
-					"source_end": 1095,
+					"source_end": 883,
 					"destination": "maestro/runtime/pi-run-session.ts",
 					"destination_start": 764
+				},
+				{
+					"source_start": 885,
+					"source_end": 1095,
+					"destination": "maestro/runtime/pi-run-session.ts",
+					"destination_start": 926
 				},
 				{
 					"source_start": 66,
@@ -2475,7 +2481,7 @@
 					"destination_start": 168
 				}
 			],
-			"mapping_status": "Copy from the H1 pin (maestro/runtime/pi-run-session.ts) with a recorded owned change after H2; 1052/1095 original lines map by indentation-insensitive line diff (17 of them moved into maestro/runtime/pi-run-session.ts), 43 changed or removed after the coverage baseline, 98 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
+			"mapping_status": "Copy from the H1 pin (maestro/runtime/pi-run-session.ts) with a recorded owned change after H2; 1051/1095 original lines map by indentation-insensitive line diff (17 of them moved into maestro/runtime/pi-run-session.ts), 44 changed or removed after the coverage baseline, 102 destination lines are post-baseline. Gate: original-floor over mapped lines; post-baseline lines reported.",
 			"covered_lines": 1061,
 			"total_lines": 1095,
 			"branch_function_variants": [
